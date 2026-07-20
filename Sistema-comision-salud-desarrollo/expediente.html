@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+ <script>
+        // 1. Verificamos la sesión inmediatamente
+        const sesion = sessionStorage.getItem('usuario_logueado');
+        
+        // 2. Si no hay sesión Y no estamos en el login, redirigimos
+        // Nota: Si tu archivo de login no está en la raíz, ajusta la ruta
+        if (!sesion && window.location.pathname !== "/login.html") {
+            window.location.replace("login.html");
+        } else {
+            // 3. Si SÍ hay sesión, cuando el HTML cargue, mostramos el cuerpo
+            document.addEventListener("DOMContentLoaded", () => {
+                document.body.style.display = "block";
+            });
+        }
+    </script>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Casos Sociales</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+*{box-sizing:border-box;font-family:'Segoe UI';}
+body{margin:0;background:#0b1220;color:white;display:flex;}
+.sidebar{width:260px;background:#0f172a;min-height:100vh;padding:20px;border-right:1px solid #1f2937;}
+.sidebar h2{margin-top:0;}
+.menu{padding:12px;background:#111827;border-radius:10px;margin-bottom:10px;cursor:pointer;}
+.menu:hover{background:#1f2937;}
+.main{flex:1;padding:30px;}
+table{width:100%;border-collapse:collapse;margin-top:20px;}
+th, td{border:1px solid #333;padding:8px;text-align:left;font-size:13px;}
+th{background:#111827;}
+td{background:#0b1220;}
+button{padding:6px 10px;border:none;border-radius:6px;background:#2563eb;color:white;cursor:pointer;margin-right:4px;}
+button:hover{opacity:.9;}
+</style>
+</head>
+<body style="display: none;">
+
+<!-- SIDEBAR -->
+<div class="sidebar">
+<h2>🏛️ Oficina Social</h2>
+<div class="menu" onclick="location.href='index.html'">📊 Dashboard</div>
+<div class="menu" onclick="location.href='nuevo-caso.html'">➕ Nuevo Caso</div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+<h2>Casos Sociales</h2>
+<table>
+<thead>
+<tr>
+<th>Nombre</th>
+<th>Cédula</th>
+<th>Teléfono</th>
+<th>Sector</th>
+<th>Canal</th>
+<th>Tipo</th>
+<th>Subtipo</th>
+<th>Detalles</th>
+<th>Medicamentos</th>
+<th>Urgencia</th>
+<th>Receta</th>
+<th>Estatus</th>
+<th>Acciones</th>
+</tr>
+</thead>
+<tbody id="tabla-casos">
+<tr><td colspan="13">Cargando...</td></tr>
+</tbody>
+</table>
+</div>
+
+<script>
+const client = supabase.createClient(
+"https://soqgmwzknfgmxefbnfgs.supabase.co",
+"sb_publishable_VytLFdygkUVqnTLWNkiM3g_75HnE8qQ"
+);
+
+// Cargar casos desde Supabase
+async function cargarCasos(){
+  const { data, error } = await client.from("casos_salud")
+    .select("*")
+    .eq("coordinacion","social")
+    .order('fecha',{ascending:false});
+
+  const tbody = document.getElementById("tabla-casos");
+  tbody.innerHTML = "";
+
+  if(error){ 
+    console.log(error); 
+    tbody.innerHTML = `<tr><td colspan="13">Error al cargar datos</td></tr>`;
+    return; 
+  }
+
+  if(data.length === 0){
+    tbody.innerHTML = `<tr><td colspan="13">No hay casos</td></tr>`;
+    return;
+  }
+
+  data.forEach(c => {
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td>${c.nombre}</td>
+      <td>${c.cedula}</td>
+      <td>${c.telefono}</td>
+      <td>${c.sector || ''}</td>
+      <td>${c.canal || ''}</td>
+      <td>${c.tipo || ''}</td>
+      <td>${c.subtipo || ''}</td>
+      <td>${c.detalles || ''}</td>
+      <td>${c.medicamentos || ''}</td>
+      <td>${c.urgencia || ''}</td>
+      <td>${c.receta || ''}</td>
+      <td>${c.estatus || ''}</td>
+      <td>
+        <button onclick="editar('${c.id}')">Editar</button>
+        <button onclick="eliminar('${c.id}')">Eliminar</button>
+        <button onclick="whatsapp('${c.telefono}')">WhatsApp</button>
+      </td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+// Funciones de botones
+function editar(id){
+  alert('Función editar pendiente: ' + id);
+  // Aquí puedes abrir modal de edición
+}
+
+async function eliminar(id){
+  if(!confirm('¿Eliminar este caso?')) return;
+  const { error } = await client.from("casos_salud").delete().eq('id', id);
+  if(error){ alert('Error al eliminar'); console.log(error); return; }
+  cargarCasos();
+}
+
+function whatsapp(telefono){
+  if(!telefono) return alert('No tiene teléfono registrado');
+  window.open(`https://wa.me/${telefono}`, '_blank');
+}
+
+// Inicializar tabla al cargar la página
+cargarCasos();
+</script>
+
+</body>
+</html>

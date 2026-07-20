@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Comisión de Salud y Desarrollo Social - Portal Oficial</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <style>
+        :root {
+            --bg-principal: #ffffff;
+            --bg-alterno: #f8fafc;
+            --texto-principal: #0f2547;
+            --texto-secundario: #475569;
+            --brand-azul: #1d3b6a;
+            --brand-bright: #0066cc;
+            --brand-lima: #deff9a;
+            --borde: #e2e8f0;
+            --card-bg: #ffffff;
+            --shadow-premium: 0 20px 40px -15px rgba(15, 37, 71, 0.08);
+        }
+
+        [data-theme="dark"] {
+            --bg-principal: #0b1329;
+            --bg-alterno: #0f172a;
+            --texto-principal: #f8fafc;
+            --texto-secundario: #94a3b8;
+            --brand-azul: #1c2541;
+            --brand-bright: #38bdf8;
+            --borde: #1e293b;
+            --card-bg: #1e293b;
+            --shadow-premium: 0 20px 40px -15px rgba(0, 0, 0, 0.5);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; transition: background-color 0.4s, border-color 0.4s, transform 0.3s; }
+        html { scroll-behavior: smooth; }
+        body { font-family: 'Inter', sans-serif; background-color: var(--bg-principal); color: var(--texto-secundario); line-height: 1.6; padding-top: 90px; }
+        h1, h2, h3 { font-family: 'Poppins', sans-serif; color: var(--texto-principal); }
+
+        /* NAVBAR EJECUTIVO MODERNO */
+        .navbar {
+            position: fixed; top: 0; left: 0; width: 100%; background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--borde); z-index: 1000; height: 90px;
+            display: flex; align-items: center; justify-content: space-between; padding: 0 6%;
+        }
+        [data-theme="dark"] .navbar { background: rgba(11, 19, 41, 0.85); }
+        
+        .nav-logo { display: flex; align-items: center; gap: 14px; text-decoration: none; }
+        .nav-logo img { height: 50px; width: auto; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.05)); }
+        .nav-logo-text { display: flex; flex-direction: column; }
+        .nav-logo-text .title { font-size: 14px; font-weight: 800; color: var(--texto-principal); letter-spacing: 0.5px; line-height: 1.2; }
+        .nav-logo-text .sub { font-size: 10px; color: var(--brand-bright); font-weight: 700; text-transform: uppercase; letter-spacing: 1px; }
+        
+        .nav-actions { display: flex; align-items: center; gap: 24px; }
+        .theme-toggle { background: none; border: none; color: var(--texto-principal); cursor: pointer; font-size: 20px; padding: 8px; }
+        
+        .btn-sistema-nav { 
+            background: linear-gradient(135deg, var(--brand-azul) 0%, #112240 100%); color: #ffffff; padding: 12px 24px; border-radius: 8px;
+            text-decoration: none; font-size: 13.5px; font-weight: 700; display: flex; align-items: center; gap: 10px;
+            box-shadow: 0 4px 12px rgba(29, 59, 106, 0.2); border: 1px solid rgba(255,255,255,0.1);
+        }
+        .btn-sistema-nav:hover { background: var(--brand-bright); transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0, 102, 204, 0.3); }
+
+        /* HERO SECTION ARQUITECTÓNICO */
+        .hero { 
+            position: relative; padding: 120px 6% 80px 6%; 
+            background: radial-gradient(circle at 90% 10%, rgba(0, 102, 204, 0.04) 0%, transparent 50%), 
+                        radial-gradient(circle at 10% 80%, rgba(222, 255, 154, 0.03) 0%, transparent 40%); 
+            text-align: left; display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 40px; align-items: center;
+        }
+        .hero-content { max-width: 750px; }
+        .hero-tag { display: inline-flex; align-items: center; gap: 8px; padding: 6px 16px; background: rgba(0,102,204,0.06); color: var(--brand-bright); font-size: 12px; font-weight: 700; border-radius: 30px; text-transform: uppercase; margin-bottom: 24px; letter-spacing: 0.5px; }
+        .hero h1 { font-size: 56px; font-weight: 800; line-height: 1.15; margin-bottom: 24px; color: var(--texto-principal); letter-spacing: -1px; }
+        .hero p { font-size: 19px; color: var(--texto-secundario); max-width: 620px; font-weight: 400; }
+        
+        /* CONTADORES PREMIUM DENTRO DEL HERO */
+        .hero-stats-panel {
+            background: var(--card-bg); border: 1px solid var(--borde); border-radius: 16px; padding: 40px;
+            box-shadow: var(--shadow-premium); display: flex; flex-direction: column; gap: 30px;
+            position: relative; overflow: hidden;
+        }
+        .hero-stats-panel::before { content: ''; position: absolute; top: 0; left: 0; width: 4px; height: 100%; background: var(--brand-bright); }
+        .panel-stat-item { display: flex; align-items: center; gap: 20px; }
+        .panel-stat-item .icon { width: 50px; height: 50px; background: rgba(0,102,204,0.05); border-radius: 10px; display: flex; align-items: center; justify-content: center; color: var(--brand-bright); font-size: 20px; }
+        .panel-stat-item .num { font-size: 38px; font-weight: 800; color: var(--texto-principal); line-height: 1; }
+        .panel-stat-item .lbl { font-size: 12px; font-weight: 600; text-transform: uppercase; color: var(--texto-secundario); letter-spacing: 0.5px; margin-top: 4px; }
+
+        /* SECCIÓN LÍNEAS DE GESTIÓN */
+        .section { padding: 120px 6%; background: var(--bg-alterno); position: relative; }
+        .section-header { text-align: center; max-width: 700px; margin: 0 auto 80px auto; }
+        .section-header h2 { font-size: 38px; font-weight: 800; margin-bottom: 16px; letter-spacing: -0.5px; }
+        .section-header p { font-size: 16px; color: var(--texto-secundario); }
+
+        .grid-moderno { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 35px; }
+        .card-premium { 
+            background: var(--card-bg); padding: 50px 40px; border-radius: 16px; border: 1px solid var(--borde); 
+            box-shadow: var(--shadow-premium); position: relative; display: flex; flex-direction: column;
+        }
+        .card-premium:hover { transform: translateY(-5px); border-color: var(--brand-bright); }
+        .card-premium .icon-wrapper { 
+            width: 60px; height: 60px; background: linear-gradient(135deg, var(--brand-azul) 0%, var(--brand-bright) 100%); 
+            border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 24px; color: #ffffff; margin-bottom: 30px; 
+            box-shadow: 0 8px 16px rgba(0,102,204,0.15);
+        }
+        .card-premium h3 { font-size: 22px; font-weight: 700; margin-bottom: 16px; }
+        .card-premium p { font-size: 15px; color: var(--texto-secundario); line-height: 1.6; }
+
+        /* SECCIÓN IDENTIDAD INSTITUCIONAL */
+        .identity-section { padding: 120px 6%; background: var(--bg-principal); display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: center; }
+        .identity-text h2 { font-size: 38px; font-weight: 800; margin-bottom: 24px; letter-spacing: -0.5px; }
+        .identity-text p { font-size: 17px; margin-bottom: 30px; }
+        .features-list { display: flex; flex-direction: column; gap: 16px; }
+        .feature-item { display: flex; align-items: center; gap: 14px; font-size: 15px; font-weight: 600; color: var(--texto-principal); }
+        .feature-item i { color: #16a34a; font-size: 18px; }
+        
+        .quote-box { 
+            background: var(--bg-alterno); padding: 50px; border-radius: 24px; border: 1px solid var(--borde);
+            position: relative; box-shadow: var(--shadow-premium);
+        }
+        .quote-box i.quote-icon { position: absolute; top: 40px; right: 40px; font-size: 60px; color: rgba(0,102,204,0.05); }
+        .quote-box p { font-size: 20px; font-style: italic; color: var(--brand-azul); font-weight: 500; line-height: 1.5; }
+        [data-theme="dark"] .quote-box p { color: #cbd5e1; }
+        .quote-box cite { display: block; margin-top: 24px; font-size: 14px; font-weight: 700; text-transform: uppercase; color: var(--brand-bright); letter-spacing: 1px; }
+
+        /* FOOTER CORPORATIVO */
+        .footer { padding: 50px 6%; border-top: 1px solid var(--borde); background: var(--bg-principal); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px; font-size: 13px; font-weight: 500; }
+
+        @media (max-width: 992px) {
+            .hero { grid-template-columns: 1fr; gap: 50px; padding-top: 80px; }
+            .identity-section { grid-template-columns: 1fr; gap: 50px; }
+        }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar">
+    <a href="#" class="nav-logo">
+        <img src="https://lh3.googleusercontent.com/d/1QpdROfMzVTZJKHmlqf8zm--u1sYTVyTT" alt="Logo Comisión">
+        <div class="nav-logo-text">
+            <span class="title">COMISIÓN DE SALUD Y</span>
+            <span class="sub">Desarrollo Social Integral</span>
+        </div>
+    </a>
+
+        <div class="nav-actions">
+            <button class="theme-toggle" id="themeBtn" onclick="toggleTheme()" title="Cambiar modo">
+                <i class="fa-solid fa-moon"></i>
+            </button>
+            <a href="login.html" class="btn-sistema-nav">
+                Ingresar al Sistema <i class="fa-solid fa-shield-halved"></i>
+            </a>
+        </div>
+    </nav>
+
+    <section class="hero" id="inicio">
+        <div class="hero-content">
+            <span class="hero-tag"><i class="fa-solid fa-circle-check"></i> Portal Oficial • Comisión de Salud</span>
+            <h1>Gestión Pública Moderna y <span style="color:var(--brand-bright)">Transparente</span></h1>
+            <p>Infraestructura tecnológica orientada a la supervisión estratégica, control institucional y canalización eficiente de las políticas asistenciales en Guarenas.</p>
+        </div>
+        
+        <div class="hero-stats-panel">
+            <div class="panel-stat-item">
+                <div class="icon"><i class="fa-solid fa-hospital"></i></div>
+                <div>
+                    <div class="num">75</div>
+                    <div class="lbl">Centros de Salud Evaluados</div>
+                </div>
+            </div>
+            <div class="panel-stat-item">
+                <div class="icon"><i class="fa-solid fa-map-location-dot"></i></div>
+                <div>
+                    <div class="num">4</div>
+                    <div class="lbl">Ejes Territoriales CDI</div>
+                </div>
+            </div>
+            <div class="panel-stat-item">
+                <div class="icon"><i class="fa-solid fa-chart-line"></i></div>
+                <div>
+                    <div class="num">100%</div>
+                    <div class="lbl">Cobertura Integral Municipal</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="section" id="gestion">
+        <div class="section-header">
+            <h2>Ejes de Coordinación Estratégica</h2>
+            <p>Estructura operativa para el procesamiento de datos y despliegue técnico institucional en beneficio del ciudadano.</p>
+        </div>
+
+        <div class="grid-moderno">
+            <div class="card-premium">
+                <div class="icon-wrapper"><i class="fa-solid fa-folder-closed"></i></div>
+                <h3>Gestión Ejecutiva</h3>
+                <p>Auditoría y procesamiento de correspondencia de despacho, control estricto de archivos digitales e históricos y emisión automatizada de informes técnicos gubernamentales.</p>
+            </div>
+            <div class="card-premium">
+                <div class="icon-wrapper"><i class="fa-solid fa-users"></i></div>
+                <h3>Articulación Política</h3>
+                <p>Vinculación permanente con las Comunas y Consejos Comunales de Guarenas, geolocalizando las estructuras de UBCh, Comunidad y Calle para respuestas unificadas.</p>
+            </div>
+            <div class="card-premium">
+                <div class="icon-wrapper"><i class="fa-solid fa-heart-pulse"></i></div>
+                <h3>Desarrollo Social</h3>
+                <p>Canalización óptima de requerimientos de salud comunitarios y atención integral al servidor público, agilizando tiempos de respuesta e insumos asignados.</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="identity-section">
+        <div class="identity-text">
+            <h2>Compromiso y Transparencia</h2>
+            <p>Diseñamos herramientas que permiten estructurar las solicitudes del territorio, facilitando el control legislativo y la ejecución de soluciones efectivas para nuestra población.</p>
+            <div class="features-list">
+                <div class="feature-item"><i class="fa-solid fa-circle-check"></i> Monitoreo constante de la red asistencial.</div>
+                <div class="feature-item"><i class="fa-solid fa-circle-check"></i> Sincronización documental en tiempo real.</div>
+                <div class="feature-item"><i class="fa-solid fa-circle-check"></i> Protección de datos e información reservada.</div>
+            </div>
+        </div>
+        
+        <div class="quote-box">
+            <i class="fa-solid fa-quote-right quote-icon"></i>
+            <p>"La salud es un derecho social fundamental que el Estado debe garantizar como parte del derecho a la vida, con equidad y justicia social."</p>
+            <cite>— Gestión Letty Bastidas</cite>
+        </div>
+    </section>
+<!-- SECCIÓN DE SEGURIDAD SÍSMICA -->
+    <section class="section" id="seguridad-sismica">
+        <div class="section-header">
+            <h2>Prevención y Seguridad Sísmica</h2>
+            <p>Protocolos de actuación y monitoreo ante eventos sísmicos en el territorio nacional.</p>
+        </div>
+
+        <div class="quote-box" style="display: flex; gap: 40px; align-items: center; text-align: left;">
+            <div>
+                <i class="fa-solid fa-house-chimney-crack" style="font-size: 48px; color: var(--brand-bright);"></i>
+            </div>
+            <div>
+                <p style="font-size: 18px; font-style: normal; color: var(--texto-principal);">
+                    Ante un evento sísmico en Venezuela, mantenga la calma, ubíquese en zonas seguras alejadas de objetos que puedan caer y siga las instrucciones de los organismos de protección civil (FUNVISIS). La preparación es la clave para salvar vidas.
+                </p>
+                <a href="http://www.funvisis.gob.ve/" target="_blank" style="color: var(--brand-bright); font-weight: 700; text-decoration: none; display: inline-block; margin-top: 15px;">
+                    Ver portal oficial FUNVISIS <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                </a>
+            </div>
+        </div>
+        <!-- TABLA DE CONTACTOS DE EMERGENCIA -->
+        <div style="margin-top: 40px; overflow-x: auto;">
+            <h3 style="margin-bottom: 20px; color: var(--texto-principal);">Contactos de Emergencia en Guarenas (Plaza)</h3>
+            <table style="width: 100%; border-collapse: collapse; background: var(--card-bg); border-radius: 12px; overflow: hidden; border: 1px solid var(--borde);">
+                <thead>
+                    <tr style="background: var(--brand-azul); color: #ffffff; text-align: left;">
+                        <th style="padding: 15px;">Servicio</th>
+                        <th style="padding: 15px;">Número de Contacto</th>
+                    </tr>
+                </thead>
+                <tbody style="color: var(--texto-secundario);">
+                    <tr style="border-bottom: 1px solid var(--borde);">
+                        <td style="padding: 15px;">Protección Civil Plaza</td>
+                        <td style="padding: 15px;">0212-361.00.00</td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid var(--borde);">
+                        <td style="padding: 15px;">Bomberos del Estado Miranda</td>
+                        <td style="padding: 15px;">0212-363.12.34</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 15px;">Policía Municipal (Plaza)</td>
+                        <td style="padding: 15px;">0212-362.45.67</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+    <footer class="footer">
+        <div>© 2026 Concejo Municipal Ambrosio Plaza. Todos los derechos reservados.</div>
+        <div style="color: var(--brand-bright);">Guarenas, Estado Miranda.</div>
+    </footer>
+
+    <script>
+        function toggleTheme() {
+            const body = document.body;
+            const icon = document.querySelector('#themeBtn i');
+            
+            if (body.getAttribute('data-theme') === 'dark') {
+                body.removeAttribute('data-theme');
+                icon.className = 'fa-solid fa-moon';
+                localStorage.setItem('theme', 'light');
+            } else {
+                body.setAttribute('data-theme', 'dark');
+                icon.className = 'fa-solid fa-sun';
+                localStorage.setItem('theme', 'dark');
+            }
+        }
+
+        document.addEventListener("DOMContentLoaded", () => {
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme === 'dark') {
+                document.body.setAttribute('data-theme', 'dark');
+                document.querySelector('#themeBtn i').className = 'fa-solid fa-sun';
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<script>
+        // 1. Verificamos la sesión inmediatamente
+        const sesion = sessionStorage.getItem('usuario_logueado');
+        
+        // 2. Si no hay sesión Y no estamos en el login, redirigimos
+        // Nota: Si tu archivo de login no está en la raíz, ajusta la ruta
+        if (!sesion && window.location.pathname !== "/login.html") {
+            window.location.replace("login.html");
+        } else {
+            // 3. Si SÍ hay sesión, cuando el HTML cargue, mostramos el cuerpo
+            document.addEventListener("DOMContentLoaded", () => {
+                document.body.style.display = "block";
+            });
+        }
+    </script>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dashboard Institucional</title>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+* { margin:0; padding:0; box-sizing:border-box; font-family:Segoe UI; }
+body { background:#0b1220; color:white; }
+.layout { display:grid; grid-template-columns:260px 1fr; min-height:100vh; }
+
+/* Sidebar */
+.sidebar { background:#0f172a; padding:20px; }
+.logo { font-size:20px; margin-bottom:20px; }
+.menu { background:#111827; padding:12px; margin-bottom:10px; border-radius:10px; cursor:pointer; }
+.menu:hover { background:#1f2937; }
+.active { border:1px solid #2563eb; }
+
+/* Main */
+.main { padding:30px; }
+.cards { display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:15px; margin-top:20px; }
+.card { background:#111827; padding:20px; border-radius:14px; }
+.section { margin-top:20px; background:#111827; padding:20px; border-radius:14px; }
+
+</style>
+</head>
+
+<body style="display: none;">
+<div class="layout">
+
+<!-- Sidebar -->
+<div class="sidebar">
+<div class="logo">🏛️ Sistema Institucional</div>
+<div id="social" class="menu">👥 Social</div>
+<div id="politica" class="menu">🏛️ Política</div>
+<div id="ejecutiva" class="menu">⚙️ Ejecutiva</div>
+<div id="logout" class="menu">🚪 Cerrar sesión</div>
+</div>
+
+<!-- Main -->
+<div class="main">
+<h1 id="title">Dashboard</h1>
+
+<div class="cards">
+<div class="card"><h3>Total Casos</h3><h1 id="total">0</h1></div>
+<div class="card"><h3>Registrados</h3><h1 id="registrados">0</h1></div>
+<div class="card"><h3>En Gestión</h3><h1 id="gestion">0</h1></div>
+<div class="card"><h3>Resueltos</h3><h1 id="resueltos">0</h1></div>
+</div>
+
+<div class="section">
+<h3>📅 Agenda</h3>
+<div id="agenda">Sin actividades</div>
+<div id="chartContainer" style="margin-top:20px;"></div>
+</div>
+
+</div>
+</div>
+
+<script>
+const client = supabase.createClient(
+"https://soqgmwzknfgmxefbnfgs.supabase.co",
+"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNvcWdtd3prbmZnbXhlZmJuZmdzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA4MTkyMzcsImV4cCI6MjA5NjM5NTIzN30.xXj_fPHCy7LgZHuUytv3bfjUtC9nNiLPTRmFV9XdUpY"
+);
+
+let userRole = null;
+let current = "social";
+let chart = null;
+
+// 🔐 Inicializar
+async function init(){
+  const { data: { session } } = await client.auth.getSession();
+  if(!session) { window.location.href="index.html"; return; }
+  const user = session.user;
+
+  // Obtener rol del usuario
+  const { data, error } = await client.from("profiles").select("role").eq("id", user.id).single();
+  if(error || !data){ await client.auth.signOut(); window.location.href="index.html"; return; }
+  userRole = data.role;
+
+  if(userRole !== "admin") current = userRole;
+
+  setupEvents();
+  load();
+  loadAgenda();
+}
+
+// Configurar eventos de menú
+function setupEvents(){
+  if(userRole === "admin"){
+    document.getElementById("social").onclick = () => changeCoord("social");
+    document.getElementById("politica").onclick = () => changeCoord("politica");
+    document.getElementById("ejecutiva").onclick = () => changeCoord("ejecutiva");
+  }
+  else{ // ocultar menús que no corresponden
+    ["social","politica","ejecutiva"].forEach(id=>{
+      if(id !== userRole) document.getElementById(id).style.display="none";
+    });
+  }
+
+  document.getElementById("logout").onclick = async () => {
+    await client.auth.signOut();
+    window.location.href="index.html";
+  };
+}
+
+// Cambiar coordinación
+function changeCoord(coord){
+  if(userRole !== "admin") return;
+  current = coord;
+  load();
+  loadAgenda();
+}
+
+// Cargar casos
+async function load(){
+  const { data=[] } = await client.from("casos_salud").select("*");
+  const filtered = userRole==="admin" ? data : data.filter(x=>x.coordinacion===current);
+
+  const total = filtered.length;
+  const reg = filtered.filter(x=>x.estatus==="Registrado").length;
+  const ges = filtered.filter(x=>x.estatus==="En gestión").length;
+  const res = filtered.filter(x=>x.estatus==="Resuelto").length;
+
+  document.getElementById("total").innerText = total;
+  document.getElementById("registrados").innerText = reg;
+  document.getElementById("gestion").innerText = ges;
+  document.getElementById("resueltos").innerText = res;
+
+  renderChart(reg, ges, res);
+}
+
+// Cargar agenda
+async function loadAgenda(){
+  const { data=[] } = await client.from("agenda_oficina").select("*").limit(5);
+  document.getElementById("agenda").innerHTML = data.length
+    ? data.map(x=>`<div style="padding:6px;border-bottom:1px solid #1f2937"><b>${x.titulo}</b><br>${x.fecha}</div>`).join("")
+    : "Sin actividades";
+}
+
+// Renderizar gráfico estable
+function renderChart(reg, ges, res){
+  const container = document.getElementById("chartContainer");
+  container.innerHTML = "";
+  const ctx = document.createElement("canvas");
+  container.appendChild(ctx);
+  if(chart) chart.destroy();
+  chart = new Chart(ctx, {
+    type:"bar",
+    data:{
+      labels:["Registrados","En Gestión","Resueltos"],
+      datasets:[{ data:[reg, ges, res], backgroundColor:["#2563eb","#f59e0b","#16a34a"] }]
+    },
+    options:{ responsive:true, maintainAspectRatio:false }
+  });
+}
+
+// Iniciar
+init();
+</script>
+</body>
+</html>

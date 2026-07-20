@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+
+<meta charset="UTF-8">
+<script>
+        // 1. Verificamos la sesión inmediatamente
+        const sesion = sessionStorage.getItem('usuario_logueado');
+        
+        // 2. Si no hay sesión Y no estamos en el login, redirigimos
+        // Nota: Si tu archivo de login no está en la raíz, ajusta la ruta
+        if (!sesion && window.location.pathname !== "/login.html") {
+            window.location.replace("login.html");
+        } else {
+            // 3. Si SÍ hay sesión, cuando el HTML cargue, mostramos el cuerpo
+            document.addEventListener("DOMContentLoaded", () => {
+                document.body.style.display = "block";
+            });
+        }
+    </script>
+<meta name="viewport"
+content="width=device-width,initial-scale=1">
+
+<title>Historial del Expediente</title>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<style>
+
+body{
+margin:0;
+background:#030d22;
+font-family:Segoe UI;
+color:white;
+}
+
+.container{
+padding:30px;
+}
+
+.card{
+background:#0b172c;
+padding:20px;
+border-radius:16px;
+margin-bottom:20px;
+}
+
+input,
+textarea{
+
+width:100%;
+padding:14px;
+
+margin-top:10px;
+
+background:#071226;
+
+color:white;
+
+border:none;
+
+border-radius:10px;
+
+}
+
+button{
+
+width:100%;
+
+padding:14px;
+
+margin-top:15px;
+
+background:#2563eb;
+
+color:white;
+
+border:none;
+
+border-radius:10px;
+
+cursor:pointer;
+
+}
+
+.item{
+
+background:#111827;
+
+padding:15px;
+
+margin-top:10px;
+
+border-radius:10px;
+
+}
+
+.fecha{
+
+font-size:12px;
+
+color:#9ca3af;
+
+}
+
+</style>
+
+</head>
+
+<body style="display: none;">
+
+<div class="container">
+
+<h1>🗂 Historial del Expediente</h1>
+
+<div class="card">
+
+<input
+id="caso"
+placeholder="ID Caso">
+
+<textarea
+id="nota"
+placeholder="Agregar seguimiento">
+</textarea>
+
+<button
+onclick="guardar()">
+
+Guardar Nota
+
+</button>
+
+</div>
+
+<div
+id="historial">
+
+</div>
+
+</div>
+
+<script>
+
+const client =
+supabase.createClient(
+
+"https://soqgmwzknfgmxefbnfgs.supabase.co",
+
+"sb_publishable_VytLFdygkUVqnTLWNkiM3g_75HnE8qQ"
+
+);
+
+async function guardar(){
+
+const caso =
+document
+.getElementById(
+"caso"
+).value;
+
+const nota =
+document
+.getElementById(
+"nota"
+).value;
+
+const { error } =
+await client
+
+.from(
+"historial_expediente"
+)
+
+.insert([{
+
+caso_id:caso,
+
+nota
+
+}]);
+
+if(error){
+
+alert(
+error.message
+);
+
+return;
+
+}
+
+document
+.getElementById(
+"nota"
+).value="";
+
+load();
+
+}
+
+async function load(){
+
+const {
+data
+}
+
+=
+await client
+
+.from(
+"historial_expediente"
+)
+
+.select("*")
+
+.order(
+"fecha",
+{
+ascending:false
+}
+
+);
+
+let html="";
+
+data.forEach(h=>{
+
+html+=`
+
+<div class="item">
+
+<div>
+
+Caso #${h.caso_id}
+
+</div>
+
+<div>
+
+${h.nota}
+
+</div>
+
+<div class="fecha">
+
+${new Date(
+h.fecha
+).toLocaleString()}
+
+</div>
+
+</div>
+
+`;
+
+});
+
+document
+.getElementById(
+"historial"
+)
+.innerHTML
+=
+html;
+
+}
+
+load();
+
+</script>
+
+</body>
+
+</html>

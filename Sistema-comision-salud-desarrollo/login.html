@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Sistema Institucional - Ingreso</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Importamos el puente de conexión seguro que creamos en js/conexion.js -->
+    <script src="js/conexion.js"></script>
+
+    <style>
+        /* ==========================================
+           PALETA DE COLORES EXTRAÍDA DE LA FOTO
+           ========================================== */
+        :root {
+            --bg-main: #f4f6f9;            /* Gris claro de fondo de pantalla */
+            --primary-blue: #0d2346;       /* Azul oscuro profundo institucional */
+            --active-blue: #1a4f9c;        /* Azul vivo para el botón principal e inputs en focus */
+            --text-muted: #7da0d0;         /* Azul grisáceo para textos secundarios menores */
+            --text-dark: #0f2547;          /* Azul muy oscuro para títulos principales */
+            --border-color: #dbe3ec;
+        }
+
+        *{
+            margin:0;
+            padding:0;
+            box-sizing:border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body{
+            background: var(--bg-main);
+            min-height:100vh;
+            display:flex;
+            justify-content:center;
+            align-items:center;
+            color:#334155;
+            padding: 20px;
+        }
+
+        /* Tarjeta de login */
+        .card{
+            width:100%;
+            max-width:420px;
+            background:white;
+            padding:40px 35px;
+            border-radius:12px;
+            border:1px solid #e2e8f0;
+            box-shadow: 0 10px 25px rgba(15, 23, 42, 0.05);
+        }
+
+        /* Contenedor del logo */
+        .logo{
+            display:flex;
+            justify-content:center;
+            margin-bottom:16px;
+        }
+
+        .logo img{
+            width:80px;
+            height:80px;
+            object-fit:contain;
+        }
+
+        /* Encabezados y marcas tipográficas */
+        .brand{
+            text-align:center;
+            font-size:10px;
+            font-weight: 700;
+            letter-spacing:1px;
+            text-transform:uppercase;
+            color: var(--active-blue);
+            margin-bottom:6px;
+        }
+
+        .institution{
+            text-align:center;
+            font-size:13px;
+            font-weight:600;
+            color: var(--primary-blue);
+            line-height:1.4;
+            margin-bottom:28px;
+        }
+
+        h2{
+            text-align:center;
+            font-size:20px;
+            font-weight:700;
+            margin-bottom:24px;
+            color: var(--text-dark);
+        }
+
+        /* Campos de entrada formulario */
+        input{
+            width:100%;
+            padding:14px;
+            margin-bottom:14px;
+            border-radius:6px;
+            border:1px solid var(--border-color);
+            background:#f8fafc;
+            font-size:14px;
+            color: #1e293b;
+            outline:none;
+            transition:.2s ease;
+        }
+
+        input:focus{
+            border-color: var(--active-blue);
+            background: white;
+            box-shadow: 0 0 0 3px rgba(26, 79, 156, 0.15);
+        }
+
+        /* Botón de Ingreso */
+        button{
+            width:100%;
+            padding:14px;
+            border:none;
+            border-radius:6px;
+            background: var(--active-blue);
+            color:white;
+            font-size:14px;
+            font-weight:600;
+            cursor:pointer;
+            transition:.2s ease;
+            box-shadow: 0 2px 4px rgba(26, 79, 156, 0.2);
+        }
+
+        button:hover{
+            background: #133d7a;
+        }
+
+        /* Estado y Alertas */
+        #status{
+            margin-top:16px;
+            text-align:center;
+            font-size:13px;
+            color: #dc2626; /* Rojo por defecto para errores */
+            font-weight: 500;
+            min-height: 20px;
+        }
+        
+        /* Clase auxiliar para mensajes informativos neutros */
+        #status.info {
+            color: #64748b; 
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="card">
+        <div class="logo">
+            <img src="https://lh3.googleusercontent.com/d/1QpdROfMzVTZJKHmlqf8zm--u1sYTVyTT" alt="Logo Comisión">
+        </div>
+        <div class="brand">Sistema Institucional</div>
+        <div class="institution">Comisión Permanente de Salud y Desarrollo Social</div>
+        <h2>Ingreso al Sistema</h2>
+        <!-- Agregamos el evento onkeydown para detectar la tecla Enter -->
+        <input id="email" type="email" placeholder="Correo institucional" onkeydown="if(event.key === 'Enter') login()">
+        <button onclick="login()">Ingresar</button>
+        <p id="status"></p>
+    </div>
+
+    <script>
+        async function login(){
+            const email = document.getElementById("email").value.trim();
+            const status = document.getElementById("status");
+
+            // Limpiamos estados anteriores
+            status.innerHTML = "";
+            status.classList.remove("info");
+
+            if(!email){
+                status.innerHTML = "Completa el campo de correo";
+                return;
+            }
+
+            // Mostramos mensaje de carga con el color gris neutro
+            status.classList.add("info");
+            status.innerHTML = "Verificando acceso...";
+
+            try {
+                // Hacemos la consulta directa a la tabla usuarios_sistema en Neon usando el conector seguro
+                const query = `
+    SELECT id, nombre, rol, coordinacion 
+    FROM usuarios_sistema 
+    WHERE LOWER(email) = LOWER($1)
+`;
+                
+                const resultados = await consultarBaseDatos(query, [email]);
+
+                if (!resultados || resultados.length === 0) {
+                    status.classList.remove("info");
+                    status.innerHTML = "Correo institucional no registrado";
+                    return;
+                }
+
+                // Extraemos el perfil del miembro del equipo encontrado
+                const perfil = resultados[0];
+                const rol = (perfil.rol || "").toLowerCase().trim();
+
+                // GUARDAR DATOS DEL USUARIO EN LA SESIÓN DEL NAVEGADOR
+                sessionStorage.setItem("usuario_nombre", (perfil.nombre || perfil.email).trim());
+                sessionStorage.setItem("usuario_coordinacion", (perfil.coordinacion || "").trim());
+                sessionStorage.setItem("usuario_rol", rol);
+                sessionStorage.setItem("usuario_logueado", "true");
+
+                // REDIRECCIÓN SEGÚN SU ROL (Sin el .html debido a las Clean URLs de Vercel)
+                if(rol === "admin"){
+                    window.location.href = "/dashboard";
+                }
+                else if(rol === "social"){
+                    window.location.href = "/social";
+                }
+                else if(rol === "politica"){
+                    window.location.href = "/politica";
+                }
+                else if(rol === "ejecutiva"){
+                    window.location.href = "/ejecutiva";
+                }
+                else {
+                    // Si tiene un rol inválido o básico, limpiamos y bloqueamos
+                    sessionStorage.removeItem("usuario_logueado");
+                    sessionStorage.removeItem("usuario_nombre");
+                    sessionStorage.removeItem("usuario_coordinacion");
+                    status.classList.remove("info");
+                    status.innerHTML = "Tu rol no tiene asignado un panel de control";
+                }
+
+            } catch (error) {
+                console.error("Error al ingresar:", error);
+                status.classList.remove("info");
+                status.innerHTML = "Error de conexión con el sistema de control";
+            }
+        }
+    </script>
+</body>
+</html>

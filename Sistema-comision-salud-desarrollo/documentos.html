@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+
+<meta charset="UTF-8">
+ <script>
+        // 1. Verificamos la sesión inmediatamente
+        const sesion = sessionStorage.getItem('usuario_logueado');
+        
+        // 2. Si no hay sesión Y no estamos en el login, redirigimos
+        // Nota: Si tu archivo de login no está en la raíz, ajusta la ruta
+        if (!sesion && window.location.pathname !== "/login.html") {
+            window.location.replace("login.html");
+        } else {
+            // 3. Si SÍ hay sesión, cuando el HTML cargue, mostramos el cuerpo
+            document.addEventListener("DOMContentLoaded", () => {
+                document.body.style.display = "block";
+            });
+        }
+    </script>
+<meta name="viewport"
+content="width=device-width,initial-scale=1">
+
+<title>Documentos del Expediente</title>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<style>
+
+body{
+margin:0;
+background:#030d22;
+font-family:Segoe UI;
+color:white;
+}
+
+.container{
+padding:30px;
+}
+
+.card{
+
+background:#0b172c;
+
+padding:20px;
+
+border-radius:16px;
+
+margin-bottom:20px;
+
+}
+
+input,
+select{
+
+width:100%;
+
+padding:12px;
+
+margin-top:10px;
+
+background:#071226;
+
+border:none;
+
+color:white;
+
+border-radius:10px;
+
+}
+
+button{
+
+width:100%;
+
+padding:14px;
+
+margin-top:15px;
+
+background:#2563eb;
+
+border:none;
+
+border-radius:10px;
+
+color:white;
+
+cursor:pointer;
+
+}
+
+table{
+
+width:100%;
+
+border-collapse:collapse;
+
+}
+
+td,
+th{
+
+padding:15px;
+
+border-bottom:1px solid #1f2937;
+
+}
+
+a{
+
+color:#60a5fa;
+
+}
+
+</style>
+
+</head>
+
+<body style="display: none;">
+
+<div class="container">
+
+<h1>📁 Documentos del Expediente</h1>
+
+<div class="card">
+
+<input
+id="caso"
+placeholder="ID Caso">
+
+<input
+id="titulo"
+placeholder="Título">
+
+<select id="tipo">
+
+<option>Informe Social</option>
+
+<option>Oficio</option>
+
+<option>Carta</option>
+
+<option>Adjunto</option>
+
+</select>
+
+<input
+id="url"
+placeholder="URL Documento">
+
+<button onclick="guardar()">
+
+Guardar Documento
+
+</button>
+
+</div>
+
+<div class="card">
+
+<table>
+
+<thead>
+
+<tr>
+
+<th>Caso</th>
+
+<th>Título</th>
+
+<th>Tipo</th>
+
+<th>Documento</th>
+
+</tr>
+
+</thead>
+
+<tbody id="tabla"></tbody>
+
+</table>
+
+</div>
+
+</div>
+
+<script>
+
+const client =
+supabase.createClient(
+
+"https://soqgmwzknfgmxefbnfgs.supabase.co",
+
+"sb_publishable_VytLFdygkUVqnTLWNkiM3g_75HnE8qQ"
+
+);
+
+async function guardar(){
+
+const caso =
+document
+.getElementById("caso")
+.value;
+
+const titulo =
+document
+.getElementById("titulo")
+.value;
+
+const tipo =
+document
+.getElementById("tipo")
+.value;
+
+const url =
+document
+.getElementById("url")
+.value;
+
+const { error } =
+await client
+
+.from(
+"documentos_expediente"
+)
+
+.insert([{
+
+caso_id:caso,
+
+titulo,
+
+tipo,
+
+archivo_url:url
+
+}]);
+
+if(error){
+
+alert(
+error.message
+);
+
+return;
+
+}
+
+alert(
+"Documento guardado"
+);
+
+load();
+
+}
+
+async function load(){
+
+const {
+data
+}
+
+=
+await client
+
+.from(
+"documentos_expediente"
+)
+
+.select("*")
+
+.order(
+"id",
+{
+ascending:false
+}
+
+);
+
+let html="";
+
+data.forEach(d=>{
+
+html+=`
+
+<tr>
+
+<td>
+${d.caso_id}
+</td>
+
+<td>
+${d.titulo}
+</td>
+
+<td>
+${d.tipo}
+</td>
+
+<td>
+
+<a
+href="${d.archivo_url}"
+target="_blank">
+
+Abrir
+
+</a>
+
+</td>
+
+</tr>
+
+`;
+
+});
+
+document
+.getElementById(
+"tabla"
+)
+.innerHTML
+=
+html;
+
+}
+
+load();
+
+</script>
+
+</body>
+
+</html>

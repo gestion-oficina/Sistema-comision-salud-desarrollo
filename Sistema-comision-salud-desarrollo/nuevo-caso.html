@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+
+<meta charset="UTF-8">
+ <script>
+        // 1. Verificamos la sesión inmediatamente
+        const sesion = sessionStorage.getItem('usuario_logueado');
+        
+        // 2. Si no hay sesión Y no estamos en el login, redirigimos
+        // Nota: Si tu archivo de login no está en la raíz, ajusta la ruta
+        if (!sesion && window.location.pathname !== "/login.html") {
+            window.location.replace("login.html");
+        } else {
+            // 3. Si SÍ hay sesión, cuando el HTML cargue, mostramos el cuerpo
+            document.addEventListener("DOMContentLoaded", () => {
+                document.body.style.display = "block";
+            });
+        }
+    </script>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<title>Nuevo Caso</title>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<style>
+
+*{
+box-sizing:border-box;
+font-family:Segoe UI;
+}
+
+body{
+margin:0;
+background:#0b1220;
+color:white;
+display:flex;
+}
+
+.sidebar{
+width:260px;
+background:#0f172a;
+padding:20px;
+min-height:100vh;
+}
+
+.menu{
+padding:12px;
+background:#111827;
+margin-bottom:10px;
+border-radius:10px;
+cursor:pointer;
+}
+
+.menu:hover{
+background:#1f2937;
+}
+
+.main{
+flex:1;
+padding:30px;
+}
+
+.card{
+background:#111827;
+padding:25px;
+border-radius:16px;
+max-width:900px;
+}
+
+.row{
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:15px;
+}
+
+label{
+display:block;
+margin-top:14px;
+color:#9ca3af;
+}
+
+input,
+select,
+textarea{
+
+width:100%;
+
+padding:12px;
+
+margin-top:6px;
+
+border-radius:10px;
+
+border:1px solid #333;
+
+background:#0b1220;
+
+color:white;
+
+}
+
+textarea{
+
+min-height:100px;
+
+}
+
+button{
+
+width:100%;
+
+margin-top:20px;
+
+padding:14px;
+
+border:none;
+
+border-radius:10px;
+
+background:#2563eb;
+
+color:white;
+
+cursor:pointer;
+
+}
+
+button:hover{
+
+opacity:.9;
+
+}
+
+@media(max-width:800px){
+
+.row{
+grid-template-columns:1fr;
+}
+
+}
+
+</style>
+
+</head>
+
+<body style="display: none;">
+
+<div class="sidebar">
+
+<h2>
+🏛 Oficina Social
+</h2>
+
+<div
+class="menu"
+onclick="location.href='dashboard.html'">
+
+📊 Dashboard
+
+</div>
+
+<div
+class="menu">
+
+➕ Nuevo Caso
+
+</div>
+
+<div
+class="menu"
+onclick="location.href='expediente.html'">
+
+📁 Expediente
+
+</div>
+
+</div>
+
+<div class="main">
+
+<div class="card">
+
+<h2>
+➕ Registro de Caso
+</h2>
+
+<label>Nombre</label>
+<input id="nombre">
+
+<div class="row">
+
+<div>
+
+<label>Cédula</label>
+
+<input id="cedula">
+
+</div>
+
+<div>
+
+<label>Teléfono</label>
+
+<input id="telefono">
+
+</div>
+
+</div>
+
+<label>Sector</label>
+<input id="sector">
+
+<label>Canal</label>
+<input id="canal">
+
+<label>Tipo</label>
+
+<select id="tipo">
+
+<option>Medicamento</option>
+<option>Examen médico</option>
+<option>Cirugía</option>
+<option>Insumos médicos</option>
+<option>Ayuda técnica</option>
+
+</select>
+
+<label>Subtipo</label>
+<input id="subtipo">
+
+<label>Detalles</label>
+<textarea id="detalles"></textarea>
+
+<label>Medicamentos</label>
+<input id="medicamentos">
+
+<label>Urgencia</label>
+
+<select id="urgencia">
+
+<option>Baja</option>
+<option>Media</option>
+<option>Alta</option>
+<option>Urgente</option>
+
+</select>
+
+<label>Estatus</label>
+
+<select id="estatus">
+
+<option>Registrado</option>
+<option>En evaluación</option>
+<option>En gestión</option>
+<option>Resuelto</option>
+
+</select>
+
+<button onclick="guardar()">
+
+Guardar Caso
+
+</button>
+
+</div>
+
+</div>
+
+<script>
+
+const client=
+supabase.createClient(
+"https://soqgmwzknfgmxefbnfgs.supabase.co",
+"sb_publishable_VytLFdygkUVqnTLWNkiM3g_75HnE8qQ"
+);
+
+verificar();
+
+async function verificar(){
+
+const {
+data:{session}
+
+}=await client
+.auth
+.getSession();
+
+if(!session){
+
+location.href=
+"index.html";
+
+}
+
+}
+
+async function guardar(){
+
+const nombre=
+document
+.getElementById("nombre")
+.value
+.trim();
+
+if(!nombre){
+
+alert(
+"Nombre obligatorio"
+);
+
+return;
+
+}
+
+const caso={
+
+nombre,
+
+cedula:
+cedula.value,
+
+telefono:
+telefono.value,
+
+sector:
+sector.value,
+
+canal:
+canal.value,
+
+tipo:
+tipo.value,
+
+subtipo:
+subtipo.value,
+
+detalles:
+detalles.value,
+
+medicamentos:
+medicamentos.value,
+
+urgencia:
+urgencia.value,
+
+estatus:
+estatus.value,
+
+coordinacion:
+"social"
+
+};
+
+console.log(
+caso
+);
+
+const {
+
+data,
+error
+
+}=await client
+
+.from(
+"casos_salud"
+)
+
+.insert(
+[caso]
+)
+
+.select();
+
+if(error){
+
+console.log(
+error
+);
+
+alert(
+error.message
+);
+
+return;
+
+}
+
+alert(
+"Caso guardado"
+);
+
+location.href=
+"expediente.html";
+
+}
+
+</script>
+
+</body>
+
+</html>

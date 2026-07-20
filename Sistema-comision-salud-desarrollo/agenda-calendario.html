@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    
+    <script>
+        // 1. Verificamos la sesión inmediatamente
+        const sesion = sessionStorage.getItem('usuario_logueado');
+        
+        // 2. Si no hay sesión Y no estamos en el login, redirigimos
+        // Nota: Si tu archivo de login no está en la raíz, ajusta la ruta
+        if (!sesion && window.location.pathname !== "/login.html") {
+            window.location.replace("login.html");
+        } else {
+            // 3. Si SÍ hay sesión, cuando el HTML cargue, mostramos el cuerpo
+            document.addEventListener("DOMContentLoaded", () => {
+                document.body.style.display = "block";
+            });
+        }
+    </script>
+    
+    <title>Tu Título</title>
+    </head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<title>Agenda Calendario</title>
+
+<link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<style>
+
+body{
+margin:0;
+font-family:Arial;
+background:#0b1220;
+color:white;
+}
+
+header{
+padding:20px;
+background:#111827;
+display:flex;
+justify-content:space-between;
+align-items:center;
+}
+
+#calendar{
+max-width:1100px;
+margin:30px auto;
+background:white;
+padding:20px;
+border-radius:12px;
+color:black;
+}
+
+.badge-social{background:#16a34a;color:white;padding:3px 6px;border-radius:6px;}
+.badge-politica{background:#d97706;color:white;padding:3px 6px;border-radius:6px;}
+.badge-ejecutiva{background:#2563eb;color:white;padding:3px 6px;border-radius:6px;}
+
+</style>
+
+</head>
+
+<body style="display: none;">
+
+<header>
+<h2>📅 Calendario Institucional</h2>
+<button onclick="location.href='dashboard.html'">⬅ Volver</button>
+</header>
+
+<div id="calendar"></div>
+
+<script>
+
+const client = supabase.createClient(
+"https://soqgmwzknfgmxefbnfgs.supabase.co",
+"sb_publishable_VytLFdygkUVqnTLWNkiM3g_75HnE8qQ"
+);
+
+document.addEventListener('DOMContentLoaded', async function() {
+
+const { data } = await client
+.from('agenda')
+.select('*');
+
+const events = data.map(item => {
+
+let color = "#2563eb";
+
+if(item.coordinacion === "social") color = "#16a34a";
+if(item.coordinacion === "politica") color = "#d97706";
+if(item.coordinacion === "ejecutiva") color = "#2563eb";
+
+return {
+title: item.titulo,
+start: item.fecha + "T" + item.hora,
+description: item.descripcion,
+backgroundColor: color,
+borderColor: color
+};
+
+});
+
+const calendarEl = document.getElementById('calendar');
+
+const calendar = new FullCalendar.Calendar(calendarEl, {
+
+initialView: 'dayGridMonth',
+
+locale: 'es',
+
+headerToolbar: {
+left: 'prev,next today',
+center: 'title',
+right: 'dayGridMonth,timeGridWeek,timeGridDay'
+},
+
+events: events,
+
+eventClick: function(info) {
+alert(
+"📌 " + info.event.title + "\n\n" +
+"📝 " + info.event.extendedProps.description
+);
+}
+
+});
+
+calendar.render();
+
+});
+
+</script>
+
+</body>
+</html>

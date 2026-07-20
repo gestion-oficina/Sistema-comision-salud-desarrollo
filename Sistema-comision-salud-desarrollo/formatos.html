@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <script>
+        // 1. Verificamos la sesión inmediatamente
+        const sesion = sessionStorage.getItem('usuario_logueado');
+        
+        // 2. Si no hay sesión Y no estamos en el login, redirigimos
+        if (!sesion && window.location.pathname !== "/login.html") {
+            window.location.replace("login.html");
+        } else {
+            // 3. Si SÍ hay sesión, cuando el HTML cargue, mostramos el cuerpo
+            document.addEventListener("DOMContentLoaded", () => {
+                document.body.style.display = "block";
+            });
+        }
+    </script>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Formatos de Oficina - Comisión de Salud</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <style>
+        /* PALETA DE COLORES CORPORATIVA INSTITUCIONAL EXACTA DE TU DASHBOARD */
+        :root {
+            --bg-main: #f4f6f9;
+            --sidebar-bg: #1d3b6a;          /* Azul marino exacto */
+            --sidebar-active: #0066cc;      /* Azul eléctrico del botón seleccionado */
+            --sidebar-text-sub: #4ba3e3;    /* Celeste claro de las coordinaciones */
+            --menu-text: #ffffff;           /* Texto blanco para los enlaces */
+            --text-dark-title: #0f2547;
+            --border-color: #cbd5e1;
+            --success-color: #16a34a;
+            --warning-color: #eab308;
+            --danger-color: #dc2626;
+        }
+
+        *{ margin:0; padding:0; box-sizing:border-box; font-family: 'Inter', sans-serif; }
+        body{ background: var(--bg-main); color:#334155; }
+
+        /* LAYOUT DINÁMICO */
+        .layout{ display:grid; grid-template-columns:280px 1fr; min-height:100vh; }
+
+        /* SIDEBAR */
+        .sidebar{ background: var(--sidebar-bg); padding:24px 0; display: flex; flex-direction: column; transition: transform 0.3s ease; }
+        .sidebar-brand { display: flex; flex-direction: column; align-items: center; text-align: center; padding: 0 16px 20px 16px; border-bottom: 1px solid rgba(255, 255, 255, 0.1); margin-bottom: 10px; }
+        .sidebar-brand h2 { font-size: 11px; color: #ffffff; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; line-height: 1.4; margin-top: 5px; }
+        .menu-category { font-size: 10.5px; font-weight: 700; color: var(--sidebar-text-sub); text-transform: uppercase; letter-spacing: 0.5px; padding: 16px 20px 6px 20px; }
+        .menu{ display: block; padding: 8px 36px; color: var(--menu-text); cursor: pointer; font-size: 13.5px; font-weight: 500; text-decoration: none; transition: all 0.2s ease; opacity: 0.9; }
+        .menu:hover{ opacity: 1; background: rgba(255, 255, 255, 0.05); }
+        .menu.active-page { background: var(--sidebar-active); color: #ffffff; font-weight: 600; border-radius: 6px; margin: 2px 14px; padding: 10px 20px; opacity: 1; box-shadow: inset 0 1px 0 rgba(255,255,255,0.15); }
+
+        /* HEADER MÓVIL */
+        .mobile-header { display: none; background: var(--sidebar-bg); color: white; padding: 14px 20px; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 1000; }
+        .menu-toggle { background: transparent; border: none; color: white; font-size: 24px; cursor: pointer; }
+
+        /* PANEL CENTRAL */
+        .main{ padding:40px; overflow-x: hidden; }
+        .main h2{ font-size: 26px; color: var(--text-dark-title); font-weight: 700; margin-bottom: 6px; }
+        .subtitle-concejala { font-size: 13px; color: #64748b; margin-bottom: 24px; font-weight: 500; }
+
+        /* CONTENEDOR ESTILO SECTION-BOX */
+        .section-box { background: white; border: 1px solid #e2e8f0; border-radius: 12px; padding: 24px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.01); }
+        .section-box h3 { font-size: 15px; font-weight: 700; color: var(--text-dark-title); margin-bottom: 16px; border-bottom: 1px solid #f1f5f9; padding-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
+
+        /* BOTONES INTERACTIVOS */
+        .btn-header { background: var(--sidebar-active); border: none; border-radius: 6px; cursor: pointer; color: white; font-size: 13px; font-weight: 600; padding: 12px 20px; transition: background 0.2s; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+        .btn-header:hover { opacity: 0.95; }
+
+        /* FORMULARIOS MODAL */
+        .modal-input { width: 100%; padding: 10px; background: #ffffff; border: 1px solid var(--border-color); border-radius: 6px; color: #334155; box-sizing: border-box; font-size: 13.5px; margin-top: 5px; }
+        .modal-input:focus { outline: 2px solid var(--sidebar-active); }
+
+        /* ETIQUETAS DE TIPO DE ARCHIVO */
+        .badge-type { padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; text-transform: uppercase; }
+
+        @media (max-width: 900px) {
+            .layout { grid-template-columns: 1fr; }
+            .mobile-header { display: flex; }
+            .sidebar { position: fixed; top: 53px; left: 0; width: 280px; height: calc(100vh - 53px); z-index: 999; transform: translateX(-100%); }
+            .sidebar.open { transform: translateX(0); }
+            .main { padding: 20px; }
+        }
+    </style>
+</head>
+
+<body style="display: none;">
+
+<div class="mobile-header">
+    <div style="font-weight:700; font-size:12px; letter-spacing:0.5px;">COMISIÓN DE SALUD</div>
+    <button class="menu-toggle" onclick="toggleMobileMenu()">☰</button>
+</div>
+
+<div class="layout">
+    <div class="sidebar" id="sidebarMenu">
+        <div class="sidebar-brand">
+            <h2>COMISIÓN PERMANENTE DE SALUD<br>Y DESARROLLO SOCIAL INTEGRAL</h2>
+        </div>
+        
+        <a class="menu" href="dashboard.html">Principal</a>
+        
+        <div class="menu-category">Coor. Ejecutiva</div>
+        <a class="menu" href="ejecutiva.html">Oficios e Informes</a>
+        <a class="menu" href="planificacion.html">Planificación Semanal</a>
+        
+        <div class="menu-category">Coor. Política</div>
+        <a class="menu" href="politica.html">Liderazgos y Comunas</a>
+        
+        <div class="menu-category">Coor. Social</div>
+        <a class="menu" href="social.html">Casos Sociales</a>
+        <a class="menu" href="red_salud.html">Red de Salud (CPT/CDI)</a>
+        
+        <div class="menu-category">Gestión Digital</div>
+        <a class="menu" href="bitacora.html">Bitácora de Eventos</a>
+        <a class="menu" href="reportes.html">📄 Reportes e Informes</a>
+        <a class="menu active-page" href="formatos.html">📁 Formatos de Oficina</a>
+
+        <div id="enlaceAuditoria" style="display: none;">
+            <a href="auditoria.html" class="menu">🛡️ Panel de Auditoría</a>
+        </div>
+
+        <script>
+            if (sessionStorage.getItem("usuario_rol") === "admin") {
+                document.getElementById("enlaceAuditoria").style.display = "block";
+            }
+        </script>
+        
+        <div style="margin-top:auto;padding:20px 14px 0 14px;border-top:1px solid rgba(255,255,255,.06);">
+            <div id="usuarioNombre" style="font-size:11px;color:#ffffff;font-weight:600;">Cargando...</div>
+            <div id="usuarioCoordinacion" style="font-size:10.5px;color:var(--sidebar-text-sub);padding-top:2px;">Cargando...</div>
+            <a class="menu" onclick="logout()" style="padding:10px 0 0 0;font-size:12px;color:#f87171;">Cerrar sesión</a>
+        </div>
+    </div>
+
+    <div class="main">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+            <div>
+                <h2>Panel de Formatos de Oficina</h2>
+                <div class="subtitle-concejala">Oficina de la Concejala Letty Bastidas — Municipio Ambrosio Plaza</div>
+            </div>
+            <button class="btn-header" onclick="abrirModalFormatos()">
+                ➕ Subir Nuevo Formato
+            </button>
+        </div>
+        
+        <div class="section-box" style="margin-top: 15px;">
+            <h3>📁 Plantillas y Formatos Disponibles</h3>
+            <table style="width: 100%; border-collapse: collapse; text-align: left; margin-top: 10px;">
+                <thead>
+                    <tr style="border-bottom: 2px solid #e2e8f0; color: #64748b; font-size: 12px; text-transform: uppercase;">
+                        <th style="padding: 12px 8px;">Nombre del Formato</th>
+                        <th style="padding: 12px 8px;">Área Asignada</th>
+                        <th style="padding: 12px 8px;">Extensión</th>
+                        <th style="padding: 12px 8px;">Descripción</th>
+                        <th style="padding: 12px 8px; text-align: right;">Acción</th>
+                    </tr>
+                </thead>
+                <tbody id="tablaFormatos" style="font-size: 13.5px; color: #334155;">
+                    <tr>
+                        <td colspan="5" style="text-align: center; padding: 30px; color: #94a3b8; font-style: italic;">
+                            Sincronizando registros con Supabase...
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div id="modalFormatos" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.4); z-index: 9999; align-items: center; justify-content: center;">
+    <div class="section-box" style="width: 100%; max-width: 460px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1);">
+        <h3 style="margin-top: 0; color: var(--text-dark-title); font-size: 18px; margin-bottom: 4px; border: none; padding: 0;">Subir Plantilla de Oficina</h3>
+        <p style="color: #64748b; font-size: 12.5px; margin-bottom: 20px;">Los documentos subidos se indexarán automáticamente en la base de datos.</p>
+        
+        <form id="uploadForm">
+            <div style="margin-bottom: 14px;">
+                <label style="font-size: 12.5px; font-weight: 600; color: #475569;">Nombre del Formato:</label>
+                <input type="text" id="nombre" class="modal-input" placeholder="Ej: Solicitud de Ayudas Médicas" required>
+            </div>
+            
+            <div style="margin-bottom: 14px;">
+                <label style="font-size: 12.5px; font-weight: 600; color: #475569;">Coordinación Directa:</label>
+                <select id="categoria" class="modal-input" required>
+                    <option value="Coordinación Executive">Coordinación Ejecutiva</option>
+                    <option value="Coordinación Política">Coordinación Política</option>
+                    <option value="Coordinación Social">Coordinación Social</option>
+                    <option value="Gestión Digital">Gestión Digital</option>
+                </select>
+            </div>
+
+            <div style="margin-bottom: 14px;">
+                <label style="font-size: 12.5px; font-weight: 600; color: #475569;">Uso o Descripción Breve:</label>
+                <input type="text" id="descripcion" class="modal-input" placeholder="Explica brevemente para qué sirve...">
+            </div>
+
+            <div style="margin-bottom: 22px;">
+                <label style="font-size: 12.5px; font-weight: 600; color: #475569; display: block; margin-bottom: 6px;">Seleccionar Archivo (Word / Excel):</label>
+                <input type="file" id="fileInput" accept=".docx, .doc, .xlsx, .xls" required style="font-size: 13px; color: #475569;">
+            </div>
+
+            <div style="text-align: right; gap: 10px; display: flex; justify-content: flex-end; border-top: 1px solid #f1f5f9; padding-top: 15px;">
+                <button type="button" onclick="cerrarModalFormatos()" style="background: #e2e8f0; color: #475569; border: none; padding: 10px 16px; border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: 600;">Cancelar</button>
+                <button type="submit" id="btnGuardar" class="btn-header" style="padding: 10px 16px;">Guardar Registro</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    // Inicialización del cliente Supabase
+    const client = supabase.createClient(
+        "https://soqgmwzknfgmxefbnfgs.supabase.co",
+        "sb_publishable_VytLFdygkUVqnTLWNkiM3g_75HnE8qQ"
+    );
+
+    // 1. CONFIGURACIÓN INICIAL AL CARGAR LA PÁGINA
+document.addEventListener("DOMContentLoaded", () => {
+    // Renderizar datos del perfil del funcionario activo en la barra lateral
+    const nombreUsuario = sessionStorage.getItem("usuario_nombre");
+    const coordinacionUsuario = sessionStorage.getItem("usuario_coordinacion");
+    
+    if (nombreUsuario) document.getElementById("usuarioNombre").textContent = nombreUsuario;
+    if (coordinacionUsuario) document.getElementById("usuarioCoordinacion").textContent = coordinacionUsuario.toUpperCase();
+
+    // Invocar la carga automática de la tabla de formatos
+    cargarFormatos();
+
+    // Escuchar el evento de envío del formulario de registro
+    const uploadForm = document.getElementById("uploadForm");
+    if (uploadForm) {
+        uploadForm.addEventListener("submit", registrarFormato);
+    }
+});
+
+// Controladores visuales del modal de la interfaz
+function abrirModalFormatos() {
+    const modal = document.getElementById("modalFormatos");
+    if (modal) modal.style.display = "flex";
+}
+
+function cerrarModalFormatos() {
+    const modal = document.getElementById("modalFormatos");
+    if (modal) {
+        modal.style.display = "none";
+        document.getElementById("uploadForm").reset();
+    }
+}
+
+/// Cargar formatos de la tabla sincronizando con tus nombres de columna reales
+async function cargarFormatos() {
+    const tablaFormatos = document.getElementById("tablaFormatos");
+    if (!tablaFormatos) return;
+
+    try {
+        const { data: formatos, error } = await client
+            .from("formatos_oficina")
+            .select("*")
+            .order("created_at", { ascending: false });
+
+        if (error) throw error;
+
+        if (!formatos || formatos.length === 0) {
+            tablaFormatos.innerHTML = `
+                <tr>
+                    <td colspan="5" style="text-align: center; padding: 30px; color: #94a3b8;">
+                        📁 No hay plantillas disponibles en el repositorio.
+                    </td>
+                </tr>`;
+            return;
+        }
+
+        tablaFormatos.innerHTML = formatos.map(f => {
+            let extStyle = "background: #e2e8f0; color: #475569; font-weight: 700; padding: 3px 8px; border-radius: 4px; font-size: 11px;";
+            if (f.tipo_archivo === "WORD") extStyle = "background: #e0f2fe; color: #0369a1; font-weight: 700; padding: 3px 8px; border-radius: 4px; font-size: 11px;";
+            if (f.tipo_archivo === "EXCEL") extStyle = "background: #dcfce7; color: #14532d; font-weight: 700; padding: 3px 8px; border-radius: 4px; font-size: 11px;";
+
+            return `
+                <tr style="border-bottom: 1px solid #e2e8f0;">
+                    <td style="padding: 12px 8px; font-weight: 600; color: #0f172a;">${f.nombre}</td>
+                    <td style="padding: 12px 8px; color: #334155;">${f.categoria || 'General'}</td>
+                    <td style="padding: 12px 8px;">
+                        <span style="${extStyle}">
+                            ${f.tipo_archivo || 'WORD'}
+                        </span>
+                    </td>
+                    <td style="padding: 12px 8px; color: #64748b; max-width: 250px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${f.descripcion || ''}">
+                        ${f.descripcion || 'Sin descripción'}
+                    </td>
+                    <td style="padding: 12px 8px; text-align: right;">
+                        <a href="${f.url_descarga || '#'}" target="_blank" style="padding: 6px 12px; background: #2563eb; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 12.5px; font-weight: 600; text-decoration: none; display: inline-block;">
+                            📥 Descargar
+                        </a>
+                    </td>
+                </tr>
+            `;
+        }).join("");
+
+    } catch (err) {
+        console.error("Error al renderizar:", err);
+        tablaFormatos.innerHTML = `<tr><td colspan="5" style="text-align: center; padding: 30px; color: #ef4444; font-weight: 600;">⚠️ Error de enlace con Supabase.</td></tr>`;
+    }
+}
+
+// Registro adaptado exactamente a las columnas de la captura: nombre, descripcion, categoria, tipo_archivo
+async function registrarFormato(event) {
+    event.preventDefault();
+
+    const btnGuardar = document.getElementById("btnGuardar");
+    const fileInput = document.getElementById("fileInput");
+    
+    const nombre = document.getElementById("nombre").value.trim();
+    const categoria = document.getElementById("categoria").value;
+    const descripcion = document.getElementById("descripcion").value.trim();
+
+    if (!fileInput.files || fileInput.files.length === 0) {
+        alert("Por favor, seleccione un documento.");
+        return;
+    }
+
+    const file = fileInput.files[0];
+    btnGuardar.disabled = true;
+    btnGuardar.innerText = "Subiendo archivo...";
+
+    try {
+        const fileExt = file.name.split('.').pop().toLowerCase();
+        let tipoExt = "WORD"; 
+        if (["xlsx", "xls"].includes(fileExt)) tipoExt = "EXCEL";
+
+        const storageFileName = `${Date.now()}_${file.name.replace(/\s+/g, '_')}`;
+
+        // Subida al Storage
+        const { data: storageData, error: storageError } = await client
+            .storage
+            .from("formatos")
+            .upload(storageFileName, file);
+
+        if (storageError) throw storageError;
+
+        const { data: urlData } = client.storage.from("formatos").getPublicUrl(storageFileName);
+        const urlDescarga = urlData.publicUrl;
+
+        // Inserción usando exactamente tus campos visibles de la captura
+        const { error: dbError } = await client
+            .from("formatos_oficina")
+            .insert([
+                {
+                    nombre: nombre,
+                    descripcion: descripcion,
+                    categoria: categoria,
+                    tipo_archivo: tipoExt,
+                    url_descarga: urlDescarga,
+                    creado_por: sessionStorage.getItem("usuario_nombre") || "Funcionario"
+                }
+            ]);
+
+        if (dbError) throw dbError;
+
+        alert("¡Formato de oficina indexado exitosamente!");
+        cerrarModalFormatos();
+        cargarFormatos();
+
+    } catch (err) {
+        console.error("Error crítico:", err);
+        alert(`No se pudo guardar el registro: ${err.message}`);
+    } finally {
+        btnGuardar.disabled = false;
+        btnGuardar.innerText = "Guardar Registro";
+    }
+}
+
+// 4. FUNCIÓN GLOBAL DE SALIDA DE SESIÓN
+async function logout(){
+    if (typeof client !== 'undefined' && client.auth) {
+        await client.auth.signOut();
+    }
+    sessionStorage.clear();
+    window.location.replace("login.html");
+}
+</script>
+
+</body>
+</html>

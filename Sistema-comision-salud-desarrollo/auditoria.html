@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+<meta charset="UTF-8">
+<script>
+const sesion = sessionStorage.getItem('usuario_logueado');
+if (!sesion) {
+    window.location.replace("login.html");
+}
+document.addEventListener("DOMContentLoaded", () => {
+    document.body.style.display = "block";
+});
+</script>
+
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Auditoría del Sistema | Comisión de Salud</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<style>
+:root{
+--bg-main:#f4f6f9;
+--sidebar-bg:#1d3b6a;
+--sidebar-active:#0066cc;
+--sidebar-text-sub:#4ba3e3;
+--menu-text:#ffffff;
+--text-dark-title:#0f2547;
+--border-color:#cbd5e1;
+}
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:'Inter',sans-serif;
+}
+
+body{
+background:var(--bg-main);
+color:#334155;
+display:none;
+}
+
+.layout{
+display:grid;
+grid-template-columns:280px 1fr;
+min-height:100vh;
+}
+
+.sidebar{
+background:var(--sidebar-bg);
+padding:24px 0;
+}
+
+.sidebar-brand{
+text-align:center;
+padding:0 16px 20px;
+border-bottom:1px solid rgba(255,255,255,.1);
+margin-bottom:10px;
+color:#fff;
+font-size:11px;
+font-weight:700;
+text-transform:uppercase;
+}
+
+.menu{
+display:block;
+padding:10px 36px;
+color:var(--menu-text);
+font-size:13.5px;
+text-decoration:none;
+opacity:.9;
+}
+
+.menu:hover{
+background:rgba(255,255,255,.08);
+}
+
+.menu.active-page{
+background:var(--sidebar-active);
+border-radius:6px;
+margin:2px 14px;
+opacity:1;
+}
+
+.main{
+padding:40px;
+}
+
+.table-container{
+background:#fff;
+border:1px solid #e2e8f0;
+border-radius:8px;
+padding:20px;
+overflow-x:auto;
+}
+
+table{
+width:100%;
+border-collapse:collapse;
+}
+
+th,td{
+padding:14px 18px;
+border-bottom:1px solid #f1f5f9;
+text-align:left;
+font-size:13px;
+}
+
+th{
+background:#f8fafc;
+color:var(--sidebar-bg);
+font-weight:700;
+text-transform:uppercase;
+font-size:11px;
+}
+
+tr:hover{
+background:#f8fafc;
+}
+
+@media(max-width:768px){
+
+.layout{
+grid-template-columns:1fr;
+}
+
+.sidebar{
+display:none;
+}
+
+.main{
+padding:15px;
+}
+
+th,td{
+font-size:12px;
+padding:10px;
+}
+}
+</style>
+</head>
+
+<body>
+
+<div class="layout">
+
+<div class="sidebar">
+<div class="sidebar-brand">
+COMISIÓN PERMANENTE DE SALUD<br>
+Y DESARROLLO SOCIAL INTEGRAL
+</div>
+
+<a class="menu" href="dashboard.html">Principal</a>
+<a class="menu" href="ejecutiva.html">Oficios e Informes</a>
+<a class="menu" href="social.html">Casos Sociales</a>
+<a class="menu active-page" href="auditoria.html">🛡️ Auditoría del Sistema</a>
+</div>
+
+<div class="main">
+
+<h2>Registro de Auditoría</h2>
+
+<p style="color:#64748b;font-size:13px;margin-bottom:24px;">
+Monitoreo de movimientos realizados dentro del sistema.
+</p>
+
+<div class="table-container">
+
+<table>
+
+<thead>
+<tr>
+<th>Fecha</th>
+<th>Usuario</th>
+<th>Acción</th>
+<th>Tabla</th>
+</tr>
+</thead>
+
+<tbody id="tbody-auditoria">
+<tr>
+<td colspan="4" style="text-align:center;">
+Cargando registros...
+</td>
+</tr>
+</tbody>
+
+</table>
+
+</div>
+
+</div>
+
+</div>
+
+<script>
+
+const client = supabase.createClient(
+"https://soqgmwzknfgmxefbnfgs.supabase.co",
+"sb_publishable_VytLFdygkUVqnTLWNkiM3g_75HnE8qQ"
+);
+
+async function cargarAuditoria(){
+
+const tbody = document.getElementById("tbody-auditoria");
+
+try{
+
+const { data: logs, error } = await client
+.from("logs_sistema")
+.select("*")
+.order("created_at",{ ascending:false });
+
+if(error) throw error;
+
+if(!logs || logs.length===0){
+
+tbody.innerHTML=`
+<tr>
+<td colspan="4" style="text-align:center;">
+No existen registros de auditoría.
+</td>
+</tr>
+`;
+
+return;
+}
+
+tbody.innerHTML = logs.map(log=>`
+
+<tr>
+<td>${new Date(log.created_at).toLocaleString('es-VE')}</td>
+<td>${log.usuario || 'Sistema'}</td>
+<td>${log.accion || '-'}</td>
+<td>${log.tabla || '-'}</td>
+</tr>
+
+`).join("");
+
+}catch(err){
+
+console.error(err);
+
+tbody.innerHTML=`
+<tr>
+<td colspan="4" style="color:red;text-align:center;">
+Error al cargar la auditoría
+</td>
+</tr>
+`;
+
+}
+
+}
+
+cargarAuditoria();
+
+</script>
+
+</body>
+</html>

@@ -1,0 +1,133 @@
+<style>
+body{
+  margin:0;
+  font-family: 'Segoe UI', Arial, sans-serif;
+  background:#0a0f1c;
+  color:#e5e7eb;
+}
+
+/* LAYOUT */
+.layout{
+  display:flex;
+}
+
+/* SIDEBAR */
+.sidebar{
+  width:250px;
+  height:100vh;
+  background:#0f172a;
+  border-right:1px solid #1f2937;
+  padding:20px;
+}
+
+.sidebar h2{
+  font-size:18px;
+  margin-bottom:25px;
+}
+
+.menu{
+  padding:12px;
+  background:#111827;
+  margin-bottom:10px;
+  border-radius:10px;
+  cursor:pointer;
+  transition:0.2s;
+}
+
+.menu:hover{
+  background:#1f2937;
+}
+
+/* MAIN */
+.main{
+  flex:1;
+  padding:25px;
+}
+
+/* HEADER */
+.header{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:20px;
+}
+
+.title{
+  font-size:24px;
+  font-weight:600;
+}
+
+/* KPI GRID */
+.grid{
+  display:grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap:15px;
+  margin-bottom:20px;
+}
+
+/* CARDS */
+.card{
+  background:#111827;
+  border:1px solid #1f2937;
+  padding:18px;
+  border-radius:14px;
+  transition:0.2s;
+}
+
+.card:hover{
+  transform:translateY(-2px);
+}
+
+.card h3{
+  margin:0;
+  font-size:13px;
+  color:#9ca3af;
+  font-weight:500;
+}
+
+.card h2{
+  margin-top:8px;
+  font-size:22px;
+}
+
+/* TABLE */
+.table{
+  width:100%;
+  border-collapse:collapse;
+  background:#111827;
+  border-radius:12px;
+  overflow:hidden;
+  border:1px solid #1f2937;
+}
+
+th{
+  background:#0f172a;
+  color:#9ca3af;
+  font-size:12px;
+  text-transform:uppercase;
+  padding:14px;
+}
+
+td{
+  padding:14px;
+  border-bottom:1px solid #1f2937;
+  font-size:14px;
+}
+
+tr:hover{
+  background:#0f172a;
+}
+
+/* BADGE */
+.badge{
+  padding:4px 10px;
+  border-radius:8px;
+  font-size:12px;
+  background:#16a34a;
+}
+
+/* SECTION */
+.section{
+  margin-top:20px;
+}
+</style>

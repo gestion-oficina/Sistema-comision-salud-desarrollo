@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <script>
+        // 1. Verificamos la sesión inmediatamente
+        const sesion = sessionStorage.getItem('usuario_logueado');
+        
+        // 2. Si no hay sesión Y no estamos en el login, redirigimos
+        // Nota: Si tu archivo de login no está en la raíz, ajusta la ruta
+        if (!sesion && window.location.pathname !== "/login.html") {
+            window.location.replace("login.html");
+        } else {
+            // 3. Si SÍ hay sesión, cuando el HTML cargue, mostramos el cuerpo
+            document.addEventListener("DOMContentLoaded", () => {
+                document.body.style.display = "block";
+            });
+        }
+    </script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bitácora de Gestión Digital - Comisión de Salud</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        :root { 
+            --bg-main: #f4f6f9; 
+            --sidebar-bg: #1d3b6a; 
+            --sidebar-active: #0066cc; 
+            --sidebar-text-sub: #4ba3e3; 
+            --menu-text: #ffffff; 
+            --text-dark-title: #0f2547; 
+            --success-color: #16a34a; 
+            --border-color: #cbd5e1; 
+            --danger-color: #dc2626;
+            --warning-color: #f59e0b;
+        }
+        * { margin:0; padding:0; box-sizing:border-box; font-family: 'Inter', sans-serif; }
+        body { background: var(--bg-main); color:#334155; overflow-x: hidden; }
+        
+        .layout { display:grid; grid-template-columns:280px 1fr; min-height:100vh; }
+        
+        /* SIDEBAR */
+        .sidebar { background: var(--sidebar-bg); padding:24px 0; display: flex; flex-direction: column; z-index: 1000; }
+        .sidebar-brand { display: flex; flex-direction: column; align-items: center; text-align: center; padding: 0 16px 20px 16px; border-bottom: 1px solid rgba(255, 255, 255, 0.1); margin-bottom: 10px; }
+        .sidebar-brand h2 { font-size: 11px; color: #ffffff; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; line-height: 1.4; margin-top: 5px; }
+        .menu-category { font-size: 10.5px; font-weight: 700; color: var(--sidebar-text-sub); text-transform: uppercase; letter-spacing: 0.5px; padding: 16px 20px 6px 20px; }
+        .menu { display: block; padding: 8px 36px; color: var(--menu-text); cursor: pointer; font-size: 13.5px; font-weight: 500; text-decoration: none; transition: all 0.2s ease; opacity: 0.9; }
+        .menu:hover { opacity: 1; background: rgba(255, 255, 255, 0.05); }
+        .menu.active-page { background: var(--sidebar-active); color: #ffffff; font-weight: 600; border-radius: 6px; margin: 2px 14px; padding: 10px 20px; opacity: 1; box-shadow: inset 0 1px 0 rgba(255,255,255,0.15); }
+        
+        /* PANEL CENTRAL */
+        .main { padding:40px; min-width: 0; }
+        .main h2 { font-size: 26px; color: var(--text-dark-title); font-weight: 700; margin-bottom: 6px; }
+        .header-actions { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; flex-wrap: wrap; gap: 16px; }
+        .subtitle { font-size: 13px; color: #64748b; font-weight: 500; margin-bottom: 0; }
+        
+        /* BOTONES */
+        .btn { padding: 10px 16px; font-size: 13px; font-weight: 600; border-radius: 6px; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: all 0.2s; border: none; }
+        .btn-primary { background: var(--sidebar-active); color: white; }
+        .btn-primary:hover { background: #0052a3; }
+        .btn-secondary { background: white; border: 1px solid var(--border-color); color: #475569; }
+        .btn-secondary:hover { background: #f8fafc; }
+        
+        .actions-area { display: flex; gap: 8px; margin-top: 15px; border-top: 1px dashed #e2e8f0; padding-top: 12px; }
+        .btn-small { padding: 6px 12px; font-size: 12px; font-weight: 600; border-radius: 4px; border: none; cursor: pointer; }
+        .btn-edit { background: #fef3c7; color: #d97706; }
+        .btn-edit:hover { background: #fde68a; }
+        .btn-del { background: #fee2e2; color: var(--danger-color); }
+        .btn-del:hover { background: #fca5a5; }
+
+        /* GRID DE BITÁCORA */
+        .blog-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 24px; }
+        .evento-card { background: white; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden; padding: 20px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02); display: flex; flex-direction: column; justify-content: space-between; }
+        .evento-card img { width: 100%; height: 180px; object-fit: cover; border-radius: 8px; margin-bottom: 14px; background: #e2e8f0; }
+        .evento-card h3 { font-size: 16px; color: var(--text-dark-title); font-weight: 700; margin-bottom: 6px; }
+        .evento-card .meta-sector { font-size: 12px; color: var(--sidebar-active); font-weight: 600; margin-bottom: 10px; text-transform: uppercase; }
+        .evento-card p { font-size: 13px; color: #475569; line-height: 1.5; flex-grow: 1; }
+        .evento-card .fecha { font-size: 11px; color: #94a3b8; margin-top: 10px; font-weight: 500; }
+
+        /* VENTANA MODAL */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(4px); display: none; align-items: center; justify-content: center; z-index: 2000; padding: 16px; }
+        .modal-overlay.active { display: flex; }
+        .modal-content { background: white; border-radius: 12px; width: 100%; max-width: 500px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); overflow: hidden; animation: slideUp 0.25s ease-out; }
+        .modal-header { background: #f8fafc; padding: 16px 20px; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; }
+        .modal-header h3 { font-size: 16px; color: var(--text-dark-title); font-weight: 700; }
+        .modal-close { background: transparent; border: none; font-size: 20px; cursor: pointer; color: #64748b; }
+        .modal-body { padding: 20px; display: flex; flex-direction: column; gap: 14px; }
+        
+        .form-group { display: flex; flex-direction: column; gap: 6px; }
+        .form-group label { font-size: 11px; font-weight: 700; color: #475569; text-transform: uppercase; letter-spacing: 0.5px; }
+        .form-group input, .form-group textarea { padding: 10px 12px; border: 1px solid var(--border-color); border-radius: 6px; font-size: 13.5px; color: #1e293b; outline: none; width: 100%; }
+        .form-group input:focus, .form-group textarea:focus { border-color: var(--sidebar-active); box-shadow: 0 0 0 3px rgba(0,102,204,0.1); }
+        
+        .modal-footer { padding: 16px 20px; background: #f8fafc; border-top: 1px solid #e2e8f0; display: flex; justify-content: flex-end; gap: 10px; }
+
+        /* HEADER MOVIL */
+        .mobile-header { display: none; background: var(--sidebar-bg); color: white; padding: 14px 20px; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 1100; }
+        .mobile-toggle { background: transparent; border: none; color: white; font-size: 22px; cursor: pointer; }
+
+        @keyframes slideUp { from { transform: translateY(15px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+        @media (max-width: 768px) {
+            .layout { grid-template-columns: 1fr; }
+            .sidebar { position: fixed; top: 52px; left: -280px; width: 280px; height: calc(100vh - 52px); transition: left 0.3s ease; }
+            .sidebar.active { left: 0; }
+            .mobile-header { display: flex; }
+            .main { padding: 24px 16px; }
+            .main h2 { font-size: 22px; }
+            .blog-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+
+<body style="display: none;">
+
+    <div class="mobile-header">
+        <span style="font-size: 13px; font-weight: 700;">BITÁCORA DIGITAL</span>
+        <button class="mobile-toggle" onclick="toggleSidebar()">☰</button>
+    </div>
+
+    <div class="layout">
+        <div class="sidebar" id="sidebarMenu">
+            <div class="sidebar-brand">
+                <h2>COMISIÓN PERMANENTE DE SALUD<br>Y DESARROLLO SOCIAL INTEGRAL</h2>
+            </div>
+            <a class="menu" href="dashboard.html">Principal</a>
+            
+            <div class="menu-category">Coor. Ejecutiva</div>
+            <a class="menu" href="ejecutiva.html">Oficios e Informes</a>
+            <a class="menu" href="red_salud.html">Red de Salud (CPT/CDI)</a>
+            <a class="menu" href="planificacion.html">Planificación Semanal</a>
+            
+            <div class="menu-category">Coor. Política</div>
+            <a class="menu" href="politica.html">Liderazgos y Comunas</a>
+            
+            <div class="menu-category">Coor. Social</div>
+            <a class="menu" href="social.html">Casos Sociales</a>
+            
+            <div class="menu-category">Gestión Digital</div>
+            <a class="menu active-page" href="bitacora.html">Bitácora de Eventos</a>
+            <a class="menu" href="reportes.html">📄 Reportes e Informes</a>
+        </div>
+
+        <div class="main">
+            <div class="header-actions">
+                <div>
+                    <h2>Bitácora de Eventos y Gestión Pública</h2>
+                    <div class="subtitle">Evidencias, despliegues territoriales y jornadas de salud social — Guarenas</div>
+                </div>
+                <button class="btn btn-primary" onclick="abrirModal()">➕ Nueva Publicación / Evento</button>
+            </div>
+            
+            <div class="blog-grid" id="blog-container">
+                <div style="color: #64748b; font-size: 13px;">Cargando bitácora municipal...</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="modalEvento">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modal-title">Registrar Evento Territorial</h3>
+                <button class="modal-close" onclick="cerrarModal()">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>Título de la Actividad</label>
+                    <input type="text" id="in-titulo" placeholder="Ej: Jornada Médica Integral en las Clavellinas">
+                </div>
+                <div class="form-group">
+                    <label>Sector / Comunidad</label>
+                    <input type="text" id="in-sector" placeholder="Ej: Comuna La Guairita">
+                </div>
+                <div class="form-group">
+                    <label>URL de la Imagen (Foto de Evidencia)</label>
+                    <input type="text" id="in-url-foto" placeholder="https://ejemplo.com/foto.jpg">
+                </div>
+                <div class="form-group">
+                    <label>Descripción / Resumen del Despliegue</label>
+                    <textarea id="in-desc" rows="4" placeholder="Detalle la cantidad de atendidos, insumos entregados o minutas..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label>URL del Video de Resumen (Opcional)</label>
+                    <input type="text" id="in-url-video" placeholder="https://ejemplo.com/video.mp4">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="cerrarModal()">Cancelar</button>
+                <button class="btn btn-primary" onclick="guardarPublicacion()">Guardar Publicación</button>
+            </div>
+        </div>
+    </div>
+
+<script>
+    const supabaseUrl = window.__env__?.NEXT_PUBLIC_SUPABASE_URL 
+                        || (typeof process !== 'undefined' && process.env?.NEXT_PUBLIC_SUPABASE_URL)
+                        || "https://soqgmwzknfgmxefbnfgs.supabase.co";
+                        
+    const supabaseAnonKey = window.__env__?.NEXT_PUBLIC_SUPABASE_ANON_KEY 
+                            || (typeof process !== 'undefined' && process.env?.NEXT_PUBLIC_SUPABASE_ANON_KEY)
+                            || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNvcWdtd3prbmZnbXhlZmJuZmdzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA4MTkyMzcsImV4cCI6MjA5NjM5NTIzN30.xXj_fPHCy7LgZHuUytv3bfjUtC9nNiLPTRmFV9XdUpY";
+
+    const client = supabase.createClient(supabaseUrl, supabaseAnonKey);
+    let editId = null;
+
+    document.addEventListener("DOMContentLoaded", () => { cargarBitacora(); });
+    function toggleSidebar() { document.getElementById("sidebarMenu").classList.toggle("active"); }
+
+    async function cargarBitacora() {
+        const container = document.getElementById('blog-container');
+        try {
+            const { data, error } = await client
+                .from('bitacora_eventos')
+                .select('*')
+                .order('id', { ascending: false });
+
+            if (error) throw error;
+
+            if (!data || data.length === 0) {
+                container.innerHTML = `<div style="color: #64748b; font-size: 13px; padding: 10px;">📝 No hay eventos registrados en la bitácora aún.</div>`;
+                return;
+            }
+
+            container.innerHTML = data.map(ev => {
+                const fotoUrl = ev.url_foto ? ev.url_foto : 'https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=500';
+                
+                return `
+                    <div class="evento-card">
+                        <div>
+                            <img src="${fotoUrl}" alt="Evidencia">
+                            <div class="meta-sector">📍 ${ev.sector || 'Municipio Plaza'}</div>
+                            <h3>${ev.titulo || 'Actividad Especial'}</h3>
+                            <p>${ev.descripcion || 'Sin descripción proporcionada.'}</p>
+                        </div>
+                        <div>
+                            <div class="fecha">📅 Fecha: ${ev.fecha || 'Reciente'}</div>
+                            <div class="actions-area">
+                                <button class="btn-small btn-edit" onclick="prepararEdicion(${ev.id}, '${ev.titulo}', '${ev.descripcion}', '${ev.sector}', '${ev.url_foto}', '${ev.url_video}')">✏️ Editar</button>
+                                <button class="btn-small btn-del" onclick="borrarEvento(${ev.id})">🗑️ Borrar</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        } catch (err) {
+            console.error("Error cargando base de datos:", err);
+            container.innerHTML = `<div style="color: var(--danger-color); font-size: 13px; padding: 10px;">❌ Error de comunicación con Supabase.</div>`;
+        }
+    }
+
+    function abrirModal() { 
+        editId = null; 
+        document.getElementById('in-titulo').value = '';
+        document.getElementById('in-sector').value = '';
+        document.getElementById('in-url-foto').value = '';
+        document.getElementById('in-desc').value = '';
+        document.getElementById('in-url-video').value = '';
+        document.getElementById('modal-title').innerText = "Registrar Evento Territorial";
+        document.getElementById('modalEvento').classList.add('active'); 
+    }
+    
+    function cerrarModal() { document.getElementById('modalEvento').classList.remove('active'); }
+
+    function prepararEdicion(id, titulo, desc, sector, foto, video) {
+        editId = id;
+        document.getElementById('in-titulo').value = titulo || '';
+        document.getElementById('in-desc').value = desc || '';
+        document.getElementById('in-sector').value = sector || '';
+        document.getElementById('in-url-foto').value = foto || '';
+        document.getElementById('in-url-video').value = video || '';
+        document.getElementById('modal-title').innerText = "Modificar Publicación de Bitácora";
+        document.getElementById('modalEvento').classList.add('active');
+    }
+
+    async function borrarEvento(id) {
+        if(!confirm("¿Remover permanentemente esta evidencia de la bitácora pública?")) return;
+        try {
+            const { error } = await client.from('bitacora_eventos').delete().eq('id', id);
+            if (error) throw error;
+            cargarBitacora();
+        } catch (err) {
+            alert("No se pudo eliminar el registro: " + err.message);
+        }
+    }
+
+    async function guardarPublicacion() {
+        const titulo = document.getElementById('in-titulo').value.trim();
+        const sector = document.getElementById('in-sector').value.trim();
+        const descripcion = document.getElementById('in-desc').value.trim();
+        const url_foto = document.getElementById('in-url-foto').value.trim();
+        const url_video = document.getElementById('in-url-video').value.trim();
+
+        if(!titulo || !descripcion) {
+            alert("Por favor ingrese al menos el Título y la Descripción del evento.");
+            return;
+        }
+
+        const data = {
+            titulo: titulo,
+            sector: sector,
+            descripcion: descripcion,
+            url_foto: url_foto,
+            url_video: url_video,
+            fecha: new Date().toISOString().split('T')[0]
+        };
+
+        try {
+            let error;
+            if(editId) {
+                ({ error } = await client.from('bitacora_eventos').update(data).eq('id', editId));
+            } else {
+                ({ error } = await client.from('bitacora_eventos').insert([data]));
+            }
+
+            if (error) throw error;
+            
+            cerrarModal();
+            cargarBitacora();
+        } catch(err) {
+            alert("Error al guardar en Supabase:\n" + err.message);
+        }
+    }
+</script>
+</body>
+</html>
