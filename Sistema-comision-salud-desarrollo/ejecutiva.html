@@ -17,8 +17,18 @@
     <title>Coordinación Ejecutiva - Oficios e Informes</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
-    <!-- LIBRERÍA DE NEON CON JSDELIVR (ESTABLE Y SIN ERRORES 404) -->
-    <script src="https://cdn.jsdelivr.net/npm/@neondatabase/serverless/index.iife.min.js"></script>
+    <!-- CARGA DE NEON MEDIANTE MÓDULO ESM ESTÁNDAR -->
+    <script type="module">
+        import { neon } from 'https://cdn.jsdelivr.net/npm/@neondatabase/serverless/+esm';
+        
+        const connectionString = "postgresql://neondb_owner:npg_z2MvG8wQeWbn@ep-delicate-unit-a5i0m1z2-pooler.us-east-2.aws.neon.tech/neondb?sslmode=require";
+        window.sqlClient = neon(connectionString);
+        
+        // Disparamos la carga de datos una vez el cliente esté listo
+        if (typeof window.iniciarApp === 'function') {
+            window.iniciarApp();
+        }
+    </script>
 
     <style>
         :root { 
@@ -317,29 +327,9 @@
         let filtroActual = 'Oficio';
         let todosLosRegistros = []; 
         let idSeleccionadoActual = null;
-        let sql = null;
 
-        try {
-            // Verificamos las distintas formas en que la librería de Neon se puede exponer globalmente
-            const neonClient = window.neon || (typeof neon !== 'undefined' ? neon : null);
-            
-            if (neonClient) {
-                const connectionString = "postgresql://neondb_owner:npg_z2MvG8wQeWbn@ep-delicate-unit-a5i0m1z2-pooler.us-east-2.aws.neon.tech/neondb?sslmode=require";
-                
-                // Intentamos instanciar mediante la función principal o su propiedad por defecto
-                if (typeof neonClient.neon === 'function') {
-                    sql = neonClient.neon(connectionString);
-                } else if (typeof neonClient === 'function') {
-                    sql = neonClient(connectionString);
-                } else if (neonClient.default && typeof neonClient.default.neon === 'function') {
-                    sql = neonClient.default.neon(connectionString);
-                }
-            }
-        } catch (e) {
-            console.error("Error al inicializar cliente Neon:", e);
-        }
-
-        document.addEventListener("DOMContentLoaded", () => {
+        // Función disparadora cuando el módulo ESM de Neon esté completamente enlazado
+        window.iniciarApp = function() {
             const nombre = sessionStorage.getItem("usuario_nombre");
             const coord = sessionStorage.getItem("usuario_coordinacion");
             if (nombre) document.getElementById("usuarioNombre").textContent = nombre;
@@ -348,11 +338,19 @@
             switchData('Oficio');
             
             const formInforme = document.getElementById('formAutomatedInforme');
-            if (formInforme) {
+            if (formInforme && !formInforme.dataset.bound) {
+                formInforme.dataset.bound = "true";
                 formInforme.addEventListener('submit', async (e) => {
                     e.preventDefault();
                     await guardarInformeAutomatizado();
                 });
+            }
+        };
+
+        // Fallback inmediato por si el DOMContentLoaded ocurre antes del módulo
+        document.addEventListener("DOMContentLoaded", () => {
+            if (window.sqlClient) {
+                window.iniciarApp();
             }
         });
 
@@ -385,13 +383,18 @@
             const tbody = document.getElementById("tbody");
             const thead = document.getElementById("thead-dinamico");
             
-            if (!sql) {
+            if (!window.sqlClient) {
+                // Esperamos un segundo máximo a que el módulo ESM termine de hidratar window.sqlClient
+                await new Promise(resolve => setTimeout(resolve, 800));
+            }
+
+            if (!window.sqlClient) {
                 tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:#dc2626; padding:30px;">⚠️ Error crítico: La librería de Neon no se ha cargado correctamente en el navegador. Revisa tu conexión a internet o bloqueadores de anuncios.</td></tr>`;
                 return;
             }
 
             try {
-                const registros = await sql`SELECT * FROM casos_salud ORDER BY id DESC`;
+                const registros = await window.sqlClient`SELECT * FROM casos_salud ORDER BY id DESC`;
                 todosLosRegistros = registros; 
 
                 if (filtroActual === 'Oficio') {
@@ -729,9 +732,9 @@
         }
 
         async function guardarOficioDirecto(contenido, sectorDestino) {
-            if (!sql) { alert("No hay conexión con la base de datos."); return; }
+            if (!window.sqlClient) { alert("No hay conexión con la base de datos."); return; }
             try {
-                await sql`INSERT INTO casos_salud (nombre, sector) VALUES (${contenido}, ${sectorDestino})`;
+                await window.sqlClient`INSERT INTO casos_salud (nombre, sector) VALUES (${contenido}, ${sectorDestino})`;
                 alert("¡Oficio Enviado registrado con éxito!");
                 loadData();
             } catch (err) {
@@ -750,7 +753,7 @@
         }
 
         async function guardarInformeAutomatizado() {
-            if (!sql) { alert("No hay conexión con la base de datos."); return; }
+            if (!window.sqlClient) { alert("No hay conexión con la base de datos."); return; }
             const nro = document.getElementById("infNumero").value;
             const fecha = document.getElementById("infFecha").value;
             const asunto = document.getElementById("infAsunto").value;
@@ -767,7 +770,7 @@
             const sectorStr = `${actores} (Resp: ${responsable})`;
 
             try {
-                await sql`INSERT INTO casos_salud (nombre, sector) VALUES (${bloqueInformeEstructurado}, ${sectorStr})`;
+                await window.sqlClient`INSERT INTO casos_salud (nombre, sector) VALUES (${bloqueInformeEstructurado}, ${sectorStr})`;
                 alert(`¡Informe de Gestión Nº ${nro} guardado con éxito!`);
                 cerrarFormInforme();
                 loadData();
@@ -777,10 +780,10 @@
         }
 
         async function eliminarRegistro(id) {
-            if (!sql) { alert("No hay conexión con la base de datos."); return; }
+            if (!window.sqlClient) { alert("No hay conexión con la base de datos."); return; }
             if (!confirm(`¿Eliminar registro #${id}?`)) return;
             try {
-                await sql`DELETE FROM casos_salud WHERE id = ${id}`;
+                await window.sqlClient`DELETE FROM casos_salud WHERE id = ${id}`;
                 todosLosRegistros = todosLosRegistros.filter(r => r.id !== id);
                 renderFilas();
                 await loadData();
