@@ -311,13 +311,14 @@
     </div>
 
     <script>
-    // Conexión segura usando 'neonClient' para evitar conflictos de nombres globales
-    const connectionString = "postgresql://neondb_owner:npg_z2MvG8wQeWbn@ep-delicate-unit-a5i0m1z2-pooler.us-east-2.aws.neon.tech/neondb?sslmode=require";
-    const sql = neon.neon(connectionString);
-
+    // 1. Declaración previa de variables globales de control
     let filtroActual = 'Oficio';
     let todosLosRegistros = []; 
     let idSeleccionadoActual = null;
+
+    // 2. Inicialización de la conexión con Neon
+    const connectionString = "postgresql://neondb_owner:npg_z2MvG8wQeWbn@ep-delicate-unit-a5i0m1z2-pooler.us-east-2.aws.neon.tech/neondb?sslmode=require";
+    const sql = neon.neon(connectionString);
 
     document.addEventListener("DOMContentLoaded", () => {
         const nombre = sessionStorage.getItem("usuario_nombre");
