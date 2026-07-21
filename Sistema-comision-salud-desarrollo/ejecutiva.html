@@ -16,6 +16,7 @@
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <title>Coordinación Ejecutiva - Oficios e Informes</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- LIBRERÍA DE NEON RESTAURADA -->
     <script src="https://unpkg.com/@neondatabase/serverless@0.6.0/dist/index.iife.js"></script>
     <style>
         :root { 
@@ -304,7 +305,7 @@
         </div>
     </div>
 
-    <!-- SCRIPT DE CONTROL Y CONEXIÓN (COLOCADO AL FINAL PARA EVITAR ERRORES DE HOISTING) -->
+    <!-- SCRIPT DE CONTROL Y CONEXIÓN -->
     <script>
         if (sessionStorage.getItem("usuario_rol") === "admin") {
             const el = document.getElementById("enlaceAuditoria");
@@ -316,7 +317,7 @@
         let todosLosRegistros = []; 
         let idSeleccionadoActual = null;
 
-        // 2. Inicialización de la conexión con Neon
+        // 2. Inicialización de la conexión con Neon (requiere que el script de Neon esté en el head)
         const connectionString = "postgresql://neondb_owner:npg_z2MvG8wQeWbn@ep-delicate-unit-a5i0m1z2-pooler.us-east-2.aws.neon.tech/neondb?sslmode=require";
         const sql = neon.neon(connectionString);
 
