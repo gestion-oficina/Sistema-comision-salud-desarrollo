@@ -16,7 +16,6 @@
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <title>Coordinación Ejecutiva - Oficios e Informes</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <!-- Driver de Neon / Postgres a través de CDN -->
     <script src="https://cdn.jsdelivr.net/npm/@neondatabase/serverless@0.6.0/dist/index.min.js"></script>
     <style>
         :root { 
@@ -312,7 +311,6 @@
     </div>
 
     <script>
-    // Configuración de conexión Neon (asegúrate de usar la misma URL exacta con tu contraseña)
     const connectionString = "postgresql://neondb_owner:npg_z2MvG8wQeWbn@ep-delicate-unit-a5i0m1z2-pooler.us-east-2.aws.neon.tech/neondb?sslmode=require";
     const { neon } = neon;
     const sql = neon(connectionString);
