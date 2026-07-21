@@ -1,5 +1,8 @@
 import { neon } from 'https://cdn.jsdelivr.net/npm/@neondatabase/serverless@0.9.0/+esm';
 
+// MENSAJE DE PRUEBA: Si ves esta alerta, significa que el archivo NUEVO ya cargó
+alert("¡VERIFICACIÓN EXITOSA: ESTE ES EL CÓDIGO NUEVO!");
+
 document.addEventListener("DOMContentLoaded", () => {
   const form = document.querySelector("form");
   
@@ -16,7 +19,7 @@ document.addEventListener("DOMContentLoaded", () => {
       }
 
       try {
-        const connectionString = "postgresql://neondb_owner:npg_djCruebcPY94@ep-sparkling-math-avejx7o4-pooler.c-11.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require";
+        const connectionString = "postgresql://neondb_owner:npg_u38DbrqVpBxi@ep-sparkling-math-avejx7o4-pooler.c-11.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require";
         const sql = neon(connectionString);
 
         const resultado = await sql(
