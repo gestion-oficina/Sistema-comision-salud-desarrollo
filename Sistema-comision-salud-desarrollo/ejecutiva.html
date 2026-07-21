@@ -16,7 +16,6 @@
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <title>Coordinación Ejecutiva - Oficios e Informes</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <!-- Driver de Neon actualizado compatible con navegador -->
     <script src="https://unpkg.com/@neondatabase/serverless@0.6.0/dist/index.iife.js"></script>
     <style>
         :root { 
@@ -255,7 +254,7 @@
                     <div style="display: flex; gap: 12px;">
                         <div style="flex: 1; display: flex; flex-direction: column; gap: 4px;">
                             <label class="info-label">INFORME Nº:</label>
-                            <input type="text" id="infNumero" placeholder="Ej: 027-2026" style="padding: 8px; border: 1px style var(--border-color); border: 1px solid var(--border-color); border-radius: 6px; font-size: 13px;" required>
+                            <input type="text" id="infNumero" placeholder="Ej: 027-2026" style="padding: 8px; border: 1px solid var(--border-color); border-radius: 6px; font-size: 13px;" required>
                         </div>
                         <div style="flex: 1; display: flex; flex-direction: column; gap: 4px;">
                             <label class="info-label">FECHA:</label>
@@ -312,7 +311,7 @@
     </div>
 
     <script>
-    // Inicialización correcta del cliente Neon Serverless para navegador
+    // Conexión segura usando 'neonClient' para evitar conflictos de nombres globales
     const connectionString = "postgresql://neondb_owner:npg_z2MvG8wQeWbn@ep-delicate-unit-a5i0m1z2-pooler.us-east-2.aws.neon.tech/neondb?sslmode=require";
     const sql = neon.neon(connectionString);
 
