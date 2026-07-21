@@ -1,3 +1,5 @@
+import { neon } from 'https://cdn.jsdelivr.net/npm/@neondatabase/serverless@0.9.0/+esm';
+
 document.addEventListener("DOMContentLoaded", () => {
   const form = document.querySelector("form");
   
@@ -14,24 +16,15 @@ document.addEventListener("DOMContentLoaded", () => {
       }
 
       try {
-        const response = await fetch("/api/query", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify({
-            query: "SELECT * FROM usuarios WHERE LOWER(email) = LOWER($1);",
-            params: [email]
-          })
-        });
+        const connectionString = "postgresql://neondb_owner:npg_djCruebcPY94@ep-sparkling-math-avejx7o4-pooler.c-11.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require";
+        const sql = neon(connectionString);
 
-        if (!response.ok) {
-          throw new Error("Error de conexión");
-        }
+        const resultado = await sql(
+          "SELECT * FROM usuarios WHERE LOWER(email) = LOWER($1);",
+          [email]
+        );
 
-        const data = await response.json();
-
-        if (Array.isArray(data) && data.length > 0) {
+        if (Array.isArray(resultado) && resultado.length > 0) {
           window.location.href = "dashboard.html";
         } else {
           alert("Acceso denegado: El correo no se encuentra registrado.");
@@ -39,7 +32,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
       } catch (error) {
         console.error("Error:", error);
-        alert("Error de conexión con el sistema de control.");
+        alert("Error de conexión con la base de datos.");
       }
     });
   }
