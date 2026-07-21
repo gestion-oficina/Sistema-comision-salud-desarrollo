@@ -25,7 +25,7 @@
     <script type="module">
         import { neon } from 'https://cdn.jsdelivr.net/npm/@neondatabase/serverless@0.9.0/+esm';
         
-        const connectionString = "postgresql://neondb_owner:npg_u38DbrqVpBxi@ep-sparkling-math-avejx7o4-pooler.c-11.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require";
+        const connectionString = "postgresql://neondb_owner:npg_djCruebcPY94@ep-sparkling-math-avejx7o4-pooler.c-11.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require";
         
         window.consultarBaseDatos = async function(query, params = []) {
             const sql = neon(connectionString);
