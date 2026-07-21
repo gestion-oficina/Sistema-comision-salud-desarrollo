@@ -1,17 +1,21 @@
-// Ejemplo correcto para la mayoría de las versiones modernas de mssql
-const sql = require('mssql');
+async function consultarBaseDatos(query, params = []) {
+  try {
+    const response = await fetch("/api/query", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ query, params })
+    });
 
-async function consultarBaseDatos(query) {
-    try {
-        // 1. Crear una conexión o usar una existente
-        const pool = await sql.connect(configuracion); 
-        
-        // 2. Ejecutar la query a través del objeto 'pool', no del 'sql' directamente
-        const result = await pool.request().query(query);
-        
-        return result.recordset;
-    } catch (err) {
-        console.error("Error en la consulta:", err);
-        throw err;
+    if (!response.ok) {
+      throw new Error(`Error en el servidor: ${response.status}`);
     }
+
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error("Error al consultar la base de datos:", error);
+    throw error;
+  }
 }
