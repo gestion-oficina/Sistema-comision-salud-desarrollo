@@ -8,7 +8,6 @@
         const sesion = sessionStorage.getItem('usuario_logueado');
         
         // 2. Si no hay sesión Y no estamos en el login, redirigimos
-        // Nota: Si tu archivo de login no está en la raíz, ajusta la ruta
         if (!sesion && window.location.pathname !== "/login.html") {
             window.location.replace("login.html");
         } else {
@@ -160,71 +159,66 @@
             <a href="auditoria.html" class="menu">🛡️ Panel de Auditoría</a>
         </div>
 
-<script>
-    // Esto hace que el botón aparezca solo si el rol guardado es 'admin'
-    if (sessionStorage.getItem("usuario_rol") === "admin") {
-        document.getElementById("enlaceAuditoria").style.display = "block";
-    }
-</script>
+        <script>
+            if (sessionStorage.getItem("usuario_rol") === "admin") {
+                document.getElementById("enlaceAuditoria").style.display = "block";
+            }
+        </script>
         
-            
-            <div style="margin-top: auto; padding: 24px 20px; border-top: 1px solid rgba(255,255,255,0.1);">
-    
-    <div id="usuarioNombre" style="font-size:13px; color:#ffffff; font-weight:600; margin-bottom: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
-        Cargando...
-    </div>
-    
-    <div id="usuarioCoordinacion" style="font-size:10.5px; color:var(--sidebar-text-sub); font-weight: 500; margin-bottom: 16px; text-transform: uppercase; letter-spacing: 0.3px;">
-        Cargando...
+        <div style="margin-top: auto; padding: 24px 20px; border-top: 1px solid rgba(255,255,255,0.1);">
+            <div id="usuarioNombre" style="font-size:13px; color:#ffffff; font-weight:600; margin-bottom: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                Cargando...
+            </div>
+            <div id="usuarioCoordinacion" style="font-size:10.5px; color:var(--sidebar-text-sub); font-weight: 500; margin-bottom: 16px; text-transform: uppercase; letter-spacing: 0.3px;">
+                Cargando...
+            </div>
+            <a class="menu" onclick="logout()" style="cursor:pointer; font-size:12px; color:#f87171; padding: 8px 0; display: block; border-top: 1px solid rgba(255,255,255,0.05);">
+                Cerrar sesión
+            </a>
+        </div>
     </div>
 
-    <a class="menu" onclick="logout()" style="cursor:pointer; font-size:12px; color:#f87171; padding: 8px 0; display: block; border-top: 1px solid rgba(255,255,255,0.05);">
-        Cerrar sesión
-    </a>
-</div>
+    <div class="main">
+        <h2 id="page-title">Gestión de Oficios Institucionales</h2>
+        <div class="subtitle-concejala">Oficina de la Concejala Letty Bastidas — Municipio Ambrosio Plaza</div>
+        
+        <div class="tabs-container">
+            <button class="tab-btn active" id="tab-oficios" onclick="switchData('Oficio')">✉ Oficios Enviados</button>
+            <button class="tab-btn" id="tab-informes" onclick="switchData('Informe')">📊 Informes de Gestión</button>
         </div>
 
-        <div class="main">
-            <h2 id="page-title">Gestión de Oficios Institucionales</h2>
-            <div class="subtitle-concejala">Oficina de la Concejala Letty Bastidas — Municipio Ambrosio Plaza</div>
+        <!-- NUEVA BARRA DE FILTROS -->
+        <div class="filters-bar">
+            <span style="font-size: 12px; font-weight: 600; color: #475569;">Filtros:</span>
             
-            <div class="tabs-container">
-                <button class="tab-btn active" id="tab-oficios" onclick="switchData('Oficio')">✉ Oficios Enviados</button>
-                <button class="tab-btn" id="tab-informes" onclick="switchData('Informe')">📊 Informes de Gestión</button>
-            </div>
+            <select id="filter-date" class="form-control" onchange="cambiarFiltroFecha()">
+                <option value="todos">Todas las Fechas</option>
+                <option value="semana">Última Semana</option>
+                <option value="quincena">Última Quincena</option>
+                <option value="mes">Último Mes</option>
+                <option value="personalizado">Período Específico...</option>
+            </select>
 
-            <!-- NUEVA BARRA DE FILTROS -->
-            <div class="filters-bar">
-                <span style="font-size: 12px; font-weight: 600; color: #475569;">Filtros:</span>
-                
-                <select id="filter-date" class="form-control" onchange="cambiarFiltroFecha()">
-                    <option value="todos">Todas las Fechas</option>
-                    <option value="semana">Última Semana</option>
-                    <option value="quincena">Última Quincena</option>
-                    <option value="mes">Último Mes</option>
-                    <option value="personalizado">Período Específico...</option>
-                </select>
-
-                <input type="date" id="filter-date-from" class="form-control" style="display: none;" onchange="renderFilas()" placeholder="Desde">
-                <span id="filter-date-separator" style="display: none; font-size: 12px; color: #64748b;">al</span>
-                <input type="date" id="filter-date-to" class="form-control" style="display: none;" onchange="renderFilas()" placeholder="Hasta">
-                
-                <input type="text" id="filter-encargado" class="form-control" placeholder="Buscar por Encargado / Sector..." style="flex: 1; min-width: 200px;" onkeyup="renderFilas()">
-            </div>
-
-            <div class="action-bar">
-                <button class="btn-primary" onclick="registrarNuevo()" id="btn-nuevo-registro">➕ Registrar Nuevo Oficio</button>
-            </div>
-
-            <div class="table-container">
-                <table>
-                    <thead id="thead-dinamico"></thead>
-                    <tbody id="tbody">
-                        <tr><td colspan="5" style="text-align:center; color:#94a3b8; padding: 20px;">Conectando con el servidor municipal...</td></tr>
-                    </tbody>
-                </table>
-            </div>
+            <input type="date" id="filter-date-from" class="form-control" style="display: none;" onchange="renderFilas()" placeholder="Desde">
+            <span id="filter-date-separator" style="display: none; font-size: 12px; color: #64748b;">al</span>
+            <input type="date" id="filter-date-to" class="form-control" style="display: none;" onchange="renderFilas()" placeholder="Hasta">
+            
+            <input type="text" id="filter-encargado" class="form-control" placeholder="Buscar por Encargado / Sector..." style="flex: 1; min-width: 200px;" onkeyup="renderFilas()">
         </div>
+
+        <div class="action-bar">
+            <button class="btn-primary" onclick="registrarNuevo()" id="btn-nuevo-registro">➕ Registrar Nuevo Oficio</button>
+        </div>
+
+        <div class="table-container">
+            <table>
+                <thead id="thead-dinamico"></thead>
+                <tbody id="tbody">
+                    <tr><td colspan="5" style="text-align:center; color:#94a3b8; padding: 20px;">Conectando con el servidor municipal...</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
     </div>
 
     <!-- MODAL DOCUMENTO -->
@@ -403,19 +397,16 @@
             const campoNombre = (r.nombre || "").toLowerCase();
             const campoSector = (r.sector || "").toLowerCase();
             
-            // CORRECCIÓN: Filtro inclusivo y tolerante a mayúsculas/minúsculas
             const cumplePestana = filtroActual === 'Oficio' 
                 ? (campoNombre.includes("oficio") || campoNombre.includes("ordenanza") || campoNombre.includes("tomas"))
                 : (campoNombre.includes("informe") || campoNombre.includes("inspeccion"));
             
             if (!cumplePestana) return false;
 
-            // Filtro por Encargado / Sector
             if (encargadoVal && !campoSector.includes(encargadoVal) && !campoNombre.includes(encargadoVal)) {
                 return false;
             }
 
-            // Filtro por Fecha
             if (dateVal !== 'todos' && r.created_at) {
                 const recordDate = new Date(r.created_at);
                 const hoy = new Date();
@@ -458,21 +449,17 @@
             let numeroDocumento = `#${r.id}`;
 
             if (filtroActual === 'Oficio') {
-                // Extraer número de oficio (OFICIO Nº: XXX)
                 const matchOficio = lineaTitulo.match(/OFICIO\s*N[°º]?:\s*([^\n]+)/i);
                 if (matchOficio && matchOficio[1]) {
                     numeroDocumento = matchOficio[1].trim();
                 }
-                // Extraer asunto del oficio
                 const asuntoOficio = lineaTitulo.match(/ASUNTO:\s*([^\n]+)/i);
                 lineaTitulo = asuntoOficio ? asuntoOficio[1].trim() : lineaTitulo.split('\n')[1] || lineaTitulo;
             } else {
-                // Extraer número de informe (INFORME Nº: XXX)
                 const matchInforme = lineaTitulo.match(/INFORME\s*N[°º]?:\s*([^\n]+)/i);
                 if (matchInforme && matchInforme[1]) {
                     numeroDocumento = matchInforme[1].trim();
                 }
-                // Extraer asunto del informe
                 const asuntoInforme = lineaTitulo.match(/ASUNTO:\s*([^\n]+)/i);
                 lineaTitulo = asuntoInforme ? asuntoInforme[1].trim() : lineaTitulo.split('\n')[2] || lineaTitulo.split('\n')[0];
             }
@@ -531,160 +518,155 @@
     function closeDocModal() {
         document.getElementById("documentModal").classList.remove("open");
     }
-/* EXPORTACIÓN FORMATEADA A WORD (Márgenes Carta, Línea Roja, Tricolor y Firmas) */
-        function exportarRegistroAWord() {
-            const registro = todosLosRegistros.find(r => r.id === idSeleccionadoActual);
-            if (!registro) return;
 
-            const textoLimpio = registro.nombre || "";
+    /* EXPORTACIÓN FORMATEADA A WORD (Márgenes Carta, Línea Roja, Tricolor y Firmas) */
+    function exportarRegistroAWord() {
+        const registro = todosLosRegistros.find(r => r.id === idSeleccionadoActual);
+        if (!registro) return;
+
+        const textoLimpio = registro.nombre || "";
+        
+        const coincidenciaNro = textoLimpio.match(/INFORME Nº:\s*([^\n]+)/i);
+        const coincidenciaFecha = textoLimpio.match(/FECHA:\s*([^\n]+)/i);
+        const coincidenciaAsunto = textoLimpio.match(/ASUNTO:\s*([^\n]+)/i);
+        
+        const nroInforme = coincidenciaNro ? coincidenciaNro[1].trim() : "027-2026";
+        const fechaInforme = coincidenciaFecha ? coincidenciaFecha[1].trim() : "26 de mayo 2026";
+        const asuntoInforme = coincidenciaAsunto ? coincidenciaAsunto[1].trim() : "Plan Atención Médica integral Salud va a la Escuela";
+        
+        let actoresVinculados = "Poder Popular, Comisión de Salud, Instituciones de Salud, y el CEIS Centro de Educación Inicial Tersa de la Parra";
+        if (registro.sector && registro.sector.includes('(Resp:')) {
+            actoresVinculados = registro.sector.split(' (Resp:')[0];
+        }
+
+        const lineasCuerpo = textoLimpio.split('\n').filter(linea => {
+            const l = linea.trim().toUpperCase();
+            return !l.startsWith('INFORME Nº:') && !l.startsWith('FECHA:') && !l.startsWith('ASUNTO:') && !l.startsWith('RESPONSABLE:') && !l.startsWith('-----');
+        });
+
+        const parrafosHTML = lineasCuerpo.map(linea => {
+            if(!linea.trim()) return '<p style="margin: 0 0 6pt 0;">&nbsp;</p>';
             
-            // Extracción de datos para las variables superiores
-            const coincidenciaNro = textoLimpio.match(/INFORME Nº:\s*([^\n]+)/i);
-            const coincidenciaFecha = textoLimpio.match(/FECHA:\s*([^\n]+)/i);
-            const coincidenciaAsunto = textoLimpio.match(/ASUNTO:\s*([^\n]+)/i);
+            if(linea.trim().match(/^(I|II|III|IV|V)\.\s+[A-ZÁÉÍÓÚÑ]/)) {
+                return `<h2 style="font-family: 'Arial', sans-serif; font-size: 12pt; font-weight: bold; color: #000000; text-align: center; margin-top: 18pt; margin-bottom: 12pt; text-transform: uppercase;">${linea.trim()}</h2>`;
+            }
             
-            const nroInforme = coincidenciaNro ? coincidenciaNro[1].trim() : "027-2026";
-            const fechaInforme = coincidenciaFecha ? coincidenciaFecha[1].trim() : "26 de mayo 2026";
-            const asuntoInforme = coincidenciaAsunto ? coincidenciaAsunto[1].trim() : "Plan Atención Médica integral Salud va a la Escuela";
-            
-            let actoresVinculados = "Poder Popular, Comisión de Salud, Instituciones de Salud, y el CEIS Centro de Educación Inicial Tersa de la Parra";
-            if (registro.sector && registro.sector.includes('(Resp:')) {
-                actoresVinculados = registro.sector.split(' (Resp:')[0];
+            if(linea.trim().match(/^[A-ZÁÉÍÓÚÑ]{4,}:$/)) {
+                return `<p style="font-family: 'Arial', sans-serif; font-size: 11pt; font-weight: bold; color: #000000; margin-top: 12pt; margin-bottom: 6pt;">${linea.trim()}</p>`;
             }
 
-            // Filtrado del cuerpo para omitir la redundancia de los metadatos iniciales
-            const lineasCuerpo = textoLimpio.split('\n').filter(linea => {
-                const l = linea.trim().toUpperCase();
-                return !l.startsWith('INFORME Nº:') && !l.startsWith('FECHA:') && !l.startsWith('ASUNTO:') && !l.startsWith('RESPONSABLE:') && !l.startsWith('-----');
-            });
+            if(linea.trim().startsWith('•') || linea.trim().startsWith('-')) {
+                return `<p style="font-family: 'Arial', sans-serif; font-size: 11pt; line-height: 1.25; color: #000000; margin: 0 0 6pt 24pt; text-align: justify;">${linea.trim()}</p>`;
+            }
+            
+            return `<p style="font-family: 'Arial', sans-serif; font-size: 11pt; line-height: 1.25; color: #000000; margin: 0 0 10pt 0; text-align: justify;">${linea}</p>`;
+        }).join('');
 
-            const parrafosHTML = lineasCuerpo.map(linea => {
-                if(!linea.trim()) return '<p style="margin: 0 0 6pt 0;">&nbsp;</p>';
-                
-                // Títulos en numeración romana (I, II, III, IV, V...)
-                if(linea.trim().match(/^(I|II|III|IV|V)\.\s+[A-ZÁÉÍÓÚÑ]/)) {
-                    return `<h2 style="font-family: 'Arial', sans-serif; font-size: 12pt; font-weight: bold; color: #000000; text-align: center; margin-top: 18pt; margin-bottom: 12pt; text-transform: uppercase;">${linea.trim()}</h2>`;
+        const plantillaWordHTML = `
+        <html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
+        <head>
+            <meta charset="UTF-8">
+            <title>Informe de Gestión</title>
+            <style>
+                @page {
+                    size: 8.5in 11in;
+                    margin: 1.0in 1.0in 1.0in 1.0in;
                 }
-                
-                // Palabras completas en mayúsculas como subtítulo (ej. RECOMENDACIONES:)
-                if(linea.trim().match(/^[A-ZÁÉÍÓÚÑ]{4,}:$/)) {
-                    return `<p style="font-family: 'Arial', sans-serif; font-size: 11pt; font-weight: bold; color: #000000; margin-top: 12pt; margin-bottom: 6pt;">${linea.trim()}</p>`;
-                }
-
-                // Listas o sangrías con viñetas
-                if(linea.trim().startsWith('•') || linea.trim().startsWith('-')) {
-                    return `<p style="font-family: 'Arial', sans-serif; font-size: 11pt; line-height: 1.25; color: #000000; margin: 0 0 6pt 24pt; text-align: justify;">${linea.trim()}</p>`;
-                }
-                
-                // Texto plano justificado estándar
-                return `<p style="font-family: 'Arial', sans-serif; font-size: 11pt; line-height: 1.25; color: #000000; margin: 0 0 10pt 0; text-align: justify;">${linea}</p>`;
-            }).join('');
-
-            // Estructura XML / HTML compatible con Microsoft Word
-            const plantillaWordHTML = `
-            <html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
-            <head>
-                <meta charset="UTF-8">
-                <title>Informe de Gestión</title>
-                <style>
-                    @page {
-                        size: 8.5in 11in;
-                        margin: 1.0in 1.0in 1.0in 1.0in;
-                    }
-                    body { font-family: 'Arial', sans-serif; color: #000000; }
-                </style>
-            </head>
-            <body>
-                
-                <table border="0" cellspacing="0" cellpadding="0" style="width: 100%; border-collapse: collapse; margin-bottom: 5pt;">
-                    <tr>
-                       <td style="width: 14%; text-align: left; vertical-align: middle;">
-                        <img src="https://soqgmwzknfgmxefbnfgs.supabase.co/storage/v1/object/public/logo-concejo/concejo.logo.jfif" width="75" height="75" style="display:block;">
+                body { font-family: 'Arial', sans-serif; color: #000000; }
+            </style>
+        </head>
+        <body>
+            
+            <table border="0" cellspacing="0" cellpadding="0" style="width: 100%; border-collapse: collapse; margin-bottom: 5pt;">
+                <tr>
+                   <td style="width: 14%; text-align: left; vertical-align: middle;">
+                    <img src="https://soqgmwzknfgmxefbnfgs.supabase.co/storage/v1/object/public/logo-concejo/concejo.logo.jfif" width="75" height="75" style="display:block;">
+                </td>
+                    <td style="width: 70%; text-align: center; vertical-align: middle;">
+                        <p style="font-size: 12pt; font-weight: normal; color: #4a4a4a; margin: 0; font-family: 'Arial', sans-serif; line-height: 1.1;">República Bolivariana de Venezuela</p>
+                        <p style="font-size: 12pt; font-weight: normal; color: #4a4a4a; margin: 0; font-family: 'Arial', sans-serif; line-height: 1.1;">Estado Bolivariano de Miranda</p>
+                        <p style="font-size: 12pt; font-weight: normal; color: #4a4a4a; margin: 0; font-family: 'Arial', sans-serif; line-height: 1.1;">Concejo del Municipio "Ambrosio Plaza"</p>
+                        <p style="font-size: 12pt; font-weight: bold; color: #4a4a4a; margin: 2pt 0 0 0; font-family: 'Arial', sans-serif; line-height: 1.1;">Comisión Permanente de Salud y</p>
+                        <p style="font-size: 12pt; font-weight: bold; color: #4a4a4a; margin: 0; font-family: 'Arial', sans-serif; line-height: 1.1;">Desarrollo Social Integral</p>
                     </td>
-                        <td style="width: 70%; text-align: center; vertical-align: middle;">
-                            <p style="font-size: 12pt; font-weight: normal; color: #4a4a4a; margin: 0; font-family: 'Arial', sans-serif; line-height: 1.1;">República Bolivariana de Venezuela</p>
-                            <p style="font-size: 12pt; font-weight: normal; color: #4a4a4a; margin: 0; font-family: 'Arial', sans-serif; line-height: 1.1;">Estado Bolivariano de Miranda</p>
-                            <p style="font-size: 12pt; font-weight: normal; color: #4a4a4a; margin: 0; font-family: 'Arial', sans-serif; line-height: 1.1;">Concejo del Municipio "Ambrosio Plaza"</p>
-                            <p style="font-size: 12pt; font-weight: bold; color: #4a4a4a; margin: 2pt 0 0 0; font-family: 'Arial', sans-serif; line-height: 1.1;">Comisión Permanente de Salud y</p>
-                            <p style="font-size: 12pt; font-weight: bold; color: #4a4a4a; margin: 0; font-family: 'Arial', sans-serif; line-height: 1.1;">Desarrollo Social Integral</p>
-                        </td>
-                       <td style="width: 14%; text-align: right; vertical-align: middle;">
-    <img src="https://soqgmwzknfgmxefbnfgs.supabase.co/storage/v1/object/public/logo-concejo/logo.png" width="100" height="100" style="display:block;">
-                    </tr>
-                </table>
-                
-                <div style="border-top: 4.5pt solid #ff6666; margin-bottom: 20pt; width: 100%;"></div>
+                   <td style="width: 14%; text-align: right; vertical-align: middle;">
+                        <img src="https://soqgmwzknfgmxefbnfgs.supabase.co/storage/v1/object/public/logo-concejo/logo.png" width="100" height="100" style="display:block;">
+                   </td>
+                </tr>
+            </table>
+            
+            <div style="border-top: 4.5pt solid #ff6666; margin-bottom: 20pt; width: 100%;"></div>
 
-                <table border="0" cellspacing="0" cellpadding="0" style="width: 100%; border-collapse: collapse; margin-bottom: 12pt;">
+            <table border="0" cellspacing="0" cellpadding="0" style="width: 100%; border-collapse: collapse; margin-bottom: 12pt;">
+                <tr>
+                    <td style="vertical-align: top; width: 50%;">
+                        <p style="font-family: 'Arial', sans-serif; font-size: 12pt; margin: 0 0 8pt 0;"><b>INFORME:</b> ${nroInforme}</p>
+                    </td>
+                    <td style="vertical-align: top; width: 50%; text-align: right;">
+                        <p style="font-family: 'Arial', sans-serif; font-size: 12pt; margin: 0 0 8pt 0;"><b>FECHA:</b> ${fechaInforme}</p>
+                    </td>
+                </tr>
+            </table>
+
+            <table border="0" cellspacing="0" cellpadding="0" style="width: 100%; border-collapse: collapse; margin-bottom: 15pt;">
+                <tr><td style="vertical-align: top; padding-bottom: 5pt;"><p style="font-family: 'Arial', sans-serif; font-size: 11pt; line-height: 1.3; margin: 0;"><b>COMISIÓN:</b> Comisión de Salud y Desarrollo Social Integral</p></td></tr>
+                <tr><td style="vertical-align: top; padding-bottom: 5pt;"><p style="font-family: 'Arial', sans-serif; font-size: 11pt; line-height: 1.3; margin: 0;"><b>ASUNTO:</b> ${asuntoInforme}</p></td></tr>
+                <tr><td style="vertical-align: top; padding-bottom: 5pt;"><p style="font-family: 'Arial', sans-serif; font-size: 11pt; line-height: 1.3; margin: 0;"><b>ACTORES VINCULADOS:</b> ${actoresVinculados}</p></td></tr>
+            </table>
+            
+            <div style="border-top: 0.75pt solid #000000; margin-bottom: 15pt; width: 100%;"></div>
+
+            <div style="margin-bottom: 35pt;">
+                ${parrafosHTML}
+            </div>
+
+            <div style="page-break-inside: avoid; margin-top: 40pt; margin-bottom: 30pt;">
+                <p style="font-family: 'Arial', sans-serif; font-size: 11pt; text-align: left; margin-bottom: 35pt;">Por la Comisión Permanente de Salud y Desarrollo Social Integral</p>
+                
+                <table border="0" cellspacing="0" cellpadding="0" style="width: 100%; border-collapse: collapse; margin-bottom: 35pt;">
                     <tr>
-                        <td style="vertical-align: top; width: 50%;">
-                            <p style="font-family: 'Arial', sans-serif; font-size: 12pt; margin: 0 0 8pt 0;"><b>INFORME:</b> ${nroInforme}</p>
-                        </td>
-                        <td style="vertical-align: top; width: 50%; text-align: right;">
-                            <p style="font-family: 'Arial', sans-serif; font-size: 12pt; margin: 0 0 8pt 0;"><b>FECHA:</b> ${fechaInforme}</p>
+                        <td style="text-align: center; width: 100%;">
+                            <p style="font-family: 'Arial', sans-serif; font-size: 10.5pt; font-weight: bold; margin: 0;">Concejala Abg. Letty Bastidas</p>
+                            <p style="font-family: 'Arial', sans-serif; font-size: 9.5pt; font-style: italic; margin: 0; color: #333333;">Presidente de la Comisión Permanente de Salud y</p>
+                            <p style="font-family: 'Arial', sans-serif; font-size: 9.5pt; font-style: italic; margin: 0; color: #333333;">Desarrollo Social Integral</p>
                         </td>
                     </tr>
                 </table>
 
-                <table border="0" cellspacing="0" cellpadding="0" style="width: 100%; border-collapse: collapse; margin-bottom: 15pt;">
-                    <tr><td style="vertical-align: top; padding-bottom: 5pt;"><p style="font-family: 'Arial', sans-serif; font-size: 11pt; line-height: 1.3; margin: 0;"><b>COMISIÓN:</b> Comisión de Salud y Desarrollo Social Integral</p></td></tr>
-                    <tr><td style="vertical-align: top; padding-bottom: 5pt;"><p style="font-family: 'Arial', sans-serif; font-size: 11pt; line-height: 1.3; margin: 0;"><b>ASUNTO:</b> ${asuntoInforme}</p></td></tr>
-                    <tr><td style="vertical-align: top; padding-bottom: 5pt;"><p style="font-family: 'Arial', sans-serif; font-size: 11pt; line-height: 1.3; margin: 0;"><b>ACTORES VINCULADOS:</b> ${actoresVinculados}</p></td></tr>
+                <table border="0" cellspacing="0" cellpadding="0" style="width: 100%; border-collapse: collapse;">
+                    <tr>
+                        <td style="text-align: center; width: 50%; vertical-align: top; padding-right: 10px;">
+                            <p style="font-family: 'Arial', sans-serif; font-size: 10.5pt; font-weight: bold; margin: 0;">Concejala Mag. Mirlys Hidalgo</p>
+                            <p style="font-family: 'Arial', sans-serif; font-size: 9.5pt; font-style: italic; margin: 0; color: #333333;">Vicepresidente de la Comisión Permanente</p>
+                            <p style="font-family: 'Arial', sans-serif; font-size: 9.5pt; font-style: italic; margin: 0; color: #333333;">de Salud y Desarrollo Social Integral</p>
+                        </td>
+                        <td style="text-align: center; width: 50%; vertical-align: top; padding-left: 10px;">
+                            <p style="font-family: 'Arial', sans-serif; font-size: 10.5pt; font-weight: bold; margin: 0;">Concejala Lic. Zulmy Orozco</p>
+                            <p style="font-family: 'Arial', sans-serif; font-size: 9.5pt; font-style: italic; margin: 0; color: #333333;">Vocal de la Comisión Permanente de Salud y</p>
+                            <p style="font-family: 'Arial', sans-serif; font-size: 9.5pt; font-style: italic; margin: 0; color: #333333;">Desarrollo Social Integral</p>
+                        </td>
+                    </tr>
                 </table>
                 
-                <div style="border-top: 0.75pt solid #000000; margin-bottom: 15pt; width: 100%;"></div>
+                <p style="font-family: 'Arial', sans-serif; font-size: 10pt; text-align: left; margin-top: 30pt; margin-left: 40pt; color: #000000;"><i>LB/cp</i></p>
+            </div>
 
-                <div style="margin-bottom: 35pt;">
-                    ${parrafosHTML}
-                </div>
+            <div style="margin-top: 40pt; text-align: center; width: 100%;">
+                <table border="0" cellspacing="0" cellpadding="0" style="width: 100%; border-collapse: collapse; height: 4pt; margin-bottom: 6pt;">
+                    <tr>
+                        <td style="background-color: #ffde00; width: 33.33%;"></td>
+                        <td style="background-color: #003da5; width: 33.33%;"></td>
+                        <td style="background-color: #d12421; width: 33.34%;"></td>
+                    </tr>
+                </table>
+                <p style="font-family: 'Arial', sans-serif; font-size: 11pt; font-weight: bold; font-style: italic; color: #7f7f7f; margin: 0 0 4pt 0;">Salud para Todos y Todas</p>
+                <p style="font-family: 'Arial', sans-serif; font-size: 10.5pt; color: #8c8c8c; margin: 0; line-height: 1.25;">Dirección: Calle Bolívar con Monagas, diagonal al Hospitalito Francisco Rafael García.</p>
+                <p style="font-family: 'Arial', sans-serif; font-size: 10.5pt; color: #8c8c8c; margin: 0; line-height: 1.25;">Guarenas, Estado Bolivariano de Miranda. Nro. Telefónico: 0426-3147191 Correo</p>
+                <p style="font-family: 'Arial', sans-serif; font-size: 10.5pt; color: #8c8c8c; margin: 0; line-height: 1.25;">Electrónico: <span style="color: #4a90e2; text-decoration: underline;">Comisiondesaludgestion2025@Gmail.com</span></p>
+            </div>
 
-                <div style="page-break-inside: avoid; margin-top: 40pt; margin-bottom: 30pt;">
-                    <p style="font-family: 'Arial', sans-serif; font-size: 11pt; text-align: left; margin-bottom: 35pt;">Por la Comisión Permanente de Salud y Desarrollo Social Integral</p>
-                    
-                    <table border="0" cellspacing="0" cellpadding="0" style="width: 100%; border-collapse: collapse; margin-bottom: 35pt;">
-                        <tr>
-                            <td style="text-align: center; width: 100%;">
-                                <p style="font-family: 'Arial', sans-serif; font-size: 10.5pt; font-weight: bold; margin: 0;">Concejala Abg. Letty Bastidas</p>
-                                <p style="font-family: 'Arial', sans-serif; font-size: 9.5pt; font-style: italic; margin: 0; color: #333333;">Presidente de la Comisión Permanente de Salud y</p>
-                                <p style="font-family: 'Arial', sans-serif; font-size: 9.5pt; font-style: italic; margin: 0; color: #333333;">Desarrollo Social Integral</p>
-                            </td>
-                        </tr>
-                    </table>
-
-                    <table border="0" cellspacing="0" cellpadding="0" style="width: 100%; border-collapse: collapse;">
-                        <tr>
-                            <td style="text-align: center; width: 50%; vertical-align: top; padding-right: 10px;">
-                                <p style="font-family: 'Arial', sans-serif; font-size: 10.5pt; font-weight: bold; margin: 0;">Concejala Mag. Mirlys Hidalgo</p>
-                                <p style="font-family: 'Arial', sans-serif; font-size: 9.5pt; font-style: italic; margin: 0; color: #333333;">Vicepresidente de la Comisión Permanente</p>
-                                <p style="font-family: 'Arial', sans-serif; font-size: 9.5pt; font-style: italic; margin: 0; color: #333333;">de Salud y Desarrollo Social Integral</p>
-                            </td>
-                            <td style="text-align: center; width: 50%; vertical-align: top; padding-left: 10px;">
-                                <p style="font-family: 'Arial', sans-serif; font-size: 10.5pt; font-weight: bold; margin: 0;">Concejala Lic. Zulmy Orozco</p>
-                                <p style="font-family: 'Arial', sans-serif; font-size: 9.5pt; font-style: italic; margin: 0; color: #333333;">Vocal de la Comisión Permanente de Salud y</p>
-                                <p style="font-family: 'Arial', sans-serif; font-size: 9.5pt; font-style: italic; margin: 0; color: #333333;">Desarrollo Social Integral</p>
-                            </td>
-                        </tr>
-                    </table>
-                    
-                    <p style="font-family: 'Arial', sans-serif; font-size: 10pt; text-align: left; margin-top: 30pt; margin-left: 40pt; color: #000000;"><i>LB/cp</i></p>
-                </div>
-
-                <div style="margin-top: 40pt; text-align: center; width: 100%;">
-                    <table border="0" cellspacing="0" cellpadding="0" style="width: 100%; border-collapse: collapse; height: 4pt; margin-bottom: 6pt;">
-                        <tr>
-                            <td style="background-color: #ffde00; width: 33.33%;"></td>
-                            <td style="background-color: #003da5; width: 33.33%;"></td>
-                            <td style="background-color: #d12421; width: 33.34%;"></td>
-                        </tr>
-                    </table>
-                    <p style="font-family: 'Arial', sans-serif; font-size: 11pt; font-weight: bold; font-style: italic; color: #7f7f7f; margin: 0 0 4pt 0;">Salud para Todos y Todas</p>
-                    <p style="font-family: 'Arial', sans-serif; font-size: 10.5pt; color: #8c8c8c; margin: 0; line-height: 1.25;">Dirección: Calle Bolívar con Monagas, diagonal al Hospitalito Francisco Rafael García.</p>
-                    <p style="font-family: 'Arial', sans-serif; font-size: 10.5pt; color: #8c8c8c; margin: 0; line-height: 1.25;">Guarenas, Estado Bolivariano de Miranda. Nro. Telefónico: 0426-3147191 Correo</p>
-                    <p style="font-family: 'Arial', sans-serif; font-size: 10.5pt; color: #8c8c8c; margin: 0; line-height: 1.25;">Electrónico: <span style="color: #4a90e2; text-decoration: underline;">Comisiondesaludgestion2025@Gmail.com</span></p>
-                </div>
-
-            </body>
-            </html>`;
+        </body>
+        </html>`;
 
         const blob = new Blob(['\ufeff' + plantillaWordHTML], { type: 'application/msword;charset=utf-8' });
         const url = URL.createObjectURL(blob);
@@ -801,31 +783,9 @@
 
     async function logout() { 
         await client.auth.signOut(); 
-        location.href = "index.html"; 
-    }
-</script>
-    <script>
-    // 1. Validar que el usuario haya iniciado sesión
-    if (!sessionStorage.getItem("usuario_logueado")) {
-        window.location.href = "index.html";
-    }
-
-    // 2. Llenar los datos al cargar la página
-    document.addEventListener("DOMContentLoaded", () => {
-        const nombre = sessionStorage.getItem("usuario_nombre");
-        const coord = sessionStorage.getItem("usuario_coordinacion");
-        
-        if (nombre) document.getElementById("usuarioNombre").textContent = nombre;
-        if (coord) document.getElementById("usuarioCoordinacion").textContent = coord;
-    });
-
-    // 3. Función de cerrar sesión
-    async function logout() {
-        // Asegúrate de que 'client' esté definido (debe ser el mismo que en tu login)
-        await client.auth.signOut();
         sessionStorage.clear();
-        window.location.href = "index.html";
+        window.location.href = "index.html"; 
     }
-</script>
+    </script>
 </body>
 </html>
