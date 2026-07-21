@@ -13,13 +13,6 @@ document.addEventListener("DOMContentLoaded", () => {
         return;
       }
 
-      // Si estamos en entorno local, acceso directo para pruebas
-      if (window.location.hostname.includes("local") || window.location.hostname.includes("stackblitz") || window.location.hostname.includes("webcontainer")) {
-        console.log("Modo local detectado: Acceso concedido para pruebas.");
-        window.location.href = "dashboard.html";
-        return;
-      }
-
       try {
         const response = await fetch("/api/query", {
           method: "POST",
@@ -33,7 +26,7 @@ document.addEventListener("DOMContentLoaded", () => {
         });
 
         if (!response.ok) {
-          throw new Error(`Respuesta del servidor: ${response.status}`);
+          throw new Error("Error de conexión");
         }
 
         const data = await response.json();
@@ -45,7 +38,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
       } catch (error) {
-        console.error("Error al conectar con la API:", error);
+        console.error("Error:", error);
         alert("Error de conexión con el sistema de control.");
       }
     });
