@@ -16,8 +16,8 @@
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <title>Coordinación Ejecutiva - Oficios e Informes</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <!-- LIBRERÍA DE NEON RESTAURADA -->
-    <script src="https://unpkg.com/@neondatabase/serverless@0.6.0/dist/index.iife.js"></script>
+    <!-- LIBRERÍA DE NEON CON CARGA SEGURA -->
+    <script src="https://unpkg.com/@neondatabase/serverless@0.6.0/dist/index.iife.js" crossorigin="anonymous"></script>
     <style>
         :root { 
             --bg-main: #f4f6f9; 
@@ -312,14 +312,19 @@
             if (el) el.style.display = "block";
         }
 
-        // 1. Declaración previa de variables globales
         let filtroActual = 'Oficio';
         let todosLosRegistros = []; 
         let idSeleccionadoActual = null;
+        let sql = null;
 
-        // 2. Inicialización de la conexión con Neon (requiere que el script de Neon esté en el head)
-        const connectionString = "postgresql://neondb_owner:npg_z2MvG8wQeWbn@ep-delicate-unit-a5i0m1z2-pooler.us-east-2.aws.neon.tech/neondb?sslmode=require";
-        const sql = neon.neon(connectionString);
+        try {
+            if (typeof neon !== 'undefined' && neon.neon) {
+                const connectionString = "postgresql://neondb_owner:npg_z2MvG8wQeWbn@ep-delicate-unit-a5i0m1z2-pooler.us-east-2.aws.neon.tech/neondb?sslmode=require";
+                sql = neon.neon(connectionString);
+            }
+        } catch (e) {
+            console.error("Error al inicializar cliente Neon:", e);
+        }
 
         document.addEventListener("DOMContentLoaded", () => {
             const nombre = sessionStorage.getItem("usuario_nombre");
@@ -367,6 +372,11 @@
             const tbody = document.getElementById("tbody");
             const thead = document.getElementById("thead-dinamico");
             
+            if (!sql) {
+                tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:#dc2626; padding:30px;">⚠️ Error crítico: La librería de Neon no se ha cargado correctamente en el navegador. Revisa tu conexión a internet o bloqueadores de anuncios.</td></tr>`;
+                return;
+            }
+
             try {
                 const registros = await sql`SELECT * FROM casos_salud ORDER BY id DESC`;
                 todosLosRegistros = registros; 
@@ -706,6 +716,7 @@
         }
 
         async function guardarOficioDirecto(contenido, sectorDestino) {
+            if (!sql) { alert("No hay conexión con la base de datos."); return; }
             try {
                 await sql`INSERT INTO casos_salud (nombre, sector) VALUES (${contenido}, ${sectorDestino})`;
                 alert("¡Oficio Enviado registrado con éxito!");
@@ -726,6 +737,7 @@
         }
 
         async function guardarInformeAutomatizado() {
+            if (!sql) { alert("No hay conexión con la base de datos."); return; }
             const nro = document.getElementById("infNumero").value;
             const fecha = document.getElementById("infFecha").value;
             const asunto = document.getElementById("infAsunto").value;
@@ -752,6 +764,7 @@
         }
 
         async function eliminarRegistro(id) {
+            if (!sql) { alert("No hay conexión con la base de datos."); return; }
             if (!confirm(`¿Eliminar registro #${id}?`)) return;
             try {
                 await sql`DELETE FROM casos_salud WHERE id = ${id}`;
