@@ -7,20 +7,13 @@
     <title>Sistema Institucional - Ingreso</title>
 
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    
-    <!-- Importamos el puente de conexión seguro que creamos en js/conexion.js -->
-    <script src="js/conexion.js"></script>
 
     <style>
-        /* ==========================================
-            PALETA DE COLORES EXTRAÍDA DE LA FOTO
-            ========================================== */
         :root {
-            --bg-main: #f4f6f9;            /* Gris claro de fondo de pantalla */
-            --primary-blue: #0d2346;       /* Azul oscuro profundo institucional */
-            --active-blue: #1a4f9c;        /* Azul vivo para el botón principal e inputs en focus */
-            --text-muted: #7da0d0;         /* Azul grisáceo para textos secundarios menores */
-            --text-dark: #0f2547;          /* Azul muy oscuro para títulos principales */
+            --bg-main: #f4f6f9;
+            --primary-blue: #0d2346;
+            --active-blue: #1a4f9c;
+            --text-dark: #0f2547;
             --border-color: #dbe3ec;
         }
 
@@ -41,7 +34,6 @@
             padding: 20px;
         }
 
-        /* Tarjeta de login */
         .card{
             width:100%;
             max-width:420px;
@@ -52,7 +44,6 @@
             box-shadow: 0 10px 25px rgba(15, 23, 42, 0.05);
         }
 
-        /* Contenedor del logo */
         .logo{
             display:flex;
             justify-content:center;
@@ -65,7 +56,6 @@
             object-fit:contain;
         }
 
-        /* Encabezados y marcas tipográficas */
         .brand{
             text-align:center;
             font-size:10px;
@@ -93,7 +83,6 @@
             color: var(--text-dark);
         }
 
-        /* Campos de entrada formulario */
         input{
             width:100%;
             padding:14px;
@@ -113,7 +102,6 @@
             box-shadow: 0 0 0 3px rgba(26, 79, 156, 0.15);
         }
 
-        /* Botón de Ingreso */
         button{
             width:100%;
             padding:14px;
@@ -132,17 +120,15 @@
             background: #133d7a;
         }
 
-        /* Estado y Alertas */
         #status{
             margin-top:16px;
             text-align:center;
             font-size:13px;
-            color: #dc2626; /* Rojo por defecto para errores */
+            color: #dc2626;
             font-weight: 500;
             min-height: 20px;
         }
         
-        /* Clase auxiliar para mensajes informativos neutros */
         #status.info {
             color: #64748b; 
         }
@@ -158,18 +144,18 @@
         <div class="brand">Sistema Institucional</div>
         <div class="institution">Comisión Permanente de Salud y Desarrollo Social</div>
         <h2>Ingreso al Sistema</h2>
-        <!-- Agregamos el evento onkeydown para detectar la tecla Enter -->
         <input id="email" type="email" placeholder="Correo institucional" onkeydown="if(event.key === 'Enter') login()">
         <button onclick="login()">Ingresar</button>
         <p id="status"></p>
     </div>
 
-    <script>
-        async function login(){
+    <script type="module">
+        import { neon } from 'https://cdn.jsdelivr.net/npm/@neondatabase/serverless@0.9.0/+esm';
+
+        window.login = async function() {
             const email = document.getElementById("email").value.trim();
             const status = document.getElementById("status");
 
-            // Limpiamos estados anteriores
             status.innerHTML = "";
             status.classList.remove("info");
 
@@ -178,19 +164,17 @@
                 return;
             }
 
-            // Mostramos mensaje de carga con el color gris neutro
             status.classList.add("info");
             status.innerHTML = "Verificando acceso...";
 
             try {
-                // Hacemos la consulta directa a la tabla usuarios_sistema en Neon usando el conector seguro
-                const query = `
-                    SELECT id, nombre, rol, coordinacion 
-                    FROM usuarios_sistema 
-                    WHERE LOWER(email) = LOWER($1)
-                `;
-                
-                const resultados = await consultarBaseDatos(query, [email]);
+                const connectionString = "postgresql://neondb_owner:npg_u38DbrqVpBxi@ep-sparkling-math-avejx7o4-pooler.c-11.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require";
+                const sql = neon(connectionString);
+
+                const resultados = await sql(
+                    "SELECT id, nombre, rol, coordinacion FROM usuarios_sistema WHERE LOWER(email) = LOWER($1);",
+                    [email]
+                );
 
                 if (!resultados || resultados.length === 0) {
                     status.classList.remove("info");
@@ -198,17 +182,14 @@
                     return;
                 }
 
-                // Extraemos el perfil del miembro del equipo encontrado
                 const perfil = resultados[0];
                 const rol = (perfil.rol || "").toLowerCase().trim();
 
-                // GUARDAR DATOS DEL USUARIO EN LA SESIÓN DEL NAVEGADOR
                 sessionStorage.setItem("usuario_nombre", (perfil.nombre || perfil.email).trim());
                 sessionStorage.setItem("usuario_coordinacion", (perfil.coordinacion || "").trim());
                 sessionStorage.setItem("usuario_rol", rol);
                 sessionStorage.setItem("usuario_logueado", "true");
 
-                // REDIRECCIÓN SEGÚN SU ROL (Sin el .html debido a las Clean URLs de Vercel)
                 if(rol === "admin"){
                     window.location.href = "/dashboard";
                 }
@@ -222,10 +203,7 @@
                     window.location.href = "/ejecutiva";
                 }
                 else {
-                    // Si tiene un rol inválido o básico, limpiamos y bloqueamos
                     sessionStorage.removeItem("usuario_logueado");
-                    sessionStorage.removeItem("usuario_nombre");
-                    sessionStorage.removeItem("usuario_coordinacion");
                     status.classList.remove("info");
                     status.innerHTML = "Tu rol no tiene asignado un panel de control";
                 }
@@ -235,7 +213,7 @@
                 status.classList.remove("info");
                 status.innerHTML = "Error de conexión con el sistema de control";
             }
-        }
+        };
     </script>
 </body>
 </html>
