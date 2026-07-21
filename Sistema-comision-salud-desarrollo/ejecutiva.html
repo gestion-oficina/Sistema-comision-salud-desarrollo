@@ -148,12 +148,6 @@
         <div id="enlaceAuditoria" style="display: none;">
             <a href="auditoria.html" class="menu">🛡️ Panel de Auditoría</a>
         </div>
-
-        <script>
-            if (sessionStorage.getItem("usuario_rol") === "admin") {
-                document.getElementById("enlaceAuditoria").style.display = "block";
-            }
-        </script>
         
         <div style="margin-top: auto; padding: 24px 20px; border-top: 1px solid rgba(255,255,255,0.1);">
             <div id="usuarioNombre" style="font-size:13px; color:#ffffff; font-weight:600; margin-bottom: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
@@ -310,463 +304,469 @@
         </div>
     </div>
 
+    <!-- SCRIPT DE CONTROL Y CONEXIÓN (COLOCADO AL FINAL PARA EVITAR ERRORES DE HOISTING) -->
     <script>
-    // 1. Declaración previa de variables globales de control
-    let filtroActual = 'Oficio';
-    let todosLosRegistros = []; 
-    let idSeleccionadoActual = null;
-
-    // 2. Inicialización de la conexión con Neon
-    const connectionString = "postgresql://neondb_owner:npg_z2MvG8wQeWbn@ep-delicate-unit-a5i0m1z2-pooler.us-east-2.aws.neon.tech/neondb?sslmode=require";
-    const sql = neon.neon(connectionString);
-
-    document.addEventListener("DOMContentLoaded", () => {
-        const nombre = sessionStorage.getItem("usuario_nombre");
-        const coord = sessionStorage.getItem("usuario_coordinacion");
-        if (nombre) document.getElementById("usuarioNombre").textContent = nombre;
-        if (coord) document.getElementById("usuarioCoordinacion").textContent = coord;
-
-        switchData('Oficio');
-        
-        const formInforme = document.getElementById('formAutomatedInforme');
-        if (formInforme) {
-            formInforme.addEventListener('submit', async (e) => {
-                e.preventDefault();
-                await guardarInformeAutomatizado();
-            });
+        if (sessionStorage.getItem("usuario_rol") === "admin") {
+            const el = document.getElementById("enlaceAuditoria");
+            if (el) el.style.display = "block";
         }
-    });
 
-    function toggleMobileMenu() {
-        const sidebar = document.getElementById("sidebarMenu");
-        const btn = document.getElementById("menuToggleBtn");
-        sidebar.classList.toggle("mobile-open");
-        btn.innerText = sidebar.classList.contains("mobile-open") ? "✕" : "☰";
-    }
+        // 1. Declaración previa de variables globales
+        let filtroActual = 'Oficio';
+        let todosLosRegistros = []; 
+        let idSeleccionadoActual = null;
 
-    function cambiarFiltroFecha() {
-        const val = document.getElementById("filter-date").value;
-        const from = document.getElementById("filter-date-from");
-        const to = document.getElementById("filter-date-to");
-        const sep = document.getElementById("filter-date-separator");
-        
-        if (val === 'personalizado') {
-            from.style.display = 'inline-block';
-            to.style.display = 'inline-block';
-            sep.style.display = 'inline-block';
-        } else {
-            from.style.display = 'none';
-            to.style.display = 'none';
-            sep.style.display = 'none';
+        // 2. Inicialización de la conexión con Neon
+        const connectionString = "postgresql://neondb_owner:npg_z2MvG8wQeWbn@ep-delicate-unit-a5i0m1z2-pooler.us-east-2.aws.neon.tech/neondb?sslmode=require";
+        const sql = neon.neon(connectionString);
+
+        document.addEventListener("DOMContentLoaded", () => {
+            const nombre = sessionStorage.getItem("usuario_nombre");
+            const coord = sessionStorage.getItem("usuario_coordinacion");
+            if (nombre) document.getElementById("usuarioNombre").textContent = nombre;
+            if (coord) document.getElementById("usuarioCoordinacion").textContent = coord;
+
+            switchData('Oficio');
+            
+            const formInforme = document.getElementById('formAutomatedInforme');
+            if (formInforme) {
+                formInforme.addEventListener('submit', async (e) => {
+                    e.preventDefault();
+                    await guardarInformeAutomatizado();
+                });
+            }
+        });
+
+        function toggleMobileMenu() {
+            const sidebar = document.getElementById("sidebarMenu");
+            const btn = document.getElementById("menuToggleBtn");
+            sidebar.classList.toggle("mobile-open");
+            btn.innerText = sidebar.classList.contains("mobile-open") ? "✕" : "☰";
         }
-        renderFilas();
-    }
 
-    async function loadData() {
-        const tbody = document.getElementById("tbody");
-        const thead = document.getElementById("thead-dinamico");
-        
-        try {
-            const registros = await sql`SELECT * FROM casos_salud ORDER BY id DESC`;
-            todosLosRegistros = registros; 
-
-            if (filtroActual === 'Oficio') {
-                thead.innerHTML = `<tr><th style="width: 120px;">Nro Oficio</th><th>Asunto / Clasificación</th><th>Sector / Ente Destino</th><th>Estado</th><th style="width: 150px;">Acciones</th></tr>`;
+        function cambiarFiltroFecha() {
+            const val = document.getElementById("filter-date").value;
+            const from = document.getElementById("filter-date-from");
+            const to = document.getElementById("filter-date-to");
+            const sep = document.getElementById("filter-date-separator");
+            
+            if (val === 'personalizado') {
+                from.style.display = 'inline-block';
+                to.style.display = 'inline-block';
+                sep.style.display = 'inline-block';
             } else {
-                thead.innerHTML = `<tr><th style="width: 120px;">Nro Informe</th><th>Título del Informe Legislativo</th><th>Área de Cobertura</th><th>Estado</th><th style="width: 150px;">Acciones</th></tr>`;
+                from.style.display = 'none';
+                to.style.display = 'none';
+                sep.style.display = 'none';
             }
             renderFilas();
-        } catch (err) {
-            tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:#dc2626; padding:30px;">⚠️ Error de conexión con Neon: ${err.message}</td></tr>`;
         }
-    }
 
-    function renderFilas() {
-        const tbody = document.getElementById("tbody");
-        
-        const dateVal = document.getElementById("filter-date").value;
-        const fromVal = document.getElementById("filter-date-from").value;
-        const toVal = document.getElementById("filter-date-to").value;
-        const encargadoVal = document.getElementById("filter-encargado").value.toLowerCase();
-
-        const datosFiltrados = todosLosRegistros.filter(r => {
-            const campoNombre = (r.nombre || "").toLowerCase();
-            const campoSector = (r.sector || "").toLowerCase();
+        async function loadData() {
+            const tbody = document.getElementById("tbody");
+            const thead = document.getElementById("thead-dinamico");
             
-            const cumplePestana = filtroActual === 'Oficio' 
-                ? (campoNombre.includes("oficio") || campoNombre.includes("ordenanza") || campoNombre.includes("tomas"))
-                : (campoNombre.includes("informe") || campoNombre.includes("inspeccion"));
-            
-            if (!cumplePestana) return false;
+            try {
+                const registros = await sql`SELECT * FROM casos_salud ORDER BY id DESC`;
+                todosLosRegistros = registros; 
 
-            if (encargadoVal && !campoSector.includes(encargadoVal) && !campoNombre.includes(encargadoVal)) {
-                return false;
+                if (filtroActual === 'Oficio') {
+                    thead.innerHTML = `<tr><th style="width: 120px;">Nro Oficio</th><th>Asunto / Clasificación</th><th>Sector / Ente Destino</th><th>Estado</th><th style="width: 150px;">Acciones</th></tr>`;
+                } else {
+                    thead.innerHTML = `<tr><th style="width: 120px;">Nro Informe</th><th>Título del Informe Legislativo</th><th>Área de Cobertura</th><th>Estado</th><th style="width: 150px;">Acciones</th></tr>`;
+                }
+                renderFilas();
+            } catch (err) {
+                tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:#dc2626; padding:30px;">⚠️ Error de conexión con Neon: ${err.message}</td></tr>`;
             }
+        }
 
-            if (dateVal !== 'todos' && r.created_at) {
-                const recordDate = new Date(r.created_at);
-                const hoy = new Date();
+        function renderFilas() {
+            const tbody = document.getElementById("tbody");
+            
+            const dateVal = document.getElementById("filter-date").value;
+            const fromVal = document.getElementById("filter-date-from").value;
+            const toVal = document.getElementById("filter-date-to").value;
+            const encargadoVal = document.getElementById("filter-encargado").value.toLowerCase();
+
+            const datosFiltrados = todosLosRegistros.filter(r => {
+                const campoNombre = (r.nombre || "").toLowerCase();
+                const campoSector = (r.sector || "").toLowerCase();
                 
-                if (dateVal === 'semana') {
-                    const semanaAtras = new Date();
-                    semanaAtras.setDate(hoy.getDate() - 7);
-                    if (recordDate < semanaAtras) return false;
-                } else if (dateVal === 'quincena') {
-                    const quincenaAtras = new Date();
-                    quincenaAtras.setDate(hoy.getDate() - 15);
-                    if (recordDate < quincenaAtras) return false;
-                } else if (dateVal === 'mes') {
-                    const mesAtras = new Date();
-                    mesAtras.setMonth(hoy.getMonth() - 1);
-                    if (recordDate < mesAtras) return false;
-                } else if (dateVal === 'personalizado') {
-                    if (fromVal) {
-                        const dDesde = new Date(fromVal);
-                        if (recordDate < dDesde) return false;
+                const cumplePestana = filtroActual === 'Oficio' 
+                    ? (campoNombre.includes("oficio") || campoNombre.includes("ordenanza") || campoNombre.includes("tomas"))
+                    : (campoNombre.includes("informe") || campoNombre.includes("inspeccion"));
+                
+                if (!cumplePestana) return false;
+
+                if (encargadoVal && !campoSector.includes(encargadoVal) && !campoNombre.includes(encargadoVal)) {
+                    return false;
+                }
+
+                if (dateVal !== 'todos' && r.created_at) {
+                    const recordDate = new Date(r.created_at);
+                    const hoy = new Date();
+                    
+                    if (dateVal === 'semana') {
+                        const semanaAtras = new Date();
+                        semanaAtras.setDate(hoy.getDate() - 7);
+                        if (recordDate < semanaAtras) return false;
+                    } else if (dateVal === 'quincena') {
+                        const quincenaAtras = new Date();
+                        quincenaAtras.setDate(hoy.getDate() - 15);
+                        if (recordDate < quincenaAtras) return false;
+                    } else if (dateVal === 'mes') {
+                        const mesAtras = new Date();
+                        mesAtras.setMonth(hoy.getMonth() - 1);
+                        if (recordDate < mesAtras) return false;
+                    } else if (dateVal === 'personalizado') {
+                        if (fromVal) {
+                            const dDesde = new Date(fromVal);
+                            if (recordDate < dDesde) return false;
+                        }
+                        if (toVal) {
+                            const dHasta = new Date(toVal);
+                            dHasta.setHours(23, 59, 59, 999);
+                            if (recordDate > dHasta) return false;
+                        }
                     }
-                    if (toVal) {
-                        const dHasta = new Date(toVal);
-                        dHasta.setHours(23, 59, 59, 999);
-                        if (recordDate > dHasta) return false;
+                }
+
+                return true;
+            });
+
+            if (datosFiltrados.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:#94a3b8; padding:30px;">No se encontraron registros que coincidan con los filtros.</td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = datosFiltrados.map(r => {
+                let lineaTitulo = r.nombre || 'Documento sin Identificación';
+                let numeroDocumento = `#${r.id}`;
+
+                if (filtroActual === 'Oficio') {
+                    const matchOficio = lineaTitulo.match(/OFICIO\s*N[°º]?:\s*([^\n]+)/i);
+                    if (matchOficio && matchOficio[1]) {
+                        numeroDocumento = matchOficio[1].trim();
                     }
+                    const asuntoOficio = lineaTitulo.match(/ASUNTO:\s*([^\n]+)/i);
+                    lineaTitulo = asuntoOficio ? asuntoOficio[1].trim() : lineaTitulo.split('\n')[1] || lineaTitulo;
+                } else {
+                    const matchInforme = lineaTitulo.match(/INFORME\s*N[°º]?:\s*([^\n]+)/i);
+                    if (matchInforme && matchInforme[1]) {
+                        numeroDocumento = matchInforme[1].trim();
+                    }
+                    const asuntoInforme = lineaTitulo.match(/ASUNTO:\s*([^\n]+)/i);
+                    lineaTitulo = asuntoInforme ? asuntoInforme[1].trim() : lineaTitulo.split('\n')[2] || lineaTitulo.split('\n')[0];
+                }
+
+                return `
+                    <tr>
+                        <td><code>${numeroDocumento}</code></td>
+                        <td><b style="color: var(--text-dark-title);">${lineaTitulo}</b></td>
+                        <td style="color:#475569;">${r.sector || 'No parametrizado'}</td>
+                        <td><span style="background:#e0f2fe; color:#0369a1; padding:3px 8px; border-radius:4px; font-size:11px; font-weight:700;">ACTIVO</span></td>
+                        <td>
+                            <div class="action-buttons">
+                                <button class="btn-wa" onclick="verDetallesModal(${r.id})">Ver</button>
+                                <button class="btn-del" onclick="eliminarRegistro(${r.id})">Borrar</button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }).join("");
+        }
+
+        function verDetallesModal(id) {
+            const registro = todosLosRegistros.find(r => r.id === id);
+            if (!registro) return;
+
+            idSeleccionadoActual = id;
+            let identificador = `#${registro.id}`;
+
+            if (registro.nombre) {
+                const regex = filtroActual === "Oficio" ? /OFICIO\s*N[°º]?:\s*([^\n]+)/i : /INFORME\s*N[°º]?:\s*([^\n]+)/i;
+                const match = registro.nombre.match(regex);
+                if (match && match[1]) {
+                    identificador = `${filtroActual} Nº ${match[1].trim()}`;
                 }
             }
 
-            return true;
-        });
+            document.getElementById("modal-id").innerText = identificador;
+            document.getElementById("modal-nombre").innerText = registro.nombre || "Sin título";
+            document.getElementById("modal-sector").innerText = registro.sector || "No especificado";
 
-        if (datosFiltrados.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:#94a3b8; padding:30px;">No se encontraron registros que coincidan con los filtros.</td></tr>`;
-            return;
-        }
-
-        tbody.innerHTML = datosFiltrados.map(r => {
-            let lineaTitulo = r.nombre || 'Documento sin Identificación';
-            let numeroDocumento = `#${r.id}`;
-
-            if (filtroActual === 'Oficio') {
-                const matchOficio = lineaTitulo.match(/OFICIO\s*N[°º]?:\s*([^\n]+)/i);
-                if (matchOficio && matchOficio[1]) {
-                    numeroDocumento = matchOficio[1].trim();
-                }
-                const asuntoOficio = lineaTitulo.match(/ASUNTO:\s*([^\n]+)/i);
-                lineaTitulo = asuntoOficio ? asuntoOficio[1].trim() : lineaTitulo.split('\n')[1] || lineaTitulo;
+            if (filtroActual === "Oficio") {
+                document.getElementById("modal-title-doc").innerText = "Expediente de Oficio Enviado";
+                document.getElementById("modal-label-nombre").innerText = "Clasificación del Oficio";
+                document.getElementById("modal-label-sector").innerText = "Sector / Organismo Destinatario";
+                document.getElementById("btnDescargarWord").style.display = "none";
             } else {
-                const matchInforme = lineaTitulo.match(/INFORME\s*N[°º]?:\s*([^\n]+)/i);
-                if (matchInforme && matchInforme[1]) {
-                    numeroDocumento = matchInforme[1].trim();
+                document.getElementById("modal-title-doc").innerText = "Expediente de Informe Legislativo";
+                document.getElementById("modal-label-nombre").innerText = "Contenido Estructurado del Informe";
+                document.getElementById("modal-label-sector").innerText = "Actores / Responsable";
+                document.getElementById("btnDescargarWord").style.display = "inline-block";
+            }
+
+            document.getElementById("documentModal").classList.add("open");
+        }
+
+        function closeDocModal() {
+            document.getElementById("documentModal").classList.remove("open");
+        }
+
+        function exportarRegistroAWord() {
+            const registro = todosLosRegistros.find(r => r.id === idSeleccionadoActual);
+            if (!registro) return;
+
+            const textoLimpio = registro.nombre || "";
+            
+            const coincidenciaNro = textoLimpio.match(/INFORME Nº:\s*([^\n]+)/i);
+            const coincidenciaFecha = textoLimpio.match(/FECHA:\s*([^\n]+)/i);
+            const coincidenciaAsunto = textoLimpio.match(/ASUNTO:\s*([^\n]+)/i);
+            
+            const nroInforme = coincidenciaNro ? coincidenciaNro[1].trim() : "027-2026";
+            const fechaInforme = coincidenciaFecha ? coincidenciaFecha[1].trim() : "26 de mayo 2026";
+            const asuntoInforme = coincidenciaAsunto ? coincidenciaAsunto[1].trim() : "Plan Atención Médica integral Salud va a la Escuela";
+            
+            let actoresVinculados = "Poder Popular, Comisión de Salud, Instituciones de Salud";
+            if (registro.sector && registro.sector.includes('(Resp:')) {
+                actoresVinculados = registro.sector.split(' (Resp:')[0];
+            }
+
+            const lineasCuerpo = textoLimpio.split('\n').filter(linea => {
+                const l = linea.trim().toUpperCase();
+                return !l.startsWith('INFORME Nº:') && !l.startsWith('FECHA:') && !l.startsWith('ASUNTO:') && !l.startsWith('RESPONSABLE:') && !l.startsWith('-----');
+            });
+
+            const parrafosHTML = lineasCuerpo.map(linea => {
+                if(!linea.trim()) return '<p style="margin: 0 0 6pt 0;">&nbsp;</p>';
+                
+                if(linea.trim().match(/^(I|II|III|IV|V)\.\s+[A-ZÁÉÍÓÚÑ]/)) {
+                    return `<h2 style="font-family: 'Arial', sans-serif; font-size: 12pt; font-weight: bold; color: #000000; text-align: center; margin-top: 18pt; margin-bottom: 12pt; text-transform: uppercase;">${linea.trim()}</h2>`;
                 }
-                const asuntoInforme = lineaTitulo.match(/ASUNTO:\s*([^\n]+)/i);
-                lineaTitulo = asuntoInforme ? asuntoInforme[1].trim() : lineaTitulo.split('\n')[2] || lineaTitulo.split('\n')[0];
-            }
-
-            return `
-                <tr>
-                    <td><code>${numeroDocumento}</code></td>
-                    <td><b style="color: var(--text-dark-title);">${lineaTitulo}</b></td>
-                    <td style="color:#475569;">${r.sector || 'No parametrizado'}</td>
-                    <td><span style="background:#e0f2fe; color:#0369a1; padding:3px 8px; border-radius:4px; font-size:11px; font-weight:700;">ACTIVO</span></td>
-                    <td>
-                        <div class="action-buttons">
-                            <button class="btn-wa" onclick="verDetallesModal(${r.id})">Ver</button>
-                            <button class="btn-del" onclick="eliminarRegistro(${r.id})">Borrar</button>
-                        </div>
-                    </td>
-                </tr>
-            `;
-        }).join("");
-    }
-
-    function verDetallesModal(id) {
-        const registro = todosLosRegistros.find(r => r.id === id);
-        if (!registro) return;
-
-        idSeleccionadoActual = id;
-        let identificador = `#${registro.id}`;
-
-        if (registro.nombre) {
-            const regex = filtroActual === "Oficio" ? /OFICIO\s*N[°º]?:\s*([^\n]+)/i : /INFORME\s*N[°º]?:\s*([^\n]+)/i;
-            const match = registro.nombre.match(regex);
-            if (match && match[1]) {
-                identificador = `${filtroActual} Nº ${match[1].trim()}`;
-            }
-        }
-
-        document.getElementById("modal-id").innerText = identificador;
-        document.getElementById("modal-nombre").innerText = registro.nombre || "Sin título";
-        document.getElementById("modal-sector").innerText = registro.sector || "No especificado";
-
-        if (filtroActual === "Oficio") {
-            document.getElementById("modal-title-doc").innerText = "Expediente de Oficio Enviado";
-            document.getElementById("modal-label-nombre").innerText = "Clasificación del Oficio";
-            document.getElementById("modal-label-sector").innerText = "Sector / Organismo Destinatario";
-            document.getElementById("btnDescargarWord").style.display = "none";
-        } else {
-            document.getElementById("modal-title-doc").innerText = "Expediente de Informe Legislativo";
-            document.getElementById("modal-label-nombre").innerText = "Contenido Estructurado del Informe";
-            document.getElementById("modal-label-sector").innerText = "Actores / Responsable";
-            document.getElementById("btnDescargarWord").style.display = "inline-block";
-        }
-
-        document.getElementById("documentModal").classList.add("open");
-    }
-
-    function closeDocModal() {
-        document.getElementById("documentModal").classList.remove("open");
-    }
-
-    function exportarRegistroAWord() {
-        const registro = todosLosRegistros.find(r => r.id === idSeleccionadoActual);
-        if (!registro) return;
-
-        const textoLimpio = registro.nombre || "";
-        
-        const coincidenciaNro = textoLimpio.match(/INFORME Nº:\s*([^\n]+)/i);
-        const coincidenciaFecha = textoLimpio.match(/FECHA:\s*([^\n]+)/i);
-        const coincidenciaAsunto = textoLimpio.match(/ASUNTO:\s*([^\n]+)/i);
-        
-        const nroInforme = coincidenciaNro ? coincidenciaNro[1].trim() : "027-2026";
-        const fechaInforme = coincidenciaFecha ? coincidenciaFecha[1].trim() : "26 de mayo 2026";
-        const asuntoInforme = coincidenciaAsunto ? coincidenciaAsunto[1].trim() : "Plan Atención Médica integral Salud va a la Escuela";
-        
-        let actoresVinculados = "Poder Popular, Comisión de Salud, Instituciones de Salud, y el CEIS Centro de Educación Inicial Tersa de la Parra";
-        if (registro.sector && registro.sector.includes('(Resp:')) {
-            actoresVinculados = registro.sector.split(' (Resp:')[0];
-        }
-
-        const lineasCuerpo = textoLimpio.split('\n').filter(linea => {
-            const l = linea.trim().toUpperCase();
-            return !l.startsWith('INFORME Nº:') && !l.startsWith('FECHA:') && !l.startsWith('ASUNTO:') && !l.startsWith('RESPONSABLE:') && !l.startsWith('-----');
-        });
-
-        const parrafosHTML = lineasCuerpo.map(linea => {
-            if(!linea.trim()) return '<p style="margin: 0 0 6pt 0;">&nbsp;</p>';
-            
-            if(linea.trim().match(/^(I|II|III|IV|V)\.\s+[A-ZÁÉÍÓÚÑ]/)) {
-                return `<h2 style="font-family: 'Arial', sans-serif; font-size: 12pt; font-weight: bold; color: #000000; text-align: center; margin-top: 18pt; margin-bottom: 12pt; text-transform: uppercase;">${linea.trim()}</h2>`;
-            }
-            
-            if(linea.trim().match(/^[A-ZÁÉÍÓÚÑ]{4,}:$/)) {
-                return `<p style="font-family: 'Arial', sans-serif; font-size: 11pt; font-weight: bold; color: #000000; margin-top: 12pt; margin-bottom: 6pt;">${linea.trim()}</p>`;
-            }
-
-            if(linea.trim().startsWith('•') || linea.trim().startsWith('-')) {
-                return `<p style="font-family: 'Arial', sans-serif; font-size: 11pt; line-height: 1.25; color: #000000; margin: 0 0 6pt 24pt; text-align: justify;">${linea.trim()}</p>`;
-            }
-            
-            return `<p style="font-family: 'Arial', sans-serif; font-size: 11pt; line-height: 1.25; color: #000000; margin: 0 0 10pt 0; text-align: justify;">${linea}</p>`;
-        }).join('');
-
-        const plantillaWordHTML = `
-        <html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
-        <head>
-            <meta charset="UTF-8">
-            <title>Informe de Gestión</title>
-            <style>
-                @page { size: 8.5in 11in; margin: 1.0in 1.0in 1.0in 1.0in; }
-                body { font-family: 'Arial', sans-serif; color: #000000; }
-            </style>
-        </head>
-        <body>
-            <table border="0" cellspacing="0" cellpadding="0" style="width: 100%; border-collapse: collapse; margin-bottom: 5pt;">
-                <tr>
-                   <td style="width: 14%; text-align: left; vertical-align: middle;">
-                        <img src="https://soqgmwzknfgmxefbnfgs.supabase.co/storage/v1/object/public/logo-concejo/concejo.logo.jfif" width="75" height="75" style="display:block;">
-                   </td>
-                    <td style="width: 70%; text-align: center; vertical-align: middle;">
-                        <p style="font-size: 12pt; font-weight: normal; color: #4a4a4a; margin: 0; font-family: 'Arial', sans-serif; line-height: 1.1;">República Bolivariana de Venezuela</p>
-                        <p style="font-size: 12pt; font-weight: normal; color: #4a4a4a; margin: 0; font-family: 'Arial', sans-serif; line-height: 1.1;">Estado Bolivariano de Miranda</p>
-                        <p style="font-size: 12pt; font-weight: normal; color: #4a4a4a; margin: 0; font-family: 'Arial', sans-serif; line-height: 1.1;">Concejo del Municipio "Ambrosio Plaza"</p>
-                        <p style="font-size: 12pt; font-weight: bold; color: #4a4a4a; margin: 2pt 0 0 0; font-family: 'Arial', sans-serif; line-height: 1.1;">Comisión Permanente de Salud y</p>
-                        <p style="font-size: 12pt; font-weight: bold; color: #4a4a4a; margin: 0; font-family: 'Arial', sans-serif; line-height: 1.1;">Desarrollo Social Integral</p>
-                    </td>
-                   <td style="width: 14%; text-align: right; vertical-align: middle;">
-                        <img src="https://soqgmwzknfgmxefbnfgs.supabase.co/storage/v1/object/public/logo-concejo/logo.png" width="100" height="100" style="display:block;">
-                   </td>
-                </tr>
-            </table>
-            
-            <div style="border-top: 4.5pt solid #ff6666; margin-bottom: 20pt; width: 100%;"></div>
-
-            <table border="0" cellspacing="0" cellpadding="0" style="width: 100%; border-collapse: collapse; margin-bottom: 12pt;">
-                <tr>
-                    <td style="vertical-align: top; width: 50%;">
-                        <p style="font-family: 'Arial', sans-serif; font-size: 12pt; margin: 0 0 8pt 0;"><b>INFORME:</b> ${nroInforme}</p>
-                    </td>
-                    <td style="vertical-align: top; width: 50%; text-align: right;">
-                        <p style="font-family: 'Arial', sans-serif; font-size: 12pt; margin: 0 0 8pt 0;"><b>FECHA:</b> ${fechaInforme}</p>
-                    </td>
-                </tr>
-            </table>
-
-            <table border="0" cellspacing="0" cellpadding="0" style="width: 100%; border-collapse: collapse; margin-bottom: 15pt;">
-                <tr><td style="vertical-align: top; padding-bottom: 5pt;"><p style="font-family: 'Arial', sans-serif; font-size: 11pt; line-height: 1.3; margin: 0;"><b>COMISIÓN:</b> Comisión de Salud y Desarrollo Social Integral</p></td></tr>
-                <tr><td style="vertical-align: top; padding-bottom: 5pt;"><p style="font-family: 'Arial', sans-serif; font-size: 11pt; line-height: 1.3; margin: 0;"><b>ASUNTO:</b> ${asuntoInforme}</p></td></tr>
-                <tr><td style="vertical-align: top; padding-bottom: 5pt;"><p style="font-family: 'Arial', sans-serif; font-size: 11pt; line-height: 1.3; margin: 0;"><b>ACTORES VINCULADOS:</b> ${actoresVinculados}</p></td></tr>
-            </table>
-            
-            <div style="border-top: 0.75pt solid #000000; margin-bottom: 15pt; width: 100%;"></div>
-
-            <div style="margin-bottom: 35pt;">
-                ${parrafosHTML}
-            </div>
-
-            <div style="page-break-inside: avoid; margin-top: 40pt; margin-bottom: 30pt;">
-                <p style="font-family: 'Arial', sans-serif; font-size: 11pt; text-align: left; margin-bottom: 35pt;">Por la Comisión Permanente de Salud y Desarrollo Social Integral</p>
                 
-                <table border="0" cellspacing="0" cellpadding="0" style="width: 100%; border-collapse: collapse; margin-bottom: 35pt;">
-                    <tr>
-                        <td style="text-align: center; width: 100%;">
-                            <p style="font-family: 'Arial', sans-serif; font-size: 10.5pt; font-weight: bold; margin: 0;">Concejala Abg. Letty Bastidas</p>
-                            <p style="font-family: 'Arial', sans-serif; font-size: 9.5pt; font-style: italic; margin: 0; color: #333333;">Presidente de la Comisión Permanente de Salud y</p>
-                            <p style="font-family: 'Arial', sans-serif; font-size: 9.5pt; font-style: italic; margin: 0; color: #333333;">Desarrollo Social Integral</p>
-                        </td>
-                    </tr>
-                </table>
+                if(linea.trim().match(/^[A-ZÁÉÍÓÚÑ]{4,}:$/)) {
+                    return `<p style="font-family: 'Arial', sans-serif; font-size: 11pt; font-weight: bold; color: #000000; margin-top: 12pt; margin-bottom: 6pt;">${linea.trim()}</p>`;
+                }
 
-                <table border="0" cellspacing="0" cellpadding="0" style="width: 100%; border-collapse: collapse;">
+                if(linea.trim().startsWith('•') || linea.trim().startsWith('-')) {
+                    return `<p style="font-family: 'Arial', sans-serif; font-size: 11pt; line-height: 1.25; color: #000000; margin: 0 0 6pt 24pt; text-align: justify;">${linea.trim()}</p>`;
+                }
+                
+                return `<p style="font-family: 'Arial', sans-serif; font-size: 11pt; line-height: 1.25; color: #000000; margin: 0 0 10pt 0; text-align: justify;">${linea}</p>`;
+            }).join('');
+
+            const plantillaWordHTML = `
+            <html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
+            <head>
+                <meta charset="UTF-8">
+                <title>Informe de Gestión</title>
+                <style>
+                    @page { size: 8.5in 11in; margin: 1.0in 1.0in 1.0in 1.0in; }
+                    body { font-family: 'Arial', sans-serif; color: #000000; }
+                </style>
+            </head>
+            <body>
+                <table border="0" cellspacing="0" cellpadding="0" style="width: 100%; border-collapse: collapse; margin-bottom: 5pt;">
                     <tr>
-                        <td style="text-align: center; width: 50%; vertical-align: top; padding-right: 10px;">
-                            <p style="font-family: 'Arial', sans-serif; font-size: 10.5pt; font-weight: bold; margin: 0;">Concejala Mag. Mirlys Hidalgo</p>
-                            <p style="font-family: 'Arial', sans-serif; font-size: 9.5pt; font-style: italic; margin: 0; color: #333333;">Vicepresidente de la Comisión Permanente</p>
-                            <p style="font-family: 'Arial', sans-serif; font-size: 9.5pt; font-style: italic; margin: 0; color: #333333;">de Salud y Desarrollo Social Integral</p>
+                       <td style="width: 14%; text-align: left; vertical-align: middle;">
+                            <img src="https://soqgmwzknfgmxefbnfgs.supabase.co/storage/v1/object/public/logo-concejo/concejo.logo.jfif" width="75" height="75" style="display:block;">
+                       </td>
+                        <td style="width: 70%; text-align: center; vertical-align: middle;">
+                            <p style="font-size: 12pt; font-weight: normal; color: #4a4a4a; margin: 0; font-family: 'Arial', sans-serif; line-height: 1.1;">República Bolivariana de Venezuela</p>
+                            <p style="font-size: 12pt; font-weight: normal; color: #4a4a4a; margin: 0; font-family: 'Arial', sans-serif; line-height: 1.1;">Estado Bolivariano de Miranda</p>
+                            <p style="font-size: 12pt; font-weight: normal; color: #4a4a4a; margin: 0; font-family: 'Arial', sans-serif; line-height: 1.1;">Concejo del Municipio "Ambrosio Plaza"</p>
+                            <p style="font-size: 12pt; font-weight: bold; color: #4a4a4a; margin: 2pt 0 0 0; font-family: 'Arial', sans-serif; line-height: 1.1;">Comisión Permanente de Salud y</p>
+                            <p style="font-size: 12pt; font-weight: bold; color: #4a4a4a; margin: 0; font-family: 'Arial', sans-serif; line-height: 1.1;">Desarrollo Social Integral</p>
                         </td>
-                        <td style="text-align: center; width: 50%; vertical-align: top; padding-left: 10px;">
-                            <p style="font-family: 'Arial', sans-serif; font-size: 10.5pt; font-weight: bold; margin: 0;">Concejala Lic. Zulmy Orozco</p>
-                            <p style="font-family: 'Arial', sans-serif; font-size: 9.5pt; font-style: italic; margin: 0; color: #333333;">Vocal de la Comisión Permanente de Salud y</p>
-                            <p style="font-family: 'Arial', sans-serif; font-size: 9.5pt; font-style: italic; margin: 0; color: #333333;">Desarrollo Social Integral</p>
-                        </td>
+                       <td style="width: 14%; text-align: right; vertical-align: middle;">
+                            <img src="https://soqgmwzknfgmxefbnfgs.supabase.co/storage/v1/object/public/logo-concejo/logo.png" width="100" height="100" style="display:block;">
+                       </td>
                     </tr>
                 </table>
                 
-                <p style="font-family: 'Arial', sans-serif; font-size: 10pt; text-align: left; margin-top: 30pt; margin-left: 40pt; color: #000000;"><i>LB/cp</i></p>
-            </div>
+                <div style="border-top: 4.5pt solid #ff6666; margin-bottom: 20pt; width: 100%;"></div>
 
-            <div style="margin-top: 40pt; text-align: center; width: 100%;">
-                <table border="0" cellspacing="0" cellpadding="0" style="width: 100%; border-collapse: collapse; height: 4pt; margin-bottom: 6pt;">
+                <table border="0" cellspacing="0" cellpadding="0" style="width: 100%; border-collapse: collapse; margin-bottom: 12pt;">
                     <tr>
-                        <td style="background-color: #ffde00; width: 33.33%;"></td>
-                        <td style="background-color: #003da5; width: 33.33%;"></td>
-                        <td style="background-color: #d12421; width: 33.34%;"></td>
+                        <td style="vertical-align: top; width: 50%;">
+                            <p style="font-family: 'Arial', sans-serif; font-size: 12pt; margin: 0 0 8pt 0;"><b>INFORME:</b> ${nroInforme}</p>
+                        </td>
+                        <td style="vertical-align: top; width: 50%; text-align: right;">
+                            <p style="font-family: 'Arial', sans-serif; font-size: 12pt; margin: 0 0 8pt 0;"><b>FECHA:</b> ${fechaInforme}</p>
+                        </td>
                     </tr>
                 </table>
-                <p style="font-family: 'Arial', sans-serif; font-size: 11pt; font-weight: bold; font-style: italic; color: #7f7f7f; margin: 0 0 4pt 0;">Salud para Todos y Todas</p>
-                <p style="font-family: 'Arial', sans-serif; font-size: 10.5pt; color: #8c8c8c; margin: 0; line-height: 1.25;">Dirección: Calle Bolívar con Monagas, diagonal al Hospitalito Francisco Rafael García.</p>
-                <p style="font-family: 'Arial', sans-serif; font-size: 10.5pt; color: #8c8c8c; margin: 0; line-height: 1.25;">Guarenas, Estado Bolivariano de Miranda. Nro. Telefónico: 0426-3147191</p>
-                <p style="font-family: 'Arial', sans-serif; font-size: 10.5pt; color: #8c8c8c; margin: 0; line-height: 1.25;">Correo Electrónico: <span style="color: #4a90e2; text-decoration: underline;">Comisiondesaludgestion2025@Gmail.com</span></p>
-            </div>
-        </body>
-        </html>`;
 
-        const blob = new Blob(['\ufeff' + plantillaWordHTML], { type: 'application/msword;charset=utf-8' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `Informe_${nroInforme.replace(/[^a-zA-Z0-9-_]/g, '_')}.doc`;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
-    }
+                <table border="0" cellspacing="0" cellpadding="0" style="width: 100%; border-collapse: collapse; margin-bottom: 15pt;">
+                    <tr><td style="vertical-align: top; padding-bottom: 5pt;"><p style="font-family: 'Arial', sans-serif; font-size: 11pt; line-height: 1.3; margin: 0;"><b>COMISIÓN:</b> Comisión de Salud y Desarrollo Social Integral</p></td></tr>
+                    <tr><td style="vertical-align: top; padding-bottom: 5pt;"><p style="font-family: 'Arial', sans-serif; font-size: 11pt; line-height: 1.3; margin: 0;"><b>ASUNTO:</b> ${asuntoInforme}</p></td></tr>
+                    <tr><td style="vertical-align: top; padding-bottom: 5pt;"><p style="font-family: 'Arial', sans-serif; font-size: 11pt; line-height: 1.3; margin: 0;"><b>ACTORES VINCULADOS:</b> ${actoresVinculados}</p></td></tr>
+                </table>
+                
+                <div style="border-top: 0.75pt solid #000000; margin-bottom: 15pt; width: 100%;"></div>
 
-    function switchData(tipo) {
-        filtroActual = tipo;
-        document.getElementById("tab-oficios").classList.toggle("active", tipo === 'Oficio');
-        document.getElementById("tab-informes").classList.toggle("active", tipo === 'Informe');
-        document.getElementById("page-title").innerText = tipo === 'Oficio' ? "Gestión de Oficios Institucionales" : "Informes de Gestión Legislativa";
-        document.getElementById("btn-nuevo-registro").innerText = tipo === 'Oficio' ? "➕ Registrar Nuevo Oficio" : "➕ Generar Nuevo Informe";
-        
-        document.getElementById("filter-date").value = "todos";
-        document.getElementById("filter-encargado").value = "";
-        cambiarFiltroFecha();
-        loadData();
-    }
+                <div style="margin-bottom: 35pt;">
+                    ${parrafosHTML}
+                </div>
 
-    function registrarNuevo() {
-        if (filtroActual === 'Oficio') {
-            const nroOficio = prompt("Ingrese el Número o Código del Oficio (Ej: OF-001-2026):");
-            if (!nroOficio) return;
+                <div style="page-break-inside: avoid; margin-top: 40pt; margin-bottom: 30pt;">
+                    <p style="font-family: 'Arial', sans-serif; font-size: 11pt; text-align: left; margin-bottom: 35pt;">Por la Comisión Permanente de Salud y Desarrollo Social Integral</p>
+                    
+                    <table border="0" cellspacing="0" cellpadding="0" style="width: 100%; border-collapse: collapse; margin-bottom: 35pt;">
+                        <tr>
+                            <td style="text-align: center; width: 100%;">
+                                <p style="font-family: 'Arial', sans-serif; font-size: 10.5pt; font-weight: bold; margin: 0;">Concejala Abg. Letty Bastidas</p>
+                                <p style="font-family: 'Arial', sans-serif; font-size: 9.5pt; font-style: italic; margin: 0; color: #333333;">Presidente de la Comisión Permanente de Salud y</p>
+                                <p style="font-family: 'Arial', sans-serif; font-size: 9.5pt; font-style: italic; margin: 0; color: #333333;">Desarrollo Social Integral</p>
+                            </td>
+                        </tr>
+                    </table>
+
+                    <table border="0" cellspacing="0" cellpadding="0" style="width: 100%; border-collapse: collapse;">
+                        <tr>
+                            <td style="text-align: center; width: 50%; vertical-align: top; padding-right: 10px;">
+                                <p style="font-family: 'Arial', sans-serif; font-size: 10.5pt; font-weight: bold; margin: 0;">Concejala Mag. Mirlys Hidalgo</p>
+                                <p style="font-family: 'Arial', sans-serif; font-size: 9.5pt; font-style: italic; margin: 0; color: #333333;">Vicepresidente de la Comisión Permanente</p>
+                                <p style="font-family: 'Arial', sans-serif; font-size: 9.5pt; font-style: italic; margin: 0; color: #333333;">de Salud y Desarrollo Social Integral</p>
+                            </td>
+                            <td style="text-align: center; width: 50%; vertical-align: top; padding-left: 10px;">
+                                <p style="font-family: 'Arial', sans-serif; font-size: 10.5pt; font-weight: bold; margin: 0;">Concejala Lic. Zulmy Orozco</p>
+                                <p style="font-family: 'Arial', sans-serif; font-size: 9.5pt; font-style: italic; margin: 0; color: #333333;">Vocal de la Comisión Permanente de Salud y</p>
+                                <p style="font-family: 'Arial', sans-serif; font-size: 9.5pt; font-style: italic; margin: 0; color: #333333;">Desarrollo Social Integral</p>
+                            </td>
+                        </tr>
+                    </table>
+                    
+                    <p style="font-family: 'Arial', sans-serif; font-size: 10pt; text-align: left; margin-top: 30pt; margin-left: 40pt; color: #000000;"><i>LB/cp</i></p>
+                </div>
+
+                <div style="margin-top: 40pt; text-align: center; width: 100%;">
+                    <table border="0" cellspacing="0" cellpadding="0" style="width: 100%; border-collapse: collapse; height: 4pt; margin-bottom: 6pt;">
+                        <tr>
+                            <td style="background-color: #ffde00; width: 33.33%;"></td>
+                            <td style="background-color: #003da5; width: 33.33%;"></td>
+                            <td style="background-color: #d12421; width: 33.34%;"></td>
+                        </tr>
+                    </table>
+                    <p style="font-family: 'Arial', sans-serif; font-size: 11pt; font-weight: bold; font-style: italic; color: #7f7f7f; margin: 0 0 4pt 0;">Salud para Todos y Todas</p>
+                    <p style="font-family: 'Arial', sans-serif; font-size: 10.5pt; color: #8c8c8c; margin: 0; line-height: 1.25;">Dirección: Calle Bolívar con Monagas, diagonal al Hospitalito Francisco Rafael García.</p>
+                    <p style="font-family: 'Arial', sans-serif; font-size: 10.5pt; color: #8c8c8c; margin: 0; line-height: 1.25;">Guarenas, Estado Bolivariano de Miranda. Nro. Telefónico: 0426-3147191</p>
+                    <p style="font-family: 'Arial', sans-serif; font-size: 10.5pt; color: #8c8c8c; margin: 0; line-height: 1.25;">Correo Electrónico: <span style="color: #4a90e2; text-decoration: underline;">Comisiondesaludgestion2025@Gmail.com</span></p>
+                </div>
+            </body>
+            </html>`;
+
+            const blob = new Blob(['\ufeff' + plantillaWordHTML], { type: 'application/msword;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `Informe_${nroInforme.replace(/[^a-zA-Z0-9-_]/g, '_')}.doc`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        function switchData(tipo) {
+            filtroActual = tipo;
+            document.getElementById("tab-oficios").classList.toggle("active", tipo === 'Oficio');
+            document.getElementById("tab-informes").classList.toggle("active", tipo === 'Informe');
+            document.getElementById("page-title").innerText = tipo === 'Oficio' ? "Gestión de Oficios Institucionales" : "Informes de Gestión Legislativa";
+            document.getElementById("btn-nuevo-registro").innerText = tipo === 'Oficio' ? "➕ Registrar Nuevo Oficio" : "➕ Generar Nuevo Informe";
             
-            const destino = prompt("Ingrese el Sector o Ente Destino:");
-            if (!destino) return;
-            
-            const clasificacion = prompt("Ingrese la Clasificación o Contenido Breve del Oficio:");
-            if (!clasificacion) return;
+            document.getElementById("filter-date").value = "todos";
+            document.getElementById("filter-encargado").value = "";
+            cambiarFiltroFecha();
+            loadData();
+        }
 
-            const bloqueOficio = `OFICIO Nº: ${nroOficio}\nASUNTO: ${clasificacion}`;
-            guardarOficioDirecto(bloqueOficio, destino);
-        } else {
+        function registrarNuevo() {
+            if (filtroActual === 'Oficio') {
+                const nroOficio = prompt("Ingrese el Número o Código del Oficio (Ej: OF-001-2026):");
+                if (!nroOficio) return;
+                
+                const destino = prompt("Ingrese el Sector o Ente Destino:");
+                if (!destino) return;
+                
+                const clasificacion = prompt("Ingrese la Clasificación o Contenido Breve del Oficio:");
+                if (!clasificacion) return;
+
+                const bloqueOficio = `OFICIO Nº: ${nroOficio}\nASUNTO: ${clasificacion}`;
+                guardarOficioDirecto(bloqueOficio, destino);
+            } else {
+                const modal = document.getElementById("modalNuevoInforme");
+                if (modal) {
+                    modal.style.display = "flex";
+                    setTimeout(() => { modal.classList.add("open"); }, 10);
+                }
+            }
+        }
+
+        async function guardarOficioDirecto(contenido, sectorDestino) {
+            try {
+                await sql`INSERT INTO casos_salud (nombre, sector) VALUES (${contenido}, ${sectorDestino})`;
+                alert("¡Oficio Enviado registrado con éxito!");
+                loadData();
+            } catch (err) {
+                alert("Ocurrió un error al guardar el Oficio en Neon: " + err.message);
+            }
+        }
+
+        function cerrarFormInforme() {
             const modal = document.getElementById("modalNuevoInforme");
             if (modal) {
-                modal.style.display = "flex";
-                setTimeout(() => { modal.classList.add("open"); }, 10);
+                modal.classList.remove("open");
+                setTimeout(() => { modal.style.display = "none"; }, 250);
+            }
+            const form = document.getElementById("formAutomatedInforme");
+            if (form) form.reset();
+        }
+
+        async function guardarInformeAutomatizado() {
+            const nro = document.getElementById("infNumero").value;
+            const fecha = document.getElementById("infFecha").value;
+            const asunto = document.getElementById("infAsunto").value;
+            const actores = document.getElementById("infActores").value;
+            const responsable = document.getElementById("infResponsable").value;
+            const introduccion = document.getElementById("infIntroduccion").value;
+            const hechos = document.getElementById("infHechos").value;
+            const metas = document.getElementById("infMetas").value;
+            const juridico = document.getElementById("infJuridico").value;
+            const conclusiones = document.getElementById("infConclusiones").value;
+
+            const bloqueInformeEstructurado = `INFORME Nº: ${nro}\nFECHA: ${fecha}\nASUNTO: ${asunto}\n\nI. INTRODUCCIÓN\n${introduccion}\n\nII. DE LOS HECHOS\n${hechos}\n\nIII. METAS ALCANZADAS\n${metas}\n\nIV. ASPECTOS JURÍDICOS\n${juridico || 'No especificados.'}\n\nV. CONCLUSIÓN Y RECOMENDACIONES\n${conclusiones}\n\n--------------------------------------------------\nRESPONSABLE: ${responsable}`;
+
+            const sectorStr = `${actores} (Resp: ${responsable})`;
+
+            try {
+                await sql`INSERT INTO casos_salud (nombre, sector) VALUES (${bloqueInformeEstructurado}, ${sectorStr})`;
+                alert(`¡Informe de Gestión Nº ${nro} guardado con éxito!`);
+                cerrarFormInforme();
+                loadData();
+            } catch (err) {
+                alert("Ocurrió un error al guardar en Neon: " + err.message);
             }
         }
-    }
 
-    async function guardarOficioDirecto(contenido, sectorDestino) {
-        try {
-            await sql`INSERT INTO casos_salud (nombre, sector) VALUES (${contenido}, ${sectorDestino})`;
-            alert("¡Oficio Enviado registrado con éxito!");
-            loadData();
-        } catch (err) {
-            alert("Ocurrió un error al guardar el Oficio en Neon: " + err.message);
+        async function eliminarRegistro(id) {
+            if (!confirm(`¿Eliminar registro #${id}?`)) return;
+            try {
+                await sql`DELETE FROM casos_salud WHERE id = ${id}`;
+                todosLosRegistros = todosLosRegistros.filter(r => r.id !== id);
+                renderFilas();
+                await loadData();
+                alert("Registro eliminado correctamente");
+            } catch (err) {
+                alert("Error eliminando:\n" + err.message);
+            }
         }
-    }
 
-    function cerrarFormInforme() {
-        const modal = document.getElementById("modalNuevoInforme");
-        if (modal) {
-            modal.classList.remove("open");
-            setTimeout(() => { modal.style.display = "none"; }, 250);
+        async function logout() { 
+            sessionStorage.clear();
+            window.location.href = "index.html"; 
         }
-        const form = document.getElementById("formAutomatedInforme");
-        if (form) form.reset();
-    }
-
-    async function guardarInformeAutomatizado() {
-        const nro = document.getElementById("infNumero").value;
-        const fecha = document.getElementById("infFecha").value;
-        const asunto = document.getElementById("infAsunto").value;
-        const actores = document.getElementById("infActores").value;
-        const responsable = document.getElementById("infResponsable").value;
-        const introduccion = document.getElementById("infIntroduccion").value;
-        const hechos = document.getElementById("infHechos").value;
-        const metas = document.getElementById("infMetas").value;
-        const juridico = document.getElementById("infJuridico").value;
-        const conclusiones = document.getElementById("infConclusiones").value;
-
-        const bloqueInformeEstructurado = `INFORME Nº: ${nro}\nFECHA: ${fecha}\nASUNTO: ${asunto}\n\nI. INTRODUCCIÓN\n${introduccion}\n\nII. DE LOS HECHOS\n${hechos}\n\nIII. METAS ALCANZADAS\n${metas}\n\nIV. ASPECTOS JURÍDICOS\n${juridico || 'No especificados.'}\n\nV. CONCLUSIÓN Y RECOMENDACIONES\n${conclusiones}\n\n--------------------------------------------------\nRESPONSABLE: ${responsable}`;
-
-        const sectorStr = `${actores} (Resp: ${responsable})`;
-
-        try {
-            await sql`INSERT INTO casos_salud (nombre, sector) VALUES (${bloqueInformeEstructurado}, ${sectorStr})`;
-            alert(`¡Informe de Gestión Nº ${nro} guardado con éxito!`);
-            cerrarFormInforme();
-            loadData();
-        } catch (err) {
-            alert("Ocurrió un error al guardar en Neon: " + err.message);
-        }
-    }
-
-    async function eliminarRegistro(id) {
-        if (!confirm(`¿Eliminar registro #${id}?`)) return;
-        try {
-            await sql`DELETE FROM casos_salud WHERE id = ${id}`;
-            todosLosRegistros = todosLosRegistros.filter(r => r.id !== id);
-            renderFilas();
-            await loadData();
-            alert("Registro eliminado correctamente");
-        } catch (err) {
-            alert("Error eliminando:\n" + err.message);
-        }
-    }
-
-    async function logout() { 
-        sessionStorage.clear();
-        window.location.href = "index.html"; 
-    }
     </script>
 </body>
 </html>
