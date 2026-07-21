@@ -776,20 +776,21 @@
             }
         }
 
-       async function eliminarRegistro(id) {
-          if (!window.sqlClient) { alert("No hay conexión con la base de datos."); return; }
-          if (!confirm(`¿Eliminar registro #${id}?`)) return;
-         try {
+      async function eliminarRegistro(id) {
+    if (!window.sqlClient) { alert("No hay conexión con la base de datos."); return; }
+    if (!confirm(`¿Eliminar registro #${id}?`)) return;
+    try {
         await window.sqlClient`DELETE FROM casos_salud WHERE id = ${id}`;
         todosLosRegistros = todosLosRegistros.filter(r => r.id !== id);
         renderFilas();
         await loadData();
         alert("Registro eliminado correctamente");
     } catch (err) {
-        alert("Error eliminando:\n" + err.message);
+        // Muestra el error completo de la base de datos
+        console.error("Error completo:", err);
+        alert("Error detallado al eliminar:\n" + JSON.stringify(err, null, 2) || err.message);
     }
 }
-
         async function logout() { 
             sessionStorage.clear();
             window.location.href = "index.html"; 
