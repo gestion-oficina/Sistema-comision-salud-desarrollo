@@ -492,8 +492,8 @@
                         <td><span style="background:#e0f2fe; color:#0369a1; padding:3px 8px; border-radius:4px; font-size:11px; font-weight:700;">ACTIVO</span></td>
                         <td>
                             <div class="action-buttons">
-                               <button class="btn-wa" onclick="verDetallesModal('${numeroDocumento}')">Ver</button>
-                               <button class="btn-del" onclick="eliminarRegistro('${numeroDocumento}')">Borrar</button>
+                                    <button class="btn-wa" onclick="verDetallesModal(${r.id})">Ver</button>
+                                    <button class="btn-del" onclick="eliminarRegistro(${r.id})">Borrar</button>
                             </div>
                         </td>
                     </tr>
@@ -776,19 +776,19 @@
             }
         }
 
-        async function eliminarRegistro(id) {
-            if (!window.sqlClient) { alert("No hay conexión con la base de datos."); return; }
-            if (!confirm(`¿Eliminar registro #${id}?`)) return;
-            try {
-                await window.sqlClient`DELETE FROM casos_salud WHERE id = ${id}`;
-                todosLosRegistros = todosLosRegistros.filter(r => r.id !== id);
-                renderFilas();
-                await loadData();
-                alert("Registro eliminado correctamente");
-            } catch (err) {
-                alert("Error eliminando:\n" + err.message);
-            }
-        }
+       async function eliminarRegistro(id) {
+          if (!window.sqlClient) { alert("No hay conexión con la base de datos."); return; }
+          if (!confirm(`¿Eliminar registro #${id}?`)) return;
+         try {
+        await window.sqlClient`DELETE FROM casos_salud WHERE id = ${id}`;
+        todosLosRegistros = todosLosRegistros.filter(r => r.id !== id);
+        renderFilas();
+        await loadData();
+        alert("Registro eliminado correctamente");
+    } catch (err) {
+        alert("Error eliminando:\n" + err.message);
+    }
+}
 
         async function logout() { 
             sessionStorage.clear();
