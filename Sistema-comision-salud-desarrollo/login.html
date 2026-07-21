@@ -13,8 +13,8 @@
 
     <style>
         /* ==========================================
-           PALETA DE COLORES EXTRAÍDA DE LA FOTO
-           ========================================== */
+            PALETA DE COLORES EXTRAÍDA DE LA FOTO
+            ========================================== */
         :root {
             --bg-main: #f4f6f9;            /* Gris claro de fondo de pantalla */
             --primary-blue: #0d2346;       /* Azul oscuro profundo institucional */
@@ -185,10 +185,10 @@
             try {
                 // Hacemos la consulta directa a la tabla usuarios_sistema en Neon usando el conector seguro
                 const query = `
-    SELECT id, nombre, rol, coordinacion 
-    FROM usuarios_sistema 
-    WHERE LOWER(email) = LOWER($1)
-`;
+                    SELECT id, nombre, rol, coordinacion 
+                    FROM usuarios_sistema 
+                    WHERE LOWER(email) = LOWER($1)
+                `;
                 
                 const resultados = await consultarBaseDatos(query, [email]);
 
