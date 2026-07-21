@@ -327,10 +327,13 @@
 
         switchData('Oficio');
         
-        document.getElementById('formAutomatedInforme').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            await guardarInformeAutomatizado();
-        });
+        const formInforme = document.getElementById('formAutomatedInforme');
+        if (formInforme) {
+            formInforme.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                await guardarInformeAutomatizado();
+            });
+        }
     });
 
     function toggleMobileMenu() {
@@ -716,7 +719,8 @@
             modal.classList.remove("open");
             setTimeout(() => { modal.style.display = "none"; }, 250);
         }
-        document.getElementById("formAutomatedInforme").reset();
+        const form = document.getElementById("formAutomatedInforme");
+        if (form) form.reset();
     }
 
     async function guardarInformeAutomatizado() {
