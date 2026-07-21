@@ -21,10 +21,10 @@
     <script type="module">
         import { neon } from 'https://cdn.jsdelivr.net/npm/@neondatabase/serverless/+esm';
         
-        const connectionString = "postgresql://neondb_owner:npg_z2MvG8wQeWbn@ep-delicate-unit-a5i0m1z2-pooler.us-east-2.aws.neon.tech/neondb?sslmode=require";
-        window.sqlClient = neon(connectionString);
+        // REEMPLAZA ESTA CADENA CON TU CONNECTION STRING ACTUALIZADA DE NEON SI CAMBIÓ LA CONTRASEÑA
+        const connectionString = "postgresql://neondb_owner:npg_djCruebcPY94@ep-sparkling-math-avejx7o4-pooler.c-11.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require";
+        window.sqlClient = neon(connectionString, { disableWarningInBrowsers: true });
         
-        // Disparamos la carga de datos una vez el cliente esté listo
         if (typeof window.iniciarApp === 'function') {
             window.iniciarApp();
         }
@@ -328,7 +328,6 @@
         let todosLosRegistros = []; 
         let idSeleccionadoActual = null;
 
-        // Función disparadora cuando el módulo ESM de Neon esté completamente enlazado
         window.iniciarApp = function() {
             const nombre = sessionStorage.getItem("usuario_nombre");
             const coord = sessionStorage.getItem("usuario_coordinacion");
@@ -347,7 +346,6 @@
             }
         };
 
-        // Fallback inmediato por si el DOMContentLoaded ocurre antes del módulo
         document.addEventListener("DOMContentLoaded", () => {
             if (window.sqlClient) {
                 window.iniciarApp();
@@ -384,7 +382,6 @@
             const thead = document.getElementById("thead-dinamico");
             
             if (!window.sqlClient) {
-                // Esperamos un segundo máximo a que el módulo ESM termine de hidratar window.sqlClient
                 await new Promise(resolve => setTimeout(resolve, 800));
             }
 
