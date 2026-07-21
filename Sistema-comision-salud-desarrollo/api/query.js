@@ -1,6 +1,4 @@
-import { neon } from "@neondatabase/serverless";
-
-const sql = neon(process.env.DATABASE_URL);
+import { neon } from '@neondatabase/serverless';
 
 export default async function handler(req, res) {
   // Permitir CORS
@@ -22,6 +20,12 @@ export default async function handler(req, res) {
 
   try {
     const { query, params = [] } = req.body;
+
+    if (!query) {
+      return res.status(400).json({ error: "No se proporcionó ninguna consulta SQL." });
+    }
+
+    const sql = neon(process.env.DATABASE_URL);
 
     // Ejecutar consulta en Neon
     const resultado = await sql(query, params);
