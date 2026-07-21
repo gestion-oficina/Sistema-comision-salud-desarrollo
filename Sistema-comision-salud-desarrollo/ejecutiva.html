@@ -320,9 +320,20 @@
         let sql = null;
 
         try {
-            if (typeof neon !== 'undefined' && neon.neon) {
+            // Verificamos las distintas formas en que la librería de Neon se puede exponer globalmente
+            const neonClient = window.neon || (typeof neon !== 'undefined' ? neon : null);
+            
+            if (neonClient) {
                 const connectionString = "postgresql://neondb_owner:npg_z2MvG8wQeWbn@ep-delicate-unit-a5i0m1z2-pooler.us-east-2.aws.neon.tech/neondb?sslmode=require";
-                sql = neon.neon(connectionString);
+                
+                // Intentamos instanciar mediante la función principal o su propiedad por defecto
+                if (typeof neonClient.neon === 'function') {
+                    sql = neonClient.neon(connectionString);
+                } else if (typeof neonClient === 'function') {
+                    sql = neonClient(connectionString);
+                } else if (neonClient.default && typeof neonClient.default.neon === 'function') {
+                    sql = neonClient.default.neon(connectionString);
+                }
             }
         } catch (e) {
             console.error("Error al inicializar cliente Neon:", e);
