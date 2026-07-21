@@ -4,14 +4,10 @@
 <head>
     <meta charset="UTF-8">
     <script>
-        // 1. Verificamos la sesión inmediatamente
         const sesion = sessionStorage.getItem('usuario_logueado');
-        
-        // 2. Si no hay sesión Y no estamos en el login, redirigimos
         if (!sesion && window.location.pathname !== "/login.html") {
             window.location.replace("login.html");
         } else {
-            // 3. Si SÍ hay sesión, cuando el HTML cargue, mostramos el cuerpo
             document.addEventListener("DOMContentLoaded", () => {
                 document.body.style.display = "block";
             });
@@ -20,7 +16,8 @@
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <title>Coordinación Ejecutiva - Oficios e Informes</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <!-- Driver de Neon / Postgres a través de CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/@neondatabase/serverless@0.6.0/dist/index.min.js"></script>
     <style>
         :root { 
             --bg-main: #f4f6f9; 
@@ -37,7 +34,6 @@
         body { background: var(--bg-main); color:#334155; }
         .layout { display:grid; grid-template-columns:280px 1fr; min-height:100vh; }
         
-        /* BOTÓN MENÚ MÓVIL */
         .mobile-menu-toggle {
             display: none;
             position: fixed;
@@ -57,7 +53,6 @@
             justify-content: center;
         }
 
-        /* SIDEBAR */
         .sidebar { background: var(--sidebar-bg); padding:24px 0; display: flex; flex-direction: column; transition: transform 0.3s ease; }
         .sidebar-brand { display: flex; flex-direction: column; align-items: center; text-align: center; padding: 0 16px 20px 16px; border-bottom: 1px solid rgba(255, 255, 255, 0.1); margin-bottom: 10px; }
         .sidebar-brand h2 { font-size: 11px; color: #ffffff; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; line-height: 1.4; margin-top: 5px; }
@@ -66,12 +61,10 @@
         .menu:hover { opacity: 1; background: rgba(255, 255, 255, 0.05); }
         .menu.active-page { background: var(--sidebar-active); color: #ffffff; font-weight: 600; border-radius: 6px; margin: 2px 14px; padding: 10px 20px; opacity: 1; box-shadow: inset 0 1px 0 rgba(255,255,255,0.15); }
         
-        /* PANEL CENTRAL */
         .main { padding:40px; overflow-x: hidden; }
         .main h2 { font-size: 26px; color: var(--text-dark-title); font-weight: 700; margin-bottom: 6px; }
         .subtitle-concejala { font-size: 13px; color: #64748b; margin-bottom: 24px; font-weight: 500; }
         
-        /* TABS Y FILTROS */
         .tabs-container { display: flex; background: #e2e8f0; padding: 6px; border-radius: 8px; max-width: 500px; margin-bottom: 20px; border: 1px solid #cbd5e1; gap: 4px; }
         .tab-btn { flex: 1; padding: 10px 14px; border: none; background: transparent; color: #475569; font-size: 12px; font-weight: 600; cursor: pointer; border-radius: 6px; text-align: center; transition: all 0.2s; }
         .tab-btn.active { background: var(--sidebar-bg); color: white; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
@@ -80,7 +73,6 @@
         .form-control { padding: 8px 12px; border: 1px solid var(--border-color); border-radius: 6px; font-size: 12px; color: #334155; outline: none; }
         .form-control:focus { border-color: var(--sidebar-active); }
         
-        /* TABLAS */
         .action-bar { margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; }
         .table-container { background: white; border: 1px solid #e2e8f0; border-radius: 8px; overflow-x: auto; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02); }
         table { width:100%; border-collapse:collapse; min-width: 1000px; }
@@ -96,7 +88,6 @@
         .btn-del { background: var(--danger-color); color: white; padding: 6px 12px; border: none; border-radius: 4px; font-size: 11px; font-weight:600; cursor: pointer; }
         .btn-del:hover { background: #b91c1c; }
         
-        /* MODALES */
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 37, 71, 0.6); backdrop-filter: blur(3px); display: flex; align-items: center; justify-content: center; z-index: 9999; opacity: 0; pointer-events: none; transition: opacity 0.25s ease; padding: 16px; }
         .modal-overlay.open { opacity: 1; pointer-events: auto; display: flex !important; }
         .modal-content { background: white; width: 100%; max-width: 550px; border-radius: 12px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.15); overflow: hidden; transform: translateY(-20px); transition: transform 0.25s ease; max-height: 90vh; display: flex; flex-direction: column; }
@@ -187,7 +178,6 @@
             <button class="tab-btn" id="tab-informes" onclick="switchData('Informe')">📊 Informes de Gestión</button>
         </div>
 
-        <!-- NUEVA BARRA DE FILTROS -->
         <div class="filters-bar">
             <span style="font-size: 12px; font-weight: 600; color: #475569;">Filtros:</span>
             
@@ -214,7 +204,7 @@
             <table>
                 <thead id="thead-dinamico"></thead>
                 <tbody id="tbody">
-                    <tr><td colspan="5" style="text-align:center; color:#94a3b8; padding: 20px;">Conectando con el servidor municipal...</td></tr>
+                    <tr><td colspan="5" style="text-align:center; color:#94a3b8; padding: 20px;">Conectando con la base de datos de Neon...</td></tr>
                 </tbody>
             </table>
         </div>
@@ -322,16 +312,21 @@
     </div>
 
     <script>
-    const client = supabase.createClient(
-        "https://soqgmwzknfgmxefbnfgs.supabase.co", 
-        "sb_publishable_VytLFdygkUVqnTLWNkiM3g_75HnE8qQ"
-    );
+    // Configuración de conexión Neon (asegúrate de usar la misma URL exacta con tu contraseña)
+    const connectionString = "postgresql://neondb_owner:npg_z2MvG8wQeWbn@ep-delicate-unit-a5i0m1z2-pooler.us-east-2.aws.neon.tech/neondb?sslmode=require";
+    const { neon } = neon;
+    const sql = neon(connectionString);
 
     let filtroActual = 'Oficio';
     let todosLosRegistros = []; 
     let idSeleccionadoActual = null;
 
     document.addEventListener("DOMContentLoaded", () => {
+        const nombre = sessionStorage.getItem("usuario_nombre");
+        const coord = sessionStorage.getItem("usuario_coordinacion");
+        if (nombre) document.getElementById("usuarioNombre").textContent = nombre;
+        if (coord) document.getElementById("usuarioCoordinacion").textContent = coord;
+
         switchData('Oficio');
         
         document.getElementById('formAutomatedInforme').addEventListener('submit', async (e) => {
@@ -370,8 +365,7 @@
         const thead = document.getElementById("thead-dinamico");
         
         try {
-            const { data: registros, error } = await client.from("casos_salud").select("*").order('id', { ascending: false });
-            if (error) throw error;
+            const registros = await sql`SELECT * FROM casos_salud ORDER BY id DESC`;
             todosLosRegistros = registros; 
 
             if (filtroActual === 'Oficio') {
@@ -381,7 +375,7 @@
             }
             renderFilas();
         } catch (err) {
-            tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:#dc2626; padding:30px;">⚠️ Error de conexión con Supabase.</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:#dc2626; padding:30px;">⚠️ Error de conexión con Neon: ${err.message}</td></tr>`;
         }
     }
 
@@ -519,7 +513,6 @@
         document.getElementById("documentModal").classList.remove("open");
     }
 
-    /* EXPORTACIÓN FORMATEADA A WORD (Márgenes Carta, Línea Roja, Tricolor y Firmas) */
     function exportarRegistroAWord() {
         const registro = todosLosRegistros.find(r => r.id === idSeleccionadoActual);
         if (!registro) return;
@@ -568,20 +561,16 @@
             <meta charset="UTF-8">
             <title>Informe de Gestión</title>
             <style>
-                @page {
-                    size: 8.5in 11in;
-                    margin: 1.0in 1.0in 1.0in 1.0in;
-                }
+                @page { size: 8.5in 11in; margin: 1.0in 1.0in 1.0in 1.0in; }
                 body { font-family: 'Arial', sans-serif; color: #000000; }
             </style>
         </head>
         <body>
-            
             <table border="0" cellspacing="0" cellpadding="0" style="width: 100%; border-collapse: collapse; margin-bottom: 5pt;">
                 <tr>
                    <td style="width: 14%; text-align: left; vertical-align: middle;">
-                    <img src="https://soqgmwzknfgmxefbnfgs.supabase.co/storage/v1/object/public/logo-concejo/concejo.logo.jfif" width="75" height="75" style="display:block;">
-                </td>
+                        <img src="https://soqgmwzknfgmxefbnfgs.supabase.co/storage/v1/object/public/logo-concejo/concejo.logo.jfif" width="75" height="75" style="display:block;">
+                   </td>
                     <td style="width: 70%; text-align: center; vertical-align: middle;">
                         <p style="font-size: 12pt; font-weight: normal; color: #4a4a4a; margin: 0; font-family: 'Arial', sans-serif; line-height: 1.1;">República Bolivariana de Venezuela</p>
                         <p style="font-size: 12pt; font-weight: normal; color: #4a4a4a; margin: 0; font-family: 'Arial', sans-serif; line-height: 1.1;">Estado Bolivariano de Miranda</p>
@@ -661,10 +650,9 @@
                 </table>
                 <p style="font-family: 'Arial', sans-serif; font-size: 11pt; font-weight: bold; font-style: italic; color: #7f7f7f; margin: 0 0 4pt 0;">Salud para Todos y Todas</p>
                 <p style="font-family: 'Arial', sans-serif; font-size: 10.5pt; color: #8c8c8c; margin: 0; line-height: 1.25;">Dirección: Calle Bolívar con Monagas, diagonal al Hospitalito Francisco Rafael García.</p>
-                <p style="font-family: 'Arial', sans-serif; font-size: 10.5pt; color: #8c8c8c; margin: 0; line-height: 1.25;">Guarenas, Estado Bolivariano de Miranda. Nro. Telefónico: 0426-3147191 Correo</p>
-                <p style="font-family: 'Arial', sans-serif; font-size: 10.5pt; color: #8c8c8c; margin: 0; line-height: 1.25;">Electrónico: <span style="color: #4a90e2; text-decoration: underline;">Comisiondesaludgestion2025@Gmail.com</span></p>
+                <p style="font-family: 'Arial', sans-serif; font-size: 10.5pt; color: #8c8c8c; margin: 0; line-height: 1.25;">Guarenas, Estado Bolivariano de Miranda. Nro. Telefónico: 0426-3147191</p>
+                <p style="font-family: 'Arial', sans-serif; font-size: 10.5pt; color: #8c8c8c; margin: 0; line-height: 1.25;">Correo Electrónico: <span style="color: #4a90e2; text-decoration: underline;">Comisiondesaludgestion2025@Gmail.com</span></p>
             </div>
-
         </body>
         </html>`;
 
@@ -715,14 +703,12 @@
     }
 
     async function guardarOficioDirecto(contenido, sectorDestino) {
-        const nuevoOficio = { nombre: contenido, sector: sectorDestino };
         try {
-            const { error } = await client.from("casos_salud").insert([nuevoOficio]);
-            if (error) throw error;
+            await sql`INSERT INTO casos_salud (nombre, sector) VALUES (${contenido}, ${sectorDestino})`;
             alert("¡Oficio Enviado registrado con éxito!");
             loadData();
         } catch (err) {
-            alert("Ocurrió un error al guardar el Oficio en Supabase: " + err.message);
+            alert("Ocurrió un error al guardar el Oficio en Neon: " + err.message);
         }
     }
 
@@ -749,29 +735,22 @@
 
         const bloqueInformeEstructurado = `INFORME Nº: ${nro}\nFECHA: ${fecha}\nASUNTO: ${asunto}\n\nI. INTRODUCCIÓN\n${introduccion}\n\nII. DE LOS HECHOS\n${hechos}\n\nIII. METAS ALCANZADAS\n${metas}\n\nIV. ASPECTOS JURÍDICOS\n${juridico || 'No especificados.'}\n\nV. CONCLUSIÓN Y RECOMENDACIONES\n${conclusiones}\n\n--------------------------------------------------\nRESPONSABLE: ${responsable}`;
 
-        const nuevoInforme = {
-            nombre: bloqueInformeEstructurado,
-            sector: `${actores} (Resp: ${responsable})`
-        };
+        const sectorStr = `${actores} (Resp: ${responsable})`;
 
         try {
-            const { error } = await client.from("casos_salud").insert([nuevoInforme]);
-            if (error) throw error;
+            await sql`INSERT INTO casos_salud (nombre, sector) VALUES (${bloqueInformeEstructurado}, ${sectorStr})`;
             alert(`¡Informe de Gestión Nº ${nro} guardado con éxito!`);
             cerrarFormInforme();
             loadData();
         } catch (err) {
-            alert("Ocurrió un error al guardar en Supabase.");
+            alert("Ocurrió un error al guardar en Neon: " + err.message);
         }
     }
 
     async function eliminarRegistro(id) {
         if (!confirm(`¿Eliminar registro #${id}?`)) return;
         try {
-            const { data, error } = await client.from("casos_salud").delete().eq("id", id).select();
-            if (error) throw error;
-            if (!data || data.length === 0) throw new Error("Supabase no eliminó el registro.");
-
+            await sql`DELETE FROM casos_salud WHERE id = ${id}`;
             todosLosRegistros = todosLosRegistros.filter(r => r.id !== id);
             renderFilas();
             await loadData();
@@ -782,7 +761,6 @@
     }
 
     async function logout() { 
-        await client.auth.signOut(); 
         sessionStorage.clear();
         window.location.href = "index.html"; 
     }
