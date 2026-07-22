@@ -201,7 +201,7 @@ body{ background: var(--bg-main); color:#334155; }
         <div class="modal-title" id="modalTituloLabel">Nuevo Compromiso Institucional</div>
         
         <form id="formAgenda" onsubmit="guardarActividad(event)">
-            <input type="hidden" id="actividadId">
+            <input type="hidden" id="actividadIndice">
             
             <div class="form-group">
                 <label>Título de la Actividad</label>
@@ -286,7 +286,7 @@ function toggleMenu() {
 }
 
 function abrirModal() {
-    document.getElementById("actividadId").value = "";
+    document.getElementById("actividadIndice").value = "";
     document.getElementById("modalTituloLabel").textContent = "Nuevo Compromiso Institucional";
     document.getElementById("formAgenda").reset();
     document.getElementById("modalActividad").style.display = "flex";
@@ -300,37 +300,30 @@ async function cargarAgendaOficina() {
     const contenedor = document.getElementById("lista-actividades");
     if (!window.sqlClient) await new Promise(resolve => setTimeout(resolve, 800));
     if (!window.sqlClient) {
-        contenedor.innerHTML = `<p style="text-align:center; padding:30px; color:#dc2626;">Error: Conexión con Neon no disponible.</p>`;
+        contenedor.innerHTML = `<p style="text-align:center; padding:30px; color:#dc2626;">Error: Conexión con Neon não disponible.</p>`;
         return;
     }
 
     try {
-        const eventos = await window.sqlClient`
-            SELECT * FROM agenda_oficina ORDER BY fecha ASC
+        // Aseguramos la tabla con id autoincremental real
+        await window.sqlClient`
+            CREATE TABLE IF NOT EXISTS agenda_oficina (
+                id SERIAL PRIMARY KEY,
+                titulo TEXT,
+                fecha TEXT,
+                hora TEXT,
+                tipo TEXT,
+                estatus TEXT,
+                lugar TEXT,
+                descripcion TEXT
+            )
         `;
+        const eventos = await window.sqlClient`SELECT * FROM agenda_oficina ORDER BY id DESC`;
         listaEventosGlobal = Array.from(eventos || []);
         renderizarAgenda(listaEventosGlobal);
     } catch (err) {
-        try {
-            await window.sqlClient`
-                CREATE TABLE IF NOT EXISTS agenda_oficina (
-                    id SERIAL PRIMARY KEY,
-                    titulo TEXT,
-                    fecha TEXT,
-                    hora TEXT,
-                    tipo TEXT,
-                    estatus TEXT,
-                    lugar TEXT,
-                    descripcion TEXT
-                )
-            `;
-            const eventos = await window.sqlClient`SELECT * FROM agenda_oficina ORDER BY fecha ASC`;
-            listaEventosGlobal = Array.from(eventos || []);
-            renderizarAgenda(listaEventosGlobal);
-        } catch (innerErr) {
-            console.error("Error cargando agenda:", innerErr);
-            contenedor.innerHTML = `<p style="text-align:center; padding:30px; color:#dc2626;">Error al cargar la base de datos: ${innerErr.message}</p>`;
-        }
+        console.error("Error cargando agenda:", err);
+        contenedor.innerHTML = `<p style="text-align:center; padding:30px; color:#dc2626;">Error al cargar la base de datos: ${err.message}</p>`;
     }
 }
 
@@ -395,7 +388,7 @@ function abrirEditar(index) {
         return;
     }
 
-    document.getElementById("actividadId").value = item.id !== undefined ? item.id : index;
+    document.getElementById("actividadIndice").value = index;
     document.getElementById("modalTituloLabel").textContent = "Modificar Compromiso";
     document.getElementById("titulo").value = item.titulo || "";
     document.getElementById("fecha").value = item.fecha || "";
@@ -412,7 +405,7 @@ async function guardarActividad(event) {
     event.preventDefault();
     if (!window.sqlClient) return;
 
-    const idInput = document.getElementById("actividadId").value;
+    const indexInput = document.getElementById("actividadIndice").value;
     const titulo = document.getElementById("titulo").value.trim();
     const fecha = document.getElementById("fecha").value;
     const hora = document.getElementById("hora").value.trim();
@@ -422,16 +415,30 @@ async function guardarActividad(event) {
     const descripcion = document.getElementById("descripcion").value.trim();
 
     try {
-        if (idInput !== "") {
-            const idNum = Number(idInput);
-            await window.sqlClient`
-                UPDATE agenda_oficina 
-                SET titulo = ${titulo}, fecha = ${fecha}, hora = ${hora}, tipo = ${tipo}, 
-                    estatus = ${estatus}, lugar = ${lugar}, descripcion = ${descripcion}
-                WHERE id = ${idNum}
-            `;
+        if (indexInput !== "") {
+            const indexNum = Number(indexInput);
+            const itemOriginal = listaEventosGlobal[indexNum];
+
+            if (itemOriginal && itemOriginal.id !== undefined) {
+                // Actualización directa por ID único de base de datos
+                await window.sqlClient`
+                    UPDATE agenda_oficina 
+                    SET titulo = ${titulo}, fecha = ${fecha}, hora = ${hora}, tipo = ${tipo}, 
+                        estatus = ${estatus}, lugar = ${lugar}, descripcion = ${descripcion}
+                    WHERE id = ${Number(itemOriginal.id)}
+                `;
+            } else {
+                // Respaldo por título y lugar si el ID viniera alterado
+                await window.sqlClient`
+                    UPDATE agenda_oficina 
+                    SET titulo = ${titulo}, fecha = ${fecha}, hora = ${hora}, tipo = ${tipo}, 
+                        estatus = ${estatus}, lugar = ${lugar}, descripcion = ${descripcion}
+                    WHERE titulo = ${itemOriginal.titulo} AND lugar = ${itemOriginal.lugar}
+                `;
+            }
             alert("Actividad actualizada con éxito.");
         } else {
+            // Inserción de nueva actividad
             await window.sqlClient`
                 INSERT INTO agenda_oficina (titulo, fecha, hora, tipo, estatus, lugar, descripcion)
                 VALUES (${titulo}, ${fecha}, ${hora}, ${tipo}, ${estatus}, ${lugar}, ${descripcion})
@@ -448,14 +455,18 @@ async function guardarActividad(event) {
 
 async function eliminarActividad(index) {
     const item = listaEventosGlobal[index];
-    if (!item || item.id === undefined) {
+    if (!item) {
         alert("Error: No se pudo identificar el registro a eliminar.");
         return;
     }
     
     if (!confirm("¿Está seguro de eliminar esta actividad de la planificación?")) return;
     try {
-        await window.sqlClient`DELETE FROM agenda_oficina WHERE id = ${Number(item.id)}`;
+        if (item.id !== undefined) {
+            await window.sqlClient`DELETE FROM agenda_oficina WHERE id = ${Number(item.id)}`;
+        } else {
+            await window.sqlClient`DELETE FROM agenda_oficina WHERE titulo = ${item.titulo} AND lugar = ${item.lugar}`;
+        }
         cargarAgendaOficina();
     } catch (err) {
         console.error("Error al eliminar:", err);
