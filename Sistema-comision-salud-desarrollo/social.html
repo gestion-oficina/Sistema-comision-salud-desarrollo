@@ -17,6 +17,9 @@
     <title>Gestión de Casos Sociales</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
+    <!-- LIBRERÍA SHEETJS PARA EXPORTAR A EXCEL REAL (.XLSX) -->
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+
     <!-- CARGA DE NEON MEDIANTE MÓDULO ESM ESTÁNDAR -->
     <script type="module">
         import { neon } from 'https://cdn.jsdelivr.net/npm/@neondatabase/serverless/+esm';
@@ -157,11 +160,29 @@
         .expediente-view-box { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 14px; }
         .expediente-view-box p { font-size: 13.5px; color: #0f2547; font-weight: 500; margin-top: 2px; }
 
+        /* MEMBETRE Y PIE DE PÁGINA OCULTOS EN PANTALLA, VISIBLES AL IMPRIMIR */
+        .print-header, .print-footer { display: none; }
+
         @media print {
+            @page { size: landscape; margin: 10mm; }
             body * { visibility: hidden; }
+            
+            /* Si se está imprimiendo la tabla general */
+            body.printing-general .main, body.printing-general .main * { visibility: visible; }
+            body.printing-general .sidebar, body.printing-general .mobile-header, 
+            body.printing-general .toolbar-flex, body.printing-general .actions-bar,
+            body.printing-general .action-buttons, body.printing-general th:last-child, body.printing-general td:last-child { display: none !important; }
+            body.printing-general .main { position: absolute; left: 0; top: 0; width: 100%; padding: 0 !important; }
+            body.printing-general .print-header { display: block !important; text-align: center; margin-bottom: 20px; border-bottom: 2px solid #1d3b6a; padding-bottom: 10px; }
+            body.printing-general .print-footer { display: block !important; position: fixed; bottom: 0; left: 0; width: 100%; text-align: center; font-size: 10px; color: #64748b; border-top: 1px solid #cbd5e1; padding-top: 5px; }
+            body.printing-general .table-container { box-shadow: none !important; border: none !important; }
+            body.printing-general table { min-width: 100% !important; font-size: 11px !important; }
+            body.printing-general th, body.printing-general td { padding: 6px 8px !important; }
+
+            /* Si se está imprimiendo la ficha individual de expediente */
             #expedienteModal.open, #expedienteModal.open * { visibility: visible; }
             #expedienteModal { position: absolute; left: 0; top: 0; width: 100%; background: white !important; }
-            .modal-footer, .modal-header span, div[style*="border-top: 1px solid #e2e8f0"] { display: none !important; }
+            #expedienteModal .modal-footer, #expedienteModal .modal-header span, #expedienteModal div[style*="border-top: 1px solid #e2e8f0"] { display: none !important; }
         }
 
         @media (max-width: 900px) {
@@ -226,6 +247,14 @@
     </div>
 
     <div class="main">
+        <!-- ENCABEZADO INSTITUCIONAL PARA IMPRESIÓN -->
+        <div class="print-header">
+            <h3 style="font-size: 14px; font-weight: 700; color: #1d3b6a; text-transform: uppercase;">REPÚBLICA BOLIVARIANA DE VENEZUELA</h3>
+            <h4 style="font-size: 12px; font-weight: 600; color: #334155; text-transform: uppercase;">CONCEJO MUNICIPAL DEL MUNICIPIO AMBROSIO PLAZA</h4>
+            <h5 style="font-size: 11px; font-weight: 600; color: #0066cc; text-transform: uppercase; margin-top: 2px;">COMISIÓN PERMANENTE DE SALUD Y DESARROLLO SOCIAL INTEGRAL — CONCEJALA LETTY BASTIDAS</h5>
+            <div style="margin-top: 8px; font-size: 13px; font-weight: 700; color: #0f2547;" id="printTituloReporte">REPORTE GENERAL DE CASOS SOCIALES</div>
+        </div>
+
         <h2>Gestión de Casos Sociales</h2>
         <div class="subtitle">Oficina de la Concejala Letty Bastidas — Municipio Ambrosio Plaza</div>
         
@@ -274,8 +303,8 @@
         <!-- ACCIONES PRINCIPALES -->
         <div class="actions-bar">
             <button class="btn-primary" onclick="abrirModalFormulario()">➕ Registrar Ficha Social Integral</button>
-            <button class="btn-report" onclick="window.print()">🖨️ Imprimir Listado General</button>
-            <button class="btn-excel" onclick="exportarACSV()">📊 Exportar a Excel (CSV)</button>
+            <button class="btn-report" onclick="imprimirListadoGeneral()">🖨️ Imprimir Listado General</button>
+            <button class="btn-excel" onclick="exportarAExcelReal()">📊 Exportar a Excel (.xlsx)</button>
         </div>
 
         <div class="table-container">
@@ -300,6 +329,11 @@
                     <tr><td colspan="12" style="color:#94a3b8; text-align:center; padding:30px;">Conectando con la base de datos de Neon...</td></tr>
                 </tbody>
             </table>
+        </div>
+
+        <!-- PIE DE PÁGINA INSTITUCIONAL PARA IMPRESIÓN -->
+        <div class="print-footer">
+            Sistema de Gestión de la Comisión Permanente de Salud y Desarrollo Social Integral — Municipio Ambrosio Plaza | Página <span class="page-number"></span>
         </div>
     </div>
 </div>
@@ -447,6 +481,7 @@
 
     let tipoFiltroActual = 'Caso Comunitario';
     let listaCasosGlobal = [];
+    let listaCasosFiltradosActuales = [];
     let idEnEdicion = null;
 
     window.iniciarApp = function() {
@@ -548,7 +583,7 @@
         const prioFiltro = document.getElementById("filtroPrioridad").value;
         const estFiltro = document.getElementById("filtroEstatus").value;
 
-        const filtrados = listaCasosGlobal.filter(c => {
+        listaCasosFiltradosActuales = listaCasosGlobal.filter(c => {
             const nombre = (c.nombre || "").toLowerCase();
             const cedula = (c.cedula || "").toLowerCase();
             const coincideTexto = nombre.includes(textoBusqueda) || cedula.includes(textoBusqueda);
@@ -558,7 +593,7 @@
             return coincideTexto && coincidePrio && coincideEst;
         });
 
-        renderizarTabla(filtrados);
+        renderizarTabla(listaCasosFiltradosActuales);
     }
 
     function cambiarFiltroSocial(nuevoTipo) {
@@ -568,44 +603,43 @@
         document.getElementById("inputBuscador").value = "";
         document.getElementById("filtroPrioridad").value = "";
         document.getElementById("filtroEstatus").value = "";
+        document.getElementById("printTituloReporte").innerText = `REPORTE GENERAL DE CASOS SOCIALES — ${tipoFiltroActual.toUpperCase()}`;
         cargarCasosSociales();
     }
 
-    function exportarACSV() {
-        if (listaCasosGlobal.length === 0) {
-            alert("No hay datos para exportar.");
+    function imprimirListadoGeneral() {
+        document.body.classList.add("printing-general");
+        window.print();
+        document.body.classList.remove("printing-general");
+    }
+
+    function exportarAExcelReal() {
+        if (listaCasosFiltradosActuales.length === 0) {
+            alert("No hay datos en pantalla para exportar.");
             return;
         }
 
-        let csvContent = "data:text/csv;charset=utf-8,\uFEFF";
-        csvContent += "Beneficiario,Cedula,Edad,Genero,Telefono,Sector,Eje,Tipo Ayuda,Responsable,Prioridad,Estatus,Institucion Remitida,Detalle\r\n";
+        let datosParaExcel = listaCasosFiltradosActuales.map(c => ({
+            "Beneficiario": c.nombre || "",
+            "Cédula": c.cedula || "",
+            "Edad": c.edad || "",
+            "Género": c.genero || "",
+            "Teléfono": c.telefono || "",
+            "Sector / Comunidad": c.sector || "",
+            "Eje Territorial": c.eje_territorial || "",
+            "Tipo de Ayuda": c.tipo_ayuda || "",
+            "Responsable Comisión": c.responsable_comision || "",
+            "Diagnóstico / Detalle": c.detalle || "",
+            "Prioridad": c.prioridad || "",
+            "Institución Remitida": c.institucion_remitida || "",
+            "Estatus": c.estatus || ""
+        }));
 
-        listaCasosGlobal.forEach(c => {
-            let fila = [
-                `"${(c.nombre || '').replace(/"/g, '""')}"`,
-                `"${(c.cedula || '').replace(/"/g, '""')}"`,
-                c.edad || '',
-                c.genero || '',
-                `"${(c.telefono || '').replace(/"/g, '""')}"`,
-                `"${(c.sector || '').replace(/"/g, '""')}"`,
-                `"${(c.eje_territorial || '').replace(/"/g, '""')}"`,
-                `"${(c.tipo_ayuda || '').replace(/"/g, '""')}"`,
-                `"${(c.responsable_comision || '').replace(/"/g, '""')}"`,
-                c.prioridad || '',
-                c.estatus || '',
-                `"${(c.institucion_remitida || '').replace(/"/g, '""')}"`,
-                `"${(c.detalle || '').replace(/"/g, '""')}"`
-            ];
-            csvContent += fila.join(",") + "\r\n";
-        });
+        let worksheet = XLSX.utils.json_to_sheet(datosParaExcel);
+        let workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, "Casos Sociales");
 
-        const encodedUri = encodeURI(csvContent);
-        const link = document.createElement("a");
-        link.setAttribute("href", encodedUri);
-        link.setAttribute("download", `Casos_Sociales_${tipoFiltroActual.replace(/\s+/g, '_')}.csv`);
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
+        XLSX.writeFile(workbook, `Reporte_Casos_Sociales_${tipoFiltroActual.replace(/\s+/g, '_')}.xlsx`);
     }
 
     function abrirModalFormulario() {
