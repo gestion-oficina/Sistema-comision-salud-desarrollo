@@ -347,7 +347,8 @@ function renderizarAgenda(eventos) {
         return;
     }
 
-    contenedor.innerHTML = filtrados.map(e => {
+    contenedor.innerHTML = filtrados.map((e) => {
+        const indexGlobal = listaEventosGlobal.findIndex(item => item === e);
         let estatusClase = 'status-programado';
         if(e.estatus === 'Completado') estatusClase = 'status-completado';
         if(e.estatus === 'Suspendido') estatusClase = 'status-suspendido';
@@ -369,8 +370,8 @@ function renderizarAgenda(eventos) {
                 <div class="card-actions-side">
                     <span class="badge-status ${estatusClase}">${e.estatus || 'Programado'}</span>
                     <div class="action-btns-row">
-                        <button class="btn-icon-action" onclick="abrirEditar(${e.id})">Editar</button>
-                        <button class="btn-icon-action btn-icon-danger" onclick="eliminarActividad(${e.id})">Borrar</button>
+                        <button class="btn-icon-action" onclick="abrirEditar(${indexGlobal})">Editar</button>
+                        <button class="btn-icon-action btn-icon-danger" onclick="eliminarActividad(${indexGlobal})">Borrar</button>
                     </div>
                 </div>
             </div>
@@ -387,15 +388,14 @@ function filtrarAgenda(estatus) {
     renderizarAgenda(listaEventosGlobal);
 }
 
-function abrirEditar(id) {
-    const idNumerico = Number(id);
-    const item = listaEventosGlobal.find(e => Number(e.id) === idNumerico);
+function abrirEditar(index) {
+    const item = listaEventosGlobal[index];
     if (!item) {
         alert("No se encontró el registro para editar.");
         return;
     }
 
-    document.getElementById("actividadId").value = item.id;
+    document.getElementById("actividadId").value = item.id !== undefined ? item.id : index;
     document.getElementById("modalTituloLabel").textContent = "Modificar Compromiso";
     document.getElementById("titulo").value = item.titulo || "";
     document.getElementById("fecha").value = item.fecha || "";
@@ -413,8 +413,6 @@ async function guardarActividad(event) {
     if (!window.sqlClient) return;
 
     const idInput = document.getElementById("actividadId").value;
-    const id = idInput ? Number(idInput) : null;
-    
     const titulo = document.getElementById("titulo").value.trim();
     const fecha = document.getElementById("fecha").value;
     const hora = document.getElementById("hora").value.trim();
@@ -424,12 +422,13 @@ async function guardarActividad(event) {
     const descripcion = document.getElementById("descripcion").value.trim();
 
     try {
-        if (id && !isNaN(id) && id > 0) {
+        if (idInput !== "") {
+            const idNum = Number(idInput);
             await window.sqlClient`
                 UPDATE agenda_oficina 
                 SET titulo = ${titulo}, fecha = ${fecha}, hora = ${hora}, tipo = ${tipo}, 
                     estatus = ${estatus}, lugar = ${lugar}, descripcion = ${descripcion}
-                WHERE id = ${id}
+                WHERE id = ${idNum}
             `;
             alert("Actividad actualizada con éxito.");
         } else {
@@ -447,11 +446,16 @@ async function guardarActividad(event) {
     }
 }
 
-async function eliminarActividad(id) {
-    const idNumerico = Number(id);
+async function eliminarActividad(index) {
+    const item = listaEventosGlobal[index];
+    if (!item || item.id === undefined) {
+        alert("Error: No se pudo identificar el registro a eliminar.");
+        return;
+    }
+    
     if (!confirm("¿Está seguro de eliminar esta actividad de la planificación?")) return;
     try {
-        await window.sqlClient`DELETE FROM agenda_oficina WHERE id = ${idNumerico}`;
+        await window.sqlClient`DELETE FROM agenda_oficina WHERE id = ${Number(item.id)}`;
         cargarAgendaOficina();
     } catch (err) {
         console.error("Error al eliminar:", err);
