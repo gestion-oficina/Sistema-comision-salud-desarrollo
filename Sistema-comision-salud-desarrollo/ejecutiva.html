@@ -417,8 +417,8 @@
                 const campoSector = (r.sector || "").toLowerCase();
                 
                 const cumplePestana = filtroActual === 'Oficio' 
-                    ? (campoNombre.includes("oficio") || campoNombre.includes("ordenanza") || campoNombre.includes("tomas"))
-                    : (campoNombre.includes("informe") || campoNombre.includes("inspeccion"));
+    ? campoNombre.startsWith("oficio")
+    : campoNombre.startsWith("informe");
                 
                 if (!cumplePestana) return false;
 
