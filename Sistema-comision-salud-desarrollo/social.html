@@ -157,8 +157,8 @@
         .btn-secondary { padding: 9px 16px; border: 1px solid var(--border-color); border-radius: 6px; background: white; color: #475569; font-size: 12.5px; font-weight: 600; cursor: pointer; }
         .btn-submit { padding: 9px 16px; border: none; border-radius: 6px; background: var(--sidebar-bg); color: white; font-size: 12.5px; font-weight: 600; cursor: pointer; }
 
-        .expediente-view-box { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 10px 12px; }
-        .expediente-view-box p { font-size: 13px; color: #0f2547; font-weight: 500; margin-top: 2px; }
+        .expediente-view-box { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 8px 10px; }
+        .expediente-view-box p { font-size: 12.5px; color: #0f2547; font-weight: 500; margin-top: 2px; }
 
         /* MEMBRETE Y PIE DE PÁGINA OCULTOS EN PANTALLA, VISIBLES AL IMPRIMIR */
         .print-header, .print-footer { display: none; }
@@ -181,12 +181,12 @@
             /* Mostrar y posicionar el contenedor principal y la tabla para impresión general */
             body.printing-general .main { position: absolute !important; left: 0 !important; top: 0 !important; width: 100% !important; padding: 0 !important; margin: 0 !important; }
             body.printing-general .print-header { display: block !important; text-align: center; margin-bottom: 12px; border-bottom: 2px solid #1d3b6a; padding-bottom: 6px; }
-            body.printing-general .print-footer { display: block !important; position: fixed; bottom: 0; left: 0; width: 100%; text-align: center; font-size: 9.5px; color: #64748b; border-top: 1px solid #cbd5e1; padding-top: 3px; background: white; }
+            body.printing-general .print-footer { display: block !important; position: fixed; bottom: 0; left: 0; width: 100%; text-align: center; font-size: 9px; color: #64748b; border-top: 1px solid #cbd5e1; padding-top: 2px; background: white; }
             body.printing-general .table-container { box-shadow: none !important; border: none !important; overflow: visible !important; }
             body.printing-general table { min-width: 100% !important; width: 100% !important; font-size: 11px !important; }
             body.printing-general th, body.printing-general td { padding: 5px 6px !important; }
 
-            /* Si se está imprimiendo la FICHA INDIVIDUAL (Expediente) */
+            /* Si se está imprimiendo la FICHA INDIVIDUAL (Expediente) en 2 columnas exactas */
             body:not(.printing-general) .layout, 
             body:not(.printing-general) .modal-overlay:not(#expedienteModal) { display: none !important; }
             
@@ -202,11 +202,20 @@
             body:not(.printing-general) #expedienteModal .modal-footer,
             body:not(.printing-general) #expedienteModal div[style*="margin-top: 20px; border-top: 1px solid #e2e8f0;"] { display: none !important; }
 
-            /* Mostrar membrete institucional y compactar diseño de ficha individual en 1 sola hoja */
-            body:not(.printing-general) #expedienteModal .print-header-ficha { display: block !important; margin-bottom: 10px !important; }
-            body:not(.printing-general) #expedienteModal .form-grid { gap: 8px !important; }
-            body:not(.printing-general) #expedienteModal .expediente-view-box { padding: 6px 10px !important; }
-            body:not(.printing-general) .print-footer { display: block !important; position: fixed; bottom: 0; left: 0; width: 100%; text-align: center; font-size: 9.5px; color: #64748b; border-top: 1px solid #cbd5e1; padding-top: 3px; background: white; }
+            /* Forzar 2 columnas en impresión para que ocupe una sola hoja */
+            body:not(.printing-general) #expedienteModal .print-header-ficha { display: block !important; margin-bottom: 8px !important; }
+            body:not(.printing-general) #expedienteModal .modal-header { display: none !important; }
+            body:not(.printing-general) #expedienteModal .form-grid { 
+                display: grid !important; 
+                grid-template-columns: repeat(2, 1fr) !important; 
+                gap: 6px !important; 
+            }
+            body:not(.printing-general) #expedienteModal .span-2,
+            body:not(.printing-general) #expedienteModal .span-3 { 
+                grid-column: span 2 !important; 
+            }
+            body:not(.printing-general) #expedienteModal .expediente-view-box { padding: 5px 8px !important; }
+            body:not(.printing-general) .print-footer { display: block !important; position: fixed; bottom: 0; left: 0; width: 100%; text-align: center; font-size: 9px; color: #64748b; border-top: 1px solid #cbd5e1; padding-top: 2px; background: white; }
         }
 
         @media (max-width: 900px) {
@@ -477,7 +486,7 @@
 <div class="modal-overlay" id="expedienteModal">
     <div class="modal-container" style="max-width: 720px;">
         <!-- ENCABEZADO INSTITUCIONAL EXCLUSIVO PARA IMPRESIÓN DE FICHA INDIVIDUAL -->
-        <div class="print-header-ficha" style="display: none; text-align: center; margin-bottom: 10px; border-bottom: 2px solid #1d3b6a; padding-bottom: 6px;">
+        <div class="print-header-ficha" style="display: none; text-align: center; margin-bottom: 8px; border-bottom: 2px solid #1d3b6a; padding-bottom: 5px;">
             <h3 style="font-size: 13px; font-weight: 700; color: #1d3b6a; text-transform: uppercase;">REPÚBLICA BOLIVARIANA DE VENEZUELA</h3>
             <h4 style="font-size: 11px; font-weight: 600; color: #334155; text-transform: uppercase;">CONCEJO MUNICIPAL DEL MUNICIPIO AMBROSIO PLAZA</h4>
             <h5 style="font-size: 10px; font-weight: 600; color: #0066cc; text-transform: uppercase; margin-top: 2px;">COMISIÓN PERMANENTE DE SALUD Y DESARROLLO SOCIAL INTEGRAL — CONCEJALA LETTY BASTIDAS</h5>
@@ -835,9 +844,9 @@
             <div class="form-group expediente-view-box"><label>Estatus del Beneficio</label><p>${item.estatus || 'En Espera'}</p></div>
             <div class="form-group span-2 expediente-view-box" style="background:#f1f5f9; border-left:3px solid var(--sidebar-active);"><label>👤 Responsable del Caso por la Comisión</label><p style="font-weight:700; color:#0f2547;">${item.responsable_comision || 'No asignado'}</p></div>
             <div class="form-group expediente-view-box"><label>Unidad Remitente (Interno)</label><p>${item.trabajador_departamento || 'Oficina Social Base'}</p></div>
-            <div class="form-group span-3 expediente-view-box" style="background:#e0f2fe; border-left:3px solid #0369a1;"><label>📎 Archivo Digitalizado de Respaldo</label><p style="margin-top:3px;">${bloqueAdjunto}</p></div>
-            <div class="form-group span-3 expediente-view-box" style="background:#f8fafc; border-left:3px solid var(--sidebar-bg);"><label>Diagnóstico / Informe Técnico de la Solicitud</label><p style="line-height:1.4; font-style:italic;">"${item.detalle || 'Sin especificaciones añadidas en el ingreso.'}"</p></div>
-            <div class="form-group span-3 expediente-view-box" style="background:#fffbeb; border-left:3px solid #d97706;"><label>📈 Bitácora de Seguimiento de Trámites</label><div style="margin-top:4px; font-size:12px; line-height:1.4; color:#334155;">${historialBitacora}</div></div>
+            <div class="form-group span-2 expediente-view-box" style="background:#e0f2fe; border-left:3px solid #0369a1;"><label>📎 Archivo Digitalizado de Respaldo</label><p style="margin-top:2px;">${bloqueAdjunto}</p></div>
+            <div class="form-group span-2 expediente-view-box" style="background:#f8fafc; border-left:3px solid var(--sidebar-bg);"><label>Diagnóstico / Informe Técnico de la Solicitud</label><p style="line-height:1.3; font-style:italic;">"${item.detalle || 'Sin especificaciones añadidas en el ingreso.'}"</p></div>
+            <div class="form-group span-2 expediente-view-box" style="background:#fffbeb; border-left:3px solid #d97706;"><label>📈 Bitácora de Seguimiento de Trámites</label><div style="margin-top:3px; font-size:11.5px; line-height:1.3; color:#334155;">${historialBitacora}</div></div>
         `;
         document.getElementById("expedienteModal").classList.add("open");
     }
