@@ -3,16 +3,11 @@
 
 <head>
     <meta charset="UTF-8">
-     <script>
-        // 1. Verificamos la sesión inmediatamente
+    <script>
         const sesion = sessionStorage.getItem('usuario_logueado');
-        
-        // 2. Si no hay sesión Y no estamos en el login, redirigimos
-        // Nota: Si tu archivo de login no está en la raíz, ajusta la ruta
         if (!sesion && window.location.pathname !== "/login.html") {
             window.location.replace("login.html");
         } else {
-            // 3. Si SÍ hay sesión, cuando el HTML cargue, mostramos el cuerpo
             document.addEventListener("DOMContentLoaded", () => {
                 document.body.style.display = "block";
             });
@@ -21,7 +16,19 @@
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <title>Gestión de Casos Sociales</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
+    <!-- CARGA DE NEON MEDIANTE MÓDULO ESM ESTÁNDAR -->
+    <script type="module">
+        import { neon } from 'https://cdn.jsdelivr.net/npm/@neondatabase/serverless/+esm';
+        
+        const connectionString = "postgresql://neondb_owner:npg_djCruebcPY94@ep-sparkling-math-avejx7o4-pooler.c-11.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require";
+        window.sqlClient = neon(connectionString, { disableWarningInBrowsers: true });
+        
+        if (typeof window.iniciarApp === 'function') {
+            window.iniciarApp();
+        }
+    </script>
+
     <style>
         :root { 
             --bg-main: #f4f6f9; 
@@ -32,18 +39,16 @@
             --text-dark-title: #0f2547; 
             --danger-color: #dc2626;
             --border-color: #cbd5e1;
+            --success-color: #16a34a;
         }
         * { margin:0; padding:0; box-sizing:border-box; font-family: 'Inter', sans-serif; }
         body { background: var(--bg-main); color:#334155; }
         
-        /* LAYOUT RESPONSIVO (Escritorio por defecto) */
         .layout { display:grid; grid-template-columns:280px 1fr; min-height:100vh; }
         
-        /* BOTÓN HAMBURGUESA MÓVIL (Oculto en escritorio) */
         .mobile-header { display: none; background: var(--sidebar-bg); color: white; padding: 15px 20px; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 3000; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
         .btn-menu-toggle { background: none; border: none; color: white; font-size: 24px; cursor: pointer; }
 
-        /* SIDEBAR */
         .sidebar { background: var(--sidebar-bg); padding:24px 0; display: flex; flex-direction: column; transition: transform 0.3s ease; }
         .sidebar-brand { display: flex; flex-direction: column; align-items: center; text-align: center; padding: 0 16px 20px 16px; border-bottom: 1px solid rgba(255, 255, 255, 0.1); margin-bottom: 10px; }
         .sidebar-brand h2 { font-size: 11px; color: #ffffff; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; line-height: 1.4; margin-top: 5px; }
@@ -52,36 +57,32 @@
         .menu:hover { opacity: 1; background: rgba(255, 255, 255, 0.05); }
         .menu.active-page { background: var(--sidebar-active); color: #ffffff; font-weight: 600; border-radius: 6px; margin: 2px 14px; padding: 10px 20px; opacity: 1; }
         
-        /* PANEL CENTRAL */
         .main { padding:40px; overflow-x: hidden; }
         .main h2 { font-size: 26px; color: var(--text-dark-title); font-weight: 700; margin-bottom: 6px; }
         .subtitle { font-size: 13px; color: #64748b; margin-bottom: 24px; font-weight: 500; }
         
-        /* PESTAÑAS Y BOTONES */
-        .tabs-container { display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 2px solid #e2e8f0; padding-bottom: 1px; overflow-x: auto; }
-        .tab-btn { padding: 10px 20px; border: none; background: transparent; font-size: 13.5px; font-weight: 600; color: #64748b; cursor: pointer; border-bottom: 3px solid transparent; margin-bottom: -2px; white-space: nowrap; }
-        .tab-btn.active { color: var(--sidebar-bg); border-bottom: 3px solid var(--sidebar-bg); }
-        .btn-primary { padding:10px 18px; border:none; border-radius:6px; cursor:pointer; background: var(--sidebar-active); color:white; font-size:12.5px; font-weight: 600; margin-bottom: 20px; width: auto; }
+        .tabs-container { display: flex; background: #e2e8f0; padding: 6px; border-radius: 8px; max-width: 500px; margin-bottom: 20px; border: 1px solid #cbd5e1; gap: 4px; }
+        .tab-btn { flex: 1; padding: 10px 14px; border: none; background: transparent; color: #475569; font-size: 12px; font-weight: 600; cursor: pointer; border-radius: 6px; text-align: center; transition: all 0.2s; }
+        .tab-btn.active { background: var(--sidebar-bg); color: white; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
         
-        /* CONTENEDOR DE LA TABLA CORREGIDO CON SCROLL HORIZONTAL (Para Escritorio) */
+        .btn-primary { padding:11px 20px; border:none; border-radius:6px; cursor:pointer; background: var(--sidebar-active); color:white; font-size:13px; font-weight: 600; margin-bottom: 20px; width: auto; }
+        
         .table-container { 
             background: white; 
             border: 1px solid #e2e8f0; 
             border-radius: 8px; 
-            box-shadow: 0 1px 3px rgba(0,0,0,0.05); 
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02); 
             width: 100%;
-            overflow-x: auto; /* Habilita el desplazamiento de columnas hacia la derecha */
-            -webkit-overflow-scrolling: touch;
+            overflow-x: auto;
         }
         table { 
             width:100%; 
             border-collapse:collapse; 
-            min-width: 1250px; /* Fuerza un tamaño mínimo en PC para que aparezca la barra sin apretar las columnas */
+            min-width: 1100px; 
         }
-        th, td { padding:12px 14px; border-bottom:1px solid #f1f5f9; text-align:left; font-size:12.5px; }
+        th, td { padding:14px 18px; border-bottom:1px solid #f1f5f9; text-align:left; font-size:13px; }
         th { background:#f8fafc; color: var(--sidebar-bg); font-weight: 700; text-transform: uppercase; font-size: 11px; letter-spacing: 0.5px; }
         
-        /* BADGES DINÁMICOS */
         .status-badge { padding: 3px 8px; border-radius: 4px; font-size: 10.5px; font-weight: 700; text-transform: uppercase; display: inline-block; }
         .status-espera { background: #ffedd5; color: #ea580c; }
         .status-gestion { background: #e0f2fe; color: #0369a1; }
@@ -92,106 +93,60 @@
         .prio-Media { background: #fef9c3; color: #b45309; }
         .prio-Baja { background: #f1f5f9; color: #475569; }
 
-        .action-buttons { display: flex; gap: 4px; align-items: center; flex-wrap: wrap; }
-        .btn-expediente { background: #e0f2fe; color: #0369a1; padding: 4px 8px; border: 1px solid #bae6fd; border-radius: 4px; font-size: 11px; font-weight: 600; cursor: pointer; }
-        .btn-expediente:hover { background: #0066cc; color: white; border-color: #0066cc; }
-        .btn-edit { background: #fef3c7; color: #b45309; padding: 4px 8px; border: none; border-radius: 4px; font-size: 11px; font-weight:600; cursor: pointer; }
-        .btn-del { background: #fee2e2; color: var(--danger-color); padding: 4px 8px; border: none; border-radius: 4px; font-size: 11px; font-weight:600; cursor: pointer; }
-        .btn-download { background: #dcfce7; color: #16a34a; text-decoration: none; padding: 4px 8px; border: 1px solid #bbf7d0; border-radius: 4px; font-size: 11px; font-weight: 600; text-align: center; }
+        .action-buttons { display: flex; gap: 6px; align-items: center; }
+        .btn-expediente { background: #e2e8f0; color: #1e293b; padding: 6px 12px; border: none; border-radius: 4px; font-size: 11px; font-weight: 600; cursor: pointer; }
+        .btn-expediente:hover { background: #cbd5e1; }
+        .btn-success { padding:6px 12px; border:none; border-radius:4px; cursor:pointer; background: var(--success-color); color:white; font-size:11px; font-weight: 600; }
+        .btn-success:hover { background: #15803d; }
+        .btn-del { background: var(--danger-color); color: white; padding: 6px 12px; border: none; border-radius: 4px; font-size: 11px; font-weight:600; cursor: pointer; }
+        .btn-del:hover { background: #b91c1c; }
 
-        /* MODAL AVANZADO MATRIX */
         .modal-overlay { 
             position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
-            background: rgba(15, 37, 71, 0.55); backdrop-filter: blur(4px);
-            display: flex; align-items: center; justify-content: center; 
-            opacity: 0; pointer-events: none; transition: opacity 0.25s ease; z-index: 4000;
-            padding: 15px;
+            background: rgba(15, 37, 71, 0.6); backdrop-filter: blur(3px);
+            display: none; align-items: center; justify-content: center; 
+            opacity: 0; transition: opacity 0.25s ease; z-index: 9999;
+            padding: 16px;
         }
-        .modal-overlay.open { opacity: 1; pointer-events: auto; }
+        .modal-overlay.open { opacity: 1; display: flex !important; }
         .modal-container { 
-            background: white; border-radius: 12px; width: 100%; max-width: 750px; 
-            padding: 24px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.15);
-            transform: translateY(-15px); transition: transform 0.25s ease;
-            max-height: 90vh; overflow-y: auto;
+            background: white; border-radius: 12px; width: 100%; max-width: 700px; 
+            padding: 24px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.15);
+            transform: translateY(-20px); transition: transform 0.25s ease;
+            max-height: 90vh; overflow-y: auto; display: flex; flex-direction: column;
         }
         .modal-overlay.open .modal-container { transform: translateY(0); }
         .modal-header { margin-bottom: 18px; border-bottom: 1px solid #e2e8f0; padding-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
-        .modal-header h3 { font-size: 18px; color: var(--text-dark-title); font-weight: 700; }
+        .modal-header h3 { font-size: 16px; color: var(--text-dark-title); font-weight: 600; }
         
-        /* FORM GRID Y VISOR */
         .form-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
-        .form-group { display: flex; flex-direction: column; }
+        .form-group { display: flex; flex-direction: column; gap: 4px; }
         .span-2 { grid-column: span 2; }
         .span-3 { grid-column: span 3; }
         
-        .form-group label { font-size: 10.5px; font-weight: 700; color: #475569; margin-bottom: 5px; text-transform: uppercase; letter-spacing: 0.5px; }
+        .form-group label { font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; }
         .form-control { 
-            width: 100%; padding: 9px 12px; font-size: 13px; border: 1px solid var(--border-color); 
-            border-radius: 6px; color: #334155; transition: border-color 0.2s; background: #fff;
+            width: 100%; padding: 8px 12px; font-size: 13px; border: 1px solid var(--border-color); 
+            border-radius: 6px; color: #334155; outline: none; background: #fff;
         }
-        .form-control:focus { outline: none; border-color: var(--sidebar-active); box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.12); }
-        textarea.form-control { resize: vertical; min-height: 65px; }
+        .form-control:focus { border-color: var(--sidebar-active); }
+        textarea.form-control { resize: vertical; min-height: 70px; }
         
-        .modal-footer { display: flex; justify-content: flex-end; gap: 10px; margin-top: 22px; border-top: 1px solid #e2e8f0; padding-top: 14px; }
-        .btn-secondary { padding: 9px 16px; border: 1px solid var(--border-color); border-radius: 6px; background: white; color: #475569; font-size: 12.5px; font-weight: 600; cursor: pointer; }
-        .btn-submit { padding: 9px 16px; border: none; border-radius: 6px; background: var(--sidebar-bg); color: white; font-size: 12.5px; font-weight: 600; cursor: pointer; }
+        .modal-footer { display: flex; justify-content: flex-end; gap: 8px; margin-top: 20px; border-top: 1px solid #e2e8f0; padding-top: 14px; }
+        .btn-secondary { padding: 8px 16px; border: none; border-radius: 4px; background: #e2e8f0; color: #1e293b; font-size: 12px; font-weight: 600; cursor: pointer; }
+        .btn-submit { padding: 9px 18px; border: none; border-radius: 6px; background: var(--sidebar-bg); color: white; font-size: 13px; font-weight: 600; cursor: pointer; }
 
-        /* ESTILOS ESPECÍFICOS PARA EL CONTENEDOR DEL EXPEDIENTE MUNICIPAL */
-        .expediente-view-box { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 14px; }
-        .expediente-view-box p { font-size: 13.5px; color: #0f2547; font-weight: 500; margin-top: 2px; }
+        .expediente-view-box { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px; }
+        .expediente-view-box p { font-size: 13.5px; color: #1e293b; font-weight: 500; margin-top: 2px; }
 
-        /* ==========================================================================
-           MEDIA QUERIES (OPTIMIZACIÓN DISPOSITIVOS MÓVILES)
-           ========================================================================== */
-        @media (max-width: 768px) {
+        @media (max-width: 900px) {
             .layout { grid-template-columns: 1fr; }
-            
-            /* Mostrar cabecera móvil y hamburguesa */
             .mobile-header { display: flex; }
-            
-            /* Sidebar Desplegable */
-            .sidebar { position: fixed; top: 58px; left: 0; width: 280px; height: calc(100vh - 58px); z-index: 3500; transform: translateX(-100%); box-shadow: 4px 0 10px rgba(0,0,0,0.1); overflow-y: auto; }
+            .sidebar { position: fixed; top: 58px; left: 0; width: 280px; height: calc(100vh - 58px); z-index: 3500; transform: translateX(-100%); box-shadow: 5px 0 15px rgba(0,0,0,0.2); }
             .sidebar.open { transform: translateX(0); }
-            
-            /* Ajustes del contenedor central */
-            .main { padding: 20px 15px; }
-            .main h2 { font-size: 22px; }
-            .btn-primary { width: 100%; text-align: center; margin-bottom: 15px; }
-            
-            /* REDISEÑO DE TABLA A FORMATO DE TARJETAS (CARDS MÓVILES) */
-            .table-container { overflow-x: visible; border: none; background: transparent; box-shadow: none; }
-            table, thead, tbody, th, td, tr { display: block; width: 100%; }
-            thead { display: none; } 
-            
-            tr { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 10px; margin-bottom: 16px; padding: 16px; box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
-            td { border-bottom: none; padding: 6px 0; font-size: 13px; display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; width: 100% !important; }
-            
-            /* Formatear celdas con pseudo-elementos en celular */
-            td:nth-of-type(1) { border-bottom: 1px dashed #e2e8f0; padding-bottom: 10px; margin-bottom: 8px; justify-content: flex-start; font-size: 15px; }
-            td:nth-of-type(1) b { color: var(--text-dark-title); }
-            
-            td:nth-of-type(2)::before { content: "Cédula:"; font-weight: 700; color: #64748b; }
-            td:nth-of-type(3)::before { content: "Edad/Sexo:"; font-weight: 700; color: #64748b; }
-            td:nth-of-type(4)::before { content: "Contacto:"; font-weight: 700; color: #64748b; }
-            td:nth-of-type(5)::before { content: "Sector/Eje:"; font-weight: 700; color: #64748b; text-align: left; }
-            td:nth-of-type(5) span { display: inline !important; margin-left: 5px; }
-            td:nth-of-type(6)::before { content: "Tipo Ayuda:"; font-weight: 700; color: #64748b; }
-            td:nth-of-type(7)::before { content: "Descripción:"; font-weight: 700; color: #64748b; }
-            td:nth-of-type(7) { max-width: 100% !important; white-space: normal !important; overflow: visible !important; text-overflow: clip !important; text-align: right; }
-            td:nth-of-type(8)::before { content: "Prioridad:"; font-weight: 700; color: #64748b; }
-            td:nth-of-type(9)::before { content: "Remitido a:"; font-weight: 700; color: #64748b; }
-            td:nth-of-type(10)::before { content: "Estatus:"; font-weight: 700; color: #64748b; }
-            
-            td:nth-of-type(11) { border-top: 1px solid #f1f5f9; padding-top: 12px; margin-top: 8px; justify-content: center; width: 100%; }
-            .action-buttons { width: 100%; justify-content: space-between; }
-            .action-buttons button, .action-buttons a { flex: 1; text-align: center; justify-content: center; padding: 8px; font-size: 12px; }
-
-            /* REDISEÑO DE FORMULARIOS A UNA SOLA COLUMNA */
-            .form-grid { grid-template-columns: 1fr; gap: 12px; }
+            .main { padding: 20px 16px; }
+            .form-grid { grid-template-columns: 1fr; }
             .span-2, .span-3 { grid-column: span 1; }
-            .modal-container { padding: 16px; }
-            .modal-footer { flex-direction: column-reverse; gap: 8px; }
-            .modal-footer button { width: 100%; padding: 12px; }
         }
     </style>
 </head>
@@ -204,7 +159,7 @@
 </div>
 
 <div class="layout">
-     <div class="sidebar" id="sidebarMenu">
+    <div class="sidebar" id="sidebarMenu">
         <div class="sidebar-brand">
             <h2>COMISIÓN PERMANENTE DE SALUD<br>Y DESARROLLO SOCIAL INTEGRAL</h2>
         </div>
@@ -225,34 +180,23 @@
         <div class="menu-category">Gestión Digital</div>
         <a class="menu" href="bitacora.html">Bitácora de Eventos</a>
         <a class="menu" href="reportes.html">📄 Reportes e Informes</a>
-        <a class="menu " href="formatos.html">📁 Formatos de Oficina</a>
+        <a class="menu" href="formatos.html">📁 Formatos de Oficina</a>
 
         <div id="enlaceAuditoria" style="display: none;">
             <a href="auditoria.html" class="menu">🛡️ Panel de Auditoría</a>
         </div>
-
-<script>
-    // Esto hace que el botón aparezca solo si el rol guardado es 'admin'
-    if (sessionStorage.getItem("usuario_rol") === "admin") {
-        document.getElementById("enlaceAuditoria").style.display = "block";
-    }
-</script>
-        
         
         <div style="margin-top: auto; padding: 24px 20px; border-top: 1px solid rgba(255,255,255,0.1);">
-    
-    <div id="usuarioNombre" style="font-size:13px; color:#ffffff; font-weight:600; margin-bottom: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
-        Cargando...
-    </div>
-    
-    <div id="usuarioCoordinacion" style="font-size:10.5px; color:var(--sidebar-text-sub); font-weight: 500; margin-bottom: 16px; text-transform: uppercase; letter-spacing: 0.3px;">
-        Cargando...
-    </div>
-
-    <a class="menu" onclick="logout()" style="cursor:pointer; font-size:12px; color:#f87171; padding: 8px 0; display: block; border-top: 1px solid rgba(255,255,255,0.05);">
-        Cerrar sesión
-    </a>
-</div>
+            <div id="usuarioNombre" style="font-size:13px; color:#ffffff; font-weight:600; margin-bottom: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                Cargando...
+            </div>
+            <div id="usuarioCoordinacion" style="font-size:10.5px; color:var(--sidebar-text-sub); font-weight: 500; margin-bottom: 16px; text-transform: uppercase; letter-spacing: 0.3px;">
+                Cargando...
+            </div>
+            <a class="menu" onclick="logout()" style="cursor:pointer; font-size:12px; color:#f87171; padding: 8px 0; display: block; border-top: 1px solid rgba(255,255,255,0.05);">
+                Cerrar sesión
+            </a>
+        </div>
     </div>
 
     <div class="main">
@@ -271,26 +215,24 @@
                 <thead>
                     <tr>
                         <th>Beneficiario</th>
-                        <th>Cédula</th>
-                        <th>Edad/Sexo</th>
+                        <th>Cédula / Edad</th>
                         <th>Contacto</th>
                         <th>Sector / Eje</th>
                         <th>Tipo Ayuda</th>
-                        <th>Descripción</th>
                         <th>Prioridad</th>
-                        <th>Remitido a</th>
                         <th>Estatus</th>
                         <th style="text-align: center;">Acciones</th>
                     </tr>
                 </thead>
                 <tbody id="tabla-casos-body">
-                    <tr><td colspan="11" style="color:#94a3b8; text-align:center;">Sincronizando bitácora social...</td></tr>
+                    <tr><td colspan="8" style="color:#94a3b8; text-align:center; padding:30px;">Conectando con la base de datos de Neon...</td></tr>
                 </tbody>
             </table>
         </div>
     </div>
 </div>
 
+<!-- MODAL NUEVO / EDITAR FICHA SOCIAL -->
 <div class="modal-overlay" id="formularioModal">
     <div class="modal-container">
         <div class="modal-header">
@@ -299,7 +241,6 @@
         </div>
         <form id="socialForm" onsubmit="procesarFormulario(event)">
             <input type="hidden" id="casoId">
-            <input type="hidden" id="ins_url_existente">
             
             <div class="form-grid">
                 <div class="form-group span-2">
@@ -369,12 +310,6 @@
                     <label for="ins_departamento">Departamento Solicitante (Interno)</label>
                     <input type="text" id="ins_departamento" class="form-control" placeholder="Ej: Despacho Concejala">
                 </div>
-
-                <div class="form-group span-3" style="background: #f8fafc; padding: 10px; border: 1px dashed var(--border-color); border-radius: 6px;">
-                    <label for="ins_archivo" style="color: var(--sidebar-active);">📁 Adjuntar Soporte Digital (Informe, Cédula, Receta)</label>
-                    <input type="file" id="ins_archivo" class="form-control" style="border:none; background:transparent; padding:5px 0;">
-                    <small id="txt-info-archivo" style="color:#64748b; font-size:11px; margin-top:2px;">Formatos permitidos: PDF, JPG, PNG.</small>
-                </div>
                 
                 <div class="form-group span-3">
                     <label for="ins_detalle">Especificación Técnica del Diagnóstico o Insumos</label>
@@ -384,127 +319,109 @@
             
             <div class="modal-footer">
                 <button type="button" class="btn-secondary" onclick="cerrarModalFormulario()">Cancelar</button>
-                <button type="submit" id="btnGuardarForm" class="btn-submit">Sincronizar Ficha</button>
+                <button type="submit" id="btnGuardarForm" class="btn-submit">Guardar Ficha</button>
             </div>
         </form>
     </div>
 </div>
 
+<!-- MODAL EXPEDIENTE -->
 <div class="modal-overlay" id="expedienteModal">
-    <div class="modal-container" style="max-width: 680px;">
+    <div class="modal-container" style="max-width: 600px;">
         <div class="modal-header">
             <h3>🗂️ Expediente Social e Historial Clínico</h3>
             <span style="cursor:pointer; font-weight:bold; color:#64748b; font-size:22px;" onclick="cerrarModalExpediente()">×</span>
         </div>
         <div class="form-grid" id="cuerpoExpediente"></div>
         <div class="modal-footer">
-            <button type="button" class="btn-submit" onclick="cerrarModalExpediente()">Entendido / Cerrar</button>
+            <button type="button" class="btn-submit" onclick="cerrarModalExpediente()">Cerrar</button>
         </div>
     </div>
 </div>
 
 <script>
-    const client = supabase.createClient(
-        "https://soqgmwzknfgmxefbnfgs.supabase.co", 
-        "sb_publishable_VytLFdygkUVqnTLWNkiM3g_75HnE8qQ"
-    );
+    if (sessionStorage.getItem("usuario_rol") === "admin") {
+        const el = document.getElementById("enlaceAuditoria");
+        if (el) el.style.display = "block";
+    }
 
     let tipoFiltroActual = 'Caso Comunitario';
     let listaCasosGlobal = [];
+    let idEnEdicion = null;
 
-    document.addEventListener("DOMContentLoaded", () => { cargarCasosSociales(); });
+    window.iniciarApp = function() {
+        const nombre = sessionStorage.getItem("usuario_nombre");
+        const coord = sessionStorage.getItem("usuario_coordinacion");
+        if (nombre) document.getElementById("usuarioNombre").textContent = nombre;
+        if (coord) document.getElementById("usuarioCoordinacion").textContent = coord.toUpperCase();
 
-    // Control del menú hamburguesa móvil
+        cargarCasosSociales();
+    };
+
+    document.addEventListener("DOMContentLoaded", () => {
+        if (window.sqlClient) {
+            window.iniciarApp();
+        }
+    });
+
     function toggleMenu() {
         const sidebar = document.getElementById("sidebarMenu");
         sidebar.classList.toggle("open");
     }
 
-    // Cerrar menú al hacer clic en un enlace (móvil)
-    document.querySelectorAll('.menu').forEach(link => {
-        link.addEventListener('click', () => {
-            document.getElementById("sidebarMenu").classList.remove("open");
-        });
-    });
-
     async function cargarCasosSociales() {
-        try {
-            const tbody = document.getElementById("tabla-casos-body");
-            const { data: casos, error } = await client
-                .from("casos_salud")
-                .select("*")
-                .eq("coordinacion", "Social")
-                .eq("tipo", tipoFiltroActual);
+        const tbody = document.getElementById("tabla-casos-body");
+        
+        if (!window.sqlClient) {
+            await new Promise(resolve => setTimeout(resolve, 800));
+        }
 
-            if (error) throw error;
+        if (!window.sqlClient) {
+            tbody.innerHTML = `<tr><td colspan="8" style="text-align:center; color:#dc2626; padding:30px;">⚠️ Error crítico: La librería de Neon no se ha cargado correctamente.</td></tr>`;
+            return;
+        }
+
+        try {
+            // Consultamos la tabla unificada de casos_salud filtrando por el tipo correspondiente
+            const registros = await window.sqlClient`
+                SELECT * FROM casos_salud 
+                WHERE coordinacion = 'Social' AND tipo = ${tipoFiltroActual} 
+                ORDER BY id DESC
+            `;
             
-            listaCasosGlobal = casos || [];
+            listaCasosGlobal = Array.from(registros);
 
             if (listaCasosGlobal.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="11" style="text-align:center; color:#94a3b8; padding:20px;">No hay fichas registradas en este módulo.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="8" style="text-align:center; color:#94a3b8; padding:30px;">No hay fichas registradas en este módulo.</td></tr>`;
                 return;
             }
 
             tbody.innerHTML = listaCasosGlobal.map(c => {
                 let estClass = c.estatus === "En Gestión" ? "status-gestion" : (c.estatus === "Resuelto" ? "status-resuelto" : "status-espera");
-                let botonDescarga = c.url_adjunto 
-                    ? `<a href="${c.url_adjunto}" target="_blank" class="btn-download" title="Ver Soporte Digital">📎 Doc</a>` 
-                    : '';
 
                 return `
                     <tr>
-                        <td><b>${c.nombre}</b></td>
-                        <td><code style="background:#f1f5f9; padding:2px 5px; border-radius:4px;">${c.cedula || 'N/A'}</code></td>
-                        <td>${c.edad || '?' } años (${c.genero === 'Femenino' ? 'F' : 'M'})</td>
+                        <td><b>${c.nombre || 'Sin nombre'}</b></td>
+                        <td><code style="background:#f1f5f9; padding:2px 5px; border-radius:4px;">${c.cedula || 'N/A'}</code><br><span style="font-size:11px; color:#64748b;">${c.edad || '?'} años (${c.genero || 'F'})</span></td>
                         <td>${c.telefono || 'N/A'}</td>
-                        <td>${c.sector || ''} <span style="font-size:11px; color:#64748b; display:block;">${c.eje_territorial || ''}</span></td>
-                        <td><span style="font-weight:600; color:#0284c7;">${c.tipo_ayuda || 'General'}</span></td>
-                        <td style="color:#475569; max-width:180px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${c.detalle || ''}</td>
+                        <td>${c.sector || ''}<br><span style="font-size:11px; color:#64748b;">${c.eje_territorial || ''}</span></td>
+                        <td><span style="font-weight:600; color:#0066cc;">${c.tipo_ayuda || 'General'}</span></td>
                         <td><span class="prio-badge prio-${c.prioridad}">${c.prioridad || 'Media'}</span></td>
-                        <td><span style="font-size:11.5px; color:#334155;">${c.institucion_remitida || 'Ninguna'}</span></td>
                         <td><span class="status-badge ${estClass}">${c.estatus || 'En Espera'}</span></td>
                         <td>
                             <div class="action-buttons">
-                                <button class="btn-expediente" onclick="verExpedienteCompleto(${c.id})">👁️ Historial</button>
-                                ${botonDescarga}
-                                <button class="btn-edit" onclick="abrirModalEditar(${c.id}, '${c.nombre}', '${c.cedula || ''}', ${c.edad || 0}, '${c.genero || 'Femenino'}', '${c.telefono || ''}', '${c.sector || ''}', '${c.eje_territorial || ''}', '${c.tipo_ayuda || ''}', '${c.prioridad || 'Media'}', '${c.estatus || 'En Espera'}', '${c.institucion_remitida || ''}', '${c.trabajador_departamento || ''}', \`${c.detalle || ''}\`, '${c.url_adjunto || ''}')">Editar</button>
+                                <button class="btn-expediente" onclick="verExpedienteCompleto(${c.id})">Ver</button>
+                                <button class="btn-success" onclick="abrirModalEditar(${c.id})">Editar</button>
                                 <button class="btn-del" onclick="eliminarCaso(${c.id})">Borrar</button>
                             </div>
                         </td>
                     </tr>
                 `;
             }).join("");
-        } catch (err) { console.error(err); }
+        } catch (err) {
+            tbody.innerHTML = `<tr><td colspan="8" style="text-align:center; color:#dc2626; padding:30px;">⚠️ Error de conexión con Neon: ${err.message}</td></tr>`;
+        }
     }
-
-    function verExpedienteCompleto(id) {
-        const item = listaCasosGlobal.find(c => Number(c.id) === Number(id));
-        if (!item) return;
-
-        let bloqueAdjunto = item.url_adjunto 
-            ? `<a href="${item.url_adjunto}" target="_blank" style="color:#16a34a; font-weight:700; text-decoration:underline;">📥 Abrir Archivo de Soporte Escaneado</a>`
-            : '<span style="color:#64748b; font-style:italic;">Ningún documento digitalizado adjunto.</span>';
-
-        const contenedor = document.getElementById("cuerpoExpediente");
-        contenedor.innerHTML = `
-            <div class="form-group span-2 expediente-view-box"><label>Nombres y Apellidos</label><p>${item.nombre}</p></div>
-            <div class="form-group expediente-view-box"><label>Cédula Identidad</label><p>${item.cedula || 'No consignada'}</p></div>
-            <div class="form-group expediente-view-box"><label>Edad / Censo</label><p>${item.edad || '?'} años</p></div>
-            <div class="form-group expediente-view-box"><label>Género Fisiológico</label><p>${item.genero || 'Femenino'}</p></div>
-            <div class="form-group expediente-view-box"><label>Teléfono Contacto</label><p>${item.telefono || 'No registra'}</p></div>
-            <div class="form-group span-2 expediente-view-box"><label>Ubicación Territorial (Sector/Eje)</label><p>${item.sector || ''} — ${item.eje_territorial || 'Eje No definido'}</p></div>
-            <div class="form-group expediente-view-box"><label>Tipo de Requerimiento</label><p style="color:#0066cc; font-weight:700;">${item.tipo_ayuda}</p></div>
-            <div class="form-group expediente-view-box"><label>Canalización Externa</label><p>${item.institucion_remitida || 'Atendido en Sala Técnica Directa'}</p></div>
-            <div class="form-group expediente-view-box"><label>Prioridad de Atención</label><p><span class="prio-badge prio-${item.prioridad}">${item.prioridad}</span></p></div>
-            <div class="form-group expediente-view-box"><label>Estatus del Beneficio</label><p>${item.estatus}</p></div>
-            <div class="form-group span-3 expediente-view-box" style="background:#e0f2fe; border-left:4px solid #0369a1;"><label>📎 Archivo Digitalizado de Respaldo</label><p style="margin-top:5px;">${bloqueAdjunto}</p></div>
-            <div class="form-group span-3 expediente-view-box" style="background:#f1f5f9; border-left:4px solid var(--sidebar-bg);"><label>Diagnóstico / Informe Técnico de la Solicitud</label><p style="line-height:1.6; font-style:italic;">"${item.detalle || 'Sin especificaciones añadidas in el ingreso.'}"</p></div>
-            <div class="form-group span-3 expediente-view-box"><label>Unidad Remitente Solicitante (Interno)</label><p>${item.trabajador_departamento || 'Oficina Social Base'}</p></div>
-        `;
-        document.getElementById("expedienteModal").classList.add("open");
-    }
-
-    function cerrarModalExpediente() { document.getElementById("expedienteModal").classList.remove("open"); }
 
     function cambiarFiltroSocial(nuevoTipo) {
         tipoFiltroActual = nuevoTipo;
@@ -514,143 +431,140 @@
     }
 
     function abrirModalFormulario() {
+        idEnEdicion = null;
         document.getElementById("socialForm").reset();
         document.getElementById("casoId").value = "";
-        document.getElementById("ins_url_existente").value = "";
-        document.getElementById("txt-info-archivo").innerText = "Formatos permitidos: PDF, JPG, PNG.";
-        document.getElementById("txt-info-archivo").style.color = "#64748b";
         document.getElementById("modalTitulo").innerText = `Registrar ${tipoFiltroActual}`;
         document.getElementById("formularioModal").classList.add("open");
     }
 
-    function abrirModalEditar(id, nom, ced, eda, gen, tel, sec, eje, ayu, pri, est, rem, dep, det, urlAdjunto) {
-        document.getElementById("casoId").value = id;
-        document.getElementById("ins_nombre").value = nom;
-        document.getElementById("ins_cedula").value = ced;
-        document.getElementById("ins_edad").value = eda;
-        document.getElementById("ins_genero").value = gen;
-        document.getElementById("ins_telefono").value = tel;
-        document.getElementById("ins_sector").value = sec;
-        document.getElementById("ins_eje").value = eje;
-        document.getElementById("ins_ayuda").value = ayu;
-        document.getElementById("ins_prioridad").value = pri;
-        document.getElementById("ins_estatus").value = est;
-        document.getElementById("ins_remitido").value = rem;
-        document.getElementById("ins_departamento").value = dep;
-        document.getElementById("ins_detalle").value = det;
-        document.getElementById("ins_url_existente").value = urlAdjunto;
-        
-        const txtInfo = document.getElementById("txt-info-archivo");
-        if(urlAdjunto) {
-            txtInfo.innerText = "⚠️ Ya hay un archivo cargado. Selecciona uno nuevo solo si deseas reemplazarlo.";
-            txtInfo.style.color = "#b45309";
-        } else {
-            txtInfo.innerText = "Formatos permitidos: PDF, JPG, PNG.";
-            txtInfo.style.color = "#64748b";
-        }
+    function abrirModalEditar(id) {
+        const item = listaCasosGlobal.find(c => Number(c.id) === Number(id));
+        if (!item) return;
 
-        document.getElementById("modalTitulo").innerText = "Modificar Ficha Social Completa";
+        idEnEdicion = item.id;
+        document.getElementById("casoId").value = item.id;
+        document.getElementById("ins_nombre").value = item.nombre || "";
+        document.getElementById("ins_cedula").value = item.cedula || "";
+        document.getElementById("ins_edad").value = item.edad || "";
+        document.getElementById("ins_genero").value = item.genero || "Femenino";
+        document.getElementById("ins_telefono").value = item.telefono || "";
+        document.getElementById("ins_sector").value = item.sector || "";
+        document.getElementById("ins_eje").value = item.eje_territorial || "";
+        document.getElementById("ins_ayuda").value = item.tipo_ayuda || "Tratamiento Médico";
+        document.getElementById("ins_prioridad").value = item.prioridad || "Media";
+        document.getElementById("ins_estatus").value = item.estatus || "En Espera";
+        document.getElementById("ins_remitido").value = item.institucion_remitida || "";
+        document.getElementById("ins_departamento").value = item.trabajador_departamento || "";
+        document.getElementById("ins_detalle").value = item.detalle || "";
+
+        document.getElementById("modalTitulo").innerText = "Modificar Ficha Social";
         document.getElementById("formularioModal").classList.add("open");
     }
 
-    function cerrarModalFormulario() { document.getElementById("formularioModal").classList.remove("open"); }
+    function cerrarModalFormulario() {
+        idEnEdicion = null;
+        document.getElementById("formularioModal").classList.remove("open");
+    }
 
     async function procesarFormulario(e) {
         e.preventDefault();
-        
-        const btnGuardar = document.getElementById("btnGuardarForm");
-        const id = document.getElementById("casoId").value;
-        const archivoInput = document.getElementById("ins_archivo");
-        let urlFinalArchivo = document.getElementById("ins_url_existente").value;
+        if (!window.sqlClient) { alert("No hay conexión con la base de datos."); return; }
 
-        btnGuardar.innerText = "Subiendo soportes y sincronizando...";
+        const btnGuardar = document.getElementById("btnGuardarForm");
+        btnGuardar.innerText = "Guardando...";
         btnGuardar.disabled = true;
 
+        const nombre = document.getElementById("ins_nombre").value.trim();
+        const cedula = document.getElementById("ins_cedula").value.trim();
+        const edad = parseInt(document.getElementById("ins_edad").value) || 0;
+        const genero = document.getElementById("ins_genero").value;
+        const telefono = document.getElementById("ins_telefono").value.trim();
+        const sector = document.getElementById("ins_sector").value.trim();
+        const eje = document.getElementById("ins_eje").value.trim();
+        const ayuda = document.getElementById("ins_ayuda").value;
+        const prioridad = document.getElementById("ins_prioridad").value;
+        const estatus = document.getElementById("ins_estatus").value;
+        const remitido = document.getElementById("ins_remitido").value.trim();
+        const departamento = document.getElementById("ins_departamento").value.trim();
+        const detalle = document.getElementById("ins_detalle").value.trim();
+
         try {
-            if (archivoInput.files.length > 0) {
-                const archivo = archivoInput.files[0];
-                const cedulaLimpia = document.getElementById("ins_cedula").value.replace(/[^0-9]/g, "");
-                const extension = archivo.name.split('.').pop();
-                const nombreUnico = `${cedulaLimpia}_${Date.now()}.${extension}`;
-
-                const { data: storageData, error: storageError } = await client.storage
-                    .from('archivos_casos')
-                    .upload(nombreUnico, archivo);
-
-                if (storageError) throw storageError;
-
-                const { data: publicUrlData } = client.storage
-                    .from('archivos_casos')
-                    .getPublicUrl(nombreUnico);
-                
-                urlFinalArchivo = publicUrlData.publicUrl;
-            }
-
-            const payload = {
-                nombre: document.getElementById("ins_nombre").value,
-                cedula: document.getElementById("ins_cedula").value,
-                edad: parseInt(document.getElementById("ins_edad").value),
-                genero: document.getElementById("ins_genero").value,
-                telefono: document.getElementById("ins_telefono").value,
-                sector: document.getElementById("ins_sector").value,
-                eje_territorial: document.getElementById("ins_eje").value,
-                tipo_ayuda: document.getElementById("ins_ayuda").value,
-                prioridad: document.getElementById("ins_prioridad").value,
-                estatus: document.getElementById("ins_estatus").value,
-                institucion_remitida: document.getElementById("ins_remitido").value,
-                trabajador_departamento: document.getElementById("ins_departamento").value,
-                detalle: document.getElementById("ins_detalle").value,
-                url_adjunto: urlFinalArchivo
-            };
-
-            if (id) {
-                const { error } = await client.from("casos_salud").update(payload).eq("id", id);
-                if (error) throw error;
+            if (idEnEdicion) {
+                await window.sqlClient`
+                    UPDATE casos_salud 
+                    SET nombre = ${nombre}, cedula = ${cedula}, edad = ${edad}, genero = ${genero}, 
+                        telefono = ${telefono}, sector = ${sector}, eje_territorial = ${eje}, 
+                        tipo_ayuda = ${ayuda}, prioridad = ${prioridad}, estatus = ${estatus}, 
+                        institucion_remitida = ${remitido}, trabajador_departamento = ${departamento}, 
+                        detalle = ${detalle}
+                    WHERE id = ${idEnEdicion}
+                `;
+                alert("¡Ficha social actualizada con éxito!");
             } else {
-                payload.tipo = tipoFiltroActual;
-                payload.coordinacion = 'Social';
-                const { error } = await client.from("casos_salud").insert([payload]);
-                if (error) throw error;
+                await window.sqlClient`
+                    INSERT INTO casos_salud (
+                        nombre, cedula, edad, genero, telefono, sector, eje_territorial, 
+                        tipo_ayuda, prioridad, estatus, institucion_remitida, 
+                        trabajador_departamento, detalle, coordinacion, tipo
+                    ) VALUES (
+                        ${nombre}, ${cedula}, ${edad}, ${genero}, ${telefono}, ${sector}, ${eje}, 
+                        ${ayuda}, ${prioridad}, ${estatus}, ${remitido}, 
+                        ${departamento}, ${detalle}, 'Social', ${tipoFiltroActual}
+                    )
+                `;
+                alert("¡Ficha social registrada con éxito!");
             }
 
             cerrarModalFormulario();
             cargarCasosSociales();
-        } catch (err) { 
-            console.error(err);
-            alert("Error operativo en la carga de archivos o sincronización de la ficha."); 
+        } catch (err) {
+            alert("Error al guardar en la base de datos: " + err.message);
         } finally {
-            btnGuardar.innerText = "Sincronizar Ficha";
+            btnGuardar.innerText = "Guardar Ficha";
             btnGuardar.disabled = false;
         }
+    }
 
+    function verExpedienteCompleto(id) {
+        const item = listaCasosGlobal.find(c => Number(c.id) === Number(id));
+        if (!item) return;
 
-        
+        const contenedor = document.getElementById("cuerpoExpediente");
+        contenedor.innerHTML = `
+            <div class="form-group span-2 expediente-view-box"><label>Nombres y Apellidos</label><p>${item.nombre || ''}</p></div>
+            <div class="form-group expediente-view-box"><label>Cédula Identidad</label><p>${item.cedula || 'N/A'}</p></div>
+            <div class="form-group expediente-view-box"><label>Edad / Género</label><p>${item.edad || '?'} años (${item.genero || 'F'})</p></div>
+            <div class="form-group expediente-view-box"><label>Teléfono Contacto</label><p>${item.telefono || 'N/A'}</p></div>
+            <div class="form-group span-2 expediente-view-box"><label>Ubicación Territorial</label><p>${item.sector || ''} — ${item.eje_territorial || ''}</p></div>
+            <div class="form-group expediente-view-box"><label>Tipo de Requerimiento</label><p style="color:#0066cc; font-weight:700;">${item.tipo_ayuda || ''}</p></div>
+            <div class="form-group expediente-view-box"><label>Institución Remitida</label><p>${item.institucion_remitida || 'Ninguna'}</p></div>
+            <div class="form-group expediente-view-box"><label>Prioridad</label><p><span class="prio-badge prio-${item.prioridad}">${item.prioridad || 'Media'}</span></p></div>
+            <div class="form-group expediente-view-box"><label>Estatus</label><p>${item.estatus || 'En Espera'}</p></div>
+            <div class="form-group span-3 expediente-view-box" style="background:#f1f5f9; border-left:4px solid var(--sidebar-bg);"><label>Diagnóstico / Informe Técnico</label><p style="line-height:1.5; font-style:italic;">"${item.detalle || 'Sin especificaciones.'}"</p></div>
+            <div class="form-group span-3 expediente-view-box"><label>Departamento Solicitante</label><p>${item.trabajador_departamento || 'N/A'}</p></div>
+        `;
+        document.getElementById("expedienteModal").classList.add("open");
+    }
+
+    function cerrarModalExpediente() {
+        document.getElementById("expedienteModal").classList.remove("open");
     }
 
     async function eliminarCaso(id) {
-        if (!confirm("¿Eliminar de forma permanente esta ficha de la base de datos municipal?")) return;
+        if (!confirm("¿Estás seguro de eliminar esta ficha social?")) return;
         try {
-            await client.from("casos_salud").delete().eq("id", id);
+            await window.sqlClient`DELETE FROM casos_salud WHERE id = ${Number(id)}`;
             cargarCasosSociales();
-        } catch (err) { alert("Error al remover el registro."); }
+        } catch (err) {
+            alert("Error al eliminar el registro: " + err.message);
+        }
     }
 
-    async function logout(){ await client.auth.signOut(); location.href="index.html"; }
-</script>
-<script>
-    document.addEventListener("DOMContentLoaded", () => {
-        // Obtenemos los datos desde el almacenamiento de sesión
-        const nombre = sessionStorage.getItem("usuario_nombre");
-        const coord = sessionStorage.getItem("usuario_coordinacion");
-        
-        // Si existen los datos, los ponemos en los contenedores con ID
-        if (nombre) {
-            document.getElementById("usuarioNombre").textContent = nombre;
-        }
-        if (coord) {
-            document.getElementById("usuarioCoordinacion").textContent = coord.toUpperCase();
-        }
-    });
+    async function logout() {
+        sessionStorage.clear();
+        window.location.href = "index.html";
+    }
 </script>
 </body>
 </html>
