@@ -319,10 +319,16 @@
                     <input type="text" id="ins_departamento" class="form-control" placeholder="Ej: Despacho Concejala">
                 </div>
 
+                <!-- SECCIÓN DE ARCHIVO CON BOTÓN DIRECTO A LUMI -->
                 <div class="form-group span-3" style="background: #f8fafc; padding: 12px; border: 1px dashed var(--border-color); border-radius: 6px;">
-                    <label for="ins_archivo" style="color: var(--sidebar-active);">📁 Adjuntar Soporte Digital (Informe, Cédula, Receta)</label>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                        <label for="ins_archivo" style="color: var(--sidebar-active); margin:0;">📁 Documento de Respaldo Unificado</label>
+                        <a href="https://lightweight-pdf-tool.lumi.ing/" target="_blank" style="background: #0f2547; color: white; padding: 5px 10px; border-radius: 4px; font-size: 11px; font-weight: 600; text-decoration: none;">
+                            ⚙️ Unificar en Lumi
+                        </a>
+                    </div>
                     <input type="file" id="ins_archivo" class="form-control" style="border:none; background:transparent; padding:5px 0;">
-                    <small id="txt-info-archivo" style="color:#64748b; font-size:11px; margin-top:2px;">Formatos permitidos: PDF, JPG, PNG. (Opcional)</small>
+                    <small id="txt-info-archivo" style="color:#64748b; font-size:11px; margin-top:2px;">Sube el PDF único resultante de juntar fotos, cédulas y récipes. (Formatos: PDF, JPG, PNG)</small>
                 </div>
                 
                 <div class="form-group span-3">
@@ -461,7 +467,7 @@
         document.getElementById("socialForm").reset();
         document.getElementById("casoId").value = "";
         document.getElementById("ins_url_existente").value = "";
-        document.getElementById("txt-info-archivo").innerText = "Formatos permitidos: PDF, JPG, PNG. (Opcional)";
+        document.getElementById("txt-info-archivo").innerText = "Sube el PDF único resultante de juntar fotos, cédulas y récipes. (Formatos: PDF, JPG, PNG)";
         document.getElementById("txt-info-archivo").style.color = "#64748b";
         document.getElementById("modalTitulo").innerText = `Registrar ${tipoFiltroActual}`;
         document.getElementById("formularioModal").classList.add("open");
@@ -491,10 +497,10 @@
         
         const txtInfo = document.getElementById("txt-info-archivo");
         if(item.url_adjunto) {
-            txtInfo.innerText = "⚠️ Ya hay un archivo cargado. Selecciona uno nuevo solo si deseas reemplazarlo.";
+            txtInfo.innerText = "⚠️ Ya hay un documento adjunto. Selecciona uno nuevo solo si deseas reemplazarlo.";
             txtInfo.style.color = "#b45309";
         } else {
-            txtInfo.innerText = "Formatos permitidos: PDF, JPG, PNG.";
+            txtInfo.innerText = "Sube el PDF único resultante de juntar fotos, cédulas y récipes.";
             txtInfo.style.color = "#64748b";
         }
 
@@ -513,6 +519,8 @@
 
         const btnGuardar = document.getElementById("btnGuardarForm");
         const archivoInput = document.getElementById("ins_archivo");
+        
+        // CONSERVAMOS EL DOCUMENTO EXISTENTE SI NO SE SUBE UNO NUEVO (Evita que se borre)
         let urlFinalArchivo = document.getElementById("ins_url_existente").value;
 
         btnGuardar.innerText = "Procesando y sincronizando...";
@@ -584,7 +592,7 @@
         document.getElementById("nuevoSeguimientoTexto").value = "";
 
         let bloqueAdjunto = item.url_adjunto 
-            ? `<a href="${item.url_adjunto}" target="_blank" style="color:#16a34a; font-weight:700; text-decoration:underline;">📥 Abrir Archivo Digital Adjunto al Caso</a>`
+            ? `<a href="${item.url_adjunto}" target="_blank" style="color:#16a34a; font-weight:700; text-decoration:underline;">📥 Abrir Documento Digital de Respaldo</a>`
             : '<span style="color:#64748b; font-style:italic;">Ningún documento digitalizado adjunto.</span>';
 
         let historialBitacora = item.seguimiento_bitacora 
@@ -638,7 +646,6 @@
             alert("¡Avance registrado exitosamente en el seguimiento del caso!");
             document.getElementById("nuevoSeguimientoTexto").value = "";
             
-            // Recargamos datos y refrescamos el modal abierto
             await cargarCasosSociales();
             verExpedienteCompleto(id);
         } catch (err) {
