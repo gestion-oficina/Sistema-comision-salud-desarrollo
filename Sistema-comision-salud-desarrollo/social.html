@@ -61,12 +61,27 @@
         .main h2 { font-size: 26px; color: var(--text-dark-title); font-weight: 700; margin-bottom: 6px; }
         .subtitle { font-size: 13px; color: #64748b; margin-bottom: 24px; font-weight: 500; }
         
-        .tabs-container { display: flex; background: #e2e8f0; padding: 6px; border-radius: 8px; max-width: 500px; margin-bottom: 20px; border: 1px solid #cbd5e1; gap: 4px; }
-        .tab-btn { flex: 1; padding: 10px 14px; border: none; background: transparent; color: #475569; font-size: 12px; font-weight: 600; cursor: pointer; border-radius: 6px; text-align: center; transition: all 0.2s; }
+        /* TARJETAS KPI DE RESUMEN */
+        .kpi-container { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-bottom: 24px; }
+        .kpi-card { background: white; padding: 16px; border-radius: 8px; border: 1px solid #e2e8f0; box-shadow: 0 2px 4px rgba(0,0,0,0.02); display: flex; flex-direction: column; }
+        .kpi-card span:first-child { font-size: 11px; font-weight: 700; text-transform: uppercase; color: #64748b; }
+        .kpi-card span:last-child { font-size: 24px; font-weight: 700; color: var(--text-dark-title); margin-top: 4px; }
+
+        .toolbar-flex { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; gap: 15px; flex-wrap: wrap; }
+        .tabs-container { display: flex; background: #e2e8f0; padding: 6px; border-radius: 8px; max-width: 450px; border: 1px solid #cbd5e1; gap: 4px; flex: 1; }
+        .tab-btn { flex: 1; padding: 8px 12px; border: none; background: transparent; color: #475569; font-size: 12px; font-weight: 600; cursor: pointer; border-radius: 6px; text-align: center; transition: all 0.2s; }
         .tab-btn.active { background: var(--sidebar-bg); color: white; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
         
-        .btn-primary { padding:11px 20px; border:none; border-radius:6px; cursor:pointer; background: var(--sidebar-active); color:white; font-size:13px; font-weight: 600; margin-bottom: 20px; width: auto; }
-        
+        .search-box { position: relative; flex: 1; min-width: 250px; }
+        .search-box input { width: 100%; padding: 10px 14px 10px 36px; border: 1px solid var(--border-color); border-radius: 8px; font-size: 13px; background: white; outline: none; }
+        .search-box input:focus { border-color: var(--sidebar-active); box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.12); }
+        .search-box span { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #94a3b8; font-size: 14px; }
+
+        .actions-bar { display: flex; gap: 10px; margin-bottom: 20px; }
+        .btn-primary { padding: 11px 20px; border: none; border-radius: 6px; cursor: pointer; background: var(--sidebar-active); color: white; font-size: 13px; font-weight: 600; display: inline-flex; align-items: center; gap: 6px; }
+        .btn-report { padding: 11px 16px; border: 1px solid var(--border-color); border-radius: 6px; cursor: pointer; background: white; color: #334155; font-size: 13px; font-weight: 600; display: inline-flex; align-items: center; gap: 6px; }
+        .btn-report:hover { background: #f8fafc; border-color: #94a3b8; }
+
         .table-container { 
             background: white; 
             border: 1px solid #e2e8f0; 
@@ -143,6 +158,7 @@
             .sidebar { position: fixed; top: 58px; left: 0; width: 280px; height: calc(100vh - 58px); z-index: 3500; transform: translateX(-100%); box-shadow: 5px 0 15px rgba(0,0,0,0.2); }
             .sidebar.open { transform: translateX(0); }
             .main { padding: 20px 16px; }
+            .kpi-container { grid-template-columns: 1fr; }
             .form-grid { grid-template-columns: 1fr; }
             .span-2, .span-3 { grid-column: span 1; }
         }
@@ -201,12 +217,39 @@
         <h2>Gestión de Casos Sociales</h2>
         <div class="subtitle">Oficina de la Concejala Letty Bastidas — Municipio Ambrosio Plaza</div>
         
-        <div class="tabs-container">
-            <button class="tab-btn active" id="tab-comunitarios" onclick="cambiarFiltroSocial('Caso Comunitario')">👥 Casos Comunitarios</button>
-            <button class="tab-btn" id="tab-personal" onclick="cambiarFiltroSocial('Personal Concejo')">👔 Personal Concejo</button>
+        <!-- TARJETAS RESUMEN (KPIs) -->
+        <div class="kpi-container">
+            <div class="kpi-card">
+                <span>En Espera</span>
+                <span id="kpi-espera">0</span>
+            </div>
+            <div class="kpi-card">
+                <span>En Gestión</span>
+                <span id="kpi-gestion">0</span>
+            </div>
+            <div class="kpi-card">
+                <span>Resueltos</span>
+                <span id="kpi-resuelto">0</span>
+            </div>
         </div>
 
-        <button class="btn-primary" onclick="abrirModalFormulario()">➕ Registrar Ficha Social Integral</button>
+        <!-- BARRA DE PESTAÑAS Y BUSCADOR -->
+        <div class="toolbar-flex">
+            <div class="tabs-container">
+                <button class="tab-btn active" id="tab-comunitarios" onclick="cambiarFiltroSocial('Caso Comunitario')">👥 Comunitarios</button>
+                <button class="tab-btn" id="tab-personal" onclick="cambiarFiltroSocial('Personal Concejo')">👔 Personal</button>
+            </div>
+            <div class="search-box">
+                <span>🔍</span>
+                <input type="text" id="inputBuscador" placeholder="Buscar por nombre o cédula..." oninput="filtrarTablaEnVivo()">
+            </div>
+        </div>
+
+        <!-- ACCIONES PRINCIPALES -->
+        <div class="actions-bar">
+            <button class="btn-primary" onclick="abrirModalFormulario()">➕ Registrar Ficha Social Integral</button>
+            <button class="btn-report" onclick="window.print()">🖨️ Imprimir / Guardar Reporte</button>
+        </div>
 
         <div class="table-container">
             <table>
@@ -418,47 +461,75 @@
             `;
             
             listaCasosGlobal = Array.from(registros);
+            actualizarKPIs(listaCasosGlobal);
+            renderizarTabla(listaCasosGlobal);
 
-            if (listaCasosGlobal.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="12" style="text-align:center; color:#94a3b8; padding:30px;">No hay fichas registradas en este módulo.</td></tr>`;
-                return;
-            }
-
-            tbody.innerHTML = listaCasosGlobal.map(c => {
-                let estClass = c.estatus === "En Gestión" ? "status-gestion" : (c.estatus === "Resuelto" ? "status-resuelto" : "status-espera");
-
-                return `
-                    <tr>
-                        <td><b>${c.nombre || 'Sin nombre'}</b></td>
-                        <td><code style="background:#f1f5f9; padding:2px 5px; border-radius:4px;">${c.cedula || 'N/A'}</code></td>
-                        <td>${c.edad || '?' } años (${c.genero === 'Femenino' ? 'F' : 'M'})</td>
-                        <td>${c.telefono || 'N/A'}</td>
-                        <td>${c.sector || ''} <span style="font-size:11px; color:#64748b; display:block;">${c.eje_territorial || ''}</span></td>
-                        <td><span style="font-weight:600; color:#0284c7;">${c.tipo_ayuda || 'General'}</span></td>
-                        <td><span style="font-weight:600; color:#1e293b; background:#f1f5f9; padding:3px 6px; border-radius:4px; display:inline-block;">👤 ${c.responsable_comision || 'No asignado'}</span></td>
-                        <td style="color:#475569; max-width:160px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" title="${c.detalle || ''}">${c.detalle || ''}</td>
-                        <td><span class="prio-badge prio-${c.prioridad}">${c.prioridad || 'Media'}</span></td>
-                        <td><span style="font-size:11.5px; color:#334155;">${c.institucion_remitida || 'Ninguna'}</span></td>
-                        <td><span class="status-badge ${estClass}">${c.estatus || 'En Espera'}</span></td>
-                        <td>
-                            <div class="action-buttons">
-                                <button class="btn-expediente" onclick="verExpedienteCompleto(${c.id})">👁️ Historial</button>
-                                <button class="btn-edit" onclick="abrirModalEditar(${c.id})">Editar</button>
-                                <button class="btn-del" onclick="eliminarCaso(${c.id})">Borrar</button>
-                            </div>
-                        </td>
-                    </tr>
-                `;
-            }).join("");
         } catch (err) {
             tbody.innerHTML = `<tr><td colspan="12" style="text-align:center; color:#dc2626; padding:30px;">⚠️ Error de conexión con Neon: ${err.message}</td></tr>`;
         }
+    }
+
+    function actualizarKPIs(datos) {
+        let espera = datos.filter(c => c.estatus === 'En Espera').length;
+        let gestion = datos.filter(c => c.estatus === 'En Gestión').length;
+        let resuelto = datos.filter(c => c.estatus === 'Resuelto').length;
+
+        document.getElementById("kpi-espera").textContent = espera;
+        document.getElementById("kpi-gestion").textContent = gestion;
+        document.getElementById("kpi-resuelto").textContent = resuelto;
+    }
+
+    function renderizarTabla(datos) {
+        const tbody = document.getElementById("tabla-casos-body");
+
+        if (datos.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="12" style="text-align:center; color:#94a3b8; padding:30px;">No se encontraron fichas registradas.</td></tr>`;
+            return;
+        }
+
+        tbody.innerHTML = datos.map(c => {
+            let estClass = c.estatus === "En Gestión" ? "status-gestion" : (c.estatus === "Resuelto" ? "status-resuelto" : "status-espera");
+
+            return `
+                <tr>
+                    <td><b>${c.nombre || 'Sin nombre'}</b></td>
+                    <td><code style="background:#f1f5f9; padding:2px 5px; border-radius:4px;">${c.cedula || 'N/A'}</code></td>
+                    <td>${c.edad || '?' } años (${c.genero === 'Femenino' ? 'F' : 'M'})</td>
+                    <td>${c.telefono || 'N/A'}</td>
+                    <td>${c.sector || ''} <span style="font-size:11px; color:#64748b; display:block;">${c.eje_territorial || ''}</span></td>
+                    <td><span style="font-weight:600; color:#0284c7;">${c.tipo_ayuda || 'General'}</span></td>
+                    <td><span style="font-weight:600; color:#1e293b; background:#f1f5f9; padding:3px 6px; border-radius:4px; display:inline-block;">👤 ${c.responsable_comision || 'No asignado'}</span></td>
+                    <td style="color:#475569; max-width:160px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" title="${c.detalle || ''}">${c.detalle || ''}</td>
+                    <td><span class="prio-badge prio-${c.prioridad}">${c.prioridad || 'Media'}</span></td>
+                    <td><span style="font-size:11.5px; color:#334155;">${c.institucion_remitida || 'Ninguna'}</span></td>
+                    <td><span class="status-badge ${estClass}">${c.estatus || 'En Espera'}</span></td>
+                    <td>
+                        <div class="action-buttons">
+                            <button class="btn-expediente" onclick="verExpedienteCompleto(${c.id})">👁️ Historial</button>
+                            <button class="btn-edit" onclick="abrirModalEditar(${c.id})">Editar</button>
+                            <button class="btn-del" onclick="eliminarCaso(${c.id})">Borrar</button>
+                        </div>
+                    </td>
+                </tr>
+            `;
+        }).join("");
+    }
+
+    function filtrarTablaEnVivo() {
+        const textoBusqueda = document.getElementById("inputBuscador").value.toLowerCase();
+        const filtrados = listaCasosGlobal.filter(c => {
+            const nombre = (c.nombre || "").toLowerCase();
+            const cedula = (c.cedula || "").toLowerCase();
+            return nombre.includes(textoBusqueda) || cedula.includes(textoBusqueda);
+        });
+        renderizarTabla(filtrados);
     }
 
     function cambiarFiltroSocial(nuevoTipo) {
         tipoFiltroActual = nuevoTipo;
         document.getElementById("tab-comunitarios").classList.toggle("active", nuevoTipo === 'Caso Comunitario');
         document.getElementById("tab-personal").classList.toggle("active", nuevoTipo === 'Personal Concejo');
+        document.getElementById("inputBuscador").value = "";
         cargarCasosSociales();
     }
 
@@ -515,7 +586,6 @@
         document.getElementById("formularioModal").classList.remove("open");
     }
 
-    // FUNCIÓN AUXILIAR PARA CONVERTIR ARCHIVO A BASE64 PERMANENTE
     function convertirArchivoABase64(archivo) {
         return new Promise((resolve, reject) => {
             const reader = new FileReader();
@@ -540,7 +610,6 @@
         try {
             if (archivoInput.files.length > 0) {
                 const archivo = archivoInput.files[0];
-                // CONVERSIÓN A BASE64 PARA QUE SE GUARDE FIJAMENTE EN LA BASE DE DATOS
                 urlFinalArchivo = await convertirArchivoABase64(archivo);
             }
 
