@@ -680,14 +680,13 @@
         }
 
         // FUNCIÓN ÚNICA Y CORRECTA PARA BORRAR DE NEON
-   async function eliminarRegistro(id) {
+  async function eliminarRegistro(id) {
             if (!confirm("¿Estás seguro de eliminar este registro?")) return;
             try {
-                // Sintaxis correcta exigida por la librería de Neon Serverless
                 await window.sqlClient`DELETE FROM casos_salud WHERE id = ${id}`;
-                
-                await loadData();
                 alert("Registro eliminado con éxito.");
+                // Forzar la recarga limpia de la página para actualizar la tabla al instante
+                location.reload();
             } catch (error) {
                 alert("No se pudo eliminar: " + error.message);
             }
