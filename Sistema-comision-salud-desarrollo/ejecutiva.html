@@ -543,15 +543,16 @@
             }).join("");
         }
 
-        function verDetallesModal(id) {
+       function verDetallesModal(id) {
             const idBuscado = Number(id);
+            idSeleccionadoActual = idBuscado; // <-- Asignamos el ID aquí para que Word lo reconozca
+            
             const registro = todosLosRegistros.find(r => Number(r.id) === idBuscado);
             if (!registro) {
                 alert("No se encontró el registro para visualizar.");
                 return;
             }
 
-            idSeleccionadoActual = idBuscado;
             let identificador = `#${registro.id}`;
 
             if (registro.nombre) {
@@ -579,10 +580,6 @@
             }
 
             document.getElementById("documentModal").classList.add("open");
-        }
-
-        function closeDocModal() {
-            document.getElementById("documentModal").classList.remove("open");
         }
 
         // ABRIR MODAL PARA NUEVO REGISTRO
