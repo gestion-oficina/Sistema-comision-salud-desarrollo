@@ -681,18 +681,15 @@
 
         // FUNCIÓN ÚNICA Y CORRECTA PARA BORRAR DE NEON
 async function eliminarRegistro(id) {
-            console.log("Intentando eliminar ID:", id);
             if (!confirm("¿Estás seguro de eliminar este registro?")) return;
             try {
-                const idNum = Number(id);
-                const resultado = await window.sqlClient`DELETE FROM casos_salud WHERE id = ${idNum}`;
-                console.log("Resultado de Neon:", resultado);
+                // Forzamos el borrado directo enviando el ID como número entero
+                await window.sqlClient`DELETE FROM casos_salud WHERE id = ${parseInt(id)}`;
                 
-                alert("Registro eliminado con éxito.");
-                await loadData();
+                alert("¡Eliminado con éxito!");
+                location.reload(); // Recarga la página por completo para limpiar la tabla
             } catch (error) {
                 alert("No se pudo eliminar: " + error.message);
-                console.error("Error detallado al borrar:", error);
             }
         }
         async function logout() { 
