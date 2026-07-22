@@ -772,9 +772,9 @@
             const coincidenciaFecha = textoLimpio.match(/FECHA:\s*([^\n]+)/i);
             const coincidenciaAsunto = textoLimpio.match(/ASUNTO:\s*([^\n]+)/i);
             
-            const nroInforme = coincidenciaNro ? coincidenciaNro[1].trim() : "S/N";
+            const nroInforme = coincidenciaNro ? coincidenciaNro[1].trim() : "027";
             const fechaInforme = coincidenciaFecha ? coincidenciaFecha[1].trim() : "";
-            const asuntoInforme = coincidenciaAsunto ? coincidenciaAsunto[1].trim() : "Sin Asunto";
+            const actoresVinculados = registro.sector ? registro.sector.split(' (Resp:')[0].trim() : "Asistencia, apoyo y acompañamiento Institucional";
             
             const lineas = textoLimpio.split('\n');
             let parrafosHTML = '';
@@ -792,13 +792,13 @@
                 }
 
                 if (linea.match(/^(I|II|III|IV|V|VI|VII|VIII|IX|X)\.\s+/i)) {
-                    parrafosHTML += `<h2 style="font-family: 'Arial', sans-serif; font-size: 12pt; font-weight: bold; color: #000000; text-align: center; margin-top: 18pt; margin-bottom: 12pt; text-transform: uppercase;">${linea}</h2>`;
+                    parrafosHTML += `<h2 style="font-family: 'Arial', sans-serif; font-size: 11pt; font-weight: bold; color: #000000; text-align: center; margin-top: 16pt; margin-bottom: 8pt; text-transform: uppercase;">${linea}</h2>`;
                 } else if (linea.match(/^[A-ZÁÉÍÓÚÑ\s]{4,}:$/)) {
-                    parrafosHTML += `<p style="font-family: 'Arial', sans-serif; font-size: 11pt; font-weight: bold; color: #000000; margin-top: 12pt; margin-bottom: 6pt;">${linea}</p>`;
+                    parrafosHTML += `<p style="font-family: 'Arial', sans-serif; font-size: 10pt; font-weight: bold; color: #000000; margin-top: 10pt; margin-bottom: 4pt;">${linea}</p>`;
                 } else if (linea.startsWith('•') || linea.startsWith('-')) {
-                    parrafosHTML += `<p style="font-family: 'Arial', sans-serif; font-size: 11pt; line-height: 1.25; color: #000000; margin: 0 0 6pt 24pt; text-align: justify;">${linea}</p>`;
+                    parrafosHTML += `<p style="font-family: 'Arial', sans-serif; font-size: 10pt; line-height: 1.15; color: #000000; margin: 0 0 4pt 20pt; text-align: justify;">${linea}</p>`;
                 } else {
-                    parrafosHTML += `<p style="font-family: 'Arial', sans-serif; font-size: 11pt; line-height: 1.25; color: #000000; margin: 0 0 10pt 0; text-align: justify;">${linea}</p>`;
+                    parrafosHTML += `<p style="font-family: 'Arial', sans-serif; font-size: 10pt; line-height: 1.15; color: #000000; margin: 0 0 8pt 0; text-align: justify;">${linea}</p>`;
                 }
             }
 
@@ -808,21 +808,60 @@
                 <meta charset="UTF-8">
                 <title>Informe de Gestión</title>
                 <style>
-                    body { font-family: 'Arial', sans-serif; margin: 2.5cm; }
-                    p, h2 { page-break-inside: avoid; }
+                    body { font-family: 'Arial', sans-serif; margin: 2cm; font-size: 10pt; color: #000; }
+                    .membrete { text-align: center; font-weight: bold; font-size: 9.5pt; line-height: 1.3; margin-bottom: 15pt; text-transform: uppercase; }
+                    .datos-meta { font-size: 10pt; margin-bottom: 12pt; line-height: 1.4; }
+                    .firma-seccion { margin-top: 30pt; text-align: center; font-size: 9pt; line-height: 1.3; page-break-inside: avoid; }
                 </style>
             </head>
             <body>
-                <div style="text-align: right; font-size: 10pt; font-weight: bold; margin-bottom: 15pt;">
-                    INFORME Nº: ${nroInforme}
+                <div class="membrete">
+                    República Bolivariana de Venezuela<br>
+                    Estado Bolivariano de Miranda<br>
+                    Concejo del Municipio "Ambrosio Plaza"<br>
+                    Comisión Permanente de Salud y Desarrollo Social Integral
                 </div>
-                <div style="margin-bottom: 15pt; font-size: 11pt;">
-                    <p style="margin: 0 0 4pt 0;"><b>FECHA:</b> ${fechaInforme}</p>
-                    <p style="margin: 0 0 4pt 0;"><b>ASUNTO:</b> ${asuntoInforme}</p>
+
+                <div class="datos-meta">
+                    <b>INFORME:</b> ${nroInforme}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>FECHA:</b> ${fechaInforme}<br>
+                    <b>COMISIÓN:</b> Comisión de Salud y Desarrollo Social Integral<br>
+                    <b>ASUNTO:</b> ${document.getElementById("infAsunto")?.value || 'Asistencia, apoyo y acompañamiento Institucional en Casos de Urgencia Médica en el Municipio Ambrosio Plaza.'}<br>
+                    <b>ACTORES VINCULADOS:</b> ${actoresVinculados}
                 </div>
-                <hr style="border: none; border-top: 1px solid #000000; margin-bottom: 20pt;">
-                
+
+                <hr style="border: none; border-top: 1px solid #000; margin-bottom: 15pt;">
+
                 ${parrafosHTML}
+
+                <div class="firma-seccion">
+                    <br><br>
+                    Por la Comisión Permanente de Salud y Desarrollo Social Integral<br><br><br>
+                    <b>Concejala Abg. Letty Bastidas</b><br>
+                    <i>Presidente de la Comisión Permanente de Salud y<br>Desarrollo Social Integral</i><br><br>
+                    
+                    <table style="width: 100%; margin-top: 10pt;">
+                        <tr>
+                            <td style="width: 50%; text-align: center; vertical-align: top;">
+                                <b>Concejala Mag. Mirlys Hidalgo</b><br>
+                                <i>Vicepresidente de la Comisión Permanente<br>de Salud y Desarrollo Social Integral</i>
+                            </td>
+                            <td style="width: 50%; text-align: center; vertical-align: top;">
+                                <b>Concejala Lic. Zulmy Orozco</b><br>
+                                <i>Vocal de la Comisión Permanente de Salud y<br>Desarrollo Social Integral</i>
+                            </td>
+                        </tr>
+                    </table>
+
+                    <br><br>
+                    <div style="font-size: 8pt; text-align: left;">LB/cp</div>
+                    <br>
+                    <div style="text-align: center; font-style: italic; font-size: 9pt;">Salud para Todos y Todas</div>
+                    <div style="text-align: center; font-size: 7.5pt; color: #333; margin-top: 4pt;">
+                        Dirección: Calle Bolívar con Monagas, diagonal al Hospitalito Francisco Rafael García.<br>
+                        Guarenas, Estado Bolivariano de Miranda. Nro. Telefónico: 0426-3147191<br>
+                        Correo Electrónico: Comisiondesaludgestion2025@gmail.com
+                    </div>
+                </div>
             </body>
             </html>`;
 
