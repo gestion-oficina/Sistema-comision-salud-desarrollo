@@ -131,7 +131,7 @@
         }
         .modal-overlay.open { opacity: 1; display: flex !important; }
         .modal-container { 
-            background: white; border-radius: 12px; width: 100%; max-width: 750px; 
+            background: white; border-radius: 12px; width: 100%; max-width: 850px; 
             padding: 24px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.15);
             transform: translateY(-20px); transition: transform 0.25s ease;
             max-height: 90vh; overflow-y: auto; display: flex; flex-direction: column;
@@ -152,6 +152,8 @@
         }
         .form-control:focus { border-color: var(--sidebar-active); box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.12); }
         textarea.form-control { resize: vertical; min-height: 65px; }
+
+        .section-title { grid-column: span 3; font-size: 13px; font-weight: 700; color: var(--sidebar-bg); border-bottom: 2px solid var(--sidebar-active); padding-bottom: 4px; margin-top: 10px; text-transform: uppercase; }
         
         .modal-footer { display: flex; justify-content: flex-end; gap: 10px; margin-top: 22px; border-top: 1px solid #e2e8f0; padding-top: 14px; }
         .btn-secondary { padding: 9px 16px; border: 1px solid var(--border-color); border-radius: 6px; background: white; color: #475569; font-size: 12.5px; font-weight: 600; cursor: pointer; }
@@ -166,7 +168,6 @@
         @media print {
             @page { size: portrait; margin: 6mm 10mm; }
             
-            /* Ocultar elementos generales de la interfaz por defecto */
             body.printing-general .sidebar, 
             body.printing-general .mobile-header, 
             body.printing-general .kpi-container, 
@@ -178,7 +179,6 @@
             body.printing-general th:last-child, 
             body.printing-general td:last-child { display: none !important; }
 
-            /* Mostrar y posicionar el contenedor principal y la tabla para impresión general */
             body.printing-general .main { position: absolute !important; left: 0 !important; top: 0 !important; width: 100% !important; padding: 0 !important; margin: 0 !important; }
             body.printing-general .print-header { display: block !important; text-align: center; margin-bottom: 12px; border-bottom: 2px solid #1d3b6a; padding-bottom: 6px; }
             body.printing-general .print-footer { display: block !important; position: fixed; bottom: 0; left: 0; width: 100%; text-align: center; font-size: 9px; color: #64748b; border-top: 1px solid #cbd5e1; padding-top: 2px; background: white; }
@@ -186,7 +186,6 @@
             body.printing-general table { min-width: 100% !important; width: 100% !important; font-size: 11px !important; }
             body.printing-general th, body.printing-general td { padding: 5px 6px !important; }
 
-            /* Si se está imprimiendo la FICHA INDIVIDUAL (Expediente) en 2 columnas exactas */
             body:not(.printing-general) .layout, 
             body:not(.printing-general) .modal-overlay:not(#expedienteModal) { display: none !important; }
             
@@ -202,7 +201,6 @@
             body:not(.printing-general) #expedienteModal .modal-footer,
             body:not(.printing-general) #expedienteModal div[style*="margin-top: 20px; border-top: 1px solid #e2e8f0;"] { display: none !important; }
 
-            /* Forzar 2 columnas en impresión y asegurar pie de página visible */
             body:not(.printing-general) #expedienteModal .print-header-ficha { display: block !important; margin-bottom: 8px !important; }
             body:not(.printing-general) #expedienteModal .modal-header { display: none !important; }
             body:not(.printing-general) #expedienteModal .form-grid { 
@@ -216,7 +214,6 @@
             }
             body:not(.printing-general) #expedienteModal .expediente-view-box { padding: 4px 8px !important; }
             
-            /* Mostrar pie de página institucional fijo al pie de la hoja impresa */
             body:not(.printing-general) .print-footer { 
                 display: block !important; 
                 position: fixed !important; 
@@ -295,7 +292,6 @@
     </div>
 
     <div class="main">
-        <!-- ENCABEZADO INSTITUCIONAL PARA IMPRESIÓN GENERAL -->
         <div class="print-header">
             <h3 style="font-size: 13px; font-weight: 700; color: #1d3b6a; text-transform: uppercase;">REPÚBLICA BOLIVARIANA DE VENEZUELA</h3>
             <h4 style="font-size: 11px; font-weight: 600; color: #334155; text-transform: uppercase;">CONCEJO MUNICIPAL DEL MUNICIPIO AMBROSIO PLAZA</h4>
@@ -306,7 +302,6 @@
         <h2>Gestión de Casos Sociales</h2>
         <div class="subtitle">Oficina de la Concejala Letty Bastidas — Municipio Ambrosio Plaza</div>
         
-        <!-- TARJETAS RESUMEN (KPIs) -->
         <div class="kpi-container">
             <div class="kpi-card">
                 <span>En Espera</span>
@@ -322,7 +317,6 @@
             </div>
         </div>
 
-        <!-- BARRA DE PESTAÑAS, BUSCADOR Y FILTROS AVANZADOS -->
         <div class="toolbar-flex">
             <div class="tabs-container">
                 <button class="tab-btn active" id="tab-comunitarios" onclick="cambiarFiltroSocial('Caso Comunitario')">👥 Comunitarios</button>
@@ -348,7 +342,6 @@
             </div>
         </div>
 
-        <!-- ACCIONES PRINCIPALES -->
         <div class="actions-bar">
             <button class="btn-primary" onclick="abrirModalFormulario()">➕ Registrar Ficha Social Integral</button>
             <button class="btn-report" onclick="imprimirListadoGeneral()">🖨️ Imprimir Listado General</button>
@@ -379,18 +372,17 @@
             </table>
         </div>
 
-        <!-- PIE DE PÁGINA INSTITUCIONAL PARA IMPRESIÓN GENERAL -->
         <div class="print-footer">
             Sistema de Gestión de la Comisión Permanente de Salud y Desarrollo Social Integral — Municipio Ambrosio Plaza | Despacho Concejala Letty Bastidas
         </div>
     </div>
 </div>
 
-<!-- MODAL FORMULARIO COMPLETO -->
+<!-- MODAL FORMULARIO COMPLETO ADAPTADO A LA FICHA SOCIAL INTEGRAL -->
 <div class="modal-overlay" id="formularioModal">
-    <div class="modal-container">
+    <div class="modal-container" style="max-width: 900px;">
         <div class="modal-header">
-            <h3 id="modalTitulo">Registrar Ficha Social</h3>
+            <h3 id="modalTitulo">Registrar Ficha Social Integral</h3>
             <span style="cursor:pointer; font-weight:bold; color:#64748b; font-size:22px;" onclick="cerrarModalFormulario()">×</span>
         </div>
         <form id="socialForm" onsubmit="procesarFormulario(event)">
@@ -398,12 +390,14 @@
             <input type="hidden" id="ins_url_existente">
             
             <div class="form-grid">
+                <!-- 1. DATOS PERSONALES -->
+                <div class="section-title">1. Datos Personales y de Identificación</div>
                 <div class="form-group span-2">
-                    <label for="ins_nombre">Nombre del Beneficiario</label>
+                    <label for="ins_nombre">Nombre y Apellido</label>
                     <input type="text" id="ins_nombre" class="form-control" placeholder="Ej: María Albarrán" required>
                 </div>
                 <div class="form-group">
-                    <label for="ins_cedula">Cédula</label>
+                    <label for="ins_cedula">Cédula de Identidad</label>
                     <input type="text" id="ins_cedula" class="form-control" placeholder="Ej: V-14.852.369" required>
                 </div>
                 <div class="form-group">
@@ -411,27 +405,170 @@
                     <input type="number" id="ins_edad" class="form-control" placeholder="Ej: 45" required>
                 </div>
                 <div class="form-group">
-                    <label for="ins_genero">Género</label>
+                    <label for="ins_genero">Sexo</label>
                     <select id="ins_genero" class="form-control" required>
                         <option value="Femenino">Femenino</option>
                         <option value="Masculino">Masculino</option>
                     </select>
                 </div>
                 <div class="form-group">
-                    <label for="ins_telefono">Teléfono de Contacto</label>
+                    <label for="ins_fecha_nacimiento">Fecha de Nacimiento</label>
+                    <input type="date" id="ins_fecha_nacimiento" class="form-control">
+                </div>
+                <div class="form-group">
+                    <label for="ins_estado_civil">Estado Civil</label>
+                    <select id="ins_estado_civil" class="form-control">
+                        <option value="Soltero/a">Soltero/a</option>
+                        <option value="Casado/a">Casado/a</option>
+                        <option value="Divorciado/a">Divorciado/a</option>
+                        <option value="Viudo/a">Viudo/a</option>
+                        <option value="Otro">Otro</option>
+                    </select>
+                </div>
+                <div class="form-group span-2">
+                    <label for="ins_telefono">Número de Teléfono</label>
                     <input type="text" id="ins_telefono" class="form-control" placeholder="Ej: 0412-5556677" required>
                 </div>
 
+                <!-- 2. DATOS SOCIOECONÓMICOS -->
+                <div class="section-title">2. Datos Socioeconómicos</div>
                 <div class="form-group">
-                    <label for="ins_sector">Comunidad / Sector</label>
+                    <label for="ins_trabaja">¿Trabaja?</label>
+                    <select id="ins_trabaja" class="form-control">
+                        <option value="SI">Sí</option>
+                        <option value="NO">No</option>
+                    </select>
+                </div>
+                <div class="form-group span-2">
+                    <label for="ins_dir_trabajo">Dirección de Trabajo y Teléfono</label>
+                    <input type="text" id="ins_dir_trabajo" class="form-control" placeholder="Lugar y telf. de trabajo">
+                </div>
+                <div class="form-group">
+                    <label for="ins_sueldo">Sueldo Mensual ($/Bs)</label>
+                    <input type="text" id="ins_sueldo" class="form-control" placeholder="Ej: 150">
+                </div>
+                <div class="form-group">
+                    <label for="ins_ingreso_fam">Ingreso Familiar</label>
+                    <input type="text" id="ins_ingreso_fam" class="form-control" placeholder="Ej: 300">
+                </div>
+                <div class="form-group">
+                    <label for="ins_egreso">Promedio de Egreso</label>
+                    <input type="text" id="ins_egreso" class="form-control" placeholder="Ej: 250">
+                </div>
+                <div class="form-group span-3">
+                    <label for="ins_cubre_gastos">En caso de "NO" trabajar, ¿cómo cubre sus gastos personales?</label>
+                    <input type="text" id="ins_cubre_gastos" class="form-control" placeholder="Ej: Ayuda de familiares, comercio informal, remesas...">
+                </div>
+
+                <!-- GRUPO FAMILIAR -->
+                <div class="section-title">Grupo Familiar</div>
+                <div class="form-group">
+                    <label for="ins_num_fam">Nº Grupo Familiar</label>
+                    <select id="ins_num_fam" class="form-control">
+                        <option value="2 Personas">2 Personas</option>
+                        <option value="3 Personas">3 Personas</option>
+                        <option value="4 Personas">4 Personas</option>
+                        <option value="5 Personas">5 Personas</option>
+                        <option value="+6 Personas">+6 Personas</option>
+                    </select>
+                </div>
+                <div class="form-group span-2">
+                    <label for="ins_detalle_fam">Detalle de Familiares (Nombre, Parentesco, Edad, Ocupación)</label>
+                    <textarea id="ins_detalle_fam" class="form-control" placeholder="Ej: Juan Pérez (Hijo, 12 años, Estudiante)..."></textarea>
+                </div>
+
+                <!-- 3. ÁREA FÍSICO-AMBIENTAL Y VIVIENDA -->
+                <div class="section-title">3. Área Físico-Ambiental, Transporte y Vivienda</div>
+                <div class="form-group">
+                    <label for="ins_transporte">Transporte Habitual</label>
+                    <select id="ins_transporte" class="form-control">
+                        <option value="Vehículo Propio">Vehículo Propio</option>
+                        <option value="Vehículos de sus Padres">Vehículos de sus Padres</option>
+                        <option value="Con Amigos">Con Amigos</option>
+                        <option value="Transporte Público">Transporte Público</option>
+                        <option value="Otro">Otro</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="ins_tipo_vivienda">Tipo de Vivienda</label>
+                    <select id="ins_tipo_vivienda" class="form-control">
+                        <option value="Casa">Casa</option>
+                        <option value="Quinta">Quinta</option>
+                        <option value="Apartamento">Apartamento</option>
+                        <option value="Vivienda Rural">Vivienda Rural</option>
+                        <option value="Rancho">Rancho</option>
+                        <option value="Habitación">Habitación</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="ins_tenencia_vivienda">Tenencia de la Vivienda</label>
+                    <select id="ins_tenencia_vivienda" class="form-control">
+                        <option value="Propia">Propia</option>
+                        <option value="Alquilada">Alquilada</option>
+                        <option value="Opción a Compra">Opción a Compra</option>
+                        <option value="Alojada/Prestada">Alojada / Prestada</option>
+                        <option value="Compartida">Compartida</option>
+                        <option value="Otra">Otra</option>
+                    </select>
+                </div>
+                <div class="form-group span-3">
+                    <label for="ins_carac_vivienda">Características de la Vivienda (Nro. de ambientes: Cocina, Sala, Dormitorios, Baños, etc.)</label>
+                    <input type="text" id="ins_carac_vivienda" class="form-control" placeholder="Ej: 3 dormitorios, 1 baño, sala-cocina compartida">
+                </div>
+
+                <!-- CARACTERÍSTICA DE LA COMUNIDAD -->
+                <div class="section-title">Característica de la Comunidad</div>
+                <div class="form-group">
+                    <label for="ins_sector">Urbanización, Comunidad o Sector</label>
                     <input type="text" id="ins_sector" class="form-control" placeholder="Ej: Las Clavellinas" required>
                 </div>
                 <div class="form-group">
-                    <label for="ins_eje">Eje Territorial / Comuna</label>
-                    <input type="text" id="ins_eje" class="form-control" placeholder="Ej: Eje 2 o Comuna X">
+                    <label for="ins_sala_auto">Sala de Autogobierno / Comuna</label>
+                    <input type="text" id="ins_sala_auto" class="form-control" placeholder="Ej: Comuna X">
                 </div>
                 <div class="form-group">
-                    <label for="ins_ayuda">Tipo de Requerimiento</label>
+                    <label for="ins_ubch">UBCH</label>
+                    <input type="text" id="ins_ubch" class="form-control" placeholder="Nombre de la UBCH">
+                </div>
+
+                <!-- 4. SALUD Y REQUERIMIENTO -->
+                <div class="section-title">4. Salud y Requerimiento</div>
+                <div class="form-group">
+                    <label for="ins_sufre_enf">¿Sufre algún tipo de enfermedad?</label>
+                    <select id="ins_sufre_enf" class="form-control">
+                        <option value="NO">No</option>
+                        <option value="SI">Sí</option>
+                    </select>
+                </div>
+                <div class="form-group span-2">
+                    <label for="ins_detalle_enf">Especifique Enfermedad</label>
+                    <input type="text" id="ins_detalle_enf" class="form-control" placeholder="Ej: Hipertensión, Diabetes...">
+                </div>
+                <div class="form-group">
+                    <label for="ins_discapacidad">¿Presenta discapacidad reducida?</label>
+                    <select id="ins_discapacidad" class="form-control">
+                        <option value="NO">No</option>
+                        <option value="SI">Sí</option>
+                    </select>
+                </div>
+                <div class="form-group span-2">
+                    <label for="ins_detalle_disc">Especifique Discapacidad</label>
+                    <input type="text" id="ins_detalle_disc" class="form-control" placeholder="Ej: Motora, visual...">
+                </div>
+                <div class="form-group span-3">
+                    <label for="ins_servicio_salud">¿Qué servicio de salud utiliza habitualmente?</label>
+                    <select id="ins_servicio_salud" class="form-control">
+                        <option value="Clínica Privada">Clínica Privada</option>
+                        <option value="Instituto Nacional de los Seguros Sociales (IVSS)">Instituto Nacional de los Seguros Sociales (IVSS)</option>
+                        <option value="Hospital Público">Hospital Público</option>
+                        <option value="Ambulatorio / Consultorio">Ambulatorio / Consultorio</option>
+                        <option value="Medicentro">Medicentro</option>
+                        <option value="Otro">Otro</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="ins_ayuda">Tipo de Ayuda Requerida</label>
                     <select id="ins_ayuda" class="form-control" required>
                         <option value="Tratamiento Médico">Tratamiento Médico</option>
                         <option value="Exámenes Médicos">Exámenes / Laboratorio</option>
@@ -439,7 +576,6 @@
                         <option value="Ayuda Técnica">Ayuda Técnica (Silla de Ruedas/Bastón)</option>
                     </select>
                 </div>
-
                 <div class="form-group">
                     <label for="ins_prioridad">Prioridad del Caso</label>
                     <select id="ins_prioridad" class="form-control" required>
@@ -456,22 +592,17 @@
                         <option value="Resuelto">Resuelto (Entregado)</option>
                     </select>
                 </div>
-                <div class="form-group">
-                    <label for="ins_remitido">Institución Remitida</label>
-                    <input type="text" id="ins_remitido" class="form-control" placeholder="Ej: Hospital / IVSS / Ninguno">
-                </div>
 
                 <div class="form-group span-2">
-                    <label for="ins_responsable">Responsable de la Comisión (Lleva el Caso)</label>
+                    <label for="ins_responsable">Responsable de la Comisión</label>
                     <input type="text" id="ins_responsable" class="form-control" placeholder="Ej: Lcdo. Carlos Gómez..." required>
                 </div>
-
                 <div class="form-group">
-                    <label for="ins_departamento">Departamento Solicitante (Interno)</label>
-                    <input type="text" id="ins_departamento" class="form-control" placeholder="Ej: Despacho Concejala">
+                    <label for="ins_remitido">Institución Remitida</label>
+                    <input type="text" id="ins_remitido" class="form-control" placeholder="Ej: Hospital / IVSS">
                 </div>
 
-                <!-- SECCIÓN DE ARCHIVO CON ACCESO DIRECTO A LUMI -->
+                <!-- ARCHIVO ADJUNTO -->
                 <div class="form-group span-3" style="background: #f8fafc; padding: 12px; border: 1px dashed var(--border-color); border-radius: 6px;">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
                         <label for="ins_archivo" style="color: var(--sidebar-active); margin:0;">📁 Documento de Respaldo Unificado</label>
@@ -480,18 +611,18 @@
                         </a>
                     </div>
                     <input type="file" id="ins_archivo" class="form-control" style="border:none; background:transparent; padding:5px 0;">
-                    <small id="txt-info-archivo" style="color:#64748b; font-size:11px; margin-top:2px;">Sube el PDF único resultante de juntar fotos, cédulas y récipes. (Formatos: PDF, JPG, PNG)</small>
+                    <small id="txt-info-archivo" style="color:#64748b; font-size:11px; margin-top:2px;">Sube el PDF único resultante de juntar fotos, cédulas y récipes.</small>
                 </div>
                 
                 <div class="form-group span-3">
-                    <label for="ins_detalle">Especificación Técnica del Diagnóstico o Insumos</label>
-                    <textarea id="ins_detalle" class="form-control" placeholder="Detalle de medicamentos exactos, dosis o intervención quirúrgica requerida..." required></textarea>
+                    <label for="ins_detalle">Observaciones / Diagnóstico Detallado</label>
+                    <textarea id="ins_detalle" class="form-control" placeholder="Observaciones generales o detalle de medicamentos requeridos..." required></textarea>
                 </div>
             </div>
             
             <div class="modal-footer">
                 <button type="button" class="btn-secondary" onclick="cerrarModalFormulario()">Cancelar</button>
-                <button type="submit" id="btnGuardarForm" class="btn-submit">Sincronizar Ficha</button>
+                <button type="submit" id="btnGuardarForm" class="btn-submit">Sincronizar Ficha Integral</button>
             </div>
         </form>
     </div>
@@ -499,8 +630,7 @@
 
 <!-- MODAL VISOR EXPEDIENTE E HISTORIAL DE SEGUIMIENTO -->
 <div class="modal-overlay" id="expedienteModal">
-    <div class="modal-container" style="max-width: 720px;">
-        <!-- ENCABEZADO INSTITUCIONAL EXCLUSIVO PARA IMPRESIÓN DE FICHA INDIVIDUAL -->
+    <div class="modal-container" style="max-width: 800px;">
         <div class="print-header-ficha" style="display: none; text-align: center; margin-bottom: 8px; border-bottom: 2px solid #1d3b6a; padding-bottom: 5px;">
             <h3 style="font-size: 13px; font-weight: 700; color: #1d3b6a; text-transform: uppercase;">REPÚBLICA BOLIVARIANA DE VENEZUELA</h3>
             <h4 style="font-size: 11px; font-weight: 600; color: #334155; text-transform: uppercase;">CONCEJO MUNICIPAL DEL MUNICIPIO AMBROSIO PLAZA</h4>
@@ -514,11 +644,10 @@
         </div>
         <div class="form-grid" id="cuerpoExpediente"></div>
         
-        <!-- SECCIÓN DE NUEVO SEGUIMIENTO EN TIEMPO REAL -->
         <div style="margin-top: 20px; border-top: 1px solid #e2e8f0; padding-top: 15px;">
             <input type="hidden" id="seguimientoCasoId">
             <label style="font-size: 11px; font-weight: 700; color: var(--sidebar-bg); text-transform: uppercase; display: block; margin-bottom: 6px;">✍️ Agregar Nueva Actualización o Trámite Realizado</label>
-            <textarea id="nuevoSeguimientoTexto" class="form-control" placeholder="Escribe aquí el avance del trámite (ej. Se entregó informe a farmacia, llamada realizada al familiar, etc.)..." style="margin-bottom: 10px;"></textarea>
+            <textarea id="nuevoSeguimientoTexto" class="form-control" placeholder="Escribe aquí el avance del trámite..." style="margin-bottom: 10px;"></textarea>
             <button type="button" class="btn-submit" onclick="guardarSeguimientoTratamiento()" style="background: var(--success-color); width: 100%;">➕ Registrar Avance en la Bitácora</button>
         </div>
 
@@ -545,30 +674,22 @@
         const coord = sessionStorage.getItem("usuario_coordinacion");
         if (nombre) document.getElementById("usuarioNombre").textContent = nombre;
         if (coord) document.getElementById("usuarioCoordinacion").textContent = coord.toUpperCase();
-
         cargarCasosSociales();
     };
 
     document.addEventListener("DOMContentLoaded", () => {
-        if (window.sqlClient) {
-            window.iniciarApp();
-        }
+        if (window.sqlClient) window.iniciarApp();
     });
 
     function toggleMenu() {
-        const sidebar = document.getElementById("sidebarMenu");
-        sidebar.classList.toggle("open");
+        document.getElementById("sidebarMenu").classList.toggle("open");
     }
 
     async function cargarCasosSociales() {
         const tbody = document.getElementById("tabla-casos-body");
-        
+        if (!window.sqlClient) await new Promise(resolve => setTimeout(resolve, 800));
         if (!window.sqlClient) {
-            await new Promise(resolve => setTimeout(resolve, 800));
-        }
-
-        if (!window.sqlClient) {
-            tbody.innerHTML = `<tr><td colspan="12" style="text-align:center; color:#dc2626; padding:30px;">⚠️ Error crítico: La librería de Neon no se ha cargado correctamente.</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="12" style="text-align:center; color:#dc2626; padding:30px;">⚠️ Error crítico: La librería de Neon no se ha cargado.</td></tr>`;
             return;
         }
 
@@ -578,37 +699,29 @@
                 WHERE coordinacion = 'Social' AND tipo = ${tipoFiltroActual} 
                 ORDER BY id DESC
             `;
-            
             listaCasosGlobal = Array.from(registros);
             actualizarKPIs(listaCasosGlobal);
             filtrarTablaEnVivo();
-
         } catch (err) {
-            tbody.innerHTML = `<tr><td colspan="12" style="text-align:center; color:#dc2626; padding:30px;">⚠️ Error de conexión con Neon: ${err.message}</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="12" style="text-align:center; color:#dc2626; padding:30px;">⚠️ Error de conexión: ${err.message}</td></tr>`;
         }
     }
 
     function actualizarKPIs(datos) {
-        let espera = datos.filter(c => c.estatus === 'En Espera').length;
-        let gestion = datos.filter(c => c.estatus === 'En Gestión').length;
-        let resuelto = datos.filter(c => c.estatus === 'Resuelto').length;
-
-        document.getElementById("kpi-espera").textContent = espera;
-        document.getElementById("kpi-gestion").textContent = gestion;
-        document.getElementById("kpi-resuelto").textContent = resuelto;
+        document.getElementById("kpi-espera").textContent = datos.filter(c => c.estatus === 'En Espera').length;
+        document.getElementById("kpi-gestion").textContent = datos.filter(c => c.estatus === 'En Gestión').length;
+        document.getElementById("kpi-resuelto").textContent = datos.filter(c => c.estatus === 'Resuelto').length;
     }
 
     function renderizarTabla(datos) {
         const tbody = document.getElementById("tabla-casos-body");
-
         if (datos.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="12" style="text-align:center; color:#94a3b8; padding:30px;">No se encontraron fichas registradas con los filtros seleccionados.</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="12" style="text-align:center; color:#94a3b8; padding:30px;">No se encontraron fichas registradas.</td></tr>`;
             return;
         }
 
         tbody.innerHTML = datos.map(c => {
             let estClass = c.estatus === "En Gestión" ? "status-gestion" : (c.estatus === "Resuelto" ? "status-resuelto" : "status-espera");
-
             return `
                 <tr>
                     <td><b>${c.nombre || 'Sin nombre'}</b></td>
@@ -617,7 +730,7 @@
                     <td>${c.telefono || 'N/A'}</td>
                     <td>${c.sector || ''} <span style="font-size:11px; color:#64748b; display:block;">${c.eje_territorial || ''}</span></td>
                     <td><span style="font-weight:600; color:#0284c7;">${c.tipo_ayuda || 'General'}</span></td>
-                    <td><span style="font-weight:600; color:#1e293b; background:#f1f5f9; padding:3px 6px; border-radius:4px; display:inline-block;">👤 ${c.responsable_comision || 'No asignado'}</span></td>
+                    <td><span style="font-weight:600; color:#1e293b; background:#f1f5f9; padding:3px 6px; border-radius:4px;">👤 ${c.responsable_comision || 'No asignado'}</span></td>
                     <td style="color:#475569; max-width:160px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" title="${c.detalle || ''}">${c.detalle || ''}</td>
                     <td><span class="prio-badge prio-${c.prioridad}">${c.prioridad || 'Media'}</span></td>
                     <td><span style="font-size:11.5px; color:#334155;">${c.institucion_remitida || 'Ninguna'}</span></td>
@@ -642,13 +755,10 @@
         listaCasosFiltradosActuales = listaCasosGlobal.filter(c => {
             const nombre = (c.nombre || "").toLowerCase();
             const cedula = (c.cedula || "").toLowerCase();
-            const coincideTexto = nombre.includes(textoBusqueda) || cedula.includes(textoBusqueda);
-            const coincidePrio = prioFiltro === "" || c.prioridad === prioFiltro;
-            const coincideEst = estFiltro === "" || c.estatus === estFiltro;
-
-            return coincideTexto && coincidePrio && coincideEst;
+            return (nombre.includes(textoBusqueda) || cedula.includes(textoBusqueda)) &&
+                   (prioFiltro === "" || c.prioridad === prioFiltro) &&
+                   (estFiltro === "" || c.estatus === estFiltro);
         });
-
         renderizarTabla(listaCasosFiltradosActuales);
     }
 
@@ -657,8 +767,6 @@
         document.getElementById("tab-comunitarios").classList.toggle("active", nuevoTipo === 'Caso Comunitario');
         document.getElementById("tab-personal").classList.toggle("active", nuevoTipo === 'Personal Concejo');
         document.getElementById("inputBuscador").value = "";
-        document.getElementById("filtroPrioridad").value = "";
-        document.getElementById("filtroEstatus").value = "";
         document.getElementById("printTituloReporte").innerText = `REPORTE GENERAL DE CASOS SOCIALES — ${tipoFiltroActual.toUpperCase()}`;
         cargarCasosSociales();
     }
@@ -670,31 +778,16 @@
     }
 
     function exportarAExcelReal() {
-        if (listaCasosFiltradosActuales.length === 0) {
-            alert("No hay datos en pantalla para exportar.");
-            return;
-        }
-
+        if (listaCasosFiltradosActuales.length === 0) { alert("No hay datos para exportar."); return; }
         let datosParaExcel = listaCasosFiltradosActuales.map(c => ({
-            "Beneficiario": c.nombre || "",
-            "Cédula": c.cedula || "",
-            "Edad": c.edad || "",
-            "Género": c.genero || "",
-            "Teléfono": c.telefono || "",
-            "Sector / Comunidad": c.sector || "",
-            "Eje Territorial": c.eje_territorial || "",
-            "Tipo de Ayuda": c.tipo_ayuda || "",
-            "Responsable Comisión": c.responsable_comision || "",
-            "Diagnóstico / Detalle": c.detalle || "",
-            "Prioridad": c.prioridad || "",
-            "Institución Remitida": c.institucion_remitida || "",
-            "Estatus": c.estatus || ""
+            "Beneficiario": c.nombre || "", "Cédula": c.cedula || "", "Edad": c.edad || "",
+            "Género": c.genero || "", "Teléfono": c.telefono || "", "Sector": c.sector || "",
+            "Tipo Ayuda": c.tipo_ayuda || "", "Responsable": c.responsable_comision || "",
+            "Diagnóstico": c.detalle || "", "Prioridad": c.prioridad || "", "Estatus": c.estatus || ""
         }));
-
         let worksheet = XLSX.utils.json_to_sheet(datosParaExcel);
         let workbook = XLSX.utils.book_new();
         XLSX.utils.book_append_sheet(workbook, worksheet, "Casos Sociales");
-
         XLSX.writeFile(workbook, `Reporte_Casos_Sociales_${tipoFiltroActual.replace(/\s+/g, '_')}.xlsx`);
     }
 
@@ -703,9 +796,7 @@
         document.getElementById("socialForm").reset();
         document.getElementById("casoId").value = "";
         document.getElementById("ins_url_existente").value = "";
-        document.getElementById("txt-info-archivo").innerText = "Sube el PDF único resultante de juntar fotos, cédulas y récipes. (Formatos: PDF, JPG, PNG)";
-        document.getElementById("txt-info-archivo").style.color = "#64748b";
-        document.getElementById("modalTitulo").innerText = `Registrar ${tipoFiltroActual}`;
+        document.getElementById("modalTitulo").innerText = `Registrar Ficha Social Integral`;
         document.getElementById("formularioModal").classList.add("open");
     }
 
@@ -719,30 +810,43 @@
         document.getElementById("ins_cedula").value = item.cedula || "";
         document.getElementById("ins_edad").value = item.edad || "";
         document.getElementById("ins_genero").value = item.genero || "Femenino";
+        document.getElementById("ins_fecha_nacimiento").value = item.fecha_nacimiento || "";
+        document.getElementById("ins_estado_civil").value = item.estado_civil || "Soltero/a";
         document.getElementById("ins_telefono").value = item.telefono || "";
+        
+        document.getElementById("ins_trabaja").value = item.trabaja || "SI";
+        document.getElementById("ins_dir_trabajo").value = item.direccion_trabajo || "";
+        document.getElementById("ins_sueldo").value = item.sueldo_mensual || "";
+        document.getElementById("ins_ingreso_fam").value = item.ingreso_familiar || "";
+        document.getElementById("ins_egreso").value = item.promedio_egreso || "";
+        document.getElementById("ins_cubre_gastos").value = item.como_cubre_gastos || "";
+        
+        document.getElementById("ins_num_fam").value = item.numero_grupo_familiar || "2 Personas";
+        document.getElementById("ins_detalle_fam").value = item.detalle_grupo_familiar || "";
+        
+        document.getElementById("ins_transporte").value = item.transporte || "Vehículo Propio";
+        document.getElementById("ins_tipo_vivienda").value = item.tipo_vivienda || "Casa";
+        document.getElementById("ins_tenencia_vivienda").value = item.tenencia_vivienda || "Propia";
+        document.getElementById("ins_carac_vivienda").value = item.caracteristicas_vivienda || "";
+        
         document.getElementById("ins_sector").value = item.sector || "";
-        document.getElementById("ins_eje").value = item.eje_territorial || "";
+        document.getElementById("ins_sala_auto").value = item.sala_autogobierno || "";
+        document.getElementById("ins_ubch").value = item.ubch || "";
+        
+        document.getElementById("ins_sufre_enf").value = item.sufre_enfermedad || "NO";
+        document.getElementById("ins_detalle_enf").value = item.detalle_enfermedad || "";
+        document.getElementById("ins_discapacidad").value = item.presenta_discapacidad || "NO";
+        document.getElementById("ins_detalle_disc").value = item.detalle_discapacidad || "";
+        document.getElementById("ins_servicio_salud").value = item.servicio_salud_habitual || "Hospital Público";
+        
         document.getElementById("ins_ayuda").value = item.tipo_ayuda || "Tratamiento Médico";
         document.getElementById("ins_prioridad").value = item.prioridad || "Media";
         document.getElementById("ins_estatus").value = item.estatus || "En Espera";
         document.getElementById("ins_remitido").value = item.institucion_remitida || "";
         document.getElementById("ins_responsable").value = item.responsable_comision || "";
-        document.getElementById("ins_departamento").value = item.trabajador_departamento || "";
         document.getElementById("ins_detalle").value = item.detalle || "";
         
         document.getElementById("ins_url_existente").value = item.url_adjunto || "";
-        document.getElementById("ins_archivo").value = "";
-        
-        const txtInfo = document.getElementById("txt-info-archivo");
-        if(item.url_adjunto) {
-            txtInfo.innerText = "✅ El caso ya tiene un documento cargado y guardado permanentemente.";
-            txtInfo.style.color = "#16a34a";
-        } else {
-            txtInfo.innerText = "Sube el PDF único resultante de juntar fotos, cédulas y récipes.";
-            txtInfo.style.color = "#64748b";
-        }
-
-        document.getElementById("modalTitulo").innerText = "Modificar Ficha Social Completa";
         document.getElementById("formularioModal").classList.add("open");
     }
 
@@ -762,70 +866,108 @@
 
     async function procesarFormulario(e) {
         e.preventDefault();
-        if (!window.sqlClient) { alert("No hay conexión con la base de datos."); return; }
+        if (!window.sqlClient) return;
 
         const btnGuardar = document.getElementById("btnGuardarForm");
         const archivoInput = document.getElementById("ins_archivo");
-        
         let urlFinalArchivo = document.getElementById("ins_url_existente").value;
 
-        btnGuardar.innerText = "Procesando y sincronizando...";
+        btnGuardar.innerText = "Procesando...";
         btnGuardar.disabled = true;
 
         try {
             if (archivoInput.files.length > 0) {
-                const archivo = archivoInput.files[0];
-                urlFinalArchivo = await convertirArchivoABase64(archivo);
+                urlFinalArchivo = await convertirArchivoABase64(archivoInput.files[0]);
             }
 
             const nombre = document.getElementById("ins_nombre").value.trim();
             const cedula = document.getElementById("ins_cedula").value.trim();
             const edad = parseInt(document.getElementById("ins_edad").value) || 0;
             const genero = document.getElementById("ins_genero").value;
+            const fecha_nac = document.getElementById("ins_fecha_nacimiento").value || null;
+            const estado_civil = document.getElementById("ins_estado_civil").value;
             const telefono = document.getElementById("ins_telefono").value.trim();
+            
+            const trabaja = document.getElementById("ins_trabaja").value;
+            const dir_trabajo = document.getElementById("ins_dir_trabajo").value.trim();
+            const sueldo = parseFloat(document.getElementById("ins_sueldo").value) || 0;
+            const ingreso = parseFloat(document.getElementById("ins_ingreso_fam").value) || 0;
+            const egreso = parseFloat(document.getElementById("ins_egreso").value) || 0;
+            const cubre_gastos = document.getElementById("ins_cubre_gastos").value.trim();
+            
+            const num_fam = document.getElementById("ins_num_fam").value;
+            const detalle_fam = document.getElementById("ins_detalle_fam").value.trim();
+            
+            const transporte = document.getElementById("ins_transporte").value;
+            const tipo_vivienda = document.getElementById("ins_tipo_vivienda").value;
+            const tenencia_vivienda = document.getElementById("ins_tenencia_vivienda").value;
+            const carac_vivienda = document.getElementById("ins_carac_vivienda").value.trim();
+            
             const sector = document.getElementById("ins_sector").value.trim();
-            const eje = document.getElementById("ins_eje").value.trim();
+            const sala_auto = document.getElementById("ins_sala_auto").value.trim();
+            const ubch = document.getElementById("ins_ubch").value.trim();
+            
+            const sufre_enf = document.getElementById("ins_sufre_enf").value;
+            const detalle_enf = document.getElementById("ins_detalle_enf").value.trim();
+            const disc = document.getElementById("ins_discapacidad").value;
+            const detalle_disc = document.getElementById("ins_detalle_disc").value.trim();
+            const servicio_salud = document.getElementById("ins_servicio_salud").value;
+            
             const ayuda = document.getElementById("ins_ayuda").value;
             const prioridad = document.getElementById("ins_prioridad").value;
             const estatus = document.getElementById("ins_estatus").value;
             const remitido = document.getElementById("ins_remitido").value.trim();
             const responsable = document.getElementById("ins_responsable").value.trim();
-            const departamento = document.getElementById("ins_departamento").value.trim();
             const detalle = document.getElementById("ins_detalle").value.trim();
 
             if (idEnEdicion) {
                 await window.sqlClient`
                     UPDATE casos_salud 
                     SET nombre = ${nombre}, cedula = ${cedula}, edad = ${edad}, genero = ${genero}, 
-                        telefono = ${telefono}, sector = ${sector}, eje_territorial = ${eje}, 
+                        fecha_nacimiento = ${fecha_nac}, estado_civil = ${estado_civil}, telefono = ${telefono},
+                        trabaja = ${trabaja}, direccion_trabajo = ${dir_trabajo}, sueldo_mensual = ${sueldo},
+                        ingreso_familiar = ${ingreso}, promedio_egreso = ${egreso}, como_cubre_gastos = ${cubre_gastos},
+                        numero_grupo_familiar = ${num_fam}, detalle_grupo_familiar = ${detalle_fam},
+                        transporte = ${transporte}, tipo_vivienda = ${tipo_vivienda}, tenencia_vivienda = ${tenencia_vivienda},
+                        caracteristicas_vivienda = ${carac_vivienda}, sector = ${sector}, sala_autogobierno = ${sala_auto},
+                        ubch = ${ubch}, sufre_enfermedad = ${sufre_enf}, detalle_enfermedad = ${detalle_enf},
+                        presenta_discapacidad = ${disc}, detalle_discapacidad = ${detalle_disc}, servicio_salud_habitual = ${servicio_salud},
                         tipo_ayuda = ${ayuda}, prioridad = ${prioridad}, estatus = ${estatus}, 
                         institucion_remitida = ${remitido}, responsable_comision = ${responsable}, 
-                        trabajador_departamento = ${departamento}, detalle = ${detalle}, url_adjunto = ${urlFinalArchivo}
+                        detalle = ${detalle}, url_adjunto = ${urlFinalArchivo}
                     WHERE id = ${idEnEdicion}
                 `;
-                alert("¡Ficha social actualizada con éxito!");
+                alert("¡Ficha actualizada con éxito!");
             } else {
                 await window.sqlClient`
                     INSERT INTO casos_salud (
-                        nombre, cedula, edad, genero, telefono, sector, eje_territorial, 
+                        nombre, cedula, edad, genero, fecha_nacimiento, estado_civil, telefono,
+                        trabaja, direccion_trabajo, sueldo_mensual, ingreso_familiar, promedio_egreso, como_cubre_gastos,
+                        numero_grupo_familiar, detalle_grupo_familiar, transporte, tipo_vivienda, tenencia_vivienda,
+                        caracteristicas_vivienda, sector, sala_autogobierno, ubch, sufre_enfermedad, detalle_enfermedad,
+                        presenta_discapacidad, detalle_discapacidad, servicio_salud_habitual,
                         tipo_ayuda, prioridad, estatus, institucion_remitida, responsable_comision, 
-                        trabajador_departamento, detalle, url_adjunto, coordinacion, tipo, seguimiento_bitacora
+                        detalle, url_adjunto, coordinacion, tipo, seguimiento_bitacora
                     ) VALUES (
-                        ${nombre}, ${cedula}, ${edad}, ${genero}, ${telefono}, ${sector}, ${eje}, 
+                        ${nombre}, ${cedula}, ${edad}, ${genero}, ${fecha_nac}, ${estado_civil}, ${telefono},
+                        ${trabaja}, ${dir_trabajo}, ${sueldo}, ${ingreso}, ${egreso}, ${cubre_gastos},
+                        ${num_fam}, ${detalle_fam}, ${transporte}, ${tipo_vivienda}, ${tenencia_vivienda},
+                        ${carac_vivienda}, ${sector}, ${sala_auto}, ${ubch}, ${sufre_enf}, ${detalle_enf},
+                        ${disc}, ${detalle_disc}, ${servicio_salud},
                         ${ayuda}, ${prioridad}, ${estatus}, ${remitido}, ${responsable}, 
-                        ${departamento}, ${detalle}, ${urlFinalArchivo}, 'Social', ${tipoFiltroActual}, 
-                        ${'[' + new Date().toLocaleDateString() + '] Ficha registrada en el sistema.'}
+                        ${detalle}, ${urlFinalArchivo}, 'Social', ${tipoFiltroActual}, 
+                        ${'[' + new Date().toLocaleDateString() + '] Ficha social integral registrada.'}
                     )
                 `;
-                alert("¡Ficha social registrada con éxito!");
+                alert("¡Ficha registrada con éxito!");
             }
 
             cerrarModalFormulario();
             cargarCasosSociales();
         } catch (err) {
-            alert("Error al sincronizar en la base de datos: " + err.message);
+            alert("Error al sincronizar: " + err.message);
         } finally {
-            btnGuardar.innerText = "Sincronizar Ficha";
+            btnGuardar.innerText = "Sincronizar Ficha Integral";
             btnGuardar.disabled = false;
         }
     }
@@ -838,30 +980,36 @@
         document.getElementById("nuevoSeguimientoTexto").value = "";
 
         let bloqueAdjunto = item.url_adjunto 
-            ? `<a href="${item.url_adjunto}" target="_blank" download="Documento_Respaldo_Social" style="color:#16a34a; font-weight:700; text-decoration:underline;">📥 Descargar o Visualizar Documento Adjunto</a>`
-            : '<span style="color:#64748b; font-style:italic;">Ningún documento digitalizado adjunto.</span>';
+            ? `<a href="${item.url_adjunto}" target="_blank" download="Documento_Respaldo_Social" style="color:#16a34a; font-weight:700; text-decoration:underline;">📥 Ver Documento Adjunto</a>`
+            : '<span style="color:#64748b; font-style:italic;">Ningún documento digitalizado.</span>';
 
-        let historialBitacora = item.seguimiento_bitacora 
-            ? item.seguimiento_bitacora.replace(/\n/g, '<br>') 
-            : '<span style="color:#94a3b8; font-style:italic;">Sin avances registrados todavía.</span>';
+        let historialBitacora = item.seguimiento_bitacora ? item.seguimiento_bitacora.replace(/\n/g, '<br>') : 'Sin avances.';
 
-        const contenedor = document.getElementById("cuerpoExpediente");
-        contenedor.innerHTML = `
-            <div class="form-group span-2 expediente-view-box"><label>Nombres y Apellidos</label><p>${item.nombre || ''}</p></div>
-            <div class="form-group expediente-view-box"><label>Cédula Identidad</label><p>${item.cedula || 'No consignada'}</p></div>
-            <div class="form-group expediente-view-box"><label>Edad / Censo</label><p>${item.edad || '?'} años</p></div>
-            <div class="form-group expediente-view-box"><label>Género Fisiológico</label><p>${item.genero || 'Femenino'}</p></div>
-            <div class="form-group expediente-view-box"><label>Teléfono Contacto</label><p>${item.telefono || 'No registra'}</p></div>
-            <div class="form-group span-2 expediente-view-box"><label>Ubicación Territorial (Sector/Eje)</label><p>${item.sector || ''} — ${item.eje_territorial || 'Eje No definido'}</p></div>
-            <div class="form-group expediente-view-box"><label>Tipo de Requerimiento</label><p style="color:#0066cc; font-weight:700;">${item.tipo_ayuda || ''}</p></div>
-            <div class="form-group expediente-view-box"><label>Canalización Externa</label><p>${item.institucion_remitida || 'Atendido en Sala Técnica Directa'}</p></div>
-            <div class="form-group expediente-view-box"><label>Prioridad de Atención</label><p><span class="prio-badge prio-${item.prioridad}">${item.prioridad || 'Media'}</span></p></div>
-            <div class="form-group expediente-view-box"><label>Estatus del Beneficio</label><p>${item.estatus || 'En Espera'}</p></div>
-            <div class="form-group span-2 expediente-view-box" style="background:#f1f5f9; border-left:3px solid var(--sidebar-active);"><label>👤 Responsable del Caso por la Comisión</label><p style="font-weight:700; color:#0f2547;">${item.responsable_comision || 'No asignado'}</p></div>
-            <div class="form-group expediente-view-box"><label>Unidad Remitente (Interno)</label><p>${item.trabajador_departamento || 'Oficina Social Base'}</p></div>
-            <div class="form-group span-2 expediente-view-box" style="background:#e0f2fe; border-left:3px solid #0369a1;"><label>📎 Archivo Digitalizado de Respaldo</label><p style="margin-top:2px;">${bloqueAdjunto}</p></div>
-            <div class="form-group span-2 expediente-view-box" style="background:#f8fafc; border-left:3px solid var(--sidebar-bg);"><label>Diagnóstico / Informe Técnico de la Solicitud</label><p style="line-height:1.2; font-style:italic;">"${item.detalle || 'Sin especificaciones añadidas en el ingreso.'}"</p></div>
-            <div class="form-group span-2 expediente-view-box" style="background:#fffbeb; border-left:3px solid #d97706;"><label>📈 Bitácora de Seguimiento de Trámites</label><div style="margin-top:2px; font-size:11px; line-height:1.2; color:#334155;">${historialBitacora}</div></div>
+        document.getElementById("cuerpoExpediente").innerHTML = `
+            <div class="form-group span-2 expediente-view-box"><label>Nombre y Apellido</label><p>${item.nombre || ''}</p></div>
+            <div class="form-group expediente-view-box"><label>Cédula</label><p>${item.cedula || ''}</p></div>
+            <div class="form-group expediente-view-box"><label>Edad / Sexo</label><p>${item.edad || '?'} años (${item.genero || ''})</p></div>
+            <div class="form-group expediente-view-box"><label>Estado Civil</label><p>${item.estado_civil || 'N/A'}</p></div>
+            <div class="form-group expediente-view-box"><label>Teléfono</label><p>${item.telefono || ''}</p></div>
+            
+            <div class="section-title" style="margin:5px 0;">Datos Socioeconómicos y Grupo Familiar</div>
+            <div class="form-group expediente-view-box"><label>Trabaja</label><p>${item.trabaja || 'SI'} (${item.direccion_trabajo || 'Sin dir.'})</p></div>
+            <div class="form-group expediente-view-box"><label>Sueldo / Ingresos</label><p>Sueldo: $${item.sueldo_mensual || 0} | Fam: $${item.ingreso_familiar || 0}</p></div>
+            <div class="form-group expediente-view-box"><label>Grupo Familiar</label><p>${item.numero_grupo_familiar || ''} — ${item.detalle_grupo_familiar || 'Sin detalle'}</p></div>
+            
+            <div class="section-title" style="margin:5px 0;">Vivienda y Comunidad</div>
+            <div class="form-group expediente-view-box"><label>Vivienda y Transporte</label><p>${item.tipo_vivienda || ''} (${item.tenencia_vivienda || ''}) / Transp: ${item.transporte || ''}</p></div>
+            <div class="form-group span-2 expediente-view-box"><label>Sector / Comuna / UBCH</label><p>${item.sector || ''} | Comuna: ${item.sala_autogobierno || 'N/A'} | UBCH: ${item.ubch || 'N/A'}</p></div>
+            
+            <div class="section-title" style="margin:5px 0;">Salud y Requerimiento</div>
+            <div class="form-group expediente-view-box"><label>Enfermedad / Discapacidad</label><p>Enf: ${item.sufre_enfermedad || 'NO'} (${item.detalle_enfermedad || 'N/A'}) | Disc: ${item.presenta_discapacidad || 'NO'}</p></div>
+            <div class="form-group expediente-view-box"><label>Servicio de Salud Usual</label><p>${item.servicio_salud_habitual || 'N/A'}</p></div>
+            <div class="form-group expediente-view-box"><label>Tipo Ayuda / Prioridad</label><p>${item.tipo_ayuda || ''} (<span class="prio-badge prio-${item.prioridad}">${item.prioridad || ''}</span>)</p></div>
+            
+            <div class="form-group span-2 expediente-view-box" style="background:#f1f5f9;"><label>Responsable</label><p><b>${item.responsable_comision || ''}</b></p></div>
+            <div class="form-group span-2 expediente-view-box"><label>📎 Respaldo</label><p>${bloqueAdjunto}</p></div>
+            <div class="form-group span-2 expediente-view-box"><label>Diagnóstico / Observaciones</label><p style="font-style:italic;">"${item.detalle || ''}"</p></div>
+            <div class="form-group span-2 expediente-view-box" style="background:#fffbeb;"><label>Bitácora</label><div style="font-size:11px;">${historialBitacora}</div></div>
         `;
         document.getElementById("expedienteModal").classList.add("open");
     }
@@ -869,33 +1017,21 @@
     async function guardarSeguimientoTratamiento() {
         const id = document.getElementById("seguimientoCasoId").value;
         const nuevoTexto = document.getElementById("nuevoSeguimientoTexto").value.trim();
-        
-        if (!nuevoTexto) {
-            alert("Por favor escribe el detalle de la actualización del trámite.");
-            return;
-        }
-
+        if (!nuevoTexto) { alert("Escribe el avance."); return; }
         const item = listaCasosGlobal.find(c => Number(c.id) === Number(id));
         if (!item) return;
 
-        const fechaActual = new Date().toLocaleDateString() + ' ' + new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-        const entradaNueva = `[${fechaActual}] ${nuevoTexto}`;
+        const entradaNueva = `[${new Date().toLocaleDateString()}] ${nuevoTexto}`;
         const bitacoraActualizada = item.seguimiento_bitacora ? (item.seguimiento_bitacora + '\n\n' + entradaNueva) : entradaNueva;
 
         try {
-            await window.sqlClient`
-                UPDATE casos_salud 
-                SET seguimiento_bitacora = ${bitacoraActualizada}
-                WHERE id = ${Number(id)}
-            `;
-            
-            alert("¡Avance registrado exitosamente en el seguimiento del caso!");
+            await window.sqlClient`UPDATE casos_salud SET seguimiento_bitacora = ${bitacoraActualizada} WHERE id = ${Number(id)}`;
+            alert("¡Avance registrado!");
             document.getElementById("nuevoSeguimientoTexto").value = "";
-            
             await cargarCasosSociales();
             verExpedienteCompleto(id);
         } catch (err) {
-            alert("Error al registrar el seguimiento: " + err.message);
+            alert("Error: " + err.message);
         }
     }
 
@@ -904,12 +1040,12 @@
     }
 
     async function eliminarCaso(id) {
-        if (!confirm("¿Eliminar de forma permanente esta ficha de la base de datos municipal?")) return;
+        if (!confirm("¿Eliminar esta ficha de la base de datos?")) return;
         try {
             await window.sqlClient`DELETE FROM casos_salud WHERE id = ${Number(id)}`;
             cargarCasosSociales();
         } catch (err) {
-            alert("Error al remover el registro: " + err.message);
+            alert("Error: " + err.message);
         }
     }
 
