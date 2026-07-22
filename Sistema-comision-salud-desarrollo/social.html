@@ -157,47 +157,43 @@
         .btn-secondary { padding: 9px 16px; border: 1px solid var(--border-color); border-radius: 6px; background: white; color: #475569; font-size: 12.5px; font-weight: 600; cursor: pointer; }
         .btn-submit { padding: 9px 16px; border: none; border-radius: 6px; background: var(--sidebar-bg); color: white; font-size: 12.5px; font-weight: 600; cursor: pointer; }
 
-        .expediente-view-box { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px 14px; }
+        .expediente-view-box { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 14px; }
         .expediente-view-box p { font-size: 13.5px; color: #0f2547; font-weight: 500; margin-top: 2px; }
 
-        /* ENCABEZADOS Y PIES DE PÁGINA INSTITUCIONALES PARA IMPRESIÓN */
+        /* MEMBETRE Y PIE DE PÁGINA OCULTOS EN PANTALLA, VISIBLES AL IMPRIMIR */
         .print-header, .print-footer { display: none; }
 
         @media print {
             @page { size: landscape; margin: 10mm; }
-            body * { visibility: hidden !important; }
             
-            /* SI SE IMPRIME EL LISTADO GENERAL */
-            body.printing-general, body.printing-general .main { visibility: visible !important; }
-            body.printing-general .main h2, body.printing-general .subtitle,
-            body.printing-general .kpi-container, body.printing-general .toolbar-flex, 
-            body.printing-general .actions-bar, body.printing-general .sidebar, 
-            body.printing-general .mobile-header, body.printing-general .action-buttons, 
-            body.printing-general th:last-child, body.printing-general td:last-child { display: none !important; }
-            
+            /* Ocultar elementos generales de la interfaz por defecto */
+            body.printing-general .sidebar, 
+            body.printing-general .mobile-header, 
+            body.printing-general .kpi-container, 
+            body.printing-general .toolbar-flex, 
+            body.printing-general .actions-bar, 
+            body.printing-general .main > h2, 
+            body.printing-general .subtitle,
+            body.printing-general .action-buttons, 
+            body.printing-general th:last-child, 
+            body.printing-general td:last-child { display: none !important; }
+
+            /* Mostrar y posicionar correctamente el contenedor principal y la tabla para impresión general */
             body.printing-general .main { position: absolute !important; left: 0 !important; top: 0 !important; width: 100% !important; padding: 0 !important; margin: 0 !important; }
+            body.printing-general .print-header { display: block !important; text-align: center; margin-bottom: 15px; border-bottom: 2px solid #1d3b6a; padding-bottom: 8px; }
+            body.printing-general .print-footer { display: block !important; position: fixed; bottom: 0; left: 0; width: 100%; text-align: center; font-size: 10px; color: #64748b; border-top: 1px solid #cbd5e1; padding-top: 4px; background: white; }
             body.printing-general .table-container { box-shadow: none !important; border: none !important; overflow: visible !important; }
-            body.printing-general table { min-width: 100% !important; font-size: 10px !important; width: 100% !important; }
-            body.printing-general th, body.printing-general td { padding: 5px 6px !important; }
+            body.printing-general table { min-width: 100% !important; width: 100% !important; font-size: 11px !important; }
+            body.printing-general th, body.printing-general td { padding: 6px 8px !important; }
+
+            /* Si se está imprimiendo la ficha individual de expediente */
+            body:not(.printing-general) .layout, 
+            body:not(.printing-general) .modal-overlay:not(#expedienteModal) { display: none !important; }
             
-            /* SI SE IMPRIME LA FICHA / EXPEDIENTE INDIVIDUAL */
-            body.printing-ficha #expedienteModal, body.printing-ficha #expedienteModal * { visibility: visible !important; }
-            body.printing-ficha #expedienteModal { 
-                position: absolute !important; left: 0 !important; top: 0 !important; width: 100% !important; 
-                background: white !important; display: block !important; padding: 0 !important;
-            }
-            body.printing-ficha #expedienteModal .modal-container { 
-                box-shadow: none !important; border: none !important; max-width: 100% !important; 
-                padding: 0 !important; transform: none !important; width: 100% !important;
-            }
-            body.printing-ficha #expedienteModal .modal-header span,
-            body.printing-ficha #expedienteModal .modal-footer,
-            body.printing-ficha #expedienteModal div[style*="border-top: 1px solid #e2e8f0"] { display: none !important; }
-            
-            /* COMUNES PARA AMBAS IMPRESIONES (MEMBRETE Y PIE DE PÁGINA OFICIALES) */
-            body.printing-general .print-header, body.printing-ficha .print-header { display: block !important; text-align: center; margin-bottom: 10px; border-bottom: 2px solid #1d3b6a; padding-bottom: 6px; }
-            body.printing-general .print-footer, body.printing-ficha .print-footer { display: block !important; position: fixed; bottom: 0; left: 0; width: 100%; text-align: center; font-size: 9px; color: #64748b; border-top: 1px solid #cbd5e1; padding-top: 4px; background: white; }
-            body.printing-ficha .expediente-view-box { background: #fff !important; border: 1px solid #cbd5e1 !important; break-inside: avoid; }
+            body:not(.printing-general) #expedienteModal { position: absolute !important; left: 0 !important; top: 0 !important; width: 100% !important; background: white !important; display: block !important; padding: 0 !important; }
+            body:not(.printing-general) #expedienteModal .modal-container { box-shadow: none !important; border: none !important; max-width: 100% !important; width: 100% !important; padding: 0 !important; transform: none !important; }
+            body:not(.printing-general) #expedienteModal .modal-header span, 
+            body:not(.printing-general) #expedienteModal .modal-footer { display: none !important; }
         }
 
         @media (max-width: 900px) {
@@ -214,14 +210,6 @@
 </head>
 
 <body style="display: none;">
-
-<!-- ENCABEZADO INSTITUCIONAL OFICIAL (WORD) PARA IMPRESIÓN -->
-<div class="print-header">
-    <h3 style="font-size: 11px; font-weight: 700; color: #1d3b6a; text-transform: uppercase;">REPÚBLICA BOLIVARIANA DE VENEZUELA</h3>
-    <h4 style="font-size: 10px; font-weight: 600; color: #334155; text-transform: uppercase;">CONCEJO MUNICIPAL DEL MUNICIPIO AMBROSIO PLAZA</h4>
-    <h5 style="font-size: 9.5px; font-weight: 600; color: #0066cc; text-transform: uppercase; margin-top: 2px;">COMISIÓN PERMANENTE DE SALUD Y DESARROLLO SOCIAL INTEGRAL — CONCEJALA LETTY BASTIDAS</h5>
-    <div style="margin-top: 4px; font-size: 11px; font-weight: 700; color: #0f2547;" id="printTituloReporte">REPORTE GENERAL DE CASOS SOCIALES</div>
-</div>
 
 <div class="mobile-header">
     <span style="font-size: 13px; font-weight: 700; letter-spacing: 0.5px;">GESTIÓN SOCIAL</span>
@@ -270,6 +258,14 @@
     </div>
 
     <div class="main">
+        <!-- ENCABEZADO INSTITUCIONAL PARA IMPRESIÓN -->
+        <div class="print-header">
+            <h3 style="font-size: 14px; font-weight: 700; color: #1d3b6a; text-transform: uppercase;">REPÚBLICA BOLIVARIANA DE VENEZUELA</h3>
+            <h4 style="font-size: 12px; font-weight: 600; color: #334155; text-transform: uppercase;">CONCEJO MUNICIPAL DEL MUNICIPIO AMBROSIO PLAZA</h4>
+            <h5 style="font-size: 11px; font-weight: 600; color: #0066cc; text-transform: uppercase; margin-top: 2px;">COMISIÓN PERMANENTE DE SALUD Y DESARROLLO SOCIAL INTEGRAL — CONCEJALA LETTY BASTIDAS</h5>
+            <div style="margin-top: 8px; font-size: 13px; font-weight: 700; color: #0f2547;" id="printTituloReporte">REPORTE GENERAL DE CASOS SOCIALES</div>
+        </div>
+
         <h2>Gestión de Casos Sociales</h2>
         <div class="subtitle">Oficina de la Concejala Letty Bastidas — Municipio Ambrosio Plaza</div>
         
@@ -345,12 +341,12 @@
                 </tbody>
             </table>
         </div>
-    </div>
-</div>
 
-<!-- PIE DE PÁGINA INSTITUCIONAL PARA IMPRESIÓN -->
-<div class="print-footer">
-    Sistema de Gestión de la Comisión Permanente de Salud y Desarrollo Social Integral — Municipio Ambrosio Plaza | Despacho Concejala Letty Bastidas
+        <!-- PIE DE PÁGINA INSTITUCIONAL PARA IMPRESIÓN -->
+        <div class="print-footer">
+            Sistema de Gestión de la Comisión Permanente de Salud y Desarrollo Social Integral — Municipio Ambrosio Plaza | Despacho Concejala Letty Bastidas
+        </div>
+    </div>
 </div>
 
 <!-- MODAL FORMULARIO COMPLETO -->
@@ -482,7 +478,7 @@
         </div>
 
         <div class="modal-footer" style="margin-top: 15px; display: flex; justify-content: space-between; align-items: center;">
-            <button type="button" class="btn-report" onclick="imprimirFichaIndividual()">🖨️ Imprimir Ficha Individual</button>
+            <button type="button" class="btn-report" onclick="window.print()">🖨️ Imprimir Ficha Individual</button>
             <button type="button" class="btn-submit" onclick="cerrarModalExpediente()">Cerrar Ventana</button>
         </div>
     </div>
@@ -623,17 +619,9 @@
     }
 
     function imprimirListadoGeneral() {
-        document.getElementById("printTituloReporte").innerText = `REPORTE GENERAL DE CASOS SOCIALES — ${tipoFiltroActual.toUpperCase()}`;
         document.body.classList.add("printing-general");
         window.print();
         document.body.classList.remove("printing-general");
-    }
-
-    function imprimirFichaIndividual() {
-        document.getElementById("printTituloReporte").innerText = "FICHA SOCIAL INTEGRAL — EXPEDIENTE DE CASO";
-        document.body.classList.add("printing-ficha");
-        window.print();
-        document.body.classList.remove("printing-ficha");
     }
 
     function exportarAExcelReal() {
