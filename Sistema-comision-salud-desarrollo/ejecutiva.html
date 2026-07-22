@@ -776,22 +776,21 @@
             }
         }
 
-      async function eliminarRegistro(idUnico) {
+    async function eliminarRegistro(idUnico) {
     if (!window.sqlClient) { alert("No hay conexión con la base de datos."); return; }
     if (!confirm(`¿Estás seguro de eliminar este registro?`)) return;
     
     try {
-        // Buscamos el registro actual para extraer su número de documento o título exacto y asegurar el borrado
-        const registroAEliminar = todosLosRegistros.find(r => r.id === idUnico);
-        
-        // Ejecutamos el borrado apuntando directamente al ID o usando un filtro seguro
+        // Forzamos el borrado directo en la base de datos usando el ID exacto
         await window.sqlClient`DELETE FROM casos_salud WHERE id = ${idUnico}`;
         
-        // Actualizamos la vista localmente de inmediato
+        // Limpiamos la interfaz de manera inmediata
         todosLosRegistros = todosLosRegistros.filter(r => r.id !== idUnico);
         renderFilas();
         
-        alert("Registro eliminado de la base de datos correctamente.");
+        // Recargamos los datos desde la BD para sincronizar la vista
+        await loadData();
+        alert("Registro eliminado correctamente.");
     } catch (err) {
         alert("No se pudo eliminar de la base de datos:\n" + err.message);
     }
