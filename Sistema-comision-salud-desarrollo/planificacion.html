@@ -3,21 +3,32 @@
 
 <head>
 <meta charset="UTF-8">
- <script>
-        const sesion = sessionStorage.getItem('usuario_logueado');
-        if (!sesion && window.location.pathname !== "/login.html") {
-            window.location.replace("login.html");
-        } else {
-            document.addEventListener("DOMContentLoaded", () => {
-                document.body.style.display = "block";
-            });
-        }
-    </script>
+<script>
+    const sesion = sessionStorage.getItem('usuario_logueado');
+    if (!sesion && window.location.pathname !== "/login.html") {
+        window.location.replace("login.html");
+    } else {
+        document.addEventListener("DOMContentLoaded", () => {
+            document.body.style.display = "block";
+        });
+    }
+</script>
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Planificación Semanal - Comisión de Salud</title>
 
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<!-- CARGA DE NEON MEDIANTE MÓDULO ESM ESTÁNDAR -->
+<script type="module">
+    import { neon } from 'https://cdn.jsdelivr.net/npm/@neondatabase/serverless/+esm';
+    
+    const connectionString = "postgresql://neondb_owner:npg_djCruebcPY94@ep-sparkling-math-avejx7o4-pooler.c-11.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require";
+    window.sqlClient = neon(connectionString, { disableWarningInBrowsers: true });
+    
+    if (typeof window.iniciarAgendaApp === 'function') {
+        window.iniciarAgendaApp();
+    }
+</script>
 
 <style>
 :root {
@@ -247,13 +258,12 @@ body{ background: var(--bg-main); color:#334155; }
 </div>
 
 <script>
-const client = supabase.createClient(
-    "https://soqgmwzknfgmxefbnfgs.supabase.co",
-    "sb_publishable_VytLFdygkUVqnTLWNkiM3g_75HnE8qQ"
-);
-
 let listaEventosGlobal = [];
 let filtroSeleccionado = 'Todos';
+
+window.iniciarAgendaApp = function() {
+    cargarAgendaOficina();
+};
 
 document.addEventListener("DOMContentLoaded", () => {
     if (sessionStorage.getItem("usuario_rol") === "admin") {
@@ -261,7 +271,9 @@ document.addEventListener("DOMContentLoaded", () => {
         if(aud) aud.style.display = "block";
     }
 
-    cargarAgendaOficina();
+    if (window.sqlClient) {
+        window.iniciarAgendaApp();
+    }
     
     const nombre = sessionStorage.getItem("usuario_nombre");
     const coord = sessionStorage.getItem("usuario_coordinacion");
@@ -285,18 +297,40 @@ function cerrarModal() {
 }
 
 async function cargarAgendaOficina() {
-    try {
-        const { data: eventos, error } = await client
-            .from("agenda_oficina")
-            .select("*")
-            .order("fecha", { ascending: true });
+    const contenedor = document.getElementById("lista-actividades");
+    if (!window.sqlClient) await new Promise(resolve => setTimeout(resolve, 800));
+    if (!window.sqlClient) {
+        contenedor.innerHTML = `<p style="text-align:center; padding:30px; color:#dc2626;">Error: Conexión con Neon no disponible.</p>`;
+        return;
+    }
 
-        if (error) throw error;
-        listaEventosGlobal = eventos || [];
+    try {
+        const eventos = await window.sqlClient`
+            SELECT * FROM agenda_oficina ORDER BY fecha ASC
+        `;
+        listaEventosGlobal = Array.from(eventos || []);
         renderizarAgenda(listaEventosGlobal);
     } catch (err) {
-        console.error("Error cargando agenda:", err);
-        document.getElementById("lista-actividades").innerHTML = `<p style="text-align:center; padding:20px; color:#dc2626;">Error al cargar los datos de la agenda.</p>`;
+        try {
+            await window.sqlClient`
+                CREATE TABLE IF NOT EXISTS agenda_oficina (
+                    id SERIAL PRIMARY KEY,
+                    titulo TEXT,
+                    fecha TEXT,
+                    hora TEXT,
+                    tipo TEXT,
+                    estatus TEXT,
+                    lugar TEXT,
+                    descripcion TEXT
+                )
+            `;
+            const eventos = await window.sqlClient`SELECT * FROM agenda_oficina ORDER BY fecha ASC`;
+            listaEventosGlobal = Array.from(eventos || []);
+            renderizarAgenda(listaEventosGlobal);
+        } catch (innerErr) {
+            console.error("Error cargando agenda:", innerErr);
+            contenedor.innerHTML = `<p style="text-align:center; padding:30px; color:#dc2626;">Error al cargar la base de datos: ${innerErr.message}</p>`;
+        }
     }
 }
 
@@ -347,39 +381,46 @@ function renderizarAgenda(eventos) {
 function filtrarAgenda(estatus) {
     filtroSeleccionado = estatus;
     ['todos', 'programado', 'completado', 'suspendido'].forEach(id => {
-        document.getElementById(`chip-${id}`).classList.toggle('active', id === estatus.toLowerCase() || (id === 'todos' && estatus === 'Todos'));
+        const btn = document.getElementById(`chip-${id}`);
+        if(btn) btn.classList.toggle('active', id === estatus.toLowerCase() || (id === 'todos' && estatus === 'Todos'));
     });
     renderizarAgenda(listaEventosGlobal);
 }
 
 async function guardarActividad(event) {
     event.preventDefault();
+    if (!window.sqlClient) return;
+
     const id = document.getElementById("actividadId").value;
-    const datosActividad = {
-        titulo: document.getElementById("titulo").value,
-        fecha: document.getElementById("fecha").value,
-        hora: document.getElementById("hora").value,
-        tipo: document.getElementById("tipo").value,
-        estatus: document.getElementById("estatus").value,
-        lugar: document.getElementById("lugar").value,
-        descripcion: document.getElementById("descripcion").value
-    };
+    const titulo = document.getElementById("titulo").value.trim();
+    const fecha = document.getElementById("fecha").value;
+    const hora = document.getElementById("hora").value.trim();
+    const tipo = document.getElementById("tipo").value;
+    const estatus = document.getElementById("estatus").value;
+    const lugar = document.getElementById("lugar").value.trim();
+    const descripcion = document.getElementById("descripcion").value.trim();
 
     try {
         if (id) {
-            const { error } = await client.from("agenda_oficina").update(datosActividad).eq("id", Number(id));
-            if (error) throw error;
+            await window.sqlClient`
+                UPDATE agenda_oficina 
+                SET titulo = ${titulo}, fecha = ${fecha}, hora = ${hora}, tipo = ${tipo}, 
+                    estatus = ${estatus}, lugar = ${lugar}, descripcion = ${descripcion}
+                WHERE id = ${Number(id)}
+            `;
             alert("Actividad actualizada con éxito.");
         } else {
-            const { error } = await client.from("agenda_oficina").insert([datosActividad]);
-            if (error) throw error;
+            await window.sqlClient`
+                INSERT INTO agenda_oficina (titulo, fecha, hora, tipo, estatus, lugar, descripcion)
+                VALUES (${titulo}, ${fecha}, ${hora}, ${tipo}, ${estatus}, ${lugar}, ${descripcion})
+            `;
             alert("Actividad agendada con éxito.");
         }
         cerrarModal();
         cargarAgendaOficina();
     } catch (err) {
         console.error("Error al guardar:", err);
-        alert("Error al intentar procesar la solicitud.");
+        alert("Error al intentar procesar la solicitud: " + err.message);
     }
 }
 
@@ -403,8 +444,7 @@ function abrirEditar(id) {
 async function eliminarActividad(id) {
     if (!confirm("¿Está seguro de eliminar esta actividad de la planificación?")) return;
     try {
-        const { error } = await client.from("agenda_oficina").delete().eq("id", Number(id));
-        if (error) throw error;
+        await window.sqlClient`DELETE FROM agenda_oficina WHERE id = ${Number(id)}`;
         cargarAgendaOficina();
     } catch (err) {
         console.error("Error al eliminar:", err);
@@ -413,7 +453,6 @@ async function eliminarActividad(id) {
 }
 
 async function logout() {
-    await client.auth.signOut();
     sessionStorage.clear();
     window.location.href = "index.html";
 }
