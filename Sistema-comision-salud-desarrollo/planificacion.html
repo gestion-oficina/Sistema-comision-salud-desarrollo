@@ -387,11 +387,34 @@ function filtrarAgenda(estatus) {
     renderizarAgenda(listaEventosGlobal);
 }
 
+function abrirEditar(id) {
+    const idNumerico = Number(id);
+    const item = listaEventosGlobal.find(e => Number(e.id) === idNumerico);
+    if (!item) {
+        alert("No se encontró el registro para editar.");
+        return;
+    }
+
+    document.getElementById("actividadId").value = item.id;
+    document.getElementById("modalTituloLabel").textContent = "Modificar Compromiso";
+    document.getElementById("titulo").value = item.titulo || "";
+    document.getElementById("fecha").value = item.fecha || "";
+    document.getElementById("hora").value = item.hora || "";
+    document.getElementById("tipo").value = item.tipo || "Operativo social";
+    document.getElementById("estatus").value = item.estatus || "Programado";
+    document.getElementById("lugar").value = item.lugar || "";
+    document.getElementById("descripcion").value = item.descripcion || "";
+
+    document.getElementById("modalActividad").style.display = "flex";
+}
+
 async function guardarActividad(event) {
     event.preventDefault();
     if (!window.sqlClient) return;
 
-    const id = document.getElementById("actividadId").value;
+    const idInput = document.getElementById("actividadId").value;
+    const id = idInput ? Number(idInput) : null;
+    
     const titulo = document.getElementById("titulo").value.trim();
     const fecha = document.getElementById("fecha").value;
     const hora = document.getElementById("hora").value.trim();
@@ -401,12 +424,12 @@ async function guardarActividad(event) {
     const descripcion = document.getElementById("descripcion").value.trim();
 
     try {
-        if (id) {
+        if (id && !isNaN(id) && id > 0) {
             await window.sqlClient`
                 UPDATE agenda_oficina 
                 SET titulo = ${titulo}, fecha = ${fecha}, hora = ${hora}, tipo = ${tipo}, 
                     estatus = ${estatus}, lugar = ${lugar}, descripcion = ${descripcion}
-                WHERE id = ${Number(id)}
+                WHERE id = ${id}
             `;
             alert("Actividad actualizada con éxito.");
         } else {
@@ -424,27 +447,11 @@ async function guardarActividad(event) {
     }
 }
 
-function abrirEditar(id) {
-    const item = listaEventosGlobal.find(e => Number(e.id) === Number(id));
-    if (!item) return;
-
-    document.getElementById("actividadId").value = item.id;
-    document.getElementById("modalTituloLabel").textContent = "Modificar Compromiso";
-    document.getElementById("titulo").value = item.titulo || "";
-    document.getElementById("fecha").value = item.fecha || "";
-    document.getElementById("hora").value = item.hora || "";
-    document.getElementById("tipo").value = item.tipo || "Operativo social";
-    document.getElementById("estatus").value = item.estatus || "Programado";
-    document.getElementById("lugar").value = item.lugar || "";
-    document.getElementById("descripcion").value = item.descripcion || "";
-
-    document.getElementById("modalActividad").style.display = "flex";
-}
-
 async function eliminarActividad(id) {
+    const idNumerico = Number(id);
     if (!confirm("¿Está seguro de eliminar esta actividad de la planificación?")) return;
     try {
-        await window.sqlClient`DELETE FROM agenda_oficina WHERE id = ${Number(id)}`;
+        await window.sqlClient`DELETE FROM agenda_oficina WHERE id = ${idNumerico}`;
         cargarAgendaOficina();
     } catch (err) {
         console.error("Error al eliminar:", err);
