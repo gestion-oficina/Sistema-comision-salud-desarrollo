@@ -776,18 +776,17 @@
             }
         }
 
-   async function eliminarRegistro(idUnico) {
-    if (!confirm("¿Estás seguro de eliminar este registro?")) return;
-    
+   async function eliminarInforme(id) {
+    if (!confirm("¿Seguro que deseas eliminar este informe?")) return;
     try {
-        // Realiza el borrado directo en la tabla correcta de Neon
-        await window.sqlClient`DELETE FROM oficios_enviados WHERE id = ${idUnico}`;
+        // Ejecuta el borrado directamente en la tabla de oficios/informes de gestión
+        await window.sqlClient`DELETE FROM oficios_enviados WHERE id = ${id}`;
         
-        // Recarga los datos inmediatamente para actualizar la interfaz
-        await loadData();
-        alert("Registro eliminado con éxito.");
-    } catch (err) {
-        alert("Error al eliminar: " + err.message);
+        // Recarga los datos para actualizar la tabla en pantalla
+        await cargarInformes();
+        alert("Eliminado con éxito.");
+    } catch (error) {
+        alert("No se pudo eliminar: " + error.message);
     }
 }
         async function logout() { 
