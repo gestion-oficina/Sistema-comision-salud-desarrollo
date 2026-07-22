@@ -731,7 +731,7 @@
 
         /* EXPORTACIÓN FORMATEADA A WORD (Márgenes Carta, Línea Roja, Tricolor y Firmas) */
         function exportarRegistroAWord() {
-            const registro = todosLosRegistros.find(r => r.id === idSeleccionadoActual);
+            const registro = todosLosRegistros.find(r => Number(r.id) === Number(idSeleccionadoActual));
             if (!registro) {
                 alert("No se encontró el registro para exportar.");
                 return;
