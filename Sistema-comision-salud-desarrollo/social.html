@@ -164,7 +164,7 @@
         .print-header, .print-footer { display: none; }
 
         @media print {
-            @page { size: portrait; margin: 15mm; }
+            @page { size: auto; margin: 12mm; }
             body * { visibility: hidden; }
             
             /* SI SE IMPRIME EL LISTADO GENERAL */
@@ -173,12 +173,7 @@
             body.printing-general .toolbar-flex, body.printing-general .actions-bar,
             body.printing-general .action-buttons, body.printing-general th:last-child, body.printing-general td:last-child { display: none !important; }
             body.printing-general .main { position: absolute; left: 0; top: 0; width: 100%; padding: 0 !important; }
-            body.printing-general .print-header { display: block !important; text-align: center; margin-bottom: 20px; border-bottom: 2px solid #1d3b6a; padding-bottom: 10px; }
-            body.printing-general .print-footer { display: block !important; position: fixed; bottom: 0; left: 0; width: 100%; text-align: center; font-size: 10px; color: #64748b; border-top: 1px solid #cbd5e1; padding-top: 5px; }
-            body.printing-general .table-container { box-shadow: none !important; border: none !important; }
-            body.printing-general table { min-width: 100% !important; font-size: 11px !important; }
-            body.printing-general th, body.printing-general td { padding: 6px 8px !important; }
-
+            
             /* SI SE IMPRIME LA FICHA / EXPEDIENTE INDIVIDUAL */
             body.printing-ficha #expedienteModal, body.printing-ficha #expedienteModal * { visibility: visible !important; }
             body.printing-ficha #expedienteModal { 
@@ -193,8 +188,13 @@
             body.printing-ficha #expedienteModal .modal-footer,
             body.printing-ficha #expedienteModal div[style*="border-top: 1px solid #e2e8f0"] { display: none !important; }
             
-            body.printing-ficha .print-header { display: block !important; text-align: center; margin-bottom: 15px; border-bottom: 2px solid #1d3b6a; padding-bottom: 10px; }
-            body.printing-ficha .print-footer { display: block !important; position: fixed; bottom: 0; left: 0; width: 100%; text-align: center; font-size: 10px; color: #64748b; border-top: 1px solid #cbd5e1; padding-top: 5px; }
+            /* COMUNES PARA AMBAS IMPRESIONES (MEMBRETE Y PIE DE PÁGINA OFICIALES) */
+            body.printing-general .print-header, body.printing-ficha .print-header { display: block !important; text-align: center; margin-bottom: 15px; border-bottom: 2px solid #1d3b6a; padding-bottom: 8px; }
+            body.printing-general .print-footer, body.printing-ficha .print-footer { display: block !important; position: fixed; bottom: 0; left: 0; width: 100%; text-align: center; font-size: 10px; color: #64748b; border-top: 1px solid #cbd5e1; padding-top: 5px; background: white; }
+            
+            body.printing-general .table-container { box-shadow: none !important; border: none !important; }
+            body.printing-general table { min-width: 100% !important; font-size: 11px !important; }
+            body.printing-general th, body.printing-general td { padding: 6px 8px !important; }
             body.printing-ficha .expediente-view-box { background: #fff !important; border: 1px solid #cbd5e1 !important; break-inside: avoid; }
         }
 
@@ -213,12 +213,12 @@
 
 <body style="display: none;">
 
-<!-- ENCABEZADO INSTITUCIONAL GLOBAL PARA IMPRESIÓN -->
+<!-- ENCABEZADO INSTITUCIONAL OFICIAL (WORD) PARA IMPRESIÓN -->
 <div class="print-header">
-    <h3 style="font-size: 13px; font-weight: 700; color: #1d3b6a; text-transform: uppercase;">REPÚBLICA BOLIVARIANA DE VENEZUELA</h3>
-    <h4 style="font-size: 11.5px; font-weight: 600; color: #334155; text-transform: uppercase;">CONCEJO MUNICIPAL DEL MUNICIPIO AMBROSIO PLAZA</h4>
-    <h5 style="font-size: 10.5px; font-weight: 600; color: #0066cc; text-transform: uppercase; margin-top: 2px;">COMISIÓN PERMANENTE DE SALUD Y DESARROLLO SOCIAL INTEGRAL — CONCEJALA LETTY BASTIDAS</h5>
-    <div style="margin-top: 6px; font-size: 12.5px; font-weight: 700; color: #0f2547;" id="printTituloReporte">REPORTE GENERAL DE CASOS SOCIALES</div>
+    <h3 style="font-size: 12px; font-weight: 700; color: #1d3b6a; text-transform: uppercase;">REPÚBLICA BOLIVARIANA DE VENEZUELA</h3>
+    <h4 style="font-size: 11px; font-weight: 600; color: #334155; text-transform: uppercase;">CONCEJO MUNICIPAL DEL MUNICIPIO AMBROSIO PLAZA</h4>
+    <h5 style="font-size: 10px; font-weight: 600; color: #0066cc; text-transform: uppercase; margin-top: 2px;">COMISIÓN PERMANENTE DE SALUD Y DESARROLLO SOCIAL INTEGRAL — CONCEJALA LETTY BASTIDAS</h5>
+    <div style="margin-top: 6px; font-size: 12px; font-weight: 700; color: #0f2547;" id="printTituloReporte">REPORTE GENERAL DE CASOS SOCIALES</div>
 </div>
 
 <div class="mobile-header">
@@ -346,9 +346,9 @@
     </div>
 </div>
 
-<!-- PIE DE PÁGINA INSTITUCIONAL GLOBAL PARA IMPRESIÓN -->
+<!-- PIE DE PÁGINA INSTITUCIONAL PARA IMPRESIÓN -->
 <div class="print-footer">
-    Sistema de Gestión de la Comisión Permanente de Salud y Desarrollo Social Integral — Municipio Ambrosio Plaza | Página <span class="page-number"></span>
+    Sistema de Gestión de la Comisión Permanente de Salud y Desarrollo Social Integral — Municipio Ambrosio Plaza | Despacho Concejala Letty Bastidas
 </div>
 
 <!-- MODAL FORMULARIO COMPLETO -->
@@ -621,6 +621,7 @@
     }
 
     function imprimirListadoGeneral() {
+        document.getElementById("printTituloReporte").innerText = `REPORTE GENERAL DE CASOS SOCIALES — ${tipoFiltroActual.toUpperCase()}`;
         document.body.classList.add("printing-general");
         window.print();
         document.body.classList.remove("printing-general");
