@@ -142,8 +142,11 @@
         
       .form-grid { 
     display: grid; 
-    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); 
+    grid-template-columns: 1fr !important; 
     gap: 14px; 
+}
+.span-2, .span-3 { 
+    grid-column: span 1 !important; 
 }
         .form-group { display: flex; flex-direction: column; gap: 4px; }
         .span-2 { grid-column: span 2; }
