@@ -6,7 +6,7 @@
     <script>
         const sesion = sessionStorage.getItem('usuario_logueado');
         if (!sesion && window.location.pathname !== "/login.html") {
-            window.locatiofn.replace("login.html");
+            window.location.replace("login.html");
         } else {
             document.addEventListener("DOMContentLoaded", () => {
                 document.body.style.display = "block";
@@ -64,7 +64,6 @@
         .main h2 { font-size: 26px; color: var(--text-dark-title); font-weight: 700; margin-bottom: 6px; }
         .subtitle { font-size: 13px; color: #64748b; margin-bottom: 24px; font-weight: 500; }
         
-        /* TARJETAS KPI DE RESUMEN */
         .kpi-container { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-bottom: 24px; }
         .kpi-card { background: white; padding: 16px; border-radius: 8px; border: 1px solid #e2e8f0; box-shadow: 0 2px 4px rgba(0,0,0,0.02); display: flex; flex-direction: column; }
         .kpi-card span:first-child { font-size: 11px; font-weight: 700; text-transform: uppercase; color: #64748b; }
@@ -87,22 +86,10 @@
         .actions-bar { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
         .btn-primary { padding: 11px 18px; border: none; border-radius: 6px; cursor: pointer; background: var(--sidebar-active); color: white; font-size: 13px; font-weight: 600; display: inline-flex; align-items: center; gap: 6px; }
         .btn-report { padding: 11px 16px; border: 1px solid var(--border-color); border-radius: 6px; cursor: pointer; background: white; color: #334155; font-size: 13px; font-weight: 600; display: inline-flex; align-items: center; gap: 6px; }
-        .btn-report:hover { background: #f8fafc; border-color: #94a3b8; }
         .btn-excel { padding: 11px 16px; border: none; border-radius: 6px; cursor: pointer; background: var(--success-color); color: white; font-size: 13px; font-weight: 600; display: inline-flex; align-items: center; gap: 6px; }
 
-        .table-container { 
-            background: white; 
-            border: 1px solid #e2e8f0; 
-            border-radius: 8px; 
-            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02); 
-            width: 100%;
-            overflow-x: auto;
-        }
-        table { 
-            width:100%; 
-            border-collapse:collapse; 
-            min-width: 1250px; 
-        }
+        .table-container { background: white; border: 1px solid #e2e8f0; border-radius: 8px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02); width: 100%; overflow-x: auto; }
+        table { width:100%; border-collapse:collapse; min-width: 1250px; }
         th, td { padding:14px 16px; border-bottom:1px solid #f1f5f9; text-align:left; font-size:13px; }
         th { background:#f8fafc; color: var(--sidebar-bg); font-weight: 700; text-transform: uppercase; font-size: 11px; letter-spacing: 0.5px; }
         
@@ -118,7 +105,6 @@
 
         .action-buttons { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
         .btn-expediente { background: #e0f2fe; color: #0369a1; padding: 6px 10px; border: 1px solid #bae6fd; border-radius: 4px; font-size: 11px; font-weight: 600; cursor: pointer; }
-        .btn-expediente:hover { background: #0066cc; color: white; border-color: #0066cc; }
         .btn-edit { background: #fef3c7; color: #b45309; padding: 6px 10px; border: none; border-radius: 4px; font-size: 11px; font-weight:600; cursor: pointer; }
         .btn-del { background: var(--danger-color); color: white; padding: 6px 10px; border: none; border-radius: 4px; font-size: 11px; font-weight:600; cursor: pointer; }
 
@@ -131,25 +117,23 @@
         }
         .modal-overlay.open { opacity: 1; display: flex !important; }
         .modal-container { 
-            background: white; border-radius: 12px; width: 100%; max-width: 850px; 
+            background: white; border-radius: 12px; width: 100%; max-width: 800px; 
             padding: 24px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.15);
-            transform: translateY(-20px); transition: transform 0.25s ease;
             max-height: 90vh; overflow-y: auto; display: flex; flex-direction: column;
         }
-        .modal-overlay.open .modal-container { transform: translateY(0); }
-        .modal-header { margin-bottom: 18px; border-bottom: 1px solid #e2e8f0; padding-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
+        .modal-header { margin-bottom: 14px; border-bottom: 1px solid #e2e8f0; padding-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
         .modal-header h3 { font-size: 18px; color: var(--text-dark-title); font-weight: 700; }
         
-      .form-grid { 
-    display: grid; 
-    grid-template-columns: 1fr !important; 
-    gap: 14px; 
-}
-.span-2, .span-3 { 
-    grid-column: span 1 !important; 
-}
+        /* SISTEMA DE PESTAÑAS (WIZARD) PARA EL FORMULARIO */
+        .wizard-tabs { display: flex; gap: 6px; margin-bottom: 18px; border-bottom: 2px solid #e2e8f0; padding-bottom: 10px; overflow-x: auto; }
+        .wizard-tab-btn { padding: 8px 14px; border: 1px solid var(--border-color); background: #f8fafc; color: #64748b; font-size: 11.5px; font-weight: 700; border-radius: 6px; cursor: pointer; text-transform: uppercase; white-space: nowrap; transition: all 0.2s; }
+        .wizard-tab-btn.active-step { background: var(--sidebar-bg); color: white; border-color: var(--sidebar-bg); }
+
+        .wizard-step-content { display: none; }
+        .wizard-step-content.active-content { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; }
+
         .form-group { display: flex; flex-direction: column; gap: 4px; }
-        .span-2, .span-3 { grid-column: span 1 !important; }
+        .span-2 { grid-column: span 2; }
         
         .form-group label { font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; }
         .form-control { 
@@ -157,99 +141,45 @@
             border-radius: 6px; color: #334155; outline: none; background: #fff;
         }
         .form-control:focus { border-color: var(--sidebar-active); box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.12); }
-        textarea.form-control { resize: vertical; min-height: 65px; }
-
-        .section-title { grid-column: span 3; font-size: 13px; font-weight: 700; color: var(--sidebar-bg); border-bottom: 2px solid var(--sidebar-active); padding-bottom: 4px; margin-top: 10px; text-transform: uppercase; }
+        textarea.form-control { resize: vertical; min-height: 70px; }
         
-        .modal-footer { display: flex; justify-content: flex-end; gap: 10px; margin-top: 22px; border-top: 1px solid #e2e8f0; padding-top: 14px; }
+        .modal-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 22px; border-top: 1px solid #e2e8f0; padding-top: 14px; }
+        .wizard-nav-btns { display: flex; gap: 10px; }
         .btn-secondary { padding: 9px 16px; border: 1px solid var(--border-color); border-radius: 6px; background: white; color: #475569; font-size: 12.5px; font-weight: 600; cursor: pointer; }
-        .btn-submit { padding: 9px 16px; border: none; border-radius: 6px; background: var(--sidebar-bg); color: white; font-size: 12.5px; font-weight: 600; cursor: pointer; }
+        .btn-submit { padding: 9px 18px; border: none; border-radius: 6px; background: var(--sidebar-bg); color: white; font-size: 12.5px; font-weight: 600; cursor: pointer; }
 
         .expediente-view-box { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 8px 10px; }
         .expediente-view-box p { font-size: 12px; color: #0f2547; font-weight: 500; margin-top: 2px; }
 
-        /* MEMBRETE Y PIE DE PÁGINA OCULTOS EN PANTALLA, VISIBLES AL IMPRIMIR */
         .print-header, .print-footer { display: none; }
 
         @media print {
             @page { size: portrait; margin: 6mm 10mm; }
-            
-            body.printing-general .sidebar, 
-            body.printing-general .mobile-header, 
-            body.printing-general .kpi-container, 
-            body.printing-general .toolbar-flex, 
-            body.printing-general .actions-bar, 
-            body.printing-general .main > h2, 
-            body.printing-general .subtitle,
-            body.printing-general .action-buttons, 
-            body.printing-general th:last-child, 
-            body.printing-general td:last-child { display: none !important; }
-
+            body.printing-general .sidebar, body.printing-general .mobile-header, body.printing-general .kpi-container, body.printing-general .toolbar-flex, body.printing-general .actions-bar, body.printing-general .main > h2, body.printing-general .subtitle, body.printing-general .action-buttons, body.printing-general th:last-child, body.printing-general td:last-child { display: none !important; }
             body.printing-general .main { position: absolute !important; left: 0 !important; top: 0 !important; width: 100% !important; padding: 0 !important; margin: 0 !important; }
             body.printing-general .print-header { display: block !important; text-align: center; margin-bottom: 12px; border-bottom: 2px solid #1d3b6a; padding-bottom: 6px; }
             body.printing-general .print-footer { display: block !important; position: fixed; bottom: 0; left: 0; width: 100%; text-align: center; font-size: 9px; color: #64748b; border-top: 1px solid #cbd5e1; padding-top: 2px; background: white; }
             body.printing-general .table-container { box-shadow: none !important; border: none !important; overflow: visible !important; }
             body.printing-general table { min-width: 100% !important; width: 100% !important; font-size: 11px !important; }
-            body.printing-general th, body.printing-general td { padding: 5px 6px !important; }
-
-            body:not(.printing-general) .layout, 
-            body:not(.printing-general) .modal-overlay:not(#expedienteModal) { display: none !important; }
-            
-            body:not(.printing-general) #expedienteModal { 
-                position: absolute !important; left: 0 !important; top: 0 !important; width: 100% !important; 
-                background: white !important; display: block !important; padding: 0 !important; overflow: visible !important; 
-            }
-            body:not(.printing-general) #expedienteModal .modal-container { 
-                box-shadow: none !important; border: none !important; max-width: 100% !important; 
-                width: 100% !important; padding: 0 !important; transform: none !important; max-height: none !important; overflow: visible !important; 
-            }
-            body:not(.printing-general) #expedienteModal .modal-header span, 
-            body:not(.printing-general) #expedienteModal .modal-footer,
-            body:not(.printing-general) #expedienteModal div[style*="margin-top: 20px; border-top: 1px solid #e2e8f0;"] { display: none !important; }
-
+            body:not(.printing-general) .layout, body:not(.printing-general) .modal-overlay:not(#expedienteModal) { display: none !important; }
+            body:not(.printing-general) #expedienteModal { position: absolute !important; left: 0 !important; top: 0 !important; width: 100% !important; background: white !important; display: block !important; padding: 0 !important; }
+            body:not(.printing-general) #expedienteModal .modal-container { box-shadow: none !important; border: none !important; width: 100% !important; padding: 0 !important; }
+            body:not(.printing-general) #expedienteModal .modal-header span, body:not(.printing-general) #expedienteModal .modal-footer, body:not(.printing-general) #expedienteModal div[style*="margin-top: 20px;"] { display: none !important; }
             body:not(.printing-general) #expedienteModal .print-header-ficha { display: block !important; margin-bottom: 8px !important; }
-            body:not(.printing-general) #expedienteModal .modal-header { display: none !important; }
-            body:not(.printing-general) #expedienteModal .form-grid { 
-                display: grid !important; 
-                grid-template-columns: repeat(2, 1fr) !important; 
-                gap: 5px !important; 
-            }
-            body:not(.printing-general) #expedienteModal .span-2,
-            body:not(.printing-general) #expedienteModal .span-3 { 
-                grid-column: span 2 !important; 
-            }
-            body:not(.printing-general) #expedienteModal .expediente-view-box { padding: 4px 8px !important; }
-            
-            body:not(.printing-general) .print-footer { 
-                display: block !important; 
-                position: fixed !important; 
-                bottom: 0 !important; 
-                left: 0 !important; 
-                width: 100% !important; 
-                text-align: center !important; 
-                font-size: 9px !important; 
-                color: #64748b !important; 
-                border-top: 1px solid #cbd5e1 !important; 
-                padding-top: 3px !important; 
-                background: white !important; 
-                z-index: 99999 !important;
-            }
+            body:not(.printing-general) .print-footer { display: block !important; position: fixed !important; bottom: 0 !important; left: 0 !important; width: 100% !important; text-align: center !important; font-size: 9px !important; background: white !important; }
         }
 
-      @media (max-width: 900px) {
-    .layout { grid-template-columns: 1fr; }
-    .mobile-header { display: flex; }
-    .sidebar { position: fixed; top: 58px; left: 0; width: 280px; height: calc(100vh - 58px); z-index: 3500; transform: translateX(-100%); box-shadow: 5px 0 15px rgba(0,0,0,0.2); }
-    .sidebar.open { transform: translateX(0); }
-    .main { padding: 20px 16px; }
-    .kpi-container { grid-template-columns: 1fr; }
-    
-    /* Corrección clave para móviles: forzar una sola columna en los formularios */
-    .form-grid { grid-template-columns: 1fr !important; }
-    .span-2, .span-3 { grid-column: span 1 !important; }
-    
-    .modal-container { max-width: 100% !important; margin: 10px; padding: 16px; max-height: 95vh; }
-}
+        @media (max-width: 900px) {
+            .layout { grid-template-columns: 1fr; }
+            .mobile-header { display: flex; }
+            .sidebar { position: fixed; top: 58px; left: 0; width: 280px; height: calc(100vh - 58px); z-index: 3500; transform: translateX(-100%); box-shadow: 5px 0 15px rgba(0,0,0,0.2); }
+            .sidebar.open { transform: translateX(0); }
+            .main { padding: 20px 16px; }
+            .kpi-container { grid-template-columns: 1fr; }
+            .wizard-step-content.active-content { grid-template-columns: 1fr !important; }
+            .span-2 { grid-column: span 1 !important; }
+            .modal-container { max-width: 100% !important; margin: 10px; padding: 16px; max-height: 95vh; }
+        }
     </style>
 </head>
 
@@ -265,39 +195,26 @@
         <div class="sidebar-brand">
             <h2>COMISIÓN PERMANENTE DE SALUD<br>Y DESARROLLO SOCIAL INTEGRAL</h2>
         </div>
-        
         <a class="menu" href="dashboard.html">Principal</a>
-        
         <div class="menu-category">Coor. Ejecutiva</div>
         <a class="menu" href="ejecutiva.html">Oficios e Informes</a>
         <a class="menu" href="planificacion.html">Planificación Semanal</a>
-        
         <div class="menu-category">Coor. Política</div>
         <a class="menu" href="politica.html">Liderazgos y Comunas</a>
-        
         <div class="menu-category">Coor. Social</div>
         <a class="menu active-page" href="social.html">Casos Sociales</a>
         <a class="menu" href="red_salud.html">Red de Salud (CPT/CDI)</a>
-        
         <div class="menu-category">Gestión Digital</div>
         <a class="menu" href="bitacora.html">Bitácora de Eventos</a>
         <a class="menu" href="reportes.html">📄 Reportes e Informes</a>
         <a class="menu" href="formatos.html">📁 Formatos de Oficina</a>
-
         <div id="enlaceAuditoria" style="display: none;">
             <a href="auditoria.html" class="menu">🛡️ Panel de Auditoría</a>
         </div>
-        
         <div style="margin-top: auto; padding: 24px 20px; border-top: 1px solid rgba(255,255,255,0.1);">
-            <div id="usuarioNombre" style="font-size:13px; color:#ffffff; font-weight:600; margin-bottom: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
-                Cargando...
-            </div>
-            <div id="usuarioCoordinacion" style="font-size:10.5px; color:var(--sidebar-text-sub); font-weight: 500; margin-bottom: 16px; text-transform: uppercase; letter-spacing: 0.3px;">
-                Cargando...
-            </div>
-            <a class="menu" onclick="logout()" style="cursor:pointer; font-size:12px; color:#f87171; padding: 8px 0; display: block; border-top: 1px solid rgba(255,255,255,0.05);">
-                Cerrar sesión
-            </a>
+            <div id="usuarioNombre" style="font-size:13px; color:#ffffff; font-weight:600; margin-bottom: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">Cargando...</div>
+            <div id="usuarioCoordinacion" style="font-size:10.5px; color:var(--sidebar-text-sub); font-weight: 500; margin-bottom: 16px; text-transform: uppercase;">Cargando...</div>
+            <a class="menu" onclick="logout()" style="cursor:pointer; font-size:12px; color:#f87171; padding: 8px 0; display: block; border-top: 1px solid rgba(255,255,255,0.05);">Cerrar sesión</a>
         </div>
     </div>
 
@@ -313,18 +230,9 @@
         <div class="subtitle">Oficina de la Concejala Letty Bastidas — Municipio Ambrosio Plaza</div>
         
         <div class="kpi-container">
-            <div class="kpi-card">
-                <span>En Espera</span>
-                <span id="kpi-espera">0</span>
-            </div>
-            <div class="kpi-card">
-                <span>En Gestión</span>
-                <span id="kpi-gestion">0</span>
-            </div>
-            <div class="kpi-card">
-                <span>Resueltos</span>
-                <span id="kpi-resuelto">0</span>
-            </div>
+            <div class="kpi-card"><span>En Espera</span><span id="kpi-espera">0</span></div>
+            <div class="kpi-card"><span>En Gestión</span><span id="kpi-gestion">0</span></div>
+            <div class="kpi-card"><span>Resueltos</span><span id="kpi-resuelto">0</span></div>
         </div>
 
         <div class="toolbar-flex">
@@ -388,20 +296,28 @@
     </div>
 </div>
 
-<!-- MODAL FORMULARIO COMPLETO ADAPTADO A LA FICHA SOCIAL INTEGRAL -->
+<!-- MODAL FORMULARIO OPTIMIZADO POR PASOS (WIZARD) -->
 <div class="modal-overlay" id="formularioModal">
-    <div class="modal-container" style="max-width: 900px;">
+    <div class="modal-container">
         <div class="modal-header">
             <h3 id="modalTitulo">Registrar Ficha Social Integral</h3>
             <span style="cursor:pointer; font-weight:bold; color:#64748b; font-size:22px;" onclick="cerrarModalFormulario()">×</span>
         </div>
+
+        <!-- PESTAÑAS DE NAVEGACIÓN DEL FORMULARIO -->
+        <div class="wizard-tabs">
+            <button type="button" class="wizard-tab-btn active-step" id="wtab-1" onclick="cambiarPasoFormulario(1)">1. Personales</button>
+            <button type="button" class="wizard-tab-btn" id="wtab-2" onclick="cambiarPasoFormulario(2)">2. Socioeconómico</button>
+            <button type="button" class="wizard-tab-btn" id="wtab-3" onclick="cambiarPasoFormulario(3)">3. Vivienda/Comunidad</button>
+            <button type="button" class="wizard-tab-btn" id="wtab-4" onclick="cambiarPasoFormulario(4)">4. Salud y Cierre</button>
+        </div>
+
         <form id="socialForm" onsubmit="procesarFormulario(event)">
             <input type="hidden" id="casoId">
             <input type="hidden" id="ins_url_existente">
             
-            <div class="form-grid">
-                <!-- 1. DATOS PERSONALES -->
-                <div class="section-title">1. Datos Personales y de Identificación</div>
+            <!-- PASO 1: DATOS PERSONALES -->
+            <div class="wizard-step-content active-content" id="wstep-1">
                 <div class="form-group span-2">
                     <label for="ins_nombre">Nombre y Apellido</label>
                     <input type="text" id="ins_nombre" class="form-control" placeholder="Ej: María Albarrán" required>
@@ -439,9 +355,10 @@
                     <label for="ins_telefono">Número de Teléfono</label>
                     <input type="text" id="ins_telefono" class="form-control" placeholder="Ej: 0412-5556677" required>
                 </div>
+            </div>
 
-                <!-- 2. DATOS SOCIOECONÓMICOS -->
-                <div class="section-title">2. Datos Socioeconómicos</div>
+            <!-- PASO 2: DATOS SOCIOECONÓMICOS Y GRUPO FAMILIAR -->
+            <div class="wizard-step-content" id="wstep-2">
                 <div class="form-group">
                     <label for="ins_trabaja">¿Trabaja?</label>
                     <select id="ins_trabaja" class="form-control">
@@ -449,13 +366,13 @@
                         <option value="NO">No</option>
                     </select>
                 </div>
-                <div class="form-group span-2">
-                    <label for="ins_dir_trabajo">Dirección de Trabajo y Teléfono</label>
-                    <input type="text" id="ins_dir_trabajo" class="form-control" placeholder="Lugar y telf. de trabajo">
-                </div>
                 <div class="form-group">
                     <label for="ins_sueldo">Sueldo Mensual ($/Bs)</label>
                     <input type="text" id="ins_sueldo" class="form-control" placeholder="Ej: 150">
+                </div>
+                <div class="form-group span-2">
+                    <label for="ins_dir_trabajo">Dirección y Teléfono de Trabajo</label>
+                    <input type="text" id="ins_dir_trabajo" class="form-control" placeholder="Lugar de trabajo">
                 </div>
                 <div class="form-group">
                     <label for="ins_ingreso_fam">Ingreso Familiar</label>
@@ -465,13 +382,10 @@
                     <label for="ins_egreso">Promedio de Egreso</label>
                     <input type="text" id="ins_egreso" class="form-control" placeholder="Ej: 250">
                 </div>
-                <div class="form-group span-3">
-                    <label for="ins_cubre_gastos">En caso de "NO" trabajar, ¿cómo cubre sus gastos personales?</label>
-                    <input type="text" id="ins_cubre_gastos" class="form-control" placeholder="Ej: Ayuda de familiares, comercio informal, remesas...">
+                <div class="form-group span-2">
+                    <label for="ins_cubre_gastos">Si "NO" trabaja, ¿cómo cubre sus gastos?</label>
+                    <input type="text" id="ins_cubre_gastos" class="form-control" placeholder="Ej: Ayuda familiar, comercio informal...">
                 </div>
-
-                <!-- GRUPO FAMILIAR -->
-                <div class="section-title">Grupo Familiar</div>
                 <div class="form-group">
                     <label for="ins_num_fam">Nº Grupo Familiar</label>
                     <select id="ins_num_fam" class="form-control">
@@ -483,19 +397,19 @@
                     </select>
                 </div>
                 <div class="form-group span-2">
-                    <label for="ins_detalle_fam">Detalle de Familiares (Nombre, Parentesco, Edad, Ocupación)</label>
-                    <textarea id="ins_detalle_fam" class="form-control" placeholder="Ej: Juan Pérez (Hijo, 12 años, Estudiante)..."></textarea>
+                    <label for="ins_detalle_fam">Detalle de Familiares (Nombre, Parentesco, Edad)</label>
+                    <textarea id="ins_detalle_fam" class="form-control" placeholder="Ej: Juan Pérez (Hijo, 12 años)..."></textarea>
                 </div>
+            </div>
 
-                <!-- 3. ÁREA FÍSICO-AMBIENTAL Y VIVIENDA -->
-                <div class="section-title">3. Área Físico-Ambiental, Transporte y Vivienda</div>
+            <!-- PASO 3: ÁREA FÍSICO-AMBIENTAL Y COMUNIDAD -->
+            <div class="wizard-step-content" id="wstep-3">
                 <div class="form-group">
                     <label for="ins_transporte">Transporte Habitual</label>
                     <select id="ins_transporte" class="form-control">
                         <option value="Vehículo Propio">Vehículo Propio</option>
-                        <option value="Vehículos de sus Padres">Vehículos de sus Padres</option>
-                        <option value="Con Amigos">Con Amigos</option>
                         <option value="Transporte Público">Transporte Público</option>
+                        <option value="Con Amigos">Con Amigos</option>
                         <option value="Otro">Otro</option>
                     </select>
                 </div>
@@ -503,11 +417,10 @@
                     <label for="ins_tipo_vivienda">Tipo de Vivienda</label>
                     <select id="ins_tipo_vivienda" class="form-control">
                         <option value="Casa">Casa</option>
-                        <option value="Quinta">Quinta</option>
                         <option value="Apartamento">Apartamento</option>
-                        <option value="Vivienda Rural">Vivienda Rural</option>
                         <option value="Rancho">Rancho</option>
                         <option value="Habitación">Habitación</option>
+                        <option value="Otro">Otro</option>
                     </select>
                 </div>
                 <div class="form-group">
@@ -515,22 +428,17 @@
                     <select id="ins_tenencia_vivienda" class="form-control">
                         <option value="Propia">Propia</option>
                         <option value="Alquilada">Alquilada</option>
-                        <option value="Opción a Compra">Opción a Compra</option>
-                        <option value="Alojada/Prestada">Alojada / Prestada</option>
-                        <option value="Compartida">Compartida</option>
+                        <option value="Prestada">Prestada / Alojada</option>
                         <option value="Otra">Otra</option>
                     </select>
                 </div>
-                <div class="form-group span-3">
-                    <label for="ins_carac_vivienda">Características de la Vivienda (Nro. de ambientes: Cocina, Sala, Dormitorios, Baños, etc.)</label>
-                    <input type="text" id="ins_carac_vivienda" class="form-control" placeholder="Ej: 3 dormitorios, 1 baño, sala-cocina compartida">
-                </div>
-
-                <!-- CARACTERÍSTICA DE LA COMUNIDAD -->
-                <div class="section-title">Característica de la Comunidad</div>
                 <div class="form-group">
-                    <label for="ins_sector">Urbanización, Comunidad o Sector</label>
+                    <label for="ins_sector">Comunidad / Sector</label>
                     <input type="text" id="ins_sector" class="form-control" placeholder="Ej: Las Clavellinas" required>
+                </div>
+                <div class="form-group span-2">
+                    <label for="ins_carac_vivienda">Características de la Vivienda (Ambientes)</label>
+                    <input type="text" id="ins_carac_vivienda" class="form-control" placeholder="Ej: 3 dormitorios, 1 baño, sala-cocina">
                 </div>
                 <div class="form-group">
                     <label for="ins_sala_auto">Sala de Autogobierno / Comuna</label>
@@ -540,54 +448,53 @@
                     <label for="ins_ubch">UBCH</label>
                     <input type="text" id="ins_ubch" class="form-control" placeholder="Nombre de la UBCH">
                 </div>
+            </div>
 
-                <!-- 4. SALUD Y REQUERIMIENTO -->
-                <div class="section-title">4. Salud y Requerimiento</div>
+            <!-- PASO 4: SALUD, REQUERIMIENTO Y CIERRE -->
+            <div class="wizard-step-content" id="wstep-4">
                 <div class="form-group">
-                    <label for="ins_sufre_enf">¿Sufre algún tipo de enfermedad?</label>
+                    <label for="ins_sufre_enf">¿Sufre alguna enfermedad?</label>
                     <select id="ins_sufre_enf" class="form-control">
                         <option value="NO">No</option>
                         <option value="SI">Sí</option>
                     </select>
                 </div>
-                <div class="form-group span-2">
+                <div class="form-group">
                     <label for="ins_detalle_enf">Especifique Enfermedad</label>
-                    <input type="text" id="ins_detalle_enf" class="form-control" placeholder="Ej: Hipertensión, Diabetes...">
+                    <input type="text" id="ins_detalle_enf" class="form-control" placeholder="Ej: Hipertensión...">
                 </div>
                 <div class="form-group">
-                    <label for="ins_discapacidad">¿Presenta discapacidad reducida?</label>
+                    <label for="ins_discapacidad">¿Presenta discapacidad?</label>
                     <select id="ins_discapacidad" class="form-control">
                         <option value="NO">No</option>
                         <option value="SI">Sí</option>
                     </select>
                 </div>
-                <div class="form-group span-2">
+                <div class="form-group">
                     <label for="ins_detalle_disc">Especifique Discapacidad</label>
-                    <input type="text" id="ins_detalle_disc" class="form-control" placeholder="Ej: Motora, visual...">
+                    <input type="text" id="ins_detalle_disc" class="form-control" placeholder="Ej: Motora...">
                 </div>
-                <div class="form-group span-3">
-                    <label for="ins_servicio_salud">¿Qué servicio de salud utiliza habitualmente?</label>
+                <div class="form-group span-2">
+                    <label for="ins_servicio_salud">Servicio de Salud Habitual</label>
                     <select id="ins_servicio_salud" class="form-control">
-                        <option value="Clínica Privada">Clínica Privada</option>
-                        <option value="Instituto Nacional de los Seguros Sociales (IVSS)">Instituto Nacional de los Seguros Sociales (IVSS)</option>
                         <option value="Hospital Público">Hospital Público</option>
-                        <option value="Ambulatorio / Consultorio">Ambulatorio / Consultorio</option>
-                        <option value="Medicentro">Medicentro</option>
+                        <option value="IVSS">Instituto Nacional de los Seguros Sociales (IVSS)</option>
+                        <option value="Clínica Privada">Clínica Privada</option>
+                        <option value="Ambulatorio">Ambulatorio / Consultorio</option>
                         <option value="Otro">Otro</option>
                     </select>
                 </div>
-
                 <div class="form-group">
                     <label for="ins_ayuda">Tipo de Ayuda Requerida</label>
                     <select id="ins_ayuda" class="form-control" required>
                         <option value="Tratamiento Médico">Tratamiento Médico</option>
                         <option value="Exámenes Médicos">Exámenes / Laboratorio</option>
                         <option value="Insumos Quirúrgicos">Insumos Quirúrgicos</option>
-                        <option value="Ayuda Técnica">Ayuda Técnica (Silla de Ruedas/Bastón)</option>
+                        <option value="Ayuda Técnica">Ayuda Técnica</option>
                     </select>
                 </div>
                 <div class="form-group">
-                    <label for="ins_prioridad">Prioridad del Caso</label>
+                    <label for="ins_prioridad">Prioridad</label>
                     <select id="ins_prioridad" class="form-control" required>
                         <option value="Baja">Baja</option>
                         <option value="Media" selected>Media</option>
@@ -599,46 +506,43 @@
                     <select id="ins_estatus" class="form-control" required>
                         <option value="En Espera">En Espera</option>
                         <option value="En Gestión">En Gestión</option>
-                        <option value="Resuelto">Resuelto (Entregado)</option>
+                        <option value="Resuelto">Resuelto</option>
                     </select>
-                </div>
-
-                <div class="form-group span-2">
-                    <label for="ins_responsable">Responsable de la Comisión</label>
-                    <input type="text" id="ins_responsable" class="form-control" placeholder="Ej: Lcdo. Carlos Gómez..." required>
                 </div>
                 <div class="form-group">
                     <label for="ins_remitido">Institución Remitida</label>
                     <input type="text" id="ins_remitido" class="form-control" placeholder="Ej: Hospital / IVSS">
                 </div>
-
-                <!-- ARCHIVO ADJUNTO -->
-                <div class="form-group span-3" style="background: #f8fafc; padding: 12px; border: 1px dashed var(--border-color); border-radius: 6px;">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-                        <label for="ins_archivo" style="color: var(--sidebar-active); margin:0;">📁 Documento de Respaldo Unificado</label>
-                        <a href="https://lightweight-pdf-tool.lumi.ing/" target="_blank" style="background: #0f2547; color: white; padding: 5px 10px; border-radius: 4px; font-size: 11px; font-weight: 600; text-decoration: none;">
-                            ⚙️ Unificar en Lumi
-                        </a>
-                    </div>
-                    <input type="file" id="ins_archivo" class="form-control" style="border:none; background:transparent; padding:5px 0;">
-                    <small id="txt-info-archivo" style="color:#64748b; font-size:11px; margin-top:2px;">Sube el PDF único resultante de juntar fotos, cédulas y récipes.</small>
+                <div class="form-group span-2">
+                    <label for="ins_responsable">Responsable de la Comisión</label>
+                    <input type="text" id="ins_responsable" class="form-control" placeholder="Ej: Lcdo. Carlos Gómez..." required>
                 </div>
-                
-                <div class="form-group span-3">
-                    <label for="ins_detalle">Observaciones / Diagnóstico Detallado</label>
-                    <textarea id="ins_detalle" class="form-control" placeholder="Observaciones generales o detalle de medicamentos requeridos..." required></textarea>
+                <div class="form-group span-2" style="background: #f8fafc; padding: 10px; border: 1px dashed var(--border-color); border-radius: 6px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                        <label for="ins_archivo" style="color: var(--sidebar-active); margin:0;">📁 Documento Respaldo</label>
+                        <a href="https://lightweight-pdf-tool.lumi.ing/" target="_blank" style="background: #0f2547; color: white; padding: 3px 8px; border-radius: 4px; font-size: 10.5px; text-decoration: none;">⚙️ Unificar en Lumi</a>
+                    </div>
+                    <input type="file" id="ins_archivo" class="form-control" style="border:none; background:transparent; padding:3px 0;">
+                </div>
+                <div class="form-group span-2">
+                    <label for="ins_detalle">Observaciones / Diagnóstico</label>
+                    <textarea id="ins_detalle" class="form-control" placeholder="Detalles de la solicitud..." required></textarea>
                 </div>
             </div>
             
             <div class="modal-footer">
                 <button type="button" class="btn-secondary" onclick="cerrarModalFormulario()">Cancelar</button>
-                <button type="submit" id="btnGuardarForm" class="btn-submit">Sincronizar Ficha Integral</button>
+                <div class="wizard-nav-btns">
+                    <button type="button" class="btn-secondary" id="btnAnterior" onclick="moverPaso(-1)" style="display:none;">Anterior</button>
+                    <button type="button" class="btn-submit" id="btnSiguiente" onclick="moverPaso(1)">Siguiente ➔</button>
+                    <button type="submit" class="btn-submit" id="btnGuardarForm" style="display:none; background:var(--success-color);">Sincronizar Ficha</button>
+                </div>
             </div>
         </form>
     </div>
 </div>
 
-<!-- MODAL VISOR EXPEDIENTE E HISTORIAL DE SEGUIMIENTO -->
+<!-- MODAL VISOR EXPEDIENTE E HISTORIAL -->
 <div class="modal-overlay" id="expedienteModal">
     <div class="modal-container" style="max-width: 800px;">
         <div class="print-header-ficha" style="display: none; text-align: center; margin-bottom: 8px; border-bottom: 2px solid #1d3b6a; padding-bottom: 5px;">
@@ -652,16 +556,16 @@
             <h3>🗂️ Expediente Social y Bitácora de Trámites</h3>
             <span style="cursor:pointer; font-weight:bold; color:#64748b; font-size:22px;" onclick="cerrarModalExpediente()">×</span>
         </div>
-        <div class="form-grid" id="cuerpoExpediente"></div>
+        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px;" id="cuerpoExpediente"></div>
         
-        <div style="margin-top: 20px; border-top: 1px solid #e2e8f0; padding-top: 15px;">
+        <div style="margin-top: 15px; border-top: 1px solid #e2e8f0; padding-top: 12px;">
             <input type="hidden" id="seguimientoCasoId">
-            <label style="font-size: 11px; font-weight: 700; color: var(--sidebar-bg); text-transform: uppercase; display: block; margin-bottom: 6px;">✍️ Agregar Nueva Actualización o Trámite Realizado</label>
-            <textarea id="nuevoSeguimientoTexto" class="form-control" placeholder="Escribe aquí el avance del trámite..." style="margin-bottom: 10px;"></textarea>
-            <button type="button" class="btn-submit" onclick="guardarSeguimientoTratamiento()" style="background: var(--success-color); width: 100%;">➕ Registrar Avance en la Bitácora</button>
+            <label style="font-size: 11px; font-weight: 700; color: var(--sidebar-bg); text-transform: uppercase; display: block; margin-bottom: 4px;">✍️ Agregar Nuevo Trámite o Avance</label>
+            <textarea id="nuevoSeguimientoTexto" class="form-control" placeholder="Escribe aquí el avance..." style="margin-bottom: 8px;"></textarea>
+            <button type="button" class="btn-submit" onclick="guardarSeguimientoTratamiento()" style="background: var(--success-color); width: 100%;">➕ Registrar Avance</button>
         </div>
 
-        <div class="modal-footer" style="margin-top: 15px; display: flex; justify-content: space-between; align-items: center;">
+        <div class="modal-footer" style="margin-top: 12px; display: flex; justify-content: space-between; align-items: center;">
             <button type="button" class="btn-report" onclick="window.print()">🖨️ Imprimir Ficha Individual</button>
             <button type="button" class="btn-submit" onclick="cerrarModalExpediente()">Cerrar Ventana</button>
         </div>
@@ -678,6 +582,7 @@
     let listaCasosGlobal = [];
     let listaCasosFiltradosActuales = [];
     let idEnEdicion = null;
+    let pasoActualForm = 1;
 
     window.iniciarApp = function() {
         const nombre = sessionStorage.getItem("usuario_nombre");
@@ -695,11 +600,29 @@
         document.getElementById("sidebarMenu").classList.toggle("open");
     }
 
+    function cambiarPasoFormulario(paso) {
+        pasoActualForm = paso;
+        for (let i = 1; i <= 4; i++) {
+            document.getElementById(`wtab-${i}`).classList.toggle("active-step", i === paso);
+            document.getElementById(`wstep-${i}`).classList.toggle("active-content", i === paso);
+        }
+        document.getElementById("btnAnterior").style.display = paso === 1 ? "none" : "block";
+        document.getElementById("btnSiguiente").style.display = paso === 4 ? "none" : "block";
+        document.getElementById("btnGuardarForm").style.display = paso === 4 ? "block" : "none";
+    }
+
+    function moverPaso(dir) {
+        let nuevoPaso = pasoActualForm + dir;
+        if (nuevoPaso >= 1 && nuevoPaso <= 4) {
+            cambiarPasoFormulario(nuevoPaso);
+        }
+    }
+
     async function cargarCasosSociales() {
         const tbody = document.getElementById("tabla-casos-body");
         if (!window.sqlClient) await new Promise(resolve => setTimeout(resolve, 800));
         if (!window.sqlClient) {
-            tbody.innerHTML = `<tr><td colspan="12" style="text-align:center; color:#dc2626; padding:30px;">⚠️ Error crítico: La librería de Neon no se ha cargado.</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="12" style="text-align:center; color:#dc2626; padding:30px;">⚠️ Error crítico: Conexión con Neon no disponible.</td></tr>`;
             return;
         }
 
@@ -713,7 +636,7 @@
             actualizarKPIs(listaCasosGlobal);
             filtrarTablaEnVivo();
         } catch (err) {
-            tbody.innerHTML = `<tr><td colspan="12" style="text-align:center; color:#dc2626; padding:30px;">⚠️ Error de conexión: ${err.message}</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="12" style="text-align:center; color:#dc2626; padding:30px;">⚠️ Error: ${err.message}</td></tr>`;
         }
     }
 
@@ -738,7 +661,7 @@
                     <td><code style="background:#f1f5f9; padding:2px 5px; border-radius:4px;">${c.cedula || 'N/A'}</code></td>
                     <td>${c.edad || '?' } años (${c.genero === 'Femenino' ? 'F' : 'M'})</td>
                     <td>${c.telefono || 'N/A'}</td>
-                    <td>${c.sector || ''} <span style="font-size:11px; color:#64748b; display:block;">${c.eje_territorial || ''}</span></td>
+                    <td>${c.sector || ''}</td>
                     <td><span style="font-weight:600; color:#0284c7;">${c.tipo_ayuda || 'General'}</span></td>
                     <td><span style="font-weight:600; color:#1e293b; background:#f1f5f9; padding:3px 6px; border-radius:4px;">👤 ${c.responsable_comision || 'No asignado'}</span></td>
                     <td style="color:#475569; max-width:160px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" title="${c.detalle || ''}">${c.detalle || ''}</td>
@@ -807,6 +730,7 @@
         document.getElementById("casoId").value = "";
         document.getElementById("ins_url_existente").value = "";
         document.getElementById("modalTitulo").innerText = `Registrar Ficha Social Integral`;
+        cambiarPasoFormulario(1);
         document.getElementById("formularioModal").classList.add("open");
     }
 
@@ -830,7 +754,6 @@
         document.getElementById("ins_ingreso_fam").value = item.ingreso_familiar || "";
         document.getElementById("ins_egreso").value = item.promedio_egreso || "";
         document.getElementById("ins_cubre_gastos").value = item.como_cubre_gastos || "";
-        
         document.getElementById("ins_num_fam").value = item.numero_grupo_familiar || "2 Personas";
         document.getElementById("ins_detalle_fam").value = item.detalle_grupo_familiar || "";
         
@@ -838,7 +761,6 @@
         document.getElementById("ins_tipo_vivienda").value = item.tipo_vivienda || "Casa";
         document.getElementById("ins_tenencia_vivienda").value = item.tenencia_vivienda || "Propia";
         document.getElementById("ins_carac_vivienda").value = item.caracteristicas_vivienda || "";
-        
         document.getElementById("ins_sector").value = item.sector || "";
         document.getElementById("ins_sala_auto").value = item.sala_autogobierno || "";
         document.getElementById("ins_ubch").value = item.ubch || "";
@@ -855,8 +777,10 @@
         document.getElementById("ins_remitido").value = item.institucion_remitida || "";
         document.getElementById("ins_responsable").value = item.responsable_comision || "";
         document.getElementById("ins_detalle").value = item.detalle || "";
-        
         document.getElementById("ins_url_existente").value = item.url_adjunto || "";
+        
+        cambiarPasoFormulario(1);
+        document.getElementById("modalTitulo").innerText = "Modificar Ficha Social Integral";
         document.getElementById("formularioModal").classList.add("open");
     }
 
@@ -882,7 +806,7 @@
         const archivoInput = document.getElementById("ins_archivo");
         let urlFinalArchivo = document.getElementById("ins_url_existente").value;
 
-        btnGuardar.innerText = "Procesando...";
+        btnGuardar.innerText = "Sincronizando...";
         btnGuardar.disabled = true;
 
         try {
@@ -977,7 +901,7 @@
         } catch (err) {
             alert("Error al sincronizar: " + err.message);
         } finally {
-            btnGuardar.innerText = "Sincronizar Ficha Integral";
+            btnGuardar.innerText = "Sincronizar Ficha";
             btnGuardar.disabled = false;
         }
     }
@@ -991,7 +915,7 @@
 
         let bloqueAdjunto = item.url_adjunto 
             ? `<a href="${item.url_adjunto}" target="_blank" download="Documento_Respaldo_Social" style="color:#16a34a; font-weight:700; text-decoration:underline;">📥 Ver Documento Adjunto</a>`
-            : '<span style="color:#64748b; font-style:italic;">Ningún documento digitalizado.</span>';
+            : '<span style="color:#64748b; font-style:italic;">Ningún documento.</span>';
 
         let historialBitacora = item.seguimiento_bitacora ? item.seguimiento_bitacora.replace(/\n/g, '<br>') : 'Sin avances.';
 
@@ -999,26 +923,16 @@
             <div class="form-group span-2 expediente-view-box"><label>Nombre y Apellido</label><p>${item.nombre || ''}</p></div>
             <div class="form-group expediente-view-box"><label>Cédula</label><p>${item.cedula || ''}</p></div>
             <div class="form-group expediente-view-box"><label>Edad / Sexo</label><p>${item.edad || '?'} años (${item.genero || ''})</p></div>
-            <div class="form-group expediente-view-box"><label>Estado Civil</label><p>${item.estado_civil || 'N/A'}</p></div>
-            <div class="form-group expediente-view-box"><label>Teléfono</label><p>${item.telefono || ''}</p></div>
-            
-            <div class="section-title" style="margin:5px 0;">Datos Socioeconómicos y Grupo Familiar</div>
-            <div class="form-group expediente-view-box"><label>Trabaja</label><p>${item.trabaja || 'SI'} (${item.direccion_trabajo || 'Sin dir.'})</p></div>
-            <div class="form-group expediente-view-box"><label>Sueldo / Ingresos</label><p>Sueldo: $${item.sueldo_mensual || 0} | Fam: $${item.ingreso_familiar || 0}</p></div>
-            <div class="form-group expediente-view-box"><label>Grupo Familiar</label><p>${item.numero_grupo_familiar || ''} — ${item.detalle_grupo_familiar || 'Sin detalle'}</p></div>
-            
-            <div class="section-title" style="margin:5px 0;">Vivienda y Comunidad</div>
+            <div class="form-group expediente-view-box"><label>Estado Civil / Teléfono</label><p>${item.estado_civil || 'N/A'} — ${item.telefono || ''}</p></div>
+            <div class="form-group expediente-view-box"><label>Trabaja / Ingresos</label><p>Trabaja: ${item.trabaja || 'SI'} | Ingreso: $${item.ingreso_familiar || 0}</p></div>
+            <div class="form-group span-2 expediente-view-box"><label>Grupo Familiar</label><p>${item.numero_grupo_familiar || ''} — ${item.detalle_grupo_familiar || 'Sin detalle'}</p></div>
             <div class="form-group expediente-view-box"><label>Vivienda y Transporte</label><p>${item.tipo_vivienda || ''} (${item.tenencia_vivienda || ''}) / Transp: ${item.transporte || ''}</p></div>
-            <div class="form-group span-2 expediente-view-box"><label>Sector / Comuna / UBCH</label><p>${item.sector || ''} | Comuna: ${item.sala_autogobierno || 'N/A'} | UBCH: ${item.ubch || 'N/A'}</p></div>
-            
-            <div class="section-title" style="margin:5px 0;">Salud y Requerimiento</div>
-            <div class="form-group expediente-view-box"><label>Enfermedad / Discapacidad</label><p>Enf: ${item.sufre_enfermedad || 'NO'} (${item.detalle_enfermedad || 'N/A'}) | Disc: ${item.presenta_discapacidad || 'NO'}</p></div>
-            <div class="form-group expediente-view-box"><label>Servicio de Salud Usual</label><p>${item.servicio_salud_habitual || 'N/A'}</p></div>
+            <div class="form-group expediente-view-box"><label>Sector / Comuna</label><p>${item.sector || ''} | Comuna: ${item.sala_autogobierno || 'N/A'}</p></div>
+            <div class="form-group expediente-view-box"><label>Salud</label><p>Enf: ${item.sufre_enfermedad || 'NO'} | Disc: ${item.presenta_discapacidad || 'NO'}</p></div>
             <div class="form-group expediente-view-box"><label>Tipo Ayuda / Prioridad</label><p>${item.tipo_ayuda || ''} (<span class="prio-badge prio-${item.prioridad}">${item.prioridad || ''}</span>)</p></div>
-            
             <div class="form-group span-2 expediente-view-box" style="background:#f1f5f9;"><label>Responsable</label><p><b>${item.responsable_comision || ''}</b></p></div>
             <div class="form-group span-2 expediente-view-box"><label>📎 Respaldo</label><p>${bloqueAdjunto}</p></div>
-            <div class="form-group span-2 expediente-view-box"><label>Diagnóstico / Observaciones</label><p style="font-style:italic;">"${item.detalle || ''}"</p></div>
+            <div class="form-group span-2 expediente-view-box"><label>Diagnóstico</label><p style="font-style:italic;">"${item.detalle || ''}"</p></div>
             <div class="form-group span-2 expediente-view-box" style="background:#fffbeb;"><label>Bitácora</label><div style="font-size:11px;">${historialBitacora}</div></div>
         `;
         document.getElementById("expedienteModal").classList.add("open");
