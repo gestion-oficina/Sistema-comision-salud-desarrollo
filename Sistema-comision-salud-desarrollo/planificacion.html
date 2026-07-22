@@ -4,15 +4,10 @@
 <head>
 <meta charset="UTF-8">
  <script>
-        // 1. Verificamos la sesión inmediatamente
         const sesion = sessionStorage.getItem('usuario_logueado');
-        
-        // 2. Si no hay sesión Y no estamos en el login, redirigimos
-        // Nota: Si tu archivo de login no está en la raíz, ajusta la ruta
         if (!sesion && window.location.pathname !== "/login.html") {
             window.location.replace("login.html");
         } else {
-            // 3. Si SÍ hay sesión, cuando el HTML cargue, mostramos el cuerpo
             document.addEventListener("DOMContentLoaded", () => {
                 document.body.style.display = "block";
             });
@@ -25,7 +20,6 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <style>
-/* PALETA DE COLORES CORPORATIVA INSTITUCIONAL */
 :root {
     --bg-main: #f4f6f9;
     --sidebar-bg: #1d3b6a;
@@ -36,19 +30,17 @@
     --border-color: #cbd5e1;
     --success-color: #16a34a;
     --warning-color: #eab308;
+    --danger-color: #dc2626;
 }
 
 *{ margin:0; padding:0; box-sizing:border-box; font-family: 'Inter', sans-serif; }
 body{ background: var(--bg-main); color:#334155; }
 
-/* LAYOUT RESPONSIVO (Por defecto Escritorio) */
 .layout{ display: grid; grid-template-columns: 280px 1fr; min-height: 100vh; }
 
-/* BOTÓN HAMBURGUESA (Oculto en escritorio) */
 .mobile-header { display: none; background: var(--sidebar-bg); color: white; padding: 15px 20px; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 3000; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
 .btn-menu-toggle { background: none; border: none; color: white; font-size: 24px; cursor: pointer; }
 
-/* SIDEBAR SPREAD */
 .sidebar{ background: var(--sidebar-bg); padding:24px 0; display: flex; flex-direction: column; transition: transform 0.3s ease; }
 .sidebar-brand { display: flex; flex-direction: column; align-items: center; text-align: center; padding: 0 16px 20px 16px; border-bottom: 1px solid rgba(255, 255, 255, 0.1); margin-bottom: 10px; }
 .sidebar-brand h2 { font-size: 11px; color: #ffffff; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; line-height: 1.4; margin-top: 5px; }
@@ -57,83 +49,69 @@ body{ background: var(--bg-main); color:#334155; }
 .menu:hover{ opacity: 1; background: rgba(255, 255, 255, 0.05); }
 .menu.active-page { background: var(--sidebar-active); color: #ffffff; font-weight: 600; border-radius: 6px; margin: 2px 14px; padding: 10px 20px; opacity: 1; }
 
-/* PANEL CENTRAL */
 .main{ padding:40px; overflow-x: hidden; }
 .main h2{ font-size: 26px; color: var(--text-dark-title); font-weight: 700; margin-bottom: 6px; }
 .subtitle-concejala { font-size: 13px; color: #64748b; margin-bottom: 24px; font-weight: 500; }
 
-/* CONTENEDOR DE AGENDA */
 .agenda-container { background: white; border: 1px solid #e2e8f0; border-radius: 12px; padding: 24px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.01); }
-.agenda-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #f1f5f9; padding-bottom: 16px; margin-bottom: 20px; gap: 10px; }
+.agenda-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #f1f5f9; padding-bottom: 16px; margin-bottom: 20px; gap: 10px; flex-wrap: wrap; }
 .agenda-header h3 { font-size: 16px; font-weight: 700; color: var(--text-dark-title); }
 
-/* TABLA INSTITUCIONAL */
+.toolbar-agenda { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-bottom: 20px; }
+.filter-chip { padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; border: 1px solid #cbd5e1; background: white; color: #475569; cursor: pointer; transition: all 0.2s; }
+.filter-chip.active { background: var(--sidebar-bg); color: white; border-color: var(--sidebar-bg); }
 
-<div id="lista-actividades" style="display: grid; grid-template-columns: 1fr; gap: 15px;">
-    </div>
-
-/* BOTONES */
-.btn-add { background: var(--sidebar-active); color: white; border: none; padding: 10px 16px; border-radius: 6px; font-size: 12.5px; font-weight: 600; cursor: pointer; transition: background 0.2s; white-space: nowrap; }
+.btn-add { background: var(--sidebar-active); color: white; border: none; padding: 10px 16px; border-radius: 6px; font-size: 12.5px; font-weight: 600; cursor: pointer; transition: background 0.2s; white-space: nowrap; display: inline-flex; align-items: center; gap: 6px; }
 .btn-add:hover { opacity: 0.95; }
 
-/* BADGES DE ESTATUS */
-.badge-status { padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; text-transform: uppercase; display: inline-block; }
+/* TARJETAS DE ACTIVIDAD CREATIVAS */
+.grid-actividades { display: grid; grid-template-columns: 1fr; gap: 15px; }
+.card-actividad { background: white; padding: 20px; border-radius: 10px; border: 1px solid #e2e8f0; border-left: 5px solid var(--sidebar-active); box-shadow: 0 2px 4px rgba(0,0,0,0.02); display: flex; justify-content: space-between; align-items: flex-start; gap: 15px; transition: transform 0.2s; }
+.card-actividad:hover { transform: translateY(-2px); box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+
+.card-content { flex-grow: 1; }
+.card-title-row { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; flex-wrap: wrap; }
+.card-title-row h4 { color: var(--text-dark-title); font-size: 15px; font-weight: 700; }
+
+.tipo-badge { font-size: 10.5px; font-weight: 700; text-transform: uppercase; background: #f1f5f9; color: #475569; padding: 2px 8px; border-radius: 4px; }
+.card-meta { font-size: 12px; color: #64748b; font-weight: 500; margin-bottom: 8px; display: flex; gap: 15px; flex-wrap: wrap; }
+.card-desc { font-size: 13px; color: #334155; line-height: 1.4; background: #f8fafc; padding: 8px 12px; border-radius: 6px; border: 1px solid #f1f5f9; margin-top: 8px; }
+
+.card-actions-side { display: flex; flex-direction: column; align-items: flex-end; gap: 10px; }
+.badge-status { padding: 4px 10px; border-radius: 4px; font-size: 10.5px; font-weight: 700; text-transform: uppercase; display: inline-block; text-align: center; }
 .status-programado { background: #e0f2fe; color: #0369a1; }
 .status-completado { background: #dcfce7; color: #14532d; }
 .status-suspendido { background: #fee2e2; color: #b91c1c; }
 
-/* VENTANA MODAL RESPONSIVA */
-.modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 37, 71, 0.4); z-index: 4000; justify-content: center; align-items: center; padding: 15px; }
-.modal-content { background: white; padding: 24px; border-radius: 12px; width: 100%; max-width: 500px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); position: relative; max-height: 90vh; overflow-y: auto; }
+.action-btns-row { display: flex; gap: 6px; }
+.btn-icon-action { background: #f1f5f9; border: 1px solid #cbd5e1; color: #475569; padding: 5px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; cursor: pointer; }
+.btn-icon-action:hover { background: #e2e8f0; }
+.btn-icon-danger { background: #fee2e2; border: 1px solid #fecaca; color: #b91c1c; }
+.btn-icon-danger:hover { background: #fecaca; }
+
+/* VENTANA MODAL */
+.modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 37, 71, 0.5); backdrop-filter: blur(2px); z-index: 4000; justify-content: center; align-items: center; padding: 15px; }
+.modal-content { background: white; padding: 24px; border-radius: 12px; width: 100%; max-width: 500px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.15); position: relative; max-height: 90vh; overflow-y: auto; }
 .modal-title { font-size: 18px; font-weight: 700; color: var(--text-dark-title); margin-bottom: 20px; }
 .close-modal { position: absolute; top: 20px; right: 20px; background: none; border: none; font-size: 24px; cursor: pointer; color: #94a3b8; }
-.form-group { margin-bottom: 16px; }
-.form-group label { display: block; font-size: 12px; font-weight: 600; color: #475569; margin-bottom: 6px; }
-.form-group input, .form-group textarea, .form-group select { width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 13px; color: #334155; }
-.form-group input:focus, .form-group textarea:focus { outline: none; border-color: var(--sidebar-active); }
-.modal-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 24px; }
-.btn-cancel { background: #e2e8f0; color: #475569; border: none; padding: 10px 16px; border-radius: 6px; font-size: 12.5px; font-weight: 600; cursor: pointer; }
-.btn-save { background: var(--success-color); color: white; border: none; padding: 10px 16px; border-radius: 6px; font-size: 12.5px; font-weight: 600; cursor: pointer; }
+.form-group { margin-bottom: 14px; }
+.form-group label { display: block; font-size: 11px; font-weight: 700; color: #475569; margin-bottom: 4px; text-transform: uppercase; }
+.form-group input, .form-group textarea, .form-group select { width: 100%; padding: 9px 12px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 13px; color: #334155; outline: none; }
+.form-group input:focus, .form-group textarea:focus, .form-group select:focus { border-color: var(--sidebar-active); box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.12); }
+.modal-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px; border-top: 1px solid #e2e8f0; padding-top: 14px; }
+.btn-cancel { background: #e2e8f0; color: #475569; border: none; padding: 9px 16px; border-radius: 6px; font-size: 12.5px; font-weight: 600; cursor: pointer; }
+.btn-save { background: var(--success-color); color: white; border: none; padding: 9px 16px; border-radius: 6px; font-size: 12.5px; font-weight: 600; cursor: pointer; }
 
-/* ==========================================================================
-   MEDIA QUERIES (OPTIMIZACIÓN PARA TELÉFONOS Y TABLETAS)
-   ========================================================================== */
 @media (max-width: 768px) {
-    /* Transformar el Layout en una columna */
     .layout { grid-template-columns: 1fr; }
-    
-    /* Mostrar cabecera móvil */
     .mobile-header { display: flex; }
-    
-    /* Convertir menú lateral en cajón desplegable oculto por defecto */
     .sidebar { position: fixed; top: 58px; left: 0; width: 280px; height: calc(100vh - 58px); z-index: 2500; transform: translateX(-100%); box-shadow: 4px 0 10px rgba(0,0,0,0.1); overflow-y: auto; }
     .sidebar.open { transform: translateX(0); }
-    
-    /* Ajustes del contenedor principal en móviles */
     .main { padding: 20px 15px; }
-    .main h2 { font-size: 22px; }
-    .agenda-container { padding: 16px; }
-    .agenda-header { flex-direction: column; align-items: flex-start; }
-    .btn-add { width: 100%; text-align: center; margin-top: 5px; }
-
-    /* REDISEÑO CRÍTICO: Transformar la Tabla en Tarjetas Móviles */
-    table, thead, tbody, th, td, tr { display: block; width: 100%; }
-    thead { display: none; } /* Ocultar cabeceras de tabla tradicionales */
-    
-    tr { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 8px; margin-bottom: 12px; padding: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
-    tr:hover { background: #ffffff; }
-    
-    td { border-bottom: none; padding: 6px 0; position: relative; font-size: 13px; }
-    
-    /* Inyectar etiquetas simuladas para identificar los datos en formato Card */
-    td:nth-of-type(1) { border-bottom: 1px dashed #e2e8f0; padding-bottom: 10px; margin-bottom: 6px; }
-    td:nth-of-type(2)::before { content: "Actividad: "; font-weight: 700; color: var(--text-dark-title); }
-    td:nth-of-type(3)::before { content: "Detalles: "; font-weight: 700; color: var(--text-dark-title); display: block; margin-bottom: 2px; }
-    td:nth-of-type(4)::before { content: "Lugar: "; font-weight: 700; color: var(--text-dark-title); }
-    td:nth-of-type(5) { padding-top: 10px; border-top: 1px dashed #e2e8f0; margin-top: 6px; text-align: right; }
-
-    /* Ajustes en los formularios dentro del modal */
-    .form-group style { display: flex !important; flex-direction: column; gap: 16px !important; }
+    .agenda-header { flex-direction: column; align-items: stretch; }
+    .btn-add { width: 100%; justify-content: center; }
+    .card-actividad { flex-direction: column; align-items: stretch; }
+    .card-actions-side { flex-direction: row; justify-content: space-between; align-items: center; border-top: 1px dashed #e2e8f0; padding-top: 10px; margin-top: 6px; }
 }
 </style>
 </head>
@@ -173,26 +151,11 @@ body{ background: var(--bg-main); color:#334155; }
             <a href="auditoria.html" class="menu">🛡️ Panel de Auditoría</a>
         </div>
 
-<script>
-    // Esto hace que el botón aparezca solo si el rol guardado es 'admin'
-    if (sessionStorage.getItem("usuario_rol") === "admin") {
-        document.getElementById("enlaceAuditoria").style.display = "block";
-    }
-</script>
         <div style="margin-top: auto; padding: 24px 20px; border-top: 1px solid rgba(255,255,255,0.1);">
-    
-    <div id="usuarioNombre" style="font-size:13px; color:#ffffff; font-weight:600; margin-bottom: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
-        Cargando...
-    </div>
-    
-    <div id="usuarioCoordinacion" style="font-size:10.5px; color:var(--sidebar-text-sub); font-weight: 500; margin-bottom: 16px; text-transform: uppercase; letter-spacing: 0.3px;">
-        Cargando...
-    </div>
-
-    <a class="menu" onclick="logout()" style="cursor:pointer; font-size:12px; color:#f87171; padding: 8px 0; display: block; border-top: 1px solid rgba(255,255,255,0.05);">
-        Cerrar sesión
-    </a>
-</div>
+            <div id="usuarioNombre" style="font-size:13px; color:#ffffff; font-weight:600; margin-bottom: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">Cargando...</div>
+            <div id="usuarioCoordinacion" style="font-size:10.5px; color:var(--sidebar-text-sub); font-weight: 500; margin-bottom: 16px; text-transform: uppercase; letter-spacing: 0.3px;">Cargando...</div>
+            <a class="menu" onclick="logout()" style="cursor:pointer; font-size:12px; color:#f87171; padding: 8px 0; display: block; border-top: 1px solid rgba(255,255,255,0.05);">Cerrar sesión</a>
+        </div>
     </div>
 
     <div class="main">
@@ -202,21 +165,33 @@ body{ background: var(--bg-main); color:#334155; }
         <div class="agenda-container">
             <div class="agenda-header">
                 <h3>Cronograma de Actividades e Inspecciones</h3>
-                <button class="btn-add" onclick="abrirModal()">+ Agregar Actividad</button>
+                <button class="btn-add" onclick="abrirModal()">➕ Agregar Actividad</button>
             </div>
 
-            <div id="lista-actividades" style="display: grid; grid-template-columns: 1fr; gap: 15px; margin-top: 20px;">
-    </div>
+            <!-- FILTROS RÁPIDOS DE AGENDA -->
+            <div class="toolbar-agenda">
+                <button class="filter-chip active" id="chip-todos" onclick="filtrarAgenda('Todos')">Todas</button>
+                <button class="filter-chip" id="chip-programado" onclick="filtrarAgenda('Programado')">Programados</button>
+                <button class="filter-chip" id="chip-completado" onclick="filtrarAgenda('Completado')">Completados</button>
+                <button class="filter-chip" id="chip-suspendido" onclick="filtrarAgenda('Suspendido')">Suspendidos</button>
+            </div>
+
+            <div id="lista-actividades" class="grid-actividades">
+                <p style="text-align:center; padding:30px; color:#94a3b8;">Cargando agenda de trabajo...</p>
+            </div>
         </div>
     </div>
 </div>
 
+<!-- MODAL CREAR / EDITAR -->
 <div class="modal" id="modalActividad">
     <div class="modal-content">
         <button class="close-modal" onclick="cerrarModal()">×</button>
-        <div class="modal-title">Nuevo Compromiso Institucional</div>
+        <div class="modal-title" id="modalTituloLabel">Nuevo Compromiso Institucional</div>
         
         <form id="formAgenda" onsubmit="guardarActividad(event)">
+            <input type="hidden" id="actividadId">
+            
             <div class="form-group">
                 <label>Título de la Actividad</label>
                 <input type="text" id="titulo" placeholder="Ej: Entrega de insumos médicos" required>
@@ -244,7 +219,7 @@ body{ background: var(--bg-main); color:#334155; }
                     </select>
                 </div>
                 <div>
-                    <label>Estatus Inicial</label>
+                    <label>Estatus</label>
                     <select id="estatus">
                         <option value="Programado">Programado</option>
                         <option value="Completado">Completado</option>
@@ -272,88 +247,115 @@ body{ background: var(--bg-main); color:#334155; }
 </div>
 
 <script>
-// Inicialización de Supabase
 const client = supabase.createClient(
     "https://soqgmwzknfgmxefbnfgs.supabase.co",
     "sb_publishable_VytLFdygkUVqnTLWNkiM3g_75HnE8qQ"
 );
 
+let listaEventosGlobal = [];
+let filtroSeleccionado = 'Todos';
+
 document.addEventListener("DOMContentLoaded", () => {
+    if (sessionStorage.getItem("usuario_rol") === "admin") {
+        const aud = document.getElementById("enlaceAuditoria");
+        if(aud) aud.style.display = "block";
+    }
+
     cargarAgendaOficina();
     
-    // Carga de datos de sesión
     const nombre = sessionStorage.getItem("usuario_nombre");
     const coord = sessionStorage.getItem("usuario_coordinacion");
-    const elNombre = document.getElementById("usuarioNombre");
-    const elCoord = document.getElementById("usuarioCoordinacion");
-
-    if (elNombre && nombre) elNombre.textContent = nombre;
-    if (elCoord && coord) elCoord.textContent = coord.toUpperCase();
+    if (nombre) document.getElementById("usuarioNombre").textContent = nombre;
+    if (coord) document.getElementById("usuarioCoordinacion").textContent = coord.toUpperCase();
 });
 
-// Lógica de interfaz
 function toggleMenu() {
     document.getElementById("sidebarMenu").classList.toggle("open");
 }
 
-document.querySelectorAll('.menu').forEach(link => {
-    link.addEventListener('click', () => {
-        document.getElementById("sidebarMenu").classList.remove("open");
-    });
-});
-
 function abrirModal() {
+    document.getElementById("actividadId").value = "";
+    document.getElementById("modalTituloLabel").textContent = "Nuevo Compromiso Institucional";
+    document.getElementById("formAgenda").reset();
     document.getElementById("modalActividad").style.display = "flex";
 }
 
 function cerrarModal() {
     document.getElementById("modalActividad").style.display = "none";
-    document.getElementById("formAgenda").reset();
 }
 
-// Carga de Agenda (Versión corregida para tarjetas)
 async function cargarAgendaOficina() {
     try {
         const { data: eventos, error } = await client
             .from("agenda_oficina")
-            .select("id, titulo, tipo, descripcion, fecha, hora, lugar, estatus")
+            .select("*")
             .order("fecha", { ascending: true });
 
         if (error) throw error;
-
-        const contenedor = document.getElementById("lista-actividades");
-
-        if (!eventos || eventos.length === 0) {
-            contenedor.innerHTML = `<p style="text-align:center; padding:20px; color:#64748b;">No hay actividades planificadas.</p>`;
-            return;
-        }
-
-        contenedor.innerHTML = eventos.map(e => {
-            let estatusClase = 'status-programado';
-            if(e.estatus === 'Completado') estatusClase = 'status-completado';
-            if(e.estatus === 'Suspendido') estatusClase = 'status-suspendido';
-
-            return `
-                <div style="background: white; padding: 20px; border-radius: 12px; border: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 4px rgba(0,0,0,0.02); margin-bottom: 15px;">
-                    <div style="flex-grow: 1;">
-                        <h4 style="color: #0f2547; font-size: 15px; margin-bottom: 5px; margin-top: 0;">${e.titulo || 'Sin título'}</h4>
-                        <div style="font-size: 12px; color: #64748b; font-weight: 500;">
-                            📅 ${e.fecha || '--'} • ⏰ ${e.hora || '--'} • 📍 ${e.lugar || 'No especificado'}
-                        </div>
-                    </div>
-                    <span class="badge-status ${estatusClase}">${e.estatus || 'Programado'}</span>
-                </div>
-            `;
-        }).join("");
-
+        listaEventosGlobal = eventos || [];
+        renderizarAgenda(listaEventosGlobal);
     } catch (err) {
         console.error("Error cargando agenda:", err);
+        document.getElementById("lista-actividades").innerHTML = `<p style="text-align:center; padding:20px; color:#dc2626;">Error al cargar los datos de la agenda.</p>`;
     }
+}
+
+function renderizarAgenda(eventos) {
+    const contenedor = document.getElementById("lista-actividades");
+    
+    let filtrados = eventos;
+    if (filtroSeleccionado !== 'Todos') {
+        filtrados = eventos.filter(e => e.estatus === filtroSeleccionado);
+    }
+
+    if (filtrados.length === 0) {
+        contenedor.innerHTML = `<p style="text-align:center; padding:30px; color:#94a3b8;">No hay actividades registradas en esta categoría.</p>`;
+        return;
+    }
+
+    contenedor.innerHTML = filtrados.map(e => {
+        let estatusClase = 'status-programado';
+        if(e.estatus === 'Completado') estatusClase = 'status-completado';
+        if(e.estatus === 'Suspendido') estatusClase = 'status-suspendido';
+
+        return `
+            <div class="card-actividad">
+                <div class="card-content">
+                    <div class="card-title-row">
+                        <h4>${e.titulo || 'Sin título'}</h4>
+                        <span class="tipo-badge">${e.tipo || 'General'}</span>
+                    </div>
+                    <div class="card-meta">
+                        <span>📅 ${e.fecha || '--'}</span>
+                        <span>⏰ ${e.hora || '--'}</span>
+                        <span>📍 ${e.lugar || 'No especificado'}</span>
+                    </div>
+                    ${e.descripcion ? `<div class="card-desc">${e.descripcion}</div>` : ''}
+                </div>
+                <div class="card-actions-side">
+                    <span class="badge-status ${estatusClase}">${e.estatus || 'Programado'}</span>
+                    <div class="action-btns-row">
+                        <button class="btn-icon-action" onclick="abrirEditar(${e.id})">Editar</button>
+                        <button class="btn-icon-action btn-icon-danger" onclick="eliminarActividad(${e.id})">Borrar</button>
+                    </div>
+                </div>
+            </div>
+        `;
+    }).join("");
+}
+
+function filtrarAgenda(estatus) {
+    filtroSeleccionado = estatus;
+    ['todos', 'programado', 'completado', 'suspendido'].forEach(id => {
+        document.getElementById(`chip-${id}`).classList.toggle('active', id === estatus.toLowerCase() || (id === 'todos' && estatus === 'Todos'));
+    });
+    renderizarAgenda(listaEventosGlobal);
 }
 
 async function guardarActividad(event) {
     event.preventDefault();
-    const nuevaActividad = {
+    const id = document.getElementById("actividadId").value;
+    const datosActividad = {
         titulo: document.getElementById("titulo").value,
         fecha: document.getElementById("fecha").value,
         hora: document.getElementById("hora").value,
@@ -364,14 +366,49 @@ async function guardarActividad(event) {
     };
 
     try {
-        const { error } = await client.from("agenda_oficina").insert([nuevaActividad]);
-        if (error) throw error;
+        if (id) {
+            const { error } = await client.from("agenda_oficina").update(datosActividad).eq("id", Number(id));
+            if (error) throw error;
+            alert("Actividad actualizada con éxito.");
+        } else {
+            const { error } = await client.from("agenda_oficina").insert([datosActividad]);
+            if (error) throw error;
+            alert("Actividad agendada con éxito.");
+        }
         cerrarModal();
         cargarAgendaOficina();
-        alert("Actividad agendada con éxito.");
     } catch (err) {
-        console.error("Error al insertar:", err);
-        alert("Error al intentar guardar la actividad.");
+        console.error("Error al guardar:", err);
+        alert("Error al intentar procesar la solicitud.");
+    }
+}
+
+function abrirEditar(id) {
+    const item = listaEventosGlobal.find(e => Number(e.id) === Number(id));
+    if (!item) return;
+
+    document.getElementById("actividadId").value = item.id;
+    document.getElementById("modalTituloLabel").textContent = "Modificar Compromiso";
+    document.getElementById("titulo").value = item.titulo || "";
+    document.getElementById("fecha").value = item.fecha || "";
+    document.getElementById("hora").value = item.hora || "";
+    document.getElementById("tipo").value = item.tipo || "Operativo social";
+    document.getElementById("estatus").value = item.estatus || "Programado";
+    document.getElementById("lugar").value = item.lugar || "";
+    document.getElementById("descripcion").value = item.descripcion || "";
+
+    document.getElementById("modalActividad").style.display = "flex";
+}
+
+async function eliminarActividad(id) {
+    if (!confirm("¿Está seguro de eliminar esta actividad de la planificación?")) return;
+    try {
+        const { error } = await client.from("agenda_oficina").delete().eq("id", Number(id));
+        if (error) throw error;
+        cargarAgendaOficina();
+    } catch (err) {
+        console.error("Error al eliminar:", err);
+        alert("No se pudo eliminar el registro.");
     }
 }
 
@@ -380,30 +417,6 @@ async function logout() {
     sessionStorage.clear();
     window.location.href = "index.html";
 }
-</script>
-<script>
-    document.addEventListener("DOMContentLoaded", () => {
-        // Obtenemos los datos desde el almacenamiento de sesión
-        const nombre = sessionStorage.getItem("usuario_nombre");
-        const coord = sessionStorage.getItem("usuario_coordinacion");
-
-        // Si existen los datos, los ponemos en los contenedores con ID
-        const elNombre = document.getElementById("usuarioNombre");
-        const elCoord = document.getElementById("usuarioCoordinacion");
-
-        if (elNombre && nombre) {
-            elNombre.textContent = nombre;
-        }
-        if (elCoord && coord) {
-            elCoord.textContent = coord.toUpperCase();
-        }
-    });
-
-    async function logout() {
-        await client.auth.signOut();
-        sessionStorage.clear(); // Limpia los datos al salir
-        window.location.href = "index.html";
-    }
 </script>
 </body>
 </html>
