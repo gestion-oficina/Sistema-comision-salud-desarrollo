@@ -680,19 +680,18 @@
         }
 
         // FUNCIÓN ÚNICA Y CORRECTA PARA BORRAR DE NEON
-    async function eliminarRegistro(id) {
+   async function eliminarRegistro(id) {
             if (!confirm("¿Estás seguro de eliminar este registro?")) return;
             try {
-                // Envía la orden de borrado de manera directa a Neon
-                await window.sqlClient("DELETE FROM casos_salud WHERE id = $1", [id]);
+                // Sintaxis correcta exigida por la librería de Neon Serverless
+                await window.sqlClient`DELETE FROM casos_salud WHERE id = ${id}`;
+                
                 await loadData();
                 alert("Registro eliminado con éxito.");
             } catch (error) {
                 alert("No se pudo eliminar: " + error.message);
-                console.error("Detalle del error:", error);
             }
         }
-
         async function logout() { 
             sessionStorage.clear();
             window.location.href = "index.html"; 
