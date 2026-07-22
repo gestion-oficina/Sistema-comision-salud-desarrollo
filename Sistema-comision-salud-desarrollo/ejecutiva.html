@@ -392,7 +392,7 @@
             try {
                 const registros = await window.sqlClient`SELECT * FROM casos_salud ORDER BY id DESC`;
                 todosLosRegistros = registros; 
-
+                 console.table(registros);
                 if (filtroActual === 'Oficio') {
                     thead.innerHTML = `<tr><th style="width: 120px;">Nro Oficio</th><th>Asunto / Clasificación</th><th>Sector / Ente Destino</th><th>Estado</th><th style="width: 150px;">Acciones</th></tr>`;
                 } else {
