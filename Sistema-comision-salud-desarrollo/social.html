@@ -78,7 +78,7 @@
         table { 
             width:100%; 
             border-collapse:collapse; 
-            min-width: 1300px; 
+            min-width: 1250px; 
         }
         th, td { padding:14px 16px; border-bottom:1px solid #f1f5f9; text-align:left; font-size:13px; }
         th { background:#f8fafc; color: var(--sidebar-bg); font-weight: 700; text-transform: uppercase; font-size: 11px; letter-spacing: 0.5px; }
@@ -98,7 +98,6 @@
         .btn-expediente:hover { background: #0066cc; color: white; border-color: #0066cc; }
         .btn-edit { background: #fef3c7; color: #b45309; padding: 6px 10px; border: none; border-radius: 4px; font-size: 11px; font-weight:600; cursor: pointer; }
         .btn-del { background: var(--danger-color); color: white; padding: 6px 10px; border: none; border-radius: 4px; font-size: 11px; font-weight:600; cursor: pointer; }
-        .btn-download { background: #dcfce7; color: #16a34a; text-decoration: none; padding: 6px 10px; border: 1px solid #bbf7d0; border-radius: 4px; font-size: 11px; font-weight: 600; text-align: center; }
 
         .modal-overlay { 
             position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
@@ -310,10 +309,9 @@
                     <input type="text" id="ins_remitido" class="form-control" placeholder="Ej: Hospital / IVSS / Ninguno">
                 </div>
 
-                <!-- CAMPO NUEVO Y ESPECÍFICO PARA EL RESPONSABLE DE LA COMISIÓN -->
                 <div class="form-group span-2">
                     <label for="ins_responsable">Responsable de la Comisión (Lleva el Caso)</label>
-                    <input type="text" id="ins_responsable" class="form-control" placeholder="Ej: Lcdo. Carlos Gómez / Comisionado..." required>
+                    <input type="text" id="ins_responsable" class="form-control" placeholder="Ej: Lcdo. Carlos Gómez..." required>
                 </div>
 
                 <div class="form-group">
@@ -341,16 +339,25 @@
     </div>
 </div>
 
-<!-- MODAL VISOR EXPEDIENTE -->
+<!-- MODAL VISOR EXPEDIENTE E HISTORIAL DE SEGUIMIENTO -->
 <div class="modal-overlay" id="expedienteModal">
-    <div class="modal-container" style="max-width: 680px;">
+    <div class="modal-container" style="max-width: 720px;">
         <div class="modal-header">
-            <h3>🗂️ Expediente Social e Historial Clínico</h3>
+            <h3>🗂️ Expediente Social y Bitácora de Trámites</h3>
             <span style="cursor:pointer; font-weight:bold; color:#64748b; font-size:22px;" onclick="cerrarModalExpediente()">×</span>
         </div>
         <div class="form-grid" id="cuerpoExpediente"></div>
-        <div class="modal-footer">
-            <button type="button" class="btn-submit" onclick="cerrarModalExpediente()">Entendido / Cerrar</button>
+        
+        <!-- SECCIÓN DE NUEVO SEGUIMIENTO EN TIEMPO REAL -->
+        <div style="margin-top: 20px; border-top: 1px solid #e2e8f0; padding-top: 15px;">
+            <input type="hidden" id="seguimientoCasoId">
+            <label style="font-size: 11px; font-weight: 700; color: var(--sidebar-bg); text-transform: uppercase; display: block; margin-bottom: 6px;">✍️ Agregar Nueva Actualización o Trámite Realizado</label>
+            <textarea id="nuevoSeguimientoTexto" class="form-control" placeholder="Escribe aquí el avance del trámite (ej. Se entregó informe a farmacia, llamada realizada al familiar, etc.)..." style="margin-bottom: 10px;"></textarea>
+            <button type="button" class="btn-submit" onclick="guardarSeguimientoTratamiento()" style="background: var(--success-color); width: 100%;">➕ Registrar Avance en la Bitácora</button>
+        </div>
+
+        <div class="modal-footer" style="margin-top: 15px;">
+            <button type="button" class="btn-submit" onclick="cerrarModalExpediente()">Cerrar Ventana</button>
         </div>
     </div>
 </div>
@@ -413,9 +420,6 @@
 
             tbody.innerHTML = listaCasosGlobal.map(c => {
                 let estClass = c.estatus === "En Gestión" ? "status-gestion" : (c.estatus === "Resuelto" ? "status-resuelto" : "status-espera");
-                let botonDescarga = c.url_adjunto 
-                    ? `<a href="${c.url_adjunto}" target="_blank" class="btn-download" title="Ver Soporte Digital">📎 Doc</a>` 
-                    : '';
 
                 return `
                     <tr>
@@ -433,7 +437,6 @@
                         <td>
                             <div class="action-buttons">
                                 <button class="btn-expediente" onclick="verExpedienteCompleto(${c.id})">👁️ Historial</button>
-                                ${botonDescarga}
                                 <button class="btn-edit" onclick="abrirModalEditar(${c.id})">Editar</button>
                                 <button class="btn-del" onclick="eliminarCaso(${c.id})">Borrar</button>
                             </div>
@@ -532,7 +535,7 @@
             const prioridad = document.getElementById("ins_prioridad").value;
             const estatus = document.getElementById("ins_estatus").value;
             const remitido = document.getElementById("ins_remitido").value.trim();
-            const responsable = document.getElementById("ins_responsable").value.trim(); // Responsable por la Comisión
+            const responsable = document.getElementById("ins_responsable").value.trim();
             const departamento = document.getElementById("ins_departamento").value.trim();
             const detalle = document.getElementById("ins_detalle").value.trim();
 
@@ -552,11 +555,12 @@
                     INSERT INTO casos_salud (
                         nombre, cedula, edad, genero, telefono, sector, eje_territorial, 
                         tipo_ayuda, prioridad, estatus, institucion_remitida, responsable_comision, 
-                        trabajador_departamento, detalle, url_adjunto, coordinacion, tipo
+                        trabajador_departamento, detalle, url_adjunto, coordinacion, tipo, seguimiento_bitacora
                     ) VALUES (
                         ${nombre}, ${cedula}, ${edad}, ${genero}, ${telefono}, ${sector}, ${eje}, 
                         ${ayuda}, ${prioridad}, ${estatus}, ${remitido}, ${responsable}, 
-                        ${departamento}, ${detalle}, ${urlFinalArchivo}, 'Social', ${tipoFiltroActual}
+                        ${departamento}, ${detalle}, ${urlFinalArchivo}, 'Social', ${tipoFiltroActual}, 
+                        ${'[' + new Date().toLocaleDateString() + '] Ficha registrada en el sistema.'}
                     )
                 `;
                 alert("¡Ficha social registrada con éxito!");
@@ -576,9 +580,16 @@
         const item = listaCasosGlobal.find(c => Number(c.id) === Number(id));
         if (!item) return;
 
+        document.getElementById("seguimientoCasoId").value = item.id;
+        document.getElementById("nuevoSeguimientoTexto").value = "";
+
         let bloqueAdjunto = item.url_adjunto 
-            ? `<a href="${item.url_adjunto}" target="_blank" style="color:#16a34a; font-weight:700; text-decoration:underline;">📥 Abrir Archivo de Soporte Escaneado</a>`
+            ? `<a href="${item.url_adjunto}" target="_blank" style="color:#16a34a; font-weight:700; text-decoration:underline;">📥 Abrir Archivo Digital Adjunto al Caso</a>`
             : '<span style="color:#64748b; font-style:italic;">Ningún documento digitalizado adjunto.</span>';
+
+        let historialBitacora = item.seguimiento_bitacora 
+            ? item.seguimiento_bitacora.replace(/\n/g, '<br>') 
+            : '<span style="color:#94a3b8; font-style:italic;">Sin avances registrados todavía.</span>';
 
         const contenedor = document.getElementById("cuerpoExpediente");
         contenedor.innerHTML = `
@@ -596,8 +607,43 @@
             <div class="form-group expediente-view-box"><label>Unidad Remitente (Interno)</label><p>${item.trabajador_departamento || 'Oficina Social Base'}</p></div>
             <div class="form-group span-3 expediente-view-box" style="background:#e0f2fe; border-left:4px solid #0369a1;"><label>📎 Archivo Digitalizado de Respaldo</label><p style="margin-top:5px;">${bloqueAdjunto}</p></div>
             <div class="form-group span-3 expediente-view-box" style="background:#f8fafc; border-left:4px solid var(--sidebar-bg);"><label>Diagnóstico / Informe Técnico de la Solicitud</label><p style="line-height:1.6; font-style:italic;">"${item.detalle || 'Sin especificaciones añadidas en el ingreso.'}"</p></div>
+            <div class="form-group span-3 expediente-view-box" style="background:#fffbeb; border-left:4px solid #d97706;"><label>📈 Bitácora de Seguimiento de Trámites</label><div style="margin-top:6px; font-size:13px; line-height:1.5; color:#334155;">${historialBitacora}</div></div>
         `;
         document.getElementById("expedienteModal").classList.add("open");
+    }
+
+    async function guardarSeguimientoTratamiento() {
+        const id = document.getElementById("seguimientoCasoId").value;
+        const nuevoTexto = document.getElementById("nuevoSeguimientoTexto").value.trim();
+        
+        if (!nuevoTexto) {
+            alert("Por favor escribe el detalle de la actualización del trámite.");
+            return;
+        }
+
+        const item = listaCasosGlobal.find(c => Number(c.id) === Number(id));
+        if (!item) return;
+
+        const fechaActual = new Date().toLocaleDateString() + ' ' + new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+        const entradaNueva = `[${fechaActual}] ${nuevoTexto}`;
+        const bitacoraActualizada = item.seguimiento_bitacora ? (item.seguimiento_bitacora + '\n\n' + entradaNueva) : entradaNueva;
+
+        try {
+            await window.sqlClient`
+                UPDATE casos_salud 
+                SET seguimiento_bitacora = ${bitacoraActualizada}
+                WHERE id = ${Number(id)}
+            `;
+            
+            alert("¡Avance registrado exitosamente en el seguimiento del caso!");
+            document.getElementById("nuevoSeguimientoTexto").value = "";
+            
+            // Recargamos datos y refrescamos el modal abierto
+            await cargarCasosSociales();
+            verExpedienteCompleto(id);
+        } catch (err) {
+            alert("Error al registrar el seguimiento: " + err.message);
+        }
     }
 
     function cerrarModalExpediente() {
