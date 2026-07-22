@@ -391,8 +391,9 @@
 
             try {
                 const registros = await window.sqlClient`SELECT * FROM casos_salud ORDER BY id DESC`;
-                todosLosRegistros = registros; 
-                console.table(registros);
+                todosLosRegistros = Array.from(registros); 
+                console.table(todosLosRegistros);
+                
                 if (filtroActual === 'Oficio') {
                     thead.innerHTML = `<tr><th style="width: 120px;">Nro Oficio</th><th>Asunto / Clasificación</th><th>Sector / Ente Destino</th><th>Estado</th><th style="width: 180px;">Acciones</th></tr>`;
                 } else {
@@ -502,10 +503,14 @@
         }
 
         function verDetallesModal(id) {
-            const registro = todosLosRegistros.find(r => r.id === id);
-            if (!registro) return;
+            const idBuscado = Number(id);
+            const registro = todosLosRegistros.find(r => Number(r.id) === idBuscado);
+            if (!registro) {
+                alert("No se encontró el registro para visualizar.");
+                return;
+            }
 
-            idSeleccionadoActual = id;
+            idSeleccionadoActual = idBuscado;
             let identificador = `#${registro.id}`;
 
             if (registro.nombre) {
@@ -539,10 +544,14 @@
             document.getElementById("documentModal").classList.remove("open");
         }
 
-        // NUEVA FUNCIÓN DE EDICIÓN CONECTADA A NEON
         async function abrirEditarRegistro(id) {
-            const registro = todosLosRegistros.find(r => r.id === id);
-            if (!registro) return;
+            const idBuscado = Number(id);
+            const registro = todosLosRegistros.find(r => Number(r.id) === idBuscado);
+            
+            if (!registro) {
+                alert("No se encontró el registro en la memoria local. Recargue la página.");
+                return;
+            }
 
             if (filtroActual === 'Oficio') {
                 const nuevoAsunto = prompt("Actualizar contenido / asunto del oficio:", registro.nombre);
@@ -554,7 +563,7 @@
                     await window.sqlClient`
                         UPDATE casos_salud 
                         SET nombre = ${nuevoAsunto}, sector = ${nuevoDestino} 
-                        WHERE id = ${Number(id)}
+                        WHERE id = ${idBuscado}
                     `;
                     alert("¡Oficio actualizado con éxito!");
                     loadData();
@@ -571,7 +580,7 @@
                     await window.sqlClient`
                         UPDATE casos_salud 
                         SET nombre = ${nuevoTexto}, sector = ${nuevoSector} 
-                        WHERE id = ${Number(id)}
+                        WHERE id = ${idBuscado}
                     `;
                     alert("¡Informe actualizado con éxito!");
                     loadData();
