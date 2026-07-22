@@ -6,7 +6,7 @@
     <script>
         const sesion = sessionStorage.getItem('usuario_logueado');
         if (!sesion && window.location.pathname !== "/login.html") {
-            window.location.replace("login.html");
+            window.locatiofn.replace("login.html");
         } else {
             document.addEventListener("DOMContentLoaded", () => {
                 document.body.style.display = "block";
@@ -230,15 +230,19 @@
             }
         }
 
-        @media (max-width: 900px) {
+      @media (max-width: 900px) {
     .layout { grid-template-columns: 1fr; }
     .mobile-header { display: flex; }
     .sidebar { position: fixed; top: 58px; left: 0; width: 280px; height: calc(100vh - 58px); z-index: 3500; transform: translateX(-100%); box-shadow: 5px 0 15px rgba(0,0,0,0.2); }
     .sidebar.open { transform: translateX(0); }
     .main { padding: 20px 16px; }
     .kpi-container { grid-template-columns: 1fr; }
-    .form-grid { grid-template-columns: 1fr; }
-    .span-2, .span-3 { grid-column: span 1; }
+    
+    /* Corrección clave para móviles: forzar una sola columna en los formularios */
+    .form-grid { grid-template-columns: 1fr !important; }
+    .span-2, .span-3 { grid-column: span 1 !important; }
+    
+    .modal-container { max-width: 100% !important; margin: 10px; padding: 16px; max-height: 95vh; }
 }
     </style>
 </head>
