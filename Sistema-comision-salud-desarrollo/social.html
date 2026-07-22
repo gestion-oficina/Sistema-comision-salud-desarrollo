@@ -78,9 +78,9 @@
         table { 
             width:100%; 
             border-collapse:collapse; 
-            min-width: 1250px; 
+            min-width: 1300px; 
         }
-        th, td { padding:14px 18px; border-bottom:1px solid #f1f5f9; text-align:left; font-size:13px; }
+        th, td { padding:14px 16px; border-bottom:1px solid #f1f5f9; text-align:left; font-size:13px; }
         th { background:#f8fafc; color: var(--sidebar-bg); font-weight: 700; text-transform: uppercase; font-size: 11px; letter-spacing: 0.5px; }
         
         .status-badge { padding: 3px 8px; border-radius: 4px; font-size: 10.5px; font-weight: 700; text-transform: uppercase; display: inline-block; }
@@ -94,11 +94,11 @@
         .prio-Baja { background: #f1f5f9; color: #475569; }
 
         .action-buttons { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
-        .btn-expediente { background: #e0f2fe; color: #0369a1; padding: 6px 12px; border: 1px solid #bae6fd; border-radius: 4px; font-size: 11px; font-weight: 600; cursor: pointer; }
+        .btn-expediente { background: #e0f2fe; color: #0369a1; padding: 6px 10px; border: 1px solid #bae6fd; border-radius: 4px; font-size: 11px; font-weight: 600; cursor: pointer; }
         .btn-expediente:hover { background: #0066cc; color: white; border-color: #0066cc; }
-        .btn-edit { background: #fef3c7; color: #b45309; padding: 6px 12px; border: none; border-radius: 4px; font-size: 11px; font-weight:600; cursor: pointer; }
-        .btn-del { background: var(--danger-color); color: white; padding: 6px 12px; border: none; border-radius: 4px; font-size: 11px; font-weight:600; cursor: pointer; }
-        .btn-download { background: #dcfce7; color: #16a34a; text-decoration: none; padding: 6px 12px; border: 1px solid #bbf7d0; border-radius: 4px; font-size: 11px; font-weight: 600; text-align: center; }
+        .btn-edit { background: #fef3c7; color: #b45309; padding: 6px 10px; border: none; border-radius: 4px; font-size: 11px; font-weight:600; cursor: pointer; }
+        .btn-del { background: var(--danger-color); color: white; padding: 6px 10px; border: none; border-radius: 4px; font-size: 11px; font-weight:600; cursor: pointer; }
+        .btn-download { background: #dcfce7; color: #16a34a; text-decoration: none; padding: 6px 10px; border: 1px solid #bbf7d0; border-radius: 4px; font-size: 11px; font-weight: 600; text-align: center; }
 
         .modal-overlay { 
             position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
@@ -219,6 +219,7 @@
                         <th>Contacto</th>
                         <th>Sector / Eje</th>
                         <th>Tipo Ayuda</th>
+                        <th>Responsable Comisión</th>
                         <th>Descripción</th>
                         <th>Prioridad</th>
                         <th>Remitido a</th>
@@ -227,7 +228,7 @@
                     </tr>
                 </thead>
                 <tbody id="tabla-casos-body">
-                    <tr><td colspan="11" style="color:#94a3b8; text-align:center; padding:30px;">Conectando con la base de datos de Neon...</td></tr>
+                    <tr><td colspan="12" style="color:#94a3b8; text-align:center; padding:30px;">Conectando con la base de datos de Neon...</td></tr>
                 </tbody>
             </table>
         </div>
@@ -309,9 +310,15 @@
                     <input type="text" id="ins_remitido" class="form-control" placeholder="Ej: Hospital / IVSS / Ninguno">
                 </div>
 
-                <div class="form-group span-3">
-                    <label for="ins_departamento">Departamento Solicitante o Responsable del Caso</label>
-                    <input type="text" id="ins_departamento" class="form-control" placeholder="Ej: Despacho Concejala / Responsable: Juan Pérez">
+                <!-- CAMPO NUEVO Y ESPECÍFICO PARA EL RESPONSABLE DE LA COMISIÓN -->
+                <div class="form-group span-2">
+                    <label for="ins_responsable">Responsable de la Comisión (Lleva el Caso)</label>
+                    <input type="text" id="ins_responsable" class="form-control" placeholder="Ej: Lcdo. Carlos Gómez / Comisionado..." required>
+                </div>
+
+                <div class="form-group">
+                    <label for="ins_departamento">Departamento Solicitante (Interno)</label>
+                    <input type="text" id="ins_departamento" class="form-control" placeholder="Ej: Despacho Concejala">
                 </div>
 
                 <div class="form-group span-3" style="background: #f8fafc; padding: 12px; border: 1px dashed var(--border-color); border-radius: 6px;">
@@ -386,7 +393,7 @@
         }
 
         if (!window.sqlClient) {
-            tbody.innerHTML = `<tr><td colspan="11" style="text-align:center; color:#dc2626; padding:30px;">⚠️ Error crítico: La librería de Neon no se ha cargado correctamente.</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="12" style="text-align:center; color:#dc2626; padding:30px;">⚠️ Error crítico: La librería de Neon no se ha cargado correctamente.</td></tr>`;
             return;
         }
 
@@ -400,7 +407,7 @@
             listaCasosGlobal = Array.from(registros);
 
             if (listaCasosGlobal.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="11" style="text-align:center; color:#94a3b8; padding:30px;">No hay fichas registradas en este módulo.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="12" style="text-align:center; color:#94a3b8; padding:30px;">No hay fichas registradas en este módulo.</td></tr>`;
                 return;
             }
 
@@ -418,7 +425,8 @@
                         <td>${c.telefono || 'N/A'}</td>
                         <td>${c.sector || ''} <span style="font-size:11px; color:#64748b; display:block;">${c.eje_territorial || ''}</span></td>
                         <td><span style="font-weight:600; color:#0284c7;">${c.tipo_ayuda || 'General'}</span></td>
-                        <td style="color:#475569; max-width:180px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" title="${c.detalle || ''}">${c.detalle || ''}</td>
+                        <td><span style="font-weight:600; color:#1e293b; background:#f1f5f9; padding:3px 6px; border-radius:4px; display:inline-block;">👤 ${c.responsable_comision || 'No asignado'}</span></td>
+                        <td style="color:#475569; max-width:160px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" title="${c.detalle || ''}">${c.detalle || ''}</td>
                         <td><span class="prio-badge prio-${c.prioridad}">${c.prioridad || 'Media'}</span></td>
                         <td><span style="font-size:11.5px; color:#334155;">${c.institucion_remitida || 'Ninguna'}</span></td>
                         <td><span class="status-badge ${estClass}">${c.estatus || 'En Espera'}</span></td>
@@ -434,7 +442,7 @@
                 `;
             }).join("");
         } catch (err) {
-            tbody.innerHTML = `<tr><td colspan="11" style="text-align:center; color:#dc2626; padding:30px;">⚠️ Error de conexión con Neon: ${err.message}</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="12" style="text-align:center; color:#dc2626; padding:30px;">⚠️ Error de conexión con Neon: ${err.message}</td></tr>`;
         }
     }
 
@@ -473,6 +481,7 @@
         document.getElementById("ins_prioridad").value = item.prioridad || "Media";
         document.getElementById("ins_estatus").value = item.estatus || "En Espera";
         document.getElementById("ins_remitido").value = item.institucion_remitida || "";
+        document.getElementById("ins_responsable").value = item.responsable_comision || "";
         document.getElementById("ins_departamento").value = item.trabajador_departamento || "";
         document.getElementById("ins_detalle").value = item.detalle || "";
         document.getElementById("ins_url_existente").value = item.url_adjunto || "";
@@ -507,11 +516,8 @@
         btnGuardar.disabled = true;
 
         try {
-            // Nota: Si mantienes la subida mediante un servicio auxiliar o blob local puedes gestionarlo aquí.
-            // Para mantener compatibilidad con el input file, si se selecciona un archivo local de tipo binario/texto para simulación web:
             if (archivoInput.files.length > 0) {
                 const archivo = archivoInput.files[0];
-                // Simulación de enlace de almacenamiento local seguro basado en nombre de archivo subido
                 urlFinalArchivo = URL.createObjectURL(archivo); 
             }
 
@@ -526,7 +532,8 @@
             const prioridad = document.getElementById("ins_prioridad").value;
             const estatus = document.getElementById("ins_estatus").value;
             const remitido = document.getElementById("ins_remitido").value.trim();
-            const departamento = document.getElementById("ins_departamento").value.trim(); // Campo Responsable / Departamento
+            const responsable = document.getElementById("ins_responsable").value.trim(); // Responsable por la Comisión
+            const departamento = document.getElementById("ins_departamento").value.trim();
             const detalle = document.getElementById("ins_detalle").value.trim();
 
             if (idEnEdicion) {
@@ -535,8 +542,8 @@
                     SET nombre = ${nombre}, cedula = ${cedula}, edad = ${edad}, genero = ${genero}, 
                         telefono = ${telefono}, sector = ${sector}, eje_territorial = ${eje}, 
                         tipo_ayuda = ${ayuda}, prioridad = ${prioridad}, estatus = ${estatus}, 
-                        institucion_remitida = ${remitido}, trabajador_departamento = ${departamento}, 
-                        detalle = ${detalle}, url_adjunto = ${urlFinalArchivo}
+                        institucion_remitida = ${remitido}, responsable_comision = ${responsable}, 
+                        trabajador_departamento = ${departamento}, detalle = ${detalle}, url_adjunto = ${urlFinalArchivo}
                     WHERE id = ${idEnEdicion}
                 `;
                 alert("¡Ficha social actualizada con éxito!");
@@ -544,11 +551,11 @@
                 await window.sqlClient`
                     INSERT INTO casos_salud (
                         nombre, cedula, edad, genero, telefono, sector, eje_territorial, 
-                        tipo_ayuda, prioridad, estatus, institucion_remitida, 
+                        tipo_ayuda, prioridad, estatus, institucion_remitida, responsable_comision, 
                         trabajador_departamento, detalle, url_adjunto, coordinacion, tipo
                     ) VALUES (
                         ${nombre}, ${cedula}, ${edad}, ${genero}, ${telefono}, ${sector}, ${eje}, 
-                        ${ayuda}, ${prioridad}, ${estatus}, ${remitido}, 
+                        ${ayuda}, ${prioridad}, ${estatus}, ${remitido}, ${responsable}, 
                         ${departamento}, ${detalle}, ${urlFinalArchivo}, 'Social', ${tipoFiltroActual}
                     )
                 `;
@@ -585,9 +592,10 @@
             <div class="form-group expediente-view-box"><label>Canalización Externa</label><p>${item.institucion_remitida || 'Atendido en Sala Técnica Directa'}</p></div>
             <div class="form-group expediente-view-box"><label>Prioridad de Atención</label><p><span class="prio-badge prio-${item.prioridad}">${item.prioridad || 'Media'}</span></p></div>
             <div class="form-group expediente-view-box"><label>Estatus del Beneficio</label><p>${item.estatus || 'En Espera'}</p></div>
+            <div class="form-group span-2 expediente-view-box" style="background:#f1f5f9; border-left:4px solid var(--sidebar-active);"><label>👤 Responsable del Caso por la Comisión</label><p style="font-weight:700; color:#0f2547;">${item.responsable_comision || 'No asignado'}</p></div>
+            <div class="form-group expediente-view-box"><label>Unidad Remitente (Interno)</label><p>${item.trabajador_departamento || 'Oficina Social Base'}</p></div>
             <div class="form-group span-3 expediente-view-box" style="background:#e0f2fe; border-left:4px solid #0369a1;"><label>📎 Archivo Digitalizado de Respaldo</label><p style="margin-top:5px;">${bloqueAdjunto}</p></div>
-            <div class="form-group span-3 expediente-view-box" style="background:#f1f5f9; border-left:4px solid var(--sidebar-bg);"><label>Diagnóstico / Informe Técnico de la Solicitud</label><p style="line-height:1.6; font-style:italic;">"${item.detalle || 'Sin especificaciones añadidas en el ingreso.'}"</p></div>
-            <div class="form-group span-3 expediente-view-box"><label>Departamento / Responsable del Caso</label><p>${item.trabajador_departamento || 'Oficina Social Base'}</p></div>
+            <div class="form-group span-3 expediente-view-box" style="background:#f8fafc; border-left:4px solid var(--sidebar-bg);"><label>Diagnóstico / Informe Técnico de la Solicitud</label><p style="line-height:1.6; font-style:italic;">"${item.detalle || 'Sin especificaciones añadidas en el ingreso.'}"</p></div>
         `;
         document.getElementById("expedienteModal").classList.add("open");
     }
