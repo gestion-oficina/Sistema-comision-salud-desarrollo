@@ -776,23 +776,18 @@
             }
         }
 
-    async function eliminarRegistro(idUnico) {
-    if (!window.sqlClient) { alert("No hay conexión con la base de datos."); return; }
-    if (!confirm(`¿Estás seguro de eliminar este registro?`)) return;
+   async function eliminarRegistro(idUnico) {
+    if (!confirm("¿Estás seguro de eliminar este registro?")) return;
     
     try {
-        // Forzamos el borrado directo en la base de datos usando el ID exacto
-        await window.sqlClient`DELETE FROM casos_salud WHERE id = ${idUnico}`;
+        // Realiza el borrado directo en la tabla correcta de Neon
+        await window.sqlClient`DELETE FROM oficios_enviados WHERE id = ${idUnico}`;
         
-        // Limpiamos la interfaz de manera inmediata
-        todosLosRegistros = todosLosRegistros.filter(r => r.id !== idUnico);
-        renderFilas();
-        
-        // Recargamos los datos desde la BD para sincronizar la vista
+        // Recarga los datos inmediatamente para actualizar la interfaz
         await loadData();
-        alert("Registro eliminado correctamente.");
+        alert("Registro eliminado con éxito.");
     } catch (err) {
-        alert("No se pudo eliminar de la base de datos:\n" + err.message);
+        alert("Error al eliminar: " + err.message);
     }
 }
         async function logout() { 
