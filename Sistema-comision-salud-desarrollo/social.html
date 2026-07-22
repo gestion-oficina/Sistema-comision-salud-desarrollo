@@ -78,7 +78,7 @@
         table { 
             width:100%; 
             border-collapse:collapse; 
-            min-width: 1100px; 
+            min-width: 1250px; 
         }
         th, td { padding:14px 18px; border-bottom:1px solid #f1f5f9; text-align:left; font-size:13px; }
         th { background:#f8fafc; color: var(--sidebar-bg); font-weight: 700; text-transform: uppercase; font-size: 11px; letter-spacing: 0.5px; }
@@ -93,13 +93,12 @@
         .prio-Media { background: #fef9c3; color: #b45309; }
         .prio-Baja { background: #f1f5f9; color: #475569; }
 
-        .action-buttons { display: flex; gap: 6px; align-items: center; }
-        .btn-expediente { background: #e2e8f0; color: #1e293b; padding: 6px 12px; border: none; border-radius: 4px; font-size: 11px; font-weight: 600; cursor: pointer; }
-        .btn-expediente:hover { background: #cbd5e1; }
-        .btn-success { padding:6px 12px; border:none; border-radius:4px; cursor:pointer; background: var(--success-color); color:white; font-size:11px; font-weight: 600; }
-        .btn-success:hover { background: #15803d; }
+        .action-buttons { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+        .btn-expediente { background: #e0f2fe; color: #0369a1; padding: 6px 12px; border: 1px solid #bae6fd; border-radius: 4px; font-size: 11px; font-weight: 600; cursor: pointer; }
+        .btn-expediente:hover { background: #0066cc; color: white; border-color: #0066cc; }
+        .btn-edit { background: #fef3c7; color: #b45309; padding: 6px 12px; border: none; border-radius: 4px; font-size: 11px; font-weight:600; cursor: pointer; }
         .btn-del { background: var(--danger-color); color: white; padding: 6px 12px; border: none; border-radius: 4px; font-size: 11px; font-weight:600; cursor: pointer; }
-        .btn-del:hover { background: #b91c1c; }
+        .btn-download { background: #dcfce7; color: #16a34a; text-decoration: none; padding: 6px 12px; border: 1px solid #bbf7d0; border-radius: 4px; font-size: 11px; font-weight: 600; text-align: center; }
 
         .modal-overlay { 
             position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
@@ -110,14 +109,14 @@
         }
         .modal-overlay.open { opacity: 1; display: flex !important; }
         .modal-container { 
-            background: white; border-radius: 12px; width: 100%; max-width: 700px; 
+            background: white; border-radius: 12px; width: 100%; max-width: 750px; 
             padding: 24px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.15);
             transform: translateY(-20px); transition: transform 0.25s ease;
             max-height: 90vh; overflow-y: auto; display: flex; flex-direction: column;
         }
         .modal-overlay.open .modal-container { transform: translateY(0); }
         .modal-header { margin-bottom: 18px; border-bottom: 1px solid #e2e8f0; padding-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
-        .modal-header h3 { font-size: 16px; color: var(--text-dark-title); font-weight: 600; }
+        .modal-header h3 { font-size: 18px; color: var(--text-dark-title); font-weight: 700; }
         
         .form-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
         .form-group { display: flex; flex-direction: column; gap: 4px; }
@@ -126,18 +125,18 @@
         
         .form-group label { font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; }
         .form-control { 
-            width: 100%; padding: 8px 12px; font-size: 13px; border: 1px solid var(--border-color); 
+            width: 100%; padding: 9px 12px; font-size: 13px; border: 1px solid var(--border-color); 
             border-radius: 6px; color: #334155; outline: none; background: #fff;
         }
-        .form-control:focus { border-color: var(--sidebar-active); }
-        textarea.form-control { resize: vertical; min-height: 70px; }
+        .form-control:focus { border-color: var(--sidebar-active); box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.12); }
+        textarea.form-control { resize: vertical; min-height: 65px; }
         
-        .modal-footer { display: flex; justify-content: flex-end; gap: 8px; margin-top: 20px; border-top: 1px solid #e2e8f0; padding-top: 14px; }
-        .btn-secondary { padding: 8px 16px; border: none; border-radius: 4px; background: #e2e8f0; color: #1e293b; font-size: 12px; font-weight: 600; cursor: pointer; }
-        .btn-submit { padding: 9px 18px; border: none; border-radius: 6px; background: var(--sidebar-bg); color: white; font-size: 13px; font-weight: 600; cursor: pointer; }
+        .modal-footer { display: flex; justify-content: flex-end; gap: 10px; margin-top: 22px; border-top: 1px solid #e2e8f0; padding-top: 14px; }
+        .btn-secondary { padding: 9px 16px; border: 1px solid var(--border-color); border-radius: 6px; background: white; color: #475569; font-size: 12.5px; font-weight: 600; cursor: pointer; }
+        .btn-submit { padding: 9px 16px; border: none; border-radius: 6px; background: var(--sidebar-bg); color: white; font-size: 12.5px; font-weight: 600; cursor: pointer; }
 
-        .expediente-view-box { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px; }
-        .expediente-view-box p { font-size: 13.5px; color: #1e293b; font-weight: 500; margin-top: 2px; }
+        .expediente-view-box { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 14px; }
+        .expediente-view-box p { font-size: 13.5px; color: #0f2547; font-weight: 500; margin-top: 2px; }
 
         @media (max-width: 900px) {
             .layout { grid-template-columns: 1fr; }
@@ -215,24 +214,27 @@
                 <thead>
                     <tr>
                         <th>Beneficiario</th>
-                        <th>Cédula / Edad</th>
+                        <th>Cédula</th>
+                        <th>Edad/Sexo</th>
                         <th>Contacto</th>
                         <th>Sector / Eje</th>
                         <th>Tipo Ayuda</th>
+                        <th>Descripción</th>
                         <th>Prioridad</th>
+                        <th>Remitido a</th>
                         <th>Estatus</th>
                         <th style="text-align: center;">Acciones</th>
                     </tr>
                 </thead>
                 <tbody id="tabla-casos-body">
-                    <tr><td colspan="8" style="color:#94a3b8; text-align:center; padding:30px;">Conectando con la base de datos de Neon...</td></tr>
+                    <tr><td colspan="11" style="color:#94a3b8; text-align:center; padding:30px;">Conectando con la base de datos de Neon...</td></tr>
                 </tbody>
             </table>
         </div>
     </div>
 </div>
 
-<!-- MODAL NUEVO / EDITAR FICHA SOCIAL -->
+<!-- MODAL FORMULARIO COMPLETO -->
 <div class="modal-overlay" id="formularioModal">
     <div class="modal-container">
         <div class="modal-header">
@@ -241,6 +243,7 @@
         </div>
         <form id="socialForm" onsubmit="procesarFormulario(event)">
             <input type="hidden" id="casoId">
+            <input type="hidden" id="ins_url_existente">
             
             <div class="form-grid">
                 <div class="form-group span-2">
@@ -307,8 +310,14 @@
                 </div>
 
                 <div class="form-group span-3">
-                    <label for="ins_departamento">Departamento Solicitante (Interno)</label>
-                    <input type="text" id="ins_departamento" class="form-control" placeholder="Ej: Despacho Concejala">
+                    <label for="ins_departamento">Departamento Solicitante o Responsable del Caso</label>
+                    <input type="text" id="ins_departamento" class="form-control" placeholder="Ej: Despacho Concejala / Responsable: Juan Pérez">
+                </div>
+
+                <div class="form-group span-3" style="background: #f8fafc; padding: 12px; border: 1px dashed var(--border-color); border-radius: 6px;">
+                    <label for="ins_archivo" style="color: var(--sidebar-active);">📁 Adjuntar Soporte Digital (Informe, Cédula, Receta)</label>
+                    <input type="file" id="ins_archivo" class="form-control" style="border:none; background:transparent; padding:5px 0;">
+                    <small id="txt-info-archivo" style="color:#64748b; font-size:11px; margin-top:2px;">Formatos permitidos: PDF, JPG, PNG. (Opcional)</small>
                 </div>
                 
                 <div class="form-group span-3">
@@ -319,22 +328,22 @@
             
             <div class="modal-footer">
                 <button type="button" class="btn-secondary" onclick="cerrarModalFormulario()">Cancelar</button>
-                <button type="submit" id="btnGuardarForm" class="btn-submit">Guardar Ficha</button>
+                <button type="submit" id="btnGuardarForm" class="btn-submit">Sincronizar Ficha</button>
             </div>
         </form>
     </div>
 </div>
 
-<!-- MODAL EXPEDIENTE -->
+<!-- MODAL VISOR EXPEDIENTE -->
 <div class="modal-overlay" id="expedienteModal">
-    <div class="modal-container" style="max-width: 600px;">
+    <div class="modal-container" style="max-width: 680px;">
         <div class="modal-header">
             <h3>🗂️ Expediente Social e Historial Clínico</h3>
             <span style="cursor:pointer; font-weight:bold; color:#64748b; font-size:22px;" onclick="cerrarModalExpediente()">×</span>
         </div>
         <div class="form-grid" id="cuerpoExpediente"></div>
         <div class="modal-footer">
-            <button type="button" class="btn-submit" onclick="cerrarModalExpediente()">Cerrar</button>
+            <button type="button" class="btn-submit" onclick="cerrarModalExpediente()">Entendido / Cerrar</button>
         </div>
     </div>
 </div>
@@ -377,12 +386,11 @@
         }
 
         if (!window.sqlClient) {
-            tbody.innerHTML = `<tr><td colspan="8" style="text-align:center; color:#dc2626; padding:30px;">⚠️ Error crítico: La librería de Neon no se ha cargado correctamente.</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="11" style="text-align:center; color:#dc2626; padding:30px;">⚠️ Error crítico: La librería de Neon no se ha cargado correctamente.</td></tr>`;
             return;
         }
 
         try {
-            // Consultamos la tabla unificada de casos_salud filtrando por el tipo correspondiente
             const registros = await window.sqlClient`
                 SELECT * FROM casos_salud 
                 WHERE coordinacion = 'Social' AND tipo = ${tipoFiltroActual} 
@@ -392,26 +400,33 @@
             listaCasosGlobal = Array.from(registros);
 
             if (listaCasosGlobal.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="8" style="text-align:center; color:#94a3b8; padding:30px;">No hay fichas registradas en este módulo.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="11" style="text-align:center; color:#94a3b8; padding:30px;">No hay fichas registradas en este módulo.</td></tr>`;
                 return;
             }
 
             tbody.innerHTML = listaCasosGlobal.map(c => {
                 let estClass = c.estatus === "En Gestión" ? "status-gestion" : (c.estatus === "Resuelto" ? "status-resuelto" : "status-espera");
+                let botonDescarga = c.url_adjunto 
+                    ? `<a href="${c.url_adjunto}" target="_blank" class="btn-download" title="Ver Soporte Digital">📎 Doc</a>` 
+                    : '';
 
                 return `
                     <tr>
                         <td><b>${c.nombre || 'Sin nombre'}</b></td>
-                        <td><code style="background:#f1f5f9; padding:2px 5px; border-radius:4px;">${c.cedula || 'N/A'}</code><br><span style="font-size:11px; color:#64748b;">${c.edad || '?'} años (${c.genero || 'F'})</span></td>
+                        <td><code style="background:#f1f5f9; padding:2px 5px; border-radius:4px;">${c.cedula || 'N/A'}</code></td>
+                        <td>${c.edad || '?' } años (${c.genero === 'Femenino' ? 'F' : 'M'})</td>
                         <td>${c.telefono || 'N/A'}</td>
-                        <td>${c.sector || ''}<br><span style="font-size:11px; color:#64748b;">${c.eje_territorial || ''}</span></td>
-                        <td><span style="font-weight:600; color:#0066cc;">${c.tipo_ayuda || 'General'}</span></td>
+                        <td>${c.sector || ''} <span style="font-size:11px; color:#64748b; display:block;">${c.eje_territorial || ''}</span></td>
+                        <td><span style="font-weight:600; color:#0284c7;">${c.tipo_ayuda || 'General'}</span></td>
+                        <td style="color:#475569; max-width:180px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" title="${c.detalle || ''}">${c.detalle || ''}</td>
                         <td><span class="prio-badge prio-${c.prioridad}">${c.prioridad || 'Media'}</span></td>
+                        <td><span style="font-size:11.5px; color:#334155;">${c.institucion_remitida || 'Ninguna'}</span></td>
                         <td><span class="status-badge ${estClass}">${c.estatus || 'En Espera'}</span></td>
                         <td>
                             <div class="action-buttons">
-                                <button class="btn-expediente" onclick="verExpedienteCompleto(${c.id})">Ver</button>
-                                <button class="btn-success" onclick="abrirModalEditar(${c.id})">Editar</button>
+                                <button class="btn-expediente" onclick="verExpedienteCompleto(${c.id})">👁️ Historial</button>
+                                ${botonDescarga}
+                                <button class="btn-edit" onclick="abrirModalEditar(${c.id})">Editar</button>
                                 <button class="btn-del" onclick="eliminarCaso(${c.id})">Borrar</button>
                             </div>
                         </td>
@@ -419,7 +434,7 @@
                 `;
             }).join("");
         } catch (err) {
-            tbody.innerHTML = `<tr><td colspan="8" style="text-align:center; color:#dc2626; padding:30px;">⚠️ Error de conexión con Neon: ${err.message}</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="11" style="text-align:center; color:#dc2626; padding:30px;">⚠️ Error de conexión con Neon: ${err.message}</td></tr>`;
         }
     }
 
@@ -434,6 +449,9 @@
         idEnEdicion = null;
         document.getElementById("socialForm").reset();
         document.getElementById("casoId").value = "";
+        document.getElementById("ins_url_existente").value = "";
+        document.getElementById("txt-info-archivo").innerText = "Formatos permitidos: PDF, JPG, PNG. (Opcional)";
+        document.getElementById("txt-info-archivo").style.color = "#64748b";
         document.getElementById("modalTitulo").innerText = `Registrar ${tipoFiltroActual}`;
         document.getElementById("formularioModal").classList.add("open");
     }
@@ -457,8 +475,18 @@
         document.getElementById("ins_remitido").value = item.institucion_remitida || "";
         document.getElementById("ins_departamento").value = item.trabajador_departamento || "";
         document.getElementById("ins_detalle").value = item.detalle || "";
+        document.getElementById("ins_url_existente").value = item.url_adjunto || "";
+        
+        const txtInfo = document.getElementById("txt-info-archivo");
+        if(item.url_adjunto) {
+            txtInfo.innerText = "⚠️ Ya hay un archivo cargado. Selecciona uno nuevo solo si deseas reemplazarlo.";
+            txtInfo.style.color = "#b45309";
+        } else {
+            txtInfo.innerText = "Formatos permitidos: PDF, JPG, PNG.";
+            txtInfo.style.color = "#64748b";
+        }
 
-        document.getElementById("modalTitulo").innerText = "Modificar Ficha Social";
+        document.getElementById("modalTitulo").innerText = "Modificar Ficha Social Completa";
         document.getElementById("formularioModal").classList.add("open");
     }
 
@@ -472,24 +500,35 @@
         if (!window.sqlClient) { alert("No hay conexión con la base de datos."); return; }
 
         const btnGuardar = document.getElementById("btnGuardarForm");
-        btnGuardar.innerText = "Guardando...";
+        const archivoInput = document.getElementById("ins_archivo");
+        let urlFinalArchivo = document.getElementById("ins_url_existente").value;
+
+        btnGuardar.innerText = "Procesando y sincronizando...";
         btnGuardar.disabled = true;
 
-        const nombre = document.getElementById("ins_nombre").value.trim();
-        const cedula = document.getElementById("ins_cedula").value.trim();
-        const edad = parseInt(document.getElementById("ins_edad").value) || 0;
-        const genero = document.getElementById("ins_genero").value;
-        const telefono = document.getElementById("ins_telefono").value.trim();
-        const sector = document.getElementById("ins_sector").value.trim();
-        const eje = document.getElementById("ins_eje").value.trim();
-        const ayuda = document.getElementById("ins_ayuda").value;
-        const prioridad = document.getElementById("ins_prioridad").value;
-        const estatus = document.getElementById("ins_estatus").value;
-        const remitido = document.getElementById("ins_remitido").value.trim();
-        const departamento = document.getElementById("ins_departamento").value.trim();
-        const detalle = document.getElementById("ins_detalle").value.trim();
-
         try {
+            // Nota: Si mantienes la subida mediante un servicio auxiliar o blob local puedes gestionarlo aquí.
+            // Para mantener compatibilidad con el input file, si se selecciona un archivo local de tipo binario/texto para simulación web:
+            if (archivoInput.files.length > 0) {
+                const archivo = archivoInput.files[0];
+                // Simulación de enlace de almacenamiento local seguro basado en nombre de archivo subido
+                urlFinalArchivo = URL.createObjectURL(archivo); 
+            }
+
+            const nombre = document.getElementById("ins_nombre").value.trim();
+            const cedula = document.getElementById("ins_cedula").value.trim();
+            const edad = parseInt(document.getElementById("ins_edad").value) || 0;
+            const genero = document.getElementById("ins_genero").value;
+            const telefono = document.getElementById("ins_telefono").value.trim();
+            const sector = document.getElementById("ins_sector").value.trim();
+            const eje = document.getElementById("ins_eje").value.trim();
+            const ayuda = document.getElementById("ins_ayuda").value;
+            const prioridad = document.getElementById("ins_prioridad").value;
+            const estatus = document.getElementById("ins_estatus").value;
+            const remitido = document.getElementById("ins_remitido").value.trim();
+            const departamento = document.getElementById("ins_departamento").value.trim(); // Campo Responsable / Departamento
+            const detalle = document.getElementById("ins_detalle").value.trim();
+
             if (idEnEdicion) {
                 await window.sqlClient`
                     UPDATE casos_salud 
@@ -497,7 +536,7 @@
                         telefono = ${telefono}, sector = ${sector}, eje_territorial = ${eje}, 
                         tipo_ayuda = ${ayuda}, prioridad = ${prioridad}, estatus = ${estatus}, 
                         institucion_remitida = ${remitido}, trabajador_departamento = ${departamento}, 
-                        detalle = ${detalle}
+                        detalle = ${detalle}, url_adjunto = ${urlFinalArchivo}
                     WHERE id = ${idEnEdicion}
                 `;
                 alert("¡Ficha social actualizada con éxito!");
@@ -506,11 +545,11 @@
                     INSERT INTO casos_salud (
                         nombre, cedula, edad, genero, telefono, sector, eje_territorial, 
                         tipo_ayuda, prioridad, estatus, institucion_remitida, 
-                        trabajador_departamento, detalle, coordinacion, tipo
+                        trabajador_departamento, detalle, url_adjunto, coordinacion, tipo
                     ) VALUES (
                         ${nombre}, ${cedula}, ${edad}, ${genero}, ${telefono}, ${sector}, ${eje}, 
                         ${ayuda}, ${prioridad}, ${estatus}, ${remitido}, 
-                        ${departamento}, ${detalle}, 'Social', ${tipoFiltroActual}
+                        ${departamento}, ${detalle}, ${urlFinalArchivo}, 'Social', ${tipoFiltroActual}
                     )
                 `;
                 alert("¡Ficha social registrada con éxito!");
@@ -519,9 +558,9 @@
             cerrarModalFormulario();
             cargarCasosSociales();
         } catch (err) {
-            alert("Error al guardar en la base de datos: " + err.message);
+            alert("Error al sincronizar en la base de datos: " + err.message);
         } finally {
-            btnGuardar.innerText = "Guardar Ficha";
+            btnGuardar.innerText = "Sincronizar Ficha";
             btnGuardar.disabled = false;
         }
     }
@@ -530,19 +569,25 @@
         const item = listaCasosGlobal.find(c => Number(c.id) === Number(id));
         if (!item) return;
 
+        let bloqueAdjunto = item.url_adjunto 
+            ? `<a href="${item.url_adjunto}" target="_blank" style="color:#16a34a; font-weight:700; text-decoration:underline;">📥 Abrir Archivo de Soporte Escaneado</a>`
+            : '<span style="color:#64748b; font-style:italic;">Ningún documento digitalizado adjunto.</span>';
+
         const contenedor = document.getElementById("cuerpoExpediente");
         contenedor.innerHTML = `
             <div class="form-group span-2 expediente-view-box"><label>Nombres y Apellidos</label><p>${item.nombre || ''}</p></div>
-            <div class="form-group expediente-view-box"><label>Cédula Identidad</label><p>${item.cedula || 'N/A'}</p></div>
-            <div class="form-group expediente-view-box"><label>Edad / Género</label><p>${item.edad || '?'} años (${item.genero || 'F'})</p></div>
-            <div class="form-group expediente-view-box"><label>Teléfono Contacto</label><p>${item.telefono || 'N/A'}</p></div>
-            <div class="form-group span-2 expediente-view-box"><label>Ubicación Territorial</label><p>${item.sector || ''} — ${item.eje_territorial || ''}</p></div>
+            <div class="form-group expediente-view-box"><label>Cédula Identidad</label><p>${item.cedula || 'No consignada'}</p></div>
+            <div class="form-group expediente-view-box"><label>Edad / Censo</label><p>${item.edad || '?'} años</p></div>
+            <div class="form-group expediente-view-box"><label>Género Fisiológico</label><p>${item.genero || 'Femenino'}</p></div>
+            <div class="form-group expediente-view-box"><label>Teléfono Contacto</label><p>${item.telefono || 'No registra'}</p></div>
+            <div class="form-group span-2 expediente-view-box"><label>Ubicación Territorial (Sector/Eje)</label><p>${item.sector || ''} — ${item.eje_territorial || 'Eje No definido'}</p></div>
             <div class="form-group expediente-view-box"><label>Tipo de Requerimiento</label><p style="color:#0066cc; font-weight:700;">${item.tipo_ayuda || ''}</p></div>
-            <div class="form-group expediente-view-box"><label>Institución Remitida</label><p>${item.institucion_remitida || 'Ninguna'}</p></div>
-            <div class="form-group expediente-view-box"><label>Prioridad</label><p><span class="prio-badge prio-${item.prioridad}">${item.prioridad || 'Media'}</span></p></div>
-            <div class="form-group expediente-view-box"><label>Estatus</label><p>${item.estatus || 'En Espera'}</p></div>
-            <div class="form-group span-3 expediente-view-box" style="background:#f1f5f9; border-left:4px solid var(--sidebar-bg);"><label>Diagnóstico / Informe Técnico</label><p style="line-height:1.5; font-style:italic;">"${item.detalle || 'Sin especificaciones.'}"</p></div>
-            <div class="form-group span-3 expediente-view-box"><label>Departamento Solicitante</label><p>${item.trabajador_departamento || 'N/A'}</p></div>
+            <div class="form-group expediente-view-box"><label>Canalización Externa</label><p>${item.institucion_remitida || 'Atendido en Sala Técnica Directa'}</p></div>
+            <div class="form-group expediente-view-box"><label>Prioridad de Atención</label><p><span class="prio-badge prio-${item.prioridad}">${item.prioridad || 'Media'}</span></p></div>
+            <div class="form-group expediente-view-box"><label>Estatus del Beneficio</label><p>${item.estatus || 'En Espera'}</p></div>
+            <div class="form-group span-3 expediente-view-box" style="background:#e0f2fe; border-left:4px solid #0369a1;"><label>📎 Archivo Digitalizado de Respaldo</label><p style="margin-top:5px;">${bloqueAdjunto}</p></div>
+            <div class="form-group span-3 expediente-view-box" style="background:#f1f5f9; border-left:4px solid var(--sidebar-bg);"><label>Diagnóstico / Informe Técnico de la Solicitud</label><p style="line-height:1.6; font-style:italic;">"${item.detalle || 'Sin especificaciones añadidas en el ingreso.'}"</p></div>
+            <div class="form-group span-3 expediente-view-box"><label>Departamento / Responsable del Caso</label><p>${item.trabajador_departamento || 'Oficina Social Base'}</p></div>
         `;
         document.getElementById("expedienteModal").classList.add("open");
     }
@@ -552,12 +597,12 @@
     }
 
     async function eliminarCaso(id) {
-        if (!confirm("¿Estás seguro de eliminar esta ficha social?")) return;
+        if (!confirm("¿Eliminar de forma permanente esta ficha de la base de datos municipal?")) return;
         try {
             await window.sqlClient`DELETE FROM casos_salud WHERE id = ${Number(id)}`;
             cargarCasosSociales();
         } catch (err) {
-            alert("Error al eliminar el registro: " + err.message);
+            alert("Error al remover el registro: " + err.message);
         }
     }
 
