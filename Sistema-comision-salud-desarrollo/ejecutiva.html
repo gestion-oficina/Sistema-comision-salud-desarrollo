@@ -775,19 +775,6 @@
                 alert("Ocurrió un error al guardar en Neon: " + err.message);
             }
         }
-async function eliminarRegistro(id) {
-            if (!confirm("¿Estás seguro de eliminar este registro?")) return;
-            try {
-                // Borra el registro directamente de la tabla de la base de datos
-                await window.sqlClient`DELETE FROM casos_salud WHERE id = ${id}`;
-                
-                // Recarga los datos para actualizar la interfaz visualmente
-                await loadData();
-                alert("Registro eliminado con éxito.");
-            } catch (error) {
-                alert("No se pudo eliminar: " + error.message);
-            }
-        }
 
         async function logout() { 
             sessionStorage.clear();
