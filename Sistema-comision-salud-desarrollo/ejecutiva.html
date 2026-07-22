@@ -681,17 +681,34 @@
 
         // FUNCIÓN ÚNICA Y CORRECTA PARA BORRAR DE NEON
 async function eliminarRegistro(id) {
-            if (!confirm("¿Estás seguro de eliminar este registro?")) return;
-            try {
-                // Forzamos el borrado directo enviando el ID como número entero
-                await window.sqlClient`DELETE FROM casos_salud WHERE id = ${parseInt(id)}`;
-                
-                alert("¡Eliminado con éxito!");
-                location.reload(); // Recarga la página por completo para limpiar la tabla
-            } catch (error) {
-                alert("No se pudo eliminar: " + error.message);
-            }
-        }
+
+    alert("Entró a eliminar: " + id);
+
+    try {
+
+        console.log("ID:", id);
+
+        const resultado = await window.sqlClient`
+        DELETE FROM casos_salud
+        WHERE id = ${id}
+        RETURNING *;
+        `;
+
+        console.log(resultado);
+
+        alert("Eliminado correctamente");
+
+        loadData();
+
+    } catch (e) {
+
+        console.error(e);
+
+        alert("ERROR:\n\n" + e.message);
+
+    }
+
+}
         async function logout() { 
             sessionStorage.clear();
             window.location.href = "index.html"; 
