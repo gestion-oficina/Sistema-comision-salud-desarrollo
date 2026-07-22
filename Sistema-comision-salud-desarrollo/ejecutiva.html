@@ -761,45 +761,67 @@
 
         function exportarRegistroAWord() {
             const registro = todosLosRegistros.find(r => r.id === idSeleccionadoActual);
-            if (!registro) return;
+            if (!registro) {
+                alert("No se encontró el registro para exportar.");
+                return;
+            }
 
             const textoLimpio = registro.nombre || "";
             
-            const coincidenciaNro = textoLimpio.match(/INFORME Nº:\s*([^\n]+)/i);
+            const coincidenciaNro = textoLimpio.match(/INFORME\s*N[°º]?:\s*([^\n]+)/i);
             const coincidenciaFecha = textoLimpio.match(/FECHA:\s*([^\n]+)/i);
             const coincidenciaAsunto = textoLimpio.match(/ASUNTO:\s*([^\n]+)/i);
             
-            const nroInforme = coincidenciaNro ? coincidenciaNro[1].trim() : "027-2026";
-            const fechaInforme = coincidenciaFecha ? coincidenciaFecha[1].trim() : "26 de mayo 2026";
-            const asuntoInforme = coincidenciaAsunto ? coincidenciaAsunto[1].trim() : "Plan Atención Médica integral";
+            const nroInforme = coincidenciaNro ? coincidenciaNro[1].trim() : "S/N";
+            const fechaInforme = coincidenciaFecha ? coincidenciaFecha[1].trim() : "";
+            const asuntoInforme = coincidenciaAsunto ? coincidenciaAsunto[1].trim() : "Sin Asunto";
+            
+            const lineas = textoLimpio.split('\n');
+            let parrafosHTML = '';
+            
+            for (let i = 0; i < lineas.length; i++) {
+                let linea = lineas[i].trim();
+                if (!linea) {
+                    parrafosHTML += '<p style="margin: 0 0 6pt 0;">&nbsp;</p>';
+                    continue;
+                }
+                
+                const upper = linea.toUpperCase();
+                if (upper.startsWith('INFORME Nº:') || upper.startsWith('FECHA:') || upper.startsWith('ASUNTO:') || upper.startsWith('RESPONSABLE:') || upper.startsWith('-----')) {
+                    continue;
+                }
 
-            const lineasCuerpo = textoLimpio.split('\n').filter(linea => {
-                const l = linea.trim().toUpperCase();
-                return !l.startsWith('INFORME Nº:') && !l.startsWith('FECHA:') && !l.startsWith('ASUNTO:') && !l.startsWith('RESPONSABLE:') && !l.startsWith('-----');
-            });
-
-            const parrafosHTML = lineasCuerpo.map(linea => {
-                if(!linea.trim()) return '<p style="margin: 0 0 6pt 0;">&nbsp;</p>';
-                if(linea.trim().match(/^(I|II|III|IV|V)\.\s+[A-ZÁÉÍÓÚÑ]/)) {
-                    return `<h2 style="font-family: 'Arial', sans-serif; font-size: 12pt; font-weight: bold; color: #000000; text-align: center; margin-top: 18pt; margin-bottom: 12pt; text-transform: uppercase;">${linea.trim()}</h2>`;
+                if (linea.match(/^(I|II|III|IV|V|VI|VII|VIII|IX|X)\.\s+/i)) {
+                    parrafosHTML += `<h2 style="font-family: 'Arial', sans-serif; font-size: 12pt; font-weight: bold; color: #000000; text-align: center; margin-top: 18pt; margin-bottom: 12pt; text-transform: uppercase;">${linea}</h2>`;
+                } else if (linea.match(/^[A-ZÁÉÍÓÚÑ\s]{4,}:$/)) {
+                    parrafosHTML += `<p style="font-family: 'Arial', sans-serif; font-size: 11pt; font-weight: bold; color: #000000; margin-top: 12pt; margin-bottom: 6pt;">${linea}</p>`;
+                } else if (linea.startsWith('•') || linea.startsWith('-')) {
+                    parrafosHTML += `<p style="font-family: 'Arial', sans-serif; font-size: 11pt; line-height: 1.25; color: #000000; margin: 0 0 6pt 24pt; text-align: justify;">${linea}</p>`;
+                } else {
+                    parrafosHTML += `<p style="font-family: 'Arial', sans-serif; font-size: 11pt; line-height: 1.25; color: #000000; margin: 0 0 10pt 0; text-align: justify;">${linea}</p>`;
                 }
-                if(linea.trim().match(/^[A-ZÁÉÍÓÚÑ]{4,}:$/)) {
-                    return `<p style="font-family: 'Arial', sans-serif; font-size: 11pt; font-weight: bold; color: #000000; margin-top: 12pt; margin-bottom: 6pt;">${linea.trim()}</p>`;
-                }
-                if(linea.trim().startsWith('•') || linea.trim().startsWith('-')) {
-                    return `<p style="font-family: 'Arial', sans-serif; font-size: 11pt; line-height: 1.25; color: #000000; margin: 0 0 6pt 24pt; text-align: justify;">${linea.trim()}</p>`;
-                }
-                return `<p style="font-family: 'Arial', sans-serif; font-size: 11pt; line-height: 1.25; color: #000000; margin: 0 0 10pt 0; text-align: justify;">${linea}</p>`;
-            }).join('');
+            }
 
             const plantillaWordHTML = `
             <html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
-            <head><meta charset="UTF-8"><title>Informe de Gestión</title></head>
+            <head>
+                <meta charset="UTF-8">
+                <title>Informe de Gestión</title>
+                <style>
+                    body { font-family: 'Arial', sans-serif; margin: 2.5cm; }
+                    p, h2 { page-break-inside: avoid; }
+                </style>
+            </head>
             <body>
-                <p><b>INFORME:</b> ${nroInforme}</p>
-                <p><b>FECHA:</b> ${fechaInforme}</p>
-                <p><b>ASUNTO:</b> ${asuntoInforme}</p>
-                <hr>
+                <div style="text-align: right; font-size: 10pt; font-weight: bold; margin-bottom: 15pt;">
+                    INFORME Nº: ${nroInforme}
+                </div>
+                <div style="margin-bottom: 15pt; font-size: 11pt;">
+                    <p style="margin: 0 0 4pt 0;"><b>FECHA:</b> ${fechaInforme}</p>
+                    <p style="margin: 0 0 4pt 0;"><b>ASUNTO:</b> ${asuntoInforme}</p>
+                </div>
+                <hr style="border: none; border-top: 1px solid #000000; margin-bottom: 20pt;">
+                
                 ${parrafosHTML}
             </body>
             </html>`;
