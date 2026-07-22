@@ -216,7 +216,7 @@
     </div>
     </div>
 
-    <!-- MODAL DOCUMENTO -->
+    <!-- MODAL DOCUMENTO (VER DETALLES) -->
     <div class="modal-overlay" id="documentModal">
         <div class="modal-content">
             <div class="modal-header">
@@ -248,11 +248,41 @@
         </div>
     </div>
 
-    <!-- MODAL NUEVO INFORME -->
+    <!-- MODAL NUEVO / EDITAR OFICIO -->
+    <div class="modal-overlay" id="modalNuevoOficio" style="display: none;">
+        <div class="modal-content" style="max-width: 500px;">
+            <div class="modal-header">
+                <h3 id="modal-title-oficio">Registrar Nuevo Oficio Enviado</h3>
+                <button class="close-modal" onclick="cerrarFormOficio()">&times;</button>
+            </div>
+            <form id="formOficio" class="modal-flex-form">
+                <div class="modal-body">
+                    <div style="display: flex; flex-direction: column; gap: 4px;">
+                        <label class="info-label">NÚMERO O CÓDIGO DEL OFICIO:</label>
+                        <input type="text" id="ofiNumero" placeholder="Ej: OF-001-2026" style="padding: 8px; border: 1px solid var(--border-color); border-radius: 6px; font-size: 13px;" required>
+                    </div>
+                    <div style="display: flex; flex-direction: column; gap: 4px;">
+                        <label class="info-label">SECTOR O ENTE DESTINO:</label>
+                        <input type="text" id="ofiDestino" placeholder="Ej: Dirección de Salud Municipal" style="padding: 8px; border: 1px solid var(--border-color); border-radius: 6px; font-size: 13px;" required>
+                    </div>
+                    <div style="display: flex; flex-direction: column; gap: 4px;">
+                        <label class="info-label">ASUNTO / CLASIFICACIÓN:</label>
+                        <textarea id="ofiAsunto" rows="3" placeholder="Descripción breve del contenido del oficio..." style="padding: 8px; border: 1px solid var(--border-color); border-radius: 6px; font-size: 13px; resize: vertical;" required></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-wa" onclick="cerrarFormOficio()">Cancelar</button>
+                    <button type="submit" class="btn-primary" style="background: var(--sidebar-bg);">Guardar Oficio</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL NUEVO / EDITAR INFORME -->
     <div class="modal-overlay" id="modalNuevoInforme" style="display: none;">
         <div class="modal-content" style="max-width: 650px;">
             <div class="modal-header">
-                <h3>Generar Nuevo Informe de Gestión Legislativa</h3>
+                <h3 id="modal-title-informe">Generar Nuevo Informe de Gestión Legislativa</h3>
                 <button class="close-modal" onclick="cerrarFormInforme()">&times;</button>
             </div>
             <form id="formAutomatedInforme" class="modal-flex-form">
@@ -270,12 +300,12 @@
 
                     <div style="display: flex; flex-direction: column; gap: 4px;">
                         <label class="info-label">ASUNTO / TÍTULO:</label>
-                        <input type="text" id="infAsunto" placeholder="Ej: Plan Atención Médica integral Salud va a la Escuela" style="padding: 8px; border: 1px solid var(--border-color); border-radius: 6px; font-size: 13px;" required>
+                        <input type="text" id="infAsunto" placeholder="Ej: Plan Atención Médica integral" style="padding: 8px; border: 1px solid var(--border-color); border-radius: 6px; font-size: 13px;" required>
                     </div>
 
                     <div style="display: flex; flex-direction: column; gap: 4px;">
                         <label class="info-label">ACTORES VINCULADOS:</label>
-                        <input type="text" id="infActores" placeholder="Ej: Poder Popular, Comisión de Salud, Instituciones de Salud" style="padding: 8px; border: 1px solid var(--border-color); border-radius: 6px; font-size: 13px;" required>
+                        <input type="text" id="infActores" placeholder="Ej: Poder Popular, Comisión de Salud" style="padding: 8px; border: 1px solid var(--border-color); border-radius: 6px; font-size: 13px;" required>
                     </div>
 
                     <div style="display: flex; flex-direction: column; gap: 4px;">
@@ -300,12 +330,12 @@
 
                     <div style="display: flex; flex-direction: column; gap: 4px;">
                         <label class="info-label">IV. ASPECTOS JURÍDICOS:</label>
-                        <textarea id="infJuridico" rows="2" placeholder="Base legal aplicable (CRBV, Leyes Orgánicas, Ordenanzas)..." style="padding: 8px; border: 1px solid var(--border-color); border-radius: 6px; font-size: 13px; resize: vertical;"></textarea>
+                        <textarea id="infJuridico" rows="2" placeholder="Base legal aplicable..." style="padding: 8px; border: 1px solid var(--border-color); border-radius: 6px; font-size: 13px; resize: vertical;"></textarea>
                     </div>
 
                     <div style="display: flex; flex-direction: column; gap: 4px;">
                         <label class="info-label">V. CONCLUSIÓN Y RECOMENDACIONES:</label>
-                        <textarea id="infConclusiones" rows="2" placeholder="Conclusiones y sugerencias institucionales..." style="padding: 8px; border: 1px solid var(--border-color); border-radius: 6px; font-size: 13px; resize: vertical;" required></textarea>
+                        <textarea id="infConclusiones" rows="2" placeholder="Conclusiones y sugerencias..." style="padding: 8px; border: 1px solid var(--border-color); border-radius: 6px; font-size: 13px; resize: vertical;" required></textarea>
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -326,6 +356,7 @@
         let filtroActual = 'Oficio';
         let todosLosRegistros = []; 
         let idSeleccionadoActual = null;
+        let idEnEdicion = null; // Controla si estamos editando un registro (Oficio o Informe)
 
         window.iniciarApp = function() {
             const nombre = sessionStorage.getItem("usuario_nombre");
@@ -335,12 +366,23 @@
 
             switchData('Oficio');
             
+            // Evento para guardar/editar Informe
             const formInforme = document.getElementById('formAutomatedInforme');
             if (formInforme && !formInforme.dataset.bound) {
                 formInforme.dataset.bound = "true";
                 formInforme.addEventListener('submit', async (e) => {
                     e.preventDefault();
                     await guardarInformeAutomatizado();
+                });
+            }
+
+            // Evento para guardar/editar Oficio
+            const formOficio = document.getElementById('formOficio');
+            if (formOficio && !formOficio.dataset.bound) {
+                formOficio.dataset.bound = "true";
+                formOficio.addEventListener('submit', async (e) => {
+                    e.preventDefault();
+                    await guardarOficioModal();
                 });
             }
         };
@@ -392,7 +434,6 @@
             try {
                 const registros = await window.sqlClient`SELECT * FROM casos_salud ORDER BY id DESC`;
                 todosLosRegistros = Array.from(registros); 
-                console.table(todosLosRegistros);
                 
                 if (filtroActual === 'Oficio') {
                     thead.innerHTML = `<tr><th style="width: 120px;">Nro Oficio</th><th>Asunto / Clasificación</th><th>Sector / Ente Destino</th><th>Estado</th><th style="width: 180px;">Acciones</th></tr>`;
@@ -544,49 +585,177 @@
             document.getElementById("documentModal").classList.remove("open");
         }
 
+        // ABRIR MODAL PARA NUEVO REGISTRO
+        function registrarNuevo() {
+            idEnEdicion = null;
+            if (filtroActual === 'Oficio') {
+                document.getElementById("modal-title-oficio").innerText = "Registrar Nuevo Oficio Enviado";
+                document.getElementById("formOficio").reset();
+                const modal = document.getElementById("modalNuevoOficio");
+                if (modal) {
+                    modal.style.display = "flex";
+                    setTimeout(() => { modal.classList.add("open"); }, 10);
+                }
+            } else {
+                document.getElementById("modal-title-informe").innerText = "Generar Nuevo Informe de Gestión Legislativa";
+                document.getElementById("formAutomatedInforme").reset();
+                const modal = document.getElementById("modalNuevoInforme");
+                if (modal) {
+                    modal.style.display = "flex";
+                    setTimeout(() => { modal.classList.add("open"); }, 10);
+                }
+            }
+        }
+
+        // ABRIR MODAL PARA EDITAR REGISTRO EXISTENTE
         async function abrirEditarRegistro(id) {
             const idBuscado = Number(id);
             const registro = todosLosRegistros.find(r => Number(r.id) === idBuscado);
             
             if (!registro) {
-                alert("No se encontró el registro en la memoria local. Recargue la página.");
+                alert("No se encontró el registro en la memoria local.");
                 return;
             }
 
-            if (filtroActual === 'Oficio') {
-                const nuevoAsunto = prompt("Actualizar contenido / asunto del oficio:", registro.nombre);
-                if (nuevoAsunto === null) return;
-                const nuevoDestino = prompt("Actualizar sector o ente destino:", registro.sector);
-                if (nuevoDestino === null) return;
+            idEnEdicion = idBuscado;
 
-                try {
-                    await window.sqlClient`
-                        UPDATE casos_salud 
-                        SET nombre = ${nuevoAsunto}, sector = ${nuevoDestino} 
-                        WHERE id = ${idBuscado}
-                    `;
-                    alert("¡Oficio actualizado con éxito!");
-                    loadData();
-                } catch (err) {
-                    alert("Error al actualizar el oficio: " + err.message);
+            if (filtroActual === 'Oficio') {
+                document.getElementById("modal-title-oficio").innerText = "Editar Oficio Enviado";
+                
+                const texto = registro.nombre || "";
+                const matchNro = texto.match(/OFICIO\s*N[°º]?:\s*([^\n]+)/i);
+                const matchAsunto = texto.match(/ASUNTO:\s*([^\n]+)/i);
+
+                document.getElementById("ofiNumero").value = matchNro ? matchNro[1].trim() : "";
+                document.getElementById("ofiDestino").value = registro.sector || "";
+                document.getElementById("ofiAsunto").value = matchAsunto ? matchAsunto[1].trim() : texto;
+
+                const modal = document.getElementById("modalNuevoOficio");
+                if (modal) {
+                    modal.style.display = "flex";
+                    setTimeout(() => { modal.classList.add("open"); }, 10);
                 }
             } else {
-                const nuevoTexto = prompt("Actualizar el contenido completo del informe:", registro.nombre);
-                if (nuevoTexto === null) return;
-                const nuevoSector = prompt("Actualizar área de cobertura / actores:", registro.sector);
-                if (nuevoSector === null) return;
+                document.getElementById("modal-title-informe").innerText = "Editar Informe de Gestión Legislativa";
+                
+                const texto = registro.nombre || "";
+                const getMatch = (regex) => { const m = texto.match(regex); return m ? m[1].trim() : ""; };
+                
+                document.getElementById("infNumero").value = getMatch(/INFORME Nº:\s*([^\n]+)/i);
+                document.getElementById("infFecha").value = getMatch(/FECHA:\s*([^\n]+)/i);
+                document.getElementById("infAsunto").value = getMatch(/ASUNTO:\s*([^\n]+)/i);
+                
+                let sectorRaw = registro.sector || "";
+                if (sectorRaw.includes('(Resp:')) {
+                    document.getElementById("infActores").value = sectorRaw.split(' (Resp:')[0].trim();
+                    document.getElementById("infResponsable").value = sectorRaw.split('(Resp:')[1].replace(')', '').trim();
+                } else {
+                    document.getElementById("infActores").value = sectorRaw;
+                }
 
-                try {
+                document.getElementById("infIntroduccion").value = getMatch(/I\. INTRODUCCIÓN\s+([\s\S]*?)(?=\n\nII\.|$)/i);
+                document.getElementById("infHechos").value = getMatch(/II\. DE LOS HECHOS\s+([\s\S]*?)(?=\n\nIII\.|$)/i);
+                document.getElementById("infMetas").value = getMatch(/III\. METAS ALCANZADAS\s+([\s\S]*?)(?=\n\nIV\.|$)/i);
+                document.getElementById("infJuridico").value = getMatch(/IV\. ASPECTOS JURÍDICOS\s+([\s\S]*?)(?=\n\nV\.|$)/i);
+                document.getElementById("infConclusiones").value = getMatch(/V\. CONCLUSIÓN Y RECOMENDACIONES\s+([\s\S]*?)(?=\n\n----------------|$)/i);
+
+                const modal = document.getElementById("modalNuevoInforme");
+                if (modal) {
+                    modal.style.display = "flex";
+                    setTimeout(() => { modal.classList.add("open"); }, 10);
+                }
+            }
+        }
+
+        function cerrarFormOficio() {
+            idEnEdicion = null;
+            const modal = document.getElementById("modalNuevoOficio");
+            if (modal) {
+                modal.classList.remove("open");
+                setTimeout(() => { modal.style.display = "none"; }, 250);
+            }
+            const form = document.getElementById("formOficio");
+            if (form) form.reset();
+        }
+
+        function cerrarFormInforme() {
+            idEnEdicion = null;
+            const modal = document.getElementById("modalNuevoInforme");
+            if (modal) {
+                modal.classList.remove("open");
+                setTimeout(() => { modal.style.display = "none"; }, 250);
+            }
+            const form = document.getElementById("formAutomatedInforme");
+            if (form) form.reset();
+        }
+
+        async function guardarOficioModal() {
+            if (!window.sqlClient) { alert("No hay conexión con la base de datos."); return; }
+            
+            const nro = document.getElementById("ofiNumero").value.trim();
+            const destino = document.getElementById("ofiDestino").value.trim();
+            const asunto = document.getElementById("ofiAsunto").value.trim();
+
+            const bloqueOficio = `OFICIO Nº: ${nro}\nASUNTO: ${asunto}`;
+
+            try {
+                if (idEnEdicion) {
                     await window.sqlClient`
                         UPDATE casos_salud 
-                        SET nombre = ${nuevoTexto}, sector = ${nuevoSector} 
-                        WHERE id = ${idBuscado}
+                        SET nombre = ${bloqueOficio}, sector = ${destino} 
+                        WHERE id = ${idEnEdicion}
                     `;
-                    alert("¡Informe actualizado con éxito!");
-                    loadData();
-                } catch (err) {
-                    alert("Error al actualizar el informe: " + err.message);
+                    alert("¡Oficio actualizado con éxito!");
+                } else {
+                    await window.sqlClient`
+                        INSERT INTO casos_salud (nombre, sector) 
+                        VALUES (${bloqueOficio}, ${destino})
+                    `;
+                    alert("¡Oficio Enviado registrado con éxito!");
                 }
+                cerrarFormOficio();
+                loadData();
+            } catch (err) {
+                alert("Ocurrió un error al guardar el Oficio en Neon: " + err.message);
+            }
+        }
+
+        async function guardarInformeAutomatizado() {
+            if (!window.sqlClient) { alert("No hay conexión con la base de datos."); return; }
+            const nro = document.getElementById("infNumero").value;
+            const fecha = document.getElementById("infFecha").value;
+            const asunto = document.getElementById("infAsunto").value;
+            const actores = document.getElementById("infActores").value;
+            const responsable = document.getElementById("infResponsable").value;
+            const introduccion = document.getElementById("infIntroduccion").value;
+            const hechos = document.getElementById("infHechos").value;
+            const metas = document.getElementById("infMetas").value;
+            const juridico = document.getElementById("infJuridico").value;
+            const conclusiones = document.getElementById("infConclusiones").value;
+
+            const bloqueInformeEstructurado = `INFORME Nº: ${nro}\nFECHA: ${fecha}\nASUNTO: ${asunto}\n\nI. INTRODUCCIÓN\n${introduccion}\n\nII. DE LOS HECHOS\n${hechos}\n\nIII. METAS ALCANZADAS\n${metas}\n\nIV. ASPECTOS JURÍDICOS\n${juridico || 'No especificados.'}\n\nV. CONCLUSIÓN Y RECOMENDACIONES\n${conclusiones}\n\n--------------------------------------------------\nRESPONSABLE: ${responsable}`;
+            const sectorStr = `${actores} (Resp: ${responsable})`;
+
+            try {
+                if (idEnEdicion) {
+                    await window.sqlClient`
+                        UPDATE casos_salud 
+                        SET nombre = ${bloqueInformeEstructurado}, sector = ${sectorStr} 
+                        WHERE id = ${idEnEdicion}
+                    `;
+                    alert(`¡Informe Nº ${nro} actualizado correctamente!`);
+                } else {
+                    await window.sqlClient`
+                        INSERT INTO casos_salud (nombre, sector) 
+                        VALUES (${bloqueInformeEstructurado}, ${sectorStr})
+                    `;
+                    alert(`¡Informe de Gestión Nº ${nro} guardado con éxito!`);
+                }
+                
+                cerrarFormInforme();
+                loadData();
+            } catch (err) {
+                alert("Ocurrió un error al guardar en Neon: " + err.message);
             }
         }
 
@@ -603,11 +772,6 @@
             const nroInforme = coincidenciaNro ? coincidenciaNro[1].trim() : "027-2026";
             const fechaInforme = coincidenciaFecha ? coincidenciaFecha[1].trim() : "26 de mayo 2026";
             const asuntoInforme = coincidenciaAsunto ? coincidenciaAsunto[1].trim() : "Plan Atención Médica integral";
-            
-            let actoresVinculados = "Poder Popular, Comisión de Salud";
-            if (registro.sector && registro.sector.includes('(Resp:')) {
-                actoresVinculados = registro.sector.split(' (Resp:')[0];
-            }
 
             const lineasCuerpo = textoLimpio.split('\n').filter(linea => {
                 const l = linea.trim().toUpperCase();
@@ -662,73 +826,6 @@
             document.getElementById("filter-encargado").value = "";
             cambiarFiltroFecha();
             loadData();
-        }
-
-        function registrarNuevo() {
-            if (filtroActual === 'Oficio') {
-                const nroOficio = prompt("Ingrese el Número o Código del Oficio (Ej: OF-001-2026):");
-                if (!nroOficio) return;
-                const destino = prompt("Ingrese el Sector o Ente Destino:");
-                if (!destino) return;
-                const clasificacion = prompt("Ingrese la Clasificación o Contenido Breve del Oficio:");
-                if (!clasificacion) return;
-
-                const bloqueOficio = `OFICIO Nº: ${nroOficio}\nASUNTO: ${clasificacion}`;
-                guardarOficioDirecto(bloqueOficio, destino);
-            } else {
-                const modal = document.getElementById("modalNuevoInforme");
-                if (modal) {
-                    modal.style.display = "flex";
-                    setTimeout(() => { modal.classList.add("open"); }, 10);
-                }
-            }
-        }
-
-        async function guardarOficioDirecto(contenido, sectorDestino) {
-            if (!window.sqlClient) { alert("No hay conexión con la base de datos."); return; }
-            try {
-                await window.sqlClient`INSERT INTO casos_salud (nombre, sector) VALUES (${contenido}, ${sectorDestino})`;
-                alert("¡Oficio Enviado registrado con éxito!");
-                loadData();
-            } catch (err) {
-                alert("Ocurrió un error al guardar el Oficio en Neon: " + err.message);
-            }
-        }
-
-        function cerrarFormInforme() {
-            const modal = document.getElementById("modalNuevoInforme");
-            if (modal) {
-                modal.classList.remove("open");
-                setTimeout(() => { modal.style.display = "none"; }, 250);
-            }
-            const form = document.getElementById("formAutomatedInforme");
-            if (form) form.reset();
-        }
-
-        async function guardarInformeAutomatizado() {
-            if (!window.sqlClient) { alert("No hay conexión con la base de datos."); return; }
-            const nro = document.getElementById("infNumero").value;
-            const fecha = document.getElementById("infFecha").value;
-            const asunto = document.getElementById("infAsunto").value;
-            const actores = document.getElementById("infActores").value;
-            const responsable = document.getElementById("infResponsable").value;
-            const introduccion = document.getElementById("infIntroduccion").value;
-            const hechos = document.getElementById("infHechos").value;
-            const metas = document.getElementById("infMetas").value;
-            const juridico = document.getElementById("infJuridico").value;
-            const conclusiones = document.getElementById("infConclusiones").value;
-
-            const bloqueInformeEstructurado = `INFORME Nº: ${nro}\nFECHA: ${fecha}\nASUNTO: ${asunto}\n\nI. INTRODUCCIÓN\n${introduccion}\n\nII. DE LOS HECHOS\n${hechos}\n\nIII. METAS ALCANZADAS\n${metas}\n\nIV. ASPECTOS JURÍDICOS\n${juridico || 'No especificados.'}\n\nV. CONCLUSIÓN Y RECOMENDACIONES\n${conclusiones}\n\n--------------------------------------------------\nRESPONSABLE: ${responsable}`;
-            const sectorStr = `${actores} (Resp: ${responsable})`;
-
-            try {
-                await window.sqlClient`INSERT INTO casos_salud (nombre, sector) VALUES (${bloqueInformeEstructurado}, ${sectorStr})`;
-                alert(`¡Informe de Gestión Nº ${nro} guardado con éxito!`);
-                cerrarFormInforme();
-                loadData();
-            } catch (err) {
-                alert("Ocurrió un error al guardar en Neon: " + err.message);
-            }
         }
 
         // FUNCIÓN DE BORRADO
