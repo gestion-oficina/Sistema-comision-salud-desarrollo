@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Red de Salud y Gestión - Guarenas</title>
+    <title>Red de Salud - Municipio Plaza</title>
     <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Leaflet CSS -->
@@ -14,41 +14,83 @@
         body {
             background-color: #f4f7f6;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow-x: hidden;
         }
+        /* Sidebar Estilo Institucional */
         .sidebar {
-            background-color: #1e293b;
+            background-color: #0f172a;
             color: #fff;
             min-height: 100vh;
+            width: 260px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 1000;
+            padding: 20px 15px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        .sidebar-brand {
+            font-size: 11px;
+            font-weight: bold;
+            color: #cbd5e1;
+            text-transform: uppercase;
+            line-height: 1.3;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #334155;
+            padding-bottom: 15px;
+        }
+        .sidebar .nav-label {
+            font-size: 10px;
+            color: #64748b;
+            font-weight: bold;
+            text-transform: uppercase;
+            margin-top: 15px;
+            margin-bottom: 5px;
+            letter-spacing: 0.5px;
         }
         .sidebar a {
             color: #94a3b8;
             text-decoration: none;
-            padding: 10px 15px;
+            padding: 8px 12px;
             display: block;
             border-radius: 6px;
-            margin-bottom: 5px;
-            transition: all 0.3s;
+            font-size: 13px;
+            margin-bottom: 2px;
+            transition: all 0.2s;
         }
         .sidebar a:hover, .sidebar a.active {
-            background-color: #0ea5e9;
+            background-color: #0284c7;
             color: #fff;
+        }
+        .user-box {
+            border-top: 1px solid #334155;
+            padding-top: 15px;
+            margin-top: 15px;
+            font-size: 13px;
+        }
+        /* Contenido Principal Ajustado */
+        .main-content {
+            margin-left: 260px;
+            padding: 30px;
         }
         .card-stat {
             border: none;
             border-radius: 10px;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
             transition: transform 0.2s;
         }
         .card-stat:hover {
             transform: translateY(-3px);
         }
         #mapaSalud {
-            height: 450px;
+            height: 480px;
             width: 100%;
             border-radius: 10px;
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
         }
-        .table-container {
+        .panel-container {
             background: #fff;
             padding: 20px;
             border-radius: 10px;
@@ -58,111 +100,119 @@
 </head>
 <body>
 
-<div class="container-fluid">
-    <div class="row">
-        <!-- Sidebar / Menú Lateral -->
-        <div class="col-md-2 sidebar p-3 d-none d-md-block">
-            <h4 class="text-white text-center mb-4"><i class="fa-solid fa-heart-pulse text-info"></i> Salud Guarenas</h4>
-            <hr class="border-secondary">
-            <a href="#" class="active"><i class="fa-solid fa-chart-pie me-2"></i> Dashboard</a>
-            <a href="#mapa-section"><i class="fa-solid fa-map-location-dot me-2"></i> Mapa de Centros</a>
-            <a href="#tabla-section"><i class="fa-solid fa-table-list me-2"></i> Casos y Red</a>
-            <hr class="border-secondary">
-            <div class="small text-muted px-2">Comisión de Salud<br>Concejalía Letty Bastidas</div>
+    <!-- Sidebar Institucional Fijo -->
+    <div class="sidebar">
+        <div>
+            <div class="sidebar-brand">
+                Comisión Permanente de Salud<br>y Desarrollo Social Integral
+            </div>
+            
+            <a href="/principal"><i class="fa-solid fa-house me-2"></i> Principal</a>
+
+            <div class="nav-label">Coor. Ejecutiva</div>
+            <a href="/oficios"><i class="fa-solid fa-file-lines me-2"></i> Oficios e Informes</a>
+            <a href="/planificacion"><i class="fa-solid fa-calendar-days me-2"></i> Planificación Semanal</a>
+
+            <div class="nav-label">Coor. Política</div>
+            <a href="/liderazgos"><i class="fa-solid fa-users-rectangle me-2"></i> Liderazgos y Comunas</a>
+
+            <div class="nav-label">Coor. Social</div>
+            <a href="/social"><i class="fa-solid fa-hand-holding-medical me-2"></i> Casos Sociales</a>
+            <a href="/red_salud" class="active"><i class="fa-solid fa-hospital me-2"></i> Red de Salud (CPT/CDI)</a>
+
+            <div class="nav-label">Gestión Digital</div>
+            <a href="/bitacora"><i class="fa-solid fa-book me-2"></i> Bitácora de Eventos</a>
+            <a href="/reportes"><i class="fa-solid fa-chart-line me-2"></i> Reportes e Informes</a>
+            <a href="/formatos"><i class="fa-solid fa-folder-open me-2"></i> Formatos de Oficina</a>
+            <a href="/auditoria"><i class="fa-solid fa-shield-halved me-2"></i> Panel de Auditoría</a>
         </div>
 
-        <!-- Contenido Principal -->
-        <div class="col-md-10 ms-sm-auto px-4 py-4">
-            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
-                <h1 class="h3">Panel de Control de la Red de Salud - Municipio Plaza</h1>
-                <div class="btn-toolbar mb-2 mb-md-0">
-                    <span class="badge bg-success fs-6 p-2">Sistema Conectado (Neon DB)</span>
+        <div class="user-box">
+            <div class="fw-bold text-white">Willie Aponte</div>
+            <div class="text-info small mb-2">ADMIN</div>
+            <a href="/logout" class="text-danger p-0"><i class="fa-solid fa-arrow-right-from-bracket me-1"></i> Cerrar sesión</a>
+        </div>
+    </div>
+
+    <!-- Contenido Principal -->
+    <div class="main-content">
+        <div class="d-flex justify-content-between align-items-center pb-2 mb-4 border-bottom">
+            <h1 class="h3 fw-bold text-dark">Panel de Control de la Red de Salud - Municipio Plaza</h1>
+            <span class="badge bg-success fs-6 p-2"><i class="fa-solid fa-database me-1"></i> Sistema Conectado (Neon DB)</span>
+        </div>
+
+        <!-- Tarjetas de Estadísticas -->
+        <div class="row g-3 mb-4">
+            <div class="col-md-3">
+                <div class="card card-stat bg-white p-3 border-start border-primary border-4">
+                    <div class="text-muted small">Total Registros</div>
+                    <h3 class="fw-bold text-dark mb-0">43</h3>
+                    <small class="text-primary"><i class="fa-solid fa-database"></i> Base consolidada</small>
                 </div>
             </div>
-
-            <!-- Dashboard Tarjetas de Estadísticas -->
-            <div class="row g-3 mb-4">
-                <div class="col-md-3">
-                    <div class="card card-stat bg-white p-3 border-start border-primary border-4">
-                        <div class="text-muted small">Total Registros</div>
-                        <h3 class="fw-bold text-dark mb-0">43</h3>
-                        <small class="text-primary"><i class="fa-solid fa-database"></i> Base consolidada</small>
-                    </div>
-                </div>
-                <div class="col-md-3">
-                    <div class="card card-stat bg-white p-3 border-start border-success border-4">
-                        <div class="text-muted small">Centros Operativos</div>
-                        <h3 class="fw-bold text-success mb-0" id="stat-operativos">5</h3>
-                        <small class="text-success"><i class="fa-solid fa-circle-check"></i> CDIs y Consultorios</small>
-                    </div>
-                </div>
-                <div class="col-md-3">
-                    <div class="card card-stat bg-white p-3 border-start border-warning border-4">
-                        <div class="text-muted small">Con Fallas / En Gestión</div>
-                        <h3 class="fw-bold text-warning mb-0" id="stat-fallas">1</h3>
-                        <small class="text-warning"><i class="fa-solid fa-triangle-exclamation"></i> Requiere atención</small>
-                    </div>
-                </div>
-                <div class="col-md-3">
-                    <div class="card card-stat bg-white p-3 border-start border-info border-4">
-                        <div class="text-muted small">Comunas Vinculadas</div>
-                        <h3 class="fw-bold text-info mb-0">20+</h3>
-                        <small class="text-info"><i class="fa-solid fa-users"></i> Ejes territoriales</small>
-                    </div>
+            <div class="col-md-3">
+                <div class="card card-stat bg-white p-3 border-start border-success border-4">
+                    <div class="text-muted small">Centros Operativos</div>
+                    <h3 class="fw-bold text-success mb-0">5</h3>
+                    <small class="text-success"><i class="fa-solid fa-circle-check"></i> CDIs y Consultorios</small>
                 </div>
             </div>
-
-            <!-- Sección del Mapa e Interactividad -->
-            <div class="row mb-4" id="mapa-section">
-                <div class="col-12">
-                    <div class="table-container">
-                        <div class="d-flex justify-content-between align-items-center mb-3">
-                            <h5 class="mb-0"><i class="fa-solid fa-map text-primary"></i> Geolocalización de Centros de Salud de Guarenas</h5>
-                            <div class="btn-group" role="group" id="grupo-filtros">
-                                <button class="btn btn-sm btn-outline-primary active" onclick="filtrarSalud('todos', event)">Todos</button>
-                                <button class="btn btn-sm btn-outline-success" onclick="filtrarSalud('CDI', event)">CDI</button>
-                                <button class="btn btn-sm btn-outline-info" onclick="filtrarSalud('CMP', event)">CMP</button>
-                                <button class="btn btn-sm btn-outline-warning" onclick="filtrarSalud('Barrio Adentro', event)">Barrio Adentro</button>
-                            </div>
-                        </div>
-                        <div id="mapaSalud"></div>
-                    </div>
+            <div class="col-md-3">
+                <div class="card card-stat bg-white p-3 border-start border-warning border-4">
+                    <div class="text-muted small">Con Fallas / En Gestión</div>
+                    <h3 class="fw-bold text-warning mb-0">1</h3>
+                    <small class="text-warning"><i class="fa-solid fa-triangle-exclamation"></i> Requiere atención</small>
                 </div>
             </div>
-
-            <!-- Tabla de Datos Completa -->
-            <div class="row" id="tabla-section">
-                <div class="col-12">
-                    <div class="table-container">
-                        <h5 class="mb-3"><i class="fa-solid fa-list text-primary"></i> Listado General de Registros de la Red</h5>
-                        <div class="table-responsive">
-                            <table class="table table-hover align-middle" id="tabla-registros">
-                                <thead class="table-dark">
-                                    <tr>
-                                        <th>ID</th>
-                                        <th>Nombre / Caso</th>
-                                        <th>Tipo</th>
-                                        <th>Sector</th>
-                                        <th>Estatus</th>
-                                        <th>Acciones</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="tbody-registros">
-                                    <!-- Los datos se inyectarán vía JavaScript -->
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
+            <div class="col-md-3">
+                <div class="card card-stat bg-white p-3 border-start border-info border-4">
+                    <div class="text-muted small">Comunas Vinculadas</div>
+                    <h3 class="fw-bold text-info mb-0">20+</h3>
+                    <small class="text-info"><i class="fa-solid fa-users"></i> Ejes territoriales</small>
                 </div>
+            </div>
+        </div>
+
+        <!-- Mapa Interactivo con Filtros -->
+        <div class="panel-container mb-4">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="mb-0 fw-bold"><i class="fa-solid fa-map-location-dot text-primary me-2"></i> Geolocalización de Centros de Salud de Guarenas</h5>
+                <div class="btn-group" role="group" id="grupo-filtros">
+                    <button class="btn btn-sm btn-outline-primary active" onclick="filtrarSalud('todos', event)">Todos</button>
+                    <button class="btn btn-sm btn-outline-success" onclick="filtrarSalud('CDI', event)">CDI</button>
+                    <button class="btn btn-sm btn-outline-info" onclick="filtrarSalud('CMP', event)">CMP</button>
+                    <button class="btn btn-sm btn-outline-warning" onclick="filtrarSalud('Barrio Adentro', event)">Barrio Adentro</button>
+                </div>
+            </div>
+            <div id="mapaSalud"></div>
+        </div>
+
+        <!-- Tabla de Datos -->
+        <div class="panel-container">
+            <h5 class="mb-3 fw-bold"><i class="fa-solid fa-table-list text-primary me-2"></i> Listado General de Registros de la Red</h5>
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>ID</th>
+                            <th>Nombre / Caso</th>
+                            <th>Tipo</th>
+                            <th>Sector</th>
+                            <th>Estatus</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbody-registros">
+                        <!-- Inyectado por JS -->
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
-</div>
 
 <!-- Leaflet JS -->
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
-    // Datos de centros de salud de Guarenas
     const centrosSaludData = [
         { id: 152, nombre: "CDI el Mirador", tipo: "CDI", sector: "Mirador", ubicacion: "Avenida Intercomunal, al lado del Estadio", detalle: "Atención primaria y diagnóstico", estatus: "Operativo", lat: 10.4630, lng: -66.6250 },
         { id: 153, nombre: "CDI Oropeza Castillo", tipo: "CDI", sector: "ASIC Oropeza Castillo", ubicacion: "Avenida principal Ruíz Pineda", detalle: "Atención integral, hospitalización adultos, RX, laboratorio y SRI.", estatus: "Operativo", lat: 10.4650, lng: -66.6280 },
@@ -222,7 +272,7 @@
 
     function centrarMapa(lat, lng) {
         map.setView([lat, lng], 16);
-        window.scrollTo({ top: document.getElementById('mapa-section').offsetTop - 20, behavior: 'smooth' });
+        window.scrollTo({ top: document.getElementById('mapaSalud').offsetTop - 100, behavior: 'smooth' });
     }
 
     function filtrarSalud(tipoSeleccionado, event) {
@@ -240,7 +290,6 @@
 
     cargarMapaYTabla();
 </script>
-
 <!-- Bootstrap 5 JS Bundle -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
