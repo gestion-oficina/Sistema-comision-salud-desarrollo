@@ -102,7 +102,8 @@
         .card-info-row { display: flex; align-items: center; gap: 8px; font-size: 12.5px; color: #475569; }
         .card-info-row strong { color: #1e293b; font-weight: 600; }
         
-        .card-footer { display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #f1f5f9; padding-top: 12px; margin-top: auto; }
+        .card-footer { display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #f1f5f9; padding-top: 12px; margin-top: auto; gap: 6px; flex-wrap: wrap; }
+        .card-actions-group { display: flex; gap: 6px; align-items: center; }
         
         .btn-primary { padding: 10px 18px; border: none; border-radius: 8px; cursor: pointer; background: var(--primary); color: white; font-size: 13px; font-weight: 600; display: flex; align-items: center; gap: 6px; transition: background 0.2s; box-shadow: 0 2px 4px rgba(37, 99, 235, 0.2); }
         .btn-primary:hover { background: #1d4ed8; }
@@ -110,10 +111,13 @@
         .btn-wa { background: #dcfce7; color: #15803d; padding: 6px 10px; border: none; border-radius: 6px; font-size: 11.5px; font-weight: 600; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; gap: 4px; transition: background 0.2s; }
         .btn-wa:hover { background: #bbf7d0; }
         
-        .btn-del { background: #fee2e2; color: #b91c1c; padding: 6px 10px; border: none; border-radius: 6px; font-size: 11.5px; font-weight: 600; cursor: pointer; transition: background 0.2s; }
+        .btn-edit { background: #fef3c7; color: #b45309; padding: 6px 10px; border: none; border-radius: 6px; font-size: 11.5px; font-weight: 600; cursor: pointer; transition: background 0.2s; display: inline-flex; align-items: center; gap: 4px; }
+        .btn-edit:hover { background: #fde68a; }
+
+        .btn-del { background: #fee2e2; color: #b91c1c; padding: 6px 10px; border: none; border-radius: 6px; font-size: 11.5px; font-weight: 600; cursor: pointer; transition: background 0.2s; display: inline-flex; align-items: center; gap: 4px; }
         .btn-del:hover { background: #fecaca; }
 
-        /* ESTILOS DEL MODAL CREATIVO */
+        /* ESTILOS DEL MODAL */
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(4px); display: none; justify-content: center; align-items: center; z-index: 10001; opacity: 0; transition: opacity 0.25s ease; }
         .modal-overlay.active { display: flex; opacity: 1; }
         .modal-container { background: white; width: 100%; max-width: 480px; border-radius: 16px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04); overflow: hidden; transform: scale(0.95); transition: transform 0.25s ease; }
@@ -233,7 +237,7 @@
     </div>
     </div>
 
-    <!-- MODAL DE REGISTRO INTEGRADO -->
+    <!-- MODAL DE REGISTRO / EDICIÓN INTEGRADO -->
     <div class="modal-overlay" id="registroModal">
         <div class="modal-container">
             <div class="modal-header">
@@ -241,11 +245,11 @@
                 <button class="modal-close" onclick="cerrarModalRegistro()">✕</button>
             </div>
             <div class="modal-body" id="modalFormBody">
-                <!-- Se llena dinámicamente según la pestaña -->
+                <!-- Se llena dinámicamente -->
             </div>
             <div class="modal-footer">
                 <button class="btn-secondary" onclick="cerrarModalRegistro()">Cancelar</button>
-                <button class="btn-primary" onclick="guardarRegistroModal()">Guardar Registro</button>
+                <button class="btn-primary" onclick="guardarRegistroModal()" id="btnGuardarModal">Guardar Registro</button>
             </div>
         </div>
     </div>
@@ -258,6 +262,7 @@
 
         let filtroActual = 'liderazgos';
         let todosLosRegistros = [];
+        let idRegistroEditando = null; // Variable para saber si estamos editando
 
         window.iniciarApp = function() {
             const nombre = sessionStorage.getItem("usuario_nombre");
@@ -343,7 +348,10 @@
                         </div>
                         <div class="card-footer">
                             ${l.telefono ? `<a class="btn-wa" href="https://wa.me/58${l.telefono.replace(/\s+/g, '')}" target="_blank">💬 WhatsApp</a>` : '<span></span>'}
-                            <button class="btn-del" onclick="eliminarRegistro(${l.id})">Eliminar</button>
+                            <div class="card-actions-group">
+                                <button class="btn-edit" onclick="abrirModalEditar(${l.id})">✏️ Editar</button>
+                                <button class="btn-del" onclick="eliminarRegistro(${l.id})">🗑️ Eliminar</button>
+                            </div>
                         </div>
                     </div>
                 `).join("");
@@ -365,7 +373,10 @@
                         </div>
                         <div class="card-footer">
                             ${c.telefono ? `<a class="btn-wa" href="https://wa.me/58${c.telefono.replace(/\s+/g, '')}" target="_blank">💬 WhatsApp</a>` : '<span></span>'}
-                            <button class="btn-del" onclick="eliminarRegistro(${c.id})">Eliminar</button>
+                            <div class="card-actions-group">
+                                <button class="btn-edit" onclick="abrirModalEditar(${c.id})">✏️ Editar</button>
+                                <button class="btn-del" onclick="eliminarRegistro(${c.id})">🗑️ Eliminar</button>
+                            </div>
                         </div>
                     </div>
                 `).join("");
@@ -387,9 +398,13 @@
         }
 
         function abrirModalRegistro() {
+            idRegistroEditando = null; // Modo Creación
             const modal = document.getElementById("registroModal");
             const title = document.getElementById("modalTitle");
             const body = document.getElementById("modalFormBody");
+            const btnGuardar = document.getElementById("btnGuardarModal");
+
+            btnGuardar.innerText = "Guardar Registro";
 
             if (filtroActual === 'liderazgos') {
                 title.innerText = "Registrar Líder Territorial / UBCh";
@@ -444,8 +459,74 @@
             modal.classList.add("active");
         }
 
+        function abrirModalEditar(id) {
+            idRegistroEditando = id; // Modo Edición
+            const registro = todosLosRegistros.find(r => r.id === id);
+            if (!registro) return;
+
+            const modal = document.getElementById("registroModal");
+            const title = document.getElementById("modalTitle");
+            const body = document.getElementById("modalFormBody");
+            const btnGuardar = document.getElementById("btnGuardarModal");
+
+            btnGuardar.innerText = "Guardar Cambios";
+
+            if (registro.tipo !== 'Comuna') {
+                title.innerText = "Editar Líder Territorial / UBCh";
+                body.innerHTML = `
+                    <div class="form-group">
+                        <label>Nombre Completo</label>
+                        <input type="text" id="m_nombre" value="${registro.nombre || ''}">
+                    </div>
+                    <div class="form-group">
+                        <label>Cédula de Identidad</label>
+                        <input type="text" id="m_cedula" value="${registro.cedula || ''}">
+                    </div>
+                    <div class="form-group">
+                        <label>Teléfono de Contacto</label>
+                        <input type="text" id="m_telefono" value="${registro.telefono || ''}">
+                    </div>
+                    <div class="form-group">
+                        <label>Sector / Comunidad</label>
+                        <input type="text" id="m_sector" value="${registro.sector || ''}">
+                    </div>
+                `;
+            } else {
+                title.innerText = "Editar Organización o Comuna";
+                body.innerHTML = `
+                    <div class="form-group">
+                        <label>Nombre de la Organización</label>
+                        <input type="text" id="m_nombre" value="${registro.nombre || ''}">
+                    </div>
+                    <div class="form-group">
+                        <label>Eje / Sector</label>
+                        <input type="text" id="m_sector" value="${registro.sector || ''}">
+                    </div>
+                    <div class="form-group">
+                        <label>Nombre del Responsable</label>
+                        <input type="text" id="m_responsable" value="${registro.responsable || ''}">
+                    </div>
+                    <div class="form-group">
+                        <label>Cédula del Responsable</label>
+                        <input type="text" id="m_cedula" value="${registro.cedula || ''}">
+                    </div>
+                    <div class="form-group">
+                        <label>Teléfono</label>
+                        <input type="text" id="m_telefono" value="${registro.telefono || ''}">
+                    </div>
+                    <div class="form-group">
+                        <label>Correo Electrónico (Opcional)</label>
+                        <input type="email" id="m_email" value="${registro.email || ''}">
+                    </div>
+                `;
+            }
+
+            modal.classList.add("active");
+        }
+
         function cerrarModalRegistro() {
             document.getElementById("registroModal").classList.remove("active");
+            idRegistroEditando = null;
         }
 
         async function guardarRegistroModal() {
@@ -458,36 +539,52 @@
             }
 
             try {
-                let nuevoRegistro = {};
+                if (idRegistroEditando === null) {
+                    // CREAR NUEVO
+                    let nuevoRegistro = {};
+                    if (filtroActual === 'liderazgos') {
+                        nuevoRegistro = {
+                            nombre: nombre,
+                            cedula: document.getElementById("m_cedula")?.value.trim() || null,
+                            telefono: document.getElementById("m_telefono")?.value.trim() || null,
+                            sector: document.getElementById("m_sector")?.value.trim() || null,
+                            responsable: null,
+                            email: null,
+                            tipo: 'Liderazgo',
+                            coordinacion: 'Politica'
+                        };
+                    } else {
+                        nuevoRegistro = {
+                            nombre: nombre,
+                            sector: document.getElementById("m_sector")?.value.trim() || null,
+                            responsable: document.getElementById("m_responsable")?.value.trim() || null,
+                            cedula: document.getElementById("m_cedula")?.value.trim() || null,
+                            telefono: document.getElementById("m_telefono")?.value.trim() || null,
+                            email: document.getElementById("m_email")?.value.trim() || null,
+                            tipo: 'Comuna',
+                            coordinacion: 'Politica'
+                        };
+                    }
 
-                if (filtroActual === 'liderazgos') {
-                    nuevoRegistro = {
-                        nombre: nombre,
-                        cedula: document.getElementById("m_cedula")?.value.trim() || null,
-                        telefono: document.getElementById("m_telefono")?.value.trim() || null,
-                        sector: document.getElementById("m_sector")?.value.trim() || null,
-                        responsable: null,
-                        email: null,
-                        tipo: 'Liderazgo',
-                        coordinacion: 'Politica'
-                    };
+                    await window.sqlClient`
+                        INSERT INTO casos_salud (nombre, cedula, telefono, sector, responsable, email, tipo, coordinacion) 
+                        VALUES (${nuevoRegistro.nombre}, ${nuevoRegistro.cedula}, ${nuevoRegistro.telefono}, ${nuevoRegistro.sector}, ${nuevoRegistro.responsable}, ${nuevoRegistro.email}, ${nuevoRegistro.tipo}, ${nuevoRegistro.coordinacion})
+                    `;
                 } else {
-                    nuevoRegistro = {
-                        nombre: nombre,
-                        sector: document.getElementById("m_sector")?.value.trim() || null,
-                        responsable: document.getElementById("m_responsable")?.value.trim() || null,
-                        cedula: document.getElementById("m_cedula")?.value.trim() || null,
-                        telefono: document.getElementById("m_telefono")?.value.trim() || null,
-                        email: document.getElementById("m_email")?.value.trim() || null,
-                        tipo: 'Comuna',
-                        coordinacion: 'Politica'
-                    };
-                }
+                    // ACTUALIZAR EXISTENTE
+                    const vNombre = nombre;
+                    const vSector = document.getElementById("m_sector")?.value.trim() || null;
+                    const vResponsable = document.getElementById("m_responsable")?.value.trim() || null;
+                    const vCedula = document.getElementById("m_cedula")?.value.trim() || null;
+                    const vTelefono = document.getElementById("m_telefono")?.value.trim() || null;
+                    const vEmail = document.getElementById("m_email")?.value.trim() || null;
 
-                await window.sqlClient`
-                    INSERT INTO casos_salud (nombre, cedula, telefono, sector, responsable, email, tipo, coordinacion) 
-                    VALUES (${nuevoRegistro.nombre}, ${nuevoRegistro.cedula}, ${nuevoRegistro.telefono}, ${nuevoRegistro.sector}, ${nuevoRegistro.responsable}, ${nuevoRegistro.email}, ${nuevoRegistro.tipo}, ${nuevoRegistro.coordinacion})
-                `;
+                    await window.sqlClient`
+                        UPDATE casos_salud 
+                        SET nombre = ${vNombre}, sector = ${vSector}, responsable = ${vResponsable}, cedula = ${vCedula}, telefono = ${vTelefono}, email = ${vEmail}
+                        WHERE id = ${Number(idRegistroEditando)}
+                    `;
+                }
 
                 cerrarModalRegistro();
                 cargarDatosPoliticos();
