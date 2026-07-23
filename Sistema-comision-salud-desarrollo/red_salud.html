@@ -1,296 +1,686 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script>
+        const sesion = sessionStorage.getItem('usuario_logueado');
+        if (!sesion && window.location.pathname !== "/login.html") {
+            window.location.replace("login.html");
+        } else {
+            document.addEventListener("DOMContentLoaded", () => {
+                document.body.style.display = "block";
+            });
+        }
+    </script>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
     <title>Red de Salud - Municipio Plaza</title>
-    <!-- Bootstrap 5 CSS -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Bootstrap 5 CSS (Para componentes adicionales) -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Leaflet CSS -->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    
     <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Chart.js para gráficos estadísticos -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- Leaflet CSS y JS para el mapa interactivo -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+
+    <!-- Importamos el cliente ESM de Neon para conectar directo -->
+    <script type="module">
+        import { neon } from 'https://cdn.jsdelivr.net/npm/@neondatabase/serverless/+esm';
+        const connectionString = "postgresql://neondb_owner:npg_djCruebcPY94@ep-sparkling-math-avejx7o4-pooler.c-11.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require";
+        window.sql = neon(connectionString, { disableWarningInBrowsers: true });
+    </script>
+
     <style>
-        body {
-            background-color: #f4f7f6;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            overflow-x: hidden;
+        :root { 
+            --bg-main: #f8fafc; 
+            --sidebar-bg: #0f172a; 
+            --sidebar-active: #0284c7; 
+            --sidebar-text-sub: #64748b; 
+            --menu-text: #94a3b8; 
+            --text-dark-title: #0f2547; 
+            --success-color: #10b981; 
+            --border-color: #e2e8f0; 
+            --danger-color: #ef4444;
+            --warning-color: #f59e0b;
+            --card-shadow: 0 4px 12px -2px rgba(15, 23, 42, 0.04), 0 2px 6px -1px rgba(15, 23, 42, 0.02);
         }
-        /* Sidebar Idéntico al Sistema Original */
-        .sidebar {
-            background-color: #0f172a;
-            color: #fff;
-            min-height: 100vh;
-            width: 240px;
-            position: fixed;
-            top: 0;
-            left: 0;
-            z-index: 1000;
-            padding: 15px 12px;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
+        * { margin:0; padding:0; box-sizing:border-box; font-family: 'Inter', sans-serif; }
+        body { background: var(--bg-main); color:#334155; overflow-x: hidden; }
+        
+        .layout { display:grid; grid-template-columns:260px 1fr; min-height:100vh; }
+        
+        /* SIDEBAR INSTITUCIONAL EXACTO */
+        .sidebar { background: var(--sidebar-bg); color: #fff; min-height: 100vh; width: 260px; padding: 15px 12px; display: flex; flex-direction: column; justify-content: space-between; z-index: 1000; position: fixed; top: 0; left: 0; }
+        .sidebar-top-wrapper { display: flex; flex-direction: column; }
+        .sidebar-brand { font-size: 10px; font-weight: bold; color: #cbd5e1; text-transform: uppercase; line-height: 1.3; margin-bottom: 15px; border-bottom: 1px solid #1e293b; padding-bottom: 12px; text-align: center; }
+        .menu-category { font-size: 9px; color: var(--sidebar-text-sub); font-weight: bold; text-transform: uppercase; margin-top: 12px; margin-bottom: 4px; letter-spacing: 0.5px; padding-left: 10px; }
+        .menu { color: var(--menu-text); text-decoration: none; padding: 6px 10px; display: block; border-radius: 4px; font-size: 12px; margin-bottom: 2px; transition: all 0.2s; }
+        .menu:hover { background: rgba(255, 255, 255, 0.05); color: #fff; }
+        .menu.active-page { background: var(--sidebar-active); color: #ffffff; font-weight: 600; }
+        .user-box { border-top: 1px solid #1e293b; padding-top: 12px; margin-top: 10px; font-size: 12px; }
+        
+        /* PANEL CENTRAL */
+        .main { padding: 30px; margin-left: 260px; min-width: 0; }
+        .main h2 { font-size: 24px; color: var(--text-dark-title); font-weight: 700; margin-bottom: 4px; }
+        .header-actions { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; flex-wrap: wrap; gap: 16px; }
+        .subtitle { font-size: 13px; color: #64748b; font-weight: 500; margin-bottom: 0; }
+        
+        /* BOTONES */
+        .btn-primary { background: var(--sidebar-active); color: white; border: none; padding: 10px 18px; font-size: 13px; font-weight: 600; border-radius: 8px; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: all 0.2s; box-shadow: 0 2px 4px rgba(2, 132, 199, 0.2); }
+        .btn-primary:hover { background: #0369a1; transform: translateY(-1px); }
+        .btn-success { background: var(--success-color); color: white; border: none; padding: 10px 16px; font-size: 13px; font-weight: 600; border-radius: 8px; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: all 0.2s; }
+        .btn-success:hover { background: #059669; }
+
+        /* SECCIÓN DE ANALÍTICA (GRÁFICOS Y MAPA) */
+        .analytics-container { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 28px; }
+        .analytics-card { background: white; border: 1px solid var(--border-color); border-radius: 16px; padding: 22px; box-shadow: var(--card-shadow); display: flex; flex-direction: column; gap: 14px; }
+        .analytics-card h3 { font-size: 14px; color: var(--text-dark-title); font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; display: flex; align-items: center; justify-content: space-between; }
+        .chart-box { position: relative; height: 260px; width: 100%; display: flex; justify-content: center; align-items: center; }
+        #mapa-red { height: 260px; width: 100%; border-radius: 10px; z-index: 10; border: 1px solid var(--border-color); }
+
+        /* BARRA DE FILTROS Y BÚSQUEDA */
+        .toolbar-container { background: white; padding: 16px 20px; border-radius: 12px; border: 1px solid var(--border-color); box-shadow: var(--card-shadow); display: flex; gap: 16px; align-items: center; margin-bottom: 24px; flex-wrap: wrap; }
+        .search-box { flex: 1; min-width: 240px; position: relative; }
+        .search-box input { width: 100%; padding: 10px 14px 10px 36px; border: 1px solid var(--border-color); border-radius: 8px; font-size: 13px; background: #f8fafc; outline: none; transition: all 0.2s; }
+        .search-box input:focus { background: white; border-color: var(--sidebar-active); box-shadow: 0 0 0 3px rgba(2,132,199,0.08); }
+        .search-icon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #94a3b8; font-size: 14px; }
+        
+        .filter-group { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+        .filter-btn { background: #f1f5f9; border: 1px solid var(--border-color); padding: 8px 14px; font-size: 12px; font-weight: 600; border-radius: 6px; color: #475569; cursor: pointer; transition: all 0.2s; }
+        .filter-btn:hover { background: #e2e8f0; }
+        .filter-btn.active { background: var(--sidebar-active); color: white; border-color: var(--sidebar-active); }
+
+        /* KPI STATS */
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-bottom: 28px; }
+        .stat-card { background: white; padding: 22px; border-radius: 12px; border: 1px solid var(--border-color); box-shadow: var(--card-shadow); border-left: 4px solid #cbd5e1; transition: transform 0.2s; }
+        .stat-card:hover { transform: translateY(-2px); }
+        .stat-card.sc-total { border-left-color: var(--sidebar-bg); }
+        .stat-card.sc-cmp { border-left-color: var(--sidebar-active); }
+        .stat-card.sc-ba { border-left-color: var(--success-color); }
+        .stat-card.sc-ejes { border-left-color: #db2777; }
+        
+        .stat-card h4 { font-size: 11px; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
+        .stat-card .number { font-size: 30px; font-weight: 700; color: var(--text-dark-title); }
+        .stat-card .footer-text { font-size: 11px; color: var(--success-color); font-weight: 600; margin-top: 6px; display: flex; align-items: center; gap: 4px; }
+        
+        /* REJILLA EJES CRONOLÓGICOS */
+        .ejes-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(420px, 1fr)); gap: 28px; }
+        .eje-card { background: white; border: 1px solid var(--border-color); border-radius: 16px; overflow: hidden; display: flex; flex-direction: column; box-shadow: var(--card-shadow); }
+        .eje-header { background: #f8fafc; padding: 18px 24px; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; }
+        .eje-header h3 { font-size: 14px; color: var(--text-dark-title); font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+        .eje-badge { background: #f0fdf4; color: #166534; border: 1px solid #bbf7d0; padding: 4px 12px; border-radius: 99px; font-size: 11px; font-weight: 700; }
+        .eje-body { padding: 16px 24px; flex-grow: 1; display: flex; flex-direction: column; gap: 14px; }
+        
+        /* TARJETAS INTERNAS DE CENTROS */
+        .centro-item { padding: 16px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; display: flex; flex-direction: column; gap: 8px; transition: all 0.2s ease; }
+        .centro-item:hover { background: #ffffff; border-color: #cbd5e1; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.04); }
+        .centro-top-row { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+        .centro-name { font-size: 13.5px; font-weight: 600; color: #1e293b; }
+        
+        .badges-container { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+        .centro-type { font-size: 10px; font-weight: 700; padding: 3px 8px; border-radius: 6px; text-transform: uppercase; letter-spacing: 0.3px; }
+        .type-cdi { background: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; }
+        .type-cmp { background: #e0f2fe; color: #0369a1; border: 1px solid #bae6fd; }
+        .type-ba { background: #dcfce7; color: #166534; border: 1px solid #bbf7d0; }
+        .type-default { background: #f1f5f9; color: #475569; }
+
+        .status-badge { font-size: 10px; font-weight: 700; padding: 3px 8px; border-radius: 6px; display: flex; align-items: center; gap: 4px; }
+        .status-operativo { background: #dcfce7; color: #166534; border: 1px solid #bbf7d0; }
+        .status-fallas { background: #fef3c7; color: #b45309; border: 1px solid #fde68a; }
+        .status-inactivo { background: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; }
+        
+        .centro-detalles { font-size: 13px; color: #475569; line-height: 1.5; background: white; padding: 10px; border-radius: 6px; border: 1px solid #f1f5f9; }
+        .centro-location { font-size: 12px; color: #64748b; margin-top: 2px; display: flex; align-items: center; gap: 6px; }
+        
+        .actions-area { margin-top: 4px; display: flex; gap: 8px; justify-content: flex-end; border-top: 1px dashed #e2e8f0; padding-top: 10px; }
+        .btn-action { border: none; border-radius: 6px; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; cursor: pointer; background: white; color: #64748b; border: 1px solid #e2e8f0; transition: all 0.2s; font-size: 13px; }
+        .btn-edit:hover { background: #fef3c7; color: #d97706; border-color: #fde68a; }
+        .btn-delete:hover { background: #fee2e2; color: var(--danger-color); border-color: #fca5a5; }
+
+        /* VENTANA MODAL */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.4); backdrop-filter: blur(4px); display: none; align-items: center; justify-content: center; z-index: 2000; padding: 16px; }
+        .modal-overlay.active { display: flex; }
+        .modal-content { background: white; border-radius: 16px; width: 100%; max-width: 520px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.15); overflow: hidden; animation: slideUp 0.25s ease-out; border: 1px solid #e2e8f0; max-height: 90vh; display: flex; flex-direction: column; }
+        .modal-header { background: #f8fafc; padding: 18px 24px; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; }
+        .modal-header h3 { font-size: 16px; color: var(--text-dark-title); font-weight: 700; }
+        .modal-close { background: transparent; border: none; font-size: 22px; cursor: pointer; color: #94a3b8; transition: color 0.2s; }
+        .modal-close:hover { color: #475569; }
+        .modal-body { padding: 24px; display: flex; flex-direction: column; gap: 16px; overflow-y: auto; }
+        
+        .form-group { display: flex; flex-direction: column; gap: 6px; }
+        .form-group label { font-size: 11px; font-weight: 700; color: #475569; text-transform: uppercase; letter-spacing: 0.5px; }
+        .form-group input, .form-group select, .form-group textarea { padding: 11px 14px; border: 1px solid var(--border-color); border-radius: 8px; font-size: 13.5px; color: #1e293b; outline: none; background: #f8fafc; transition: all 0.2s; }
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus { background: white; border-color: var(--sidebar-active); box-shadow: 0 0 0 4px rgba(2,132,199,0.08); }
+        
+        .modal-footer { padding: 16px 24px; background: #f8fafc; border-top: 1px solid #e2e8f0; display: flex; justify-content: flex-end; gap: 12px; }
+        .btn-secondary { background: white; border: 1px solid var(--border-color); padding: 11px 20px; font-size: 13px; font-weight: 600; border-radius: 8px; cursor: pointer; color: #475569; transition: background 0.2s; }
+        .btn-secondary:hover { background: #f8fafc; }
+
+        /* HEADER FLOTANTE MOVIL */
+        .mobile-header { display: none; background: var(--sidebar-bg); color: white; padding: 14px 20px; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 1100; }
+        .mobile-toggle { background: transparent; border: none; color: white; font-size: 22px; cursor: pointer; }
+
+        @keyframes slideUp { from { transform: translateY(12px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+        @media (max-width: 1024px) { 
+            .ejes-grid { grid-template-columns: 1fr; } 
+            .analytics-container { grid-template-columns: 1fr; }
         }
-        .sidebar-brand {
-            font-size: 10px;
-            font-weight: bold;
-            color: #cbd5e1;
-            text-transform: uppercase;
-            line-height: 1.3;
-            margin-bottom: 15px;
-            border-bottom: 1px solid #1e293b;
-            padding-bottom: 12px;
-        }
-        .sidebar .nav-label {
-            font-size: 9px;
-            color: #64748b;
-            font-weight: bold;
-            text-transform: uppercase;
-            margin-top: 12px;
-            margin-bottom: 4px;
-            letter-spacing: 0.5px;
-        }
-        .sidebar a {
-            color: #94a3b8;
-            text-decoration: none;
-            padding: 6px 10px;
-            display: block;
-            border-radius: 4px;
-            font-size: 12px;
-            margin-bottom: 2px;
-            transition: all 0.2s;
-        }
-        .sidebar a:hover, .sidebar a.active {
-            background-color: #0284c7;
-            color: #fff;
-        }
-        .user-box {
-            border-top: 1px solid #1e293b;
-            padding-top: 12px;
-            margin-top: 10px;
-            font-size: 12px;
-        }
-        /* Contenido Principal Ajustado al Ancho del Sidebar */
-        .main-content {
-            margin-left: 240px;
-            padding: 25px;
-        }
-        .card-stat {
-            border: none;
-            border-radius: 10px;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
-            transition: transform 0.2s;
-        }
-        .card-stat:hover {
-            transform: translateY(-3px);
-        }
-        #mapaSalud {
-            height: 480px;
-            width: 100%;
-            border-radius: 10px;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
-        }
-        .panel-container {
-            background: #fff;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+        @media (max-width: 768px) {
+            .layout { display: block; }
+            .sidebar { position: fixed; top: 52px; left: -260px; width: 260px; height: calc(100vh - 52px); transition: left 0.3s ease; }
+            .sidebar.active { left: 0; }
+            .mobile-header { display: flex; }
+            .main { padding: 20px 16px; margin-left: 0; }
+            .main h2 { font-size: 20px; }
+            .stats-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+            .toolbar-container { flex-direction: column; align-items: stretch; }
         }
     </style>
 </head>
-<body>
 
-    <!-- Sidebar Institucional Original -->
-    <div class="sidebar">
-        <div>
-            <div class="sidebar-brand">
-                COMISIÓN PERMANENTE DE SALUD<br>Y DESARROLLO SOCIAL INTEGRAL
+<body style="display: none;">
+
+    <div class="mobile-header">
+        <span style="font-size: 13px; font-weight: 700;">RED DE SALUD - PLAZA</span>
+        <button class="mobile-toggle" onclick="toggleSidebar()"><i class="fa-solid fa-bars"></i></button>
+    </div>
+
+    <div class="layout">
+        <!-- Sidebar Institucional Exacto -->
+        <div class="sidebar" id="sidebarMenu">
+            <div class="sidebar-top-wrapper">
+                <div class="sidebar-brand">
+                    COMISIÓN PERMANENTE DE SALUD<br>Y DESARROLLO SOCIAL INTEGRAL
+                </div>
+                
+                <a class="menu" href="dashboard.html"><i class="fa-solid fa-house me-2"></i> Principal</a>
+
+                <div class="menu-category">Coor. Ejecutiva</div>
+                <a class="menu" href="ejecutiva.html"><i class="fa-solid fa-file-lines me-2"></i> Oficios e Informes</a>
+                <a class="menu" href="planificacion.html"><i class="fa-solid fa-calendar-days me-2"></i> Planificación Semanal</a>
+
+                <div class="menu-category">Coor. Política</div>
+                <a class="menu" href="politica.html"><i class="fa-solid fa-users-rectangle me-2"></i> Liderazgos y Comunas</a>
+
+                <div class="menu-category">Coor. Social</div>
+                <a class="menu" href="social.html"><i class="fa-solid fa-hand-holding-medical me-2"></i> Casos Sociales</a>
+                <a class="menu active-page" href="red_salud.html"><i class="fa-solid fa-hospital me-2"></i> Red de Salud (CPT/CDI)</a>
+
+                <div class="menu-category">Gestión Digital</div>
+                <a class="menu" href="bitacora.html"><i class="fa-solid fa-book me-2"></i> Bitácora de Eventos</a>
+                <a class="menu" href="reportes.html"><i class="fa-solid fa-chart-line me-2"></i> Reportes e Informes</a>
+                <a class="menu" href="formatos.html"><i class="fa-solid fa-folder-open me-2"></i> Formatos de Oficina</a>
+
+                <div id="enlaceAuditoria" style="display: none;">
+                    <a href="auditoria.html" class="menu"><i class="fa-solid fa-shield-halved me-2"></i> Panel de Auditoría</a>
+                </div>
             </div>
-            
-            <a href="/principal"><i class="fa-solid fa-house me-2"></i> Principal</a>
 
-            <div class="nav-label">Coor. Ejecutiva</div>
-            <a href="/oficios"><i class="fa-solid fa-file-lines me-2"></i> Oficios e Informes</a>
-            <a href="/planificacion"><i class="fa-solid fa-calendar-days me-2"></i> Planificación Semanal</a>
+            <div class="user-box">
+                <div class="fw-bold text-white" id="nombreUsuarioSidebar">Willie Aponte</div>
+                <div class="text-info small mb-1" style="font-size: 10px; font-weight: bold;" id="rolUsuarioSidebar">ADMIN</div>
+                <a href="#" onclick="cerrarSesion()" class="text-danger p-0 text-decoration-none" style="font-size: 11px;"><i class="fa-solid fa-arrow-right-from-bracket me-1"></i> Cerrar sesión</a>
+            </div>
 
-            <div class="nav-label">Coor. Política</div>
-            <a href="/liderazgos"><i class="fa-solid fa-users-rectangle me-2"></i> Liderazgos y Comunas</a>
-
-            <div class="nav-label">Coor. Social</div>
-            <a href="/social"><i class="fa-solid fa-hand-holding-medical me-2"></i> Casos Sociales</a>
-            <a href="/red_salud" class="active"><i class="fa-solid fa-hospital me-2"></i> Red de Salud (CPT/CDI)</a>
-
-            <div class="nav-label">Gestión Digital</div>
-            <a href="/bitacora"><i class="fa-solid fa-book me-2"></i> Bitácora de Eventos</a>
-            <a href="/reportes"><i class="fa-solid fa-chart-line me-2"></i> Reportes e Informes</a>
-            <a href="/formatos"><i class="fa-solid fa-folder-open me-2"></i> Formatos de Oficina</a>
-            <a href="/auditoria"><i class="fa-solid fa-shield-halved me-2"></i> Panel de Auditoría</a>
+            <script>
+                if (sessionStorage.getItem("usuario_rol") === "admin") {
+                    document.getElementById("enlaceAuditoria").style.display = "block";
+                }
+                const nombreGuardado = sessionStorage.getItem("usuario_nombre");
+                if(nombreGuardado) {
+                    document.getElementById("nombreUsuarioSidebar").innerText = nombreGuardado;
+                }
+                function cerrarSesion() {
+                    sessionStorage.clear();
+                    window.location.replace("login.html");
+                }
+            </script>
         </div>
 
-        <div class="user-box">
-            <div class="fw-bold text-white">Willie Aponte</div>
-            <div class="text-info small mb-1" style="font-size: 10px; font-weight: bold;">ADMIN</div>
-            <a href="/logout" class="text-danger p-0" style="font-size: 11px;"><i class="fa-solid fa-arrow-right-from-bracket me-1"></i> Cerrar sesión</a>
+        <!-- Panel Central -->
+        <div class="main">
+            <div class="header-actions">
+                <div>
+                    <h2>Monitoreo de la Red de Salud Municipal</h2>
+                    <div class="subtitle">Ejes Político-Asistenciales (CDI / CMP) — Municipio Ambrosio Plaza</div>
+                </div>
+                <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                    <button class="btn-success" onclick="exportarExcel()"><i class="fa-solid fa-file-excel me-1"></i> Descargar Excel</button>
+                    <button class="btn-primary" onclick="abrirModal()"><i class="fa-solid fa-plus me-1"></i> Registrar Centro</button>
+                </div>
+            </div>
+
+            <!-- TARJETAS KPI -->
+            <div class="stats-grid">
+                <div class="stat-card sc-total">
+                    <h4>Total Centros Evaluados</h4>
+                    <div class="number" id="total-centros">0</div>
+                    <div class="footer-text"><i class="fa-solid fa-circle-check"></i> 100% Cobertura</div>
+                </div>
+                <div class="stat-card sc-cmp">
+                    <h4>Consultorios Médicos (CMP)</h4>
+                    <div class="number" id="total-cmp" style="color: var(--sidebar-active);">0</div>
+                </div>
+                <div class="stat-card sc-ba">
+                    <h4>Módulos Barrio Adentro / CDI</h4>
+                    <div class="number" id="total-ba" style="color: var(--success-color);">0</div>
+                </div>
+                <div class="stat-card sc-ejes">
+                    <h4>Ejes Territoriales</h4>
+                    <div class="number" id="total-ejes" style="color: #db2777;">0</div>
+                </div>
+            </div>
+
+            <!-- SECCIÓN ANALÍTICA: GRÁFICO ESTADÍSTICO Y MAPA -->
+            <div class="analytics-container">
+                <div class="analytics-card">
+                    <h3><span><i class="fa-solid fa-chart-pie text-primary me-2"></i> Operabilidad de la Red</span></h3>
+                    <div class="chart-box">
+                        <canvas id="graficoOperabilidad"></canvas>
+                    </div>
+                </div>
+                <div class="analytics-card">
+                    <h3><span><i class="fa-solid fa-map-location-dot text-primary me-2"></i> Mapa de Ubicación Georreferenciada</span></h3>
+                    <div id="mapa-red"></div>
+                </div>
+            </div>
+
+            <!-- BARRA DE BÚSQUEDA Y FILTROS -->
+            <div class="toolbar-container">
+                <div class="search-box">
+                    <span class="search-icon"><i class="fa-solid fa-magnifying-glass"></i></span>
+                    <input type="text" id="input-busqueda" placeholder="Buscar por centro, ubicación o detalles..." oninput="filtrarRedSalud()">
+                </div>
+                <div class="filter-group">
+                    <button class="filter-btn active" data-filtro="TODOS" onclick="cambiarFiltro('TODOS', this)">Todos</button>
+                    <button class="filter-btn" data-filtro="CDI" onclick="cambiarFiltro('CDI', this)">CDI</button>
+                    <button class="filter-btn" data-filtro="CMP" onclick="cambiarFiltro('CMP', this)">CMP</button>
+                    <button class="filter-btn" data-filtro="Barrio Adentro" onclick="cambiarFiltro('Barrio Adentro', this)">Barrio Adentro</button>
+                </div>
+            </div>
+
+            <div class="ejes-grid" id="contenedor-ejes">
+                <div id="status-conexion" style="color: #64748b; font-size: 13px;"><i class="fa-solid fa-spinner fa-spin me-2"></i> Sincronizando red...</div>
+            </div>
         </div>
     </div>
 
-    <!-- Contenido Principal -->
-    <div class="main-content">
-        <div class="d-flex justify-content-between align-items-center pb-2 mb-4 border-bottom">
-            <h1 class="h3 fw-bold text-dark">Panel de Control de la Red de Salud - Municipio Plaza</h1>
-            <span class="badge bg-success fs-6 p-2"><i class="fa-solid fa-database me-1"></i> Sistema Conectado (Neon DB)</span>
-        </div>
+    <!-- MODAL DE REGISTRO / EDICIÓN -->
+    <div class="modal-overlay" id="modalCentro">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modal-titulo">Registrar Nuevo Centro de Salud</h3>
+                <button class="modal-close" onclick="cerrarModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="centro-id">
+                
+                <div class="form-group">
+                    <label>Nombre del Establecimiento / Reporte</label>
+                    <input type="text" id="form-nombre" placeholder="Ej: CDI Oropeza Castillo">
+                </div>
+                
+                <div class="form-group">
+                    <label>Tipo de Centro</label>
+                    <select id="form-tipo">
+                        <option value="CDI">CDI (Centro de Diagnóstico Integral)</option>
+                        <option value="CMP">CMP (Consultorio Médico Popular)</option>
+                        <option value="Barrio Adentro">Módulo Barrio Adentro</option>
+                        <option value="Sala de Rehabilitación">SRI / Especializado</option>
+                    </select>
+                </div>
 
-        <!-- Tarjetas de Estadísticas -->
-        <div class="row g-3 mb-4">
-            <div class="col-md-3">
-                <div class="card card-stat bg-white p-3 border-start border-primary border-4">
-                    <div class="text-muted small">Total Registros</div>
-                    <h3 class="fw-bold text-dark mb-0">43</h3>
-                    <small class="text-primary"><i class="fa-solid fa-database"></i> Base consolidada</small>
+                <div class="form-group">
+                    <label>Estatus Operativo</label>
+                    <select id="form-estatus">
+                        <option value="Operativo">🟢 Operativo (Funcionando con normalidad)</option>
+                        <option value="Con fallas">🟡 Con fallas (Limitaciones de insumos o personal)</option>
+                        <option value="Inactivo">🔴 Inactivo / Cerrado temporalmente</option>
+                    </select>
                 </div>
-            </div>
-            <div class="col-md-3">
-                <div class="card card-stat bg-white p-3 border-start border-success border-4">
-                    <div class="text-muted small">Centros Operativos</div>
-                    <h3 class="fw-bold text-success mb-0">5</h3>
-                    <small class="text-success"><i class="fa-solid fa-circle-check"></i> CDIs y Consultorios</small>
+                
+                <div class="form-group">
+                    <label>Eje Territorial / Sector</label>
+                    <input type="text" id="form-sector" placeholder="Ej: ASIC Oropeza Castillo">
                 </div>
-            </div>
-            <div class="col-md-3">
-                <div class="card card-stat bg-white p-3 border-start border-warning border-4">
-                    <div class="text-muted small">Con Fallas / En Gestión</div>
-                    <h3 class="fw-bold text-warning mb-0">1</h3>
-                    <small class="text-warning"><i class="fa-solid fa-triangle-exclamation"></i> Requiere atención</small>
+                
+                <div class="form-group">
+                    <label>Dirección / Ubicación Exacta</label>
+                    <input type="text" id="form-ubicacion" placeholder="Ej: Avenida Intercomunal, al lado del Liceo">
                 </div>
-            </div>
-            <div class="col-md-3">
-                <div class="card card-stat bg-white p-3 border-start border-info border-4">
-                    <div class="text-muted small">Comunas Vinculadas</div>
-                    <h3 class="fw-bold text-info mb-0">20+</h3>
-                    <small class="text-info"><i class="fa-solid fa-users"></i> Ejes territoriales</small>
-                </div>
-            </div>
-        </div>
 
-        <!-- Mapa Interactivo con Filtros -->
-        <div class="panel-container mb-4">
-            <div class="d-flex justify-content-between align-items-center mb-3">
-                <h5 class="mb-0 fw-bold"><i class="fa-solid fa-map-location-dot text-primary me-2"></i> Geolocalización de Centros de Salud de Guarenas</h5>
-                <div class="btn-group" role="group" id="grupo-filtros">
-                    <button class="btn btn-sm btn-outline-primary active" onclick="filtrarSalud('todos', event)">Todos</button>
-                    <button class="btn btn-sm btn-outline-success" onclick="filtrarSalud('CDI', event)">CDI</button>
-                    <button class="btn btn-sm btn-outline-info" onclick="filtrarSalud('CMP', event)">CMP</button>
-                    <button class="btn btn-sm btn-outline-warning" onclick="filtrarSalud('Barrio Adentro', event)">Barrio Adentro</button>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                    <div class="form-group">
+                        <label>Latitud (Opcional)</label>
+                        <input type="text" id="form-lat" placeholder="Ej: 10.4650">
+                    </div>
+                    <div class="form-group">
+                        <label>Longitud (Opcional)</label>
+                        <input type="text" id="form-lng" placeholder="Ej: -66.6280">
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label>Novedades / Reporte del Servicio (Detalles)</label>
+                    <textarea id="form-detalle" rows="3" placeholder="Describa el estado de la infraestructura, personal médico o insumos..."></textarea>
                 </div>
             </div>
-            <div id="mapaSalud"></div>
-        </div>
-
-        <!-- Tabla de Datos -->
-        <div class="panel-container">
-            <h5 class="mb-3 fw-bold"><i class="fa-solid fa-table-list text-primary me-2"></i> Listado General de Registros de la Red</h5>
-            <div class="table-responsive">
-                <table class="table table-hover align-middle">
-                    <thead class="table-dark">
-                        <tr>
-                            <th>ID</th>
-                            <th>Nombre / Caso</th>
-                            <th>Tipo</th>
-                            <th>Sector</th>
-                            <th>Estatus</th>
-                            <th>Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody id="tbody-registros">
-                        <!-- Inyectado por JS -->
-                    </tbody>
-                </table>
+            <div class="modal-footer">
+                <button class="btn-secondary" onclick="cerrarModal()">Cancelar</button>
+                <button class="btn-primary" id="btn-guardar" onclick="guardarCentro()">Guardar Registro</button>
             </div>
         </div>
     </div>
 
-<!-- Leaflet JS -->
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
-    const centrosSaludData = [
-        { id: 152, nombre: "CDI el Mirador", tipo: "CDI", sector: "Mirador", ubicacion: "Avenida Intercomunal, al lado del Estadio", detalle: "Atención primaria y diagnóstico", estatus: "Operativo", lat: 10.4630, lng: -66.6250 },
-        { id: 153, nombre: "CDI Oropeza Castillo", tipo: "CDI", sector: "ASIC Oropeza Castillo", ubicacion: "Avenida principal Ruíz Pineda", detalle: "Atención integral, hospitalización adultos, RX, laboratorio y SRI.", estatus: "Operativo", lat: 10.4650, lng: -66.6280 },
-        { id: 154, nombre: "CDI La Vaquera", tipo: "CDI", sector: "ASIC La Vaquera", ubicacion: "Entrada de Guarenas, al lado del estadio", detalle: "Centro de diagnóstico integral y atención primaria.", estatus: "Operativo", lat: 10.4710, lng: -66.6150 },
-        { id: 155, nombre: "CDI San José (Las Clavellinas)", tipo: "CDI", sector: "ASIC Las Clavellinas", ubicacion: "Sector Las Clavellinas, San José parte baja", detalle: "Servicios de diagnóstico, emergencia y área de rehabilitación.", estatus: "Operativo", lat: 10.4580, lng: -66.6350 },
-        { id: 156, nombre: "CDI Pedro José Doria", tipo: "CDI", sector: "ASIC Valle Verde", ubicacion: "Avenida Intercomunal Guarenas-Guatire", detalle: "Centro asistencial con servicios médicos y fisiatría.", estatus: "Operativo", lat: 10.4620, lng: -66.6200 },
-        { id: 157, nombre: "Consultorio Popular Oropeza Castillo II", tipo: "CMP", sector: "ASIC Oropeza Castillo", ubicacion: "Sector 2 de Oropeza Castillo", detalle: "Medicina preventiva y atención primaria.", estatus: "Operativo", lat: 10.4665, lng: -66.6295 },
-        { id: 158, nombre: "Módulo Barrio Adentro Las Clavellinas", tipo: "Barrio Adentro", sector: "ASIC Las Clavellinas", ubicacion: "Parte alta de Las Clavellinas", detalle: "Atención primaria comunitaria y entrega de medicamentos.", estatus: "Con fallas", lat: 10.4550, lng: -66.6400 }
-    ];
+    let centrosCache = [];
+    let filtroTipoActual = "TODOS";
+    let map = null;
+    let markersLayer = null;
+    let chartInstance = null;
 
-    let marcadoresSalud = [];
-    let map = L.map('mapaSalud').setView([10.4650, -66.6280], 14);
+    document.addEventListener("DOMContentLoaded", () => { 
+        inicializarMapa();
+        obtenerRedSalud(); 
+    });
 
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        maxZoom: 19,
-        attribution: '© OpenStreetMap contributors'
-    }).addTo(map);
+    function toggleSidebar() { document.getElementById("sidebarMenu").classList.toggle("active"); }
 
-    function cargarMapaYTabla() {
-        const tbody = document.getElementById('tbody-registros');
-        tbody.innerHTML = '';
+    function inicializarMapa() {
+        // Coordenadas aproximadas de Guarenas / Municipio Plaza por defecto
+        map = L.map('mapa-red').setView([10.4633, -66.6272], 13);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: '© OpenStreetMap'
+        }).addTo(map);
+        markersLayer = L.layerGroup().addTo(map);
+    }
 
-        centrosSaludData.forEach(centro => {
-            let badgeClass = centro.estatus === 'Operativo' ? 'bg-success' : 'bg-danger';
-            tbody.innerHTML += `
-                <tr>
-                    <td>${centro.id}</td>
-                    <td class="fw-bold">${centro.nombre}</td>
-                    <td><span class="badge bg-secondary">${centro.tipo}</span></td>
-                    <td>${centro.sector}</td>
-                    <td><span class="badge ${badgeClass}">${centro.estatus}</span></td>
-                    <td>
-                        <button class="btn btn-sm btn-outline-primary" onclick="centrarMapa(${centro.lat}, ${centro.lng})">
-                            <i class="fa-solid fa-location-crosshairs"></i> Ver
-                        </button>
-                    </td>
-                </tr>
-            `;
+    function abrirModal(id = '', nombre = '', tipo = 'CDI', sector = '', ubicacion = '', detalle = '', estatus = 'Operativo', lat = '', lng = '') {
+        document.getElementById("centro-id").value = id;
+        document.getElementById("form-nombre").value = nombre;
+        document.getElementById("form-tipo").value = tipo;
+        document.getElementById("form-sector").value = sector;
+        document.getElementById("form-ubicacion").value = ubicacion;
+        document.getElementById("form-detalle").value = detalle;
+        document.getElementById("form-estatus").value = estatus || "Operativo";
+        document.getElementById("form-lat").value = lat || "";
+        document.getElementById("form-lng").value = lng || "";
+        
+        document.getElementById("modal-titulo").innerText = id ? "Modificar Centro / Reporte" : "Registrar Nuevo Centro de Salud";
+        document.getElementById("modalCentro").classList.add("active");
+    }
 
-            if (centro.lat && centro.lng) {
-                let colorIcon = centro.estatus === 'Operativo' ? '🟢' : '🔴';
-                let popupContent = `
-                    <div style="min-width: 200px;">
-                        <h6 class="text-primary fw-bold">${colorIcon} ${centro.nombre}</h6>
-                        <span class="badge bg-dark mb-2">${centro.tipo}</span>
-                        <p class="mb-1 small"><strong>Ubicación:</strong> ${centro.ubicacion}</p>
-                        <p class="mb-1 small"><strong>Servicios:</strong> ${centro.detalle}</p>
-                        <p class="mb-0 small"><strong>Estatus:</strong> <span class="${centro.estatus === 'Operativo' ? 'text-success' : 'text-danger'} fw-bold">${centro.estatus}</span></p>
+    window.prepararEdicion = function(id) {
+        const centro = centrosCache.find(c => String(c.id) === String(id));
+        if (centro) {
+            abrirModal(centro.id, centro.nombre || '', centro.tipo || 'CDI', centro.sector || '', centro.ubicacion || '', centro.detalle || '', centro.estatus || 'Operativo', centro.lat || '', centro.lng || '');
+        } else {
+            alert("Error al ubicar datos locales.");
+        }
+    };
+
+    window.eliminarCentro = async function(id) {
+        if (!confirm("¿Remover permanentemente este centro/reporte de la base de datos municipal?")) return;
+        try {
+            const idNum = Number(id);
+            await window.sql`DELETE FROM casos_salud WHERE id = ${idNum}`;
+            obtenerRedSalud();
+        } catch (err) {
+            console.error("Error al borrar:", err);
+            alert("No se pudo eliminar el registro.");
+        }
+    };
+
+    function cerrarModal() { document.getElementById("modalCentro").classList.remove("active"); }
+
+    async function obtenerRedSalud() {
+        const contenedor = document.getElementById("contenedor-ejes");
+        try {
+            const data = await window.sql`SELECT * FROM casos_salud`;
+            centrosCache = (data || []).filter(c => c.coordinacion === "Ejecutiva" && c.tipo !== "Autoridad");
+
+            if (centrosCache.length === 0) {
+                contenedor.innerHTML = `<div style="color: #64748b; font-size: 13px; padding: 10px;">⚠️ No se encontraron centros registrados aún.</div>`;
+                actualizarGrafico([]);
+                actualizarMapaMarkers([]);
+                return;
+            }
+
+            const totalCMP = centrosCache.filter(c => c.tipo === 'CMP').length;
+            const totalOtros = centrosCache.filter(c => c.tipo === 'CDI' || c.tipo === 'Barrio Adentro').length;
+            
+            document.getElementById("total-centros").innerText = centrosCache.length;
+            document.getElementById("total-cmp").innerText = totalCMP;
+            document.getElementById("total-ba").innerText = totalOtros;
+            document.getElementById("total-ejes").innerText = new Set(centrosCache.map(c => c.sector || "Eje No Especificado")).size;
+
+            renderizarTarjetas(centrosCache);
+            actualizarGrafico(centrosCache);
+            actualizarMapaMarkers(centrosCache);
+        } catch (err) {
+            console.error(err);
+            contenedor.innerHTML = `<div style="color: #dc2626; font-size: 13px; padding: 10px;">❌ Error de comunicación con la base de datos.</div>`;
+        }
+    }
+
+    function actualizarGrafico(lista) {
+        const operativos = lista.filter(c => !c.estatus || c.estatus === 'Operativo').length;
+        const fallas = lista.filter(c => c.estatus === 'Con fallas').length;
+        const inactivos = lista.filter(c => c.estatus === 'Inactivo').length;
+
+        const ctx = document.getElementById('graficoOperabilidad').getContext('2d');
+        if (chartInstance) {
+            chartInstance.destroy();
+        }
+
+        chartInstance = new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Operativos', 'Con Fallas', 'Inactivos'],
+                datasets: [{
+                    data: [operativos, fallas, inactivos],
+                    backgroundColor: ['#10b981', '#f59e0b', '#ef4444'],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { position: 'bottom', labels: { boxWidth: 12, font: { family: 'Inter', size: 11 } } }
+                }
+            }
+        });
+    }
+
+    function actualizarMapaMarkers(lista) {
+        if (!markersLayer) return;
+        markersLayer.clearLayers();
+
+        lista.forEach(c => {
+            if (c.lat && c.lng) {
+                const lat = parseFloat(c.lat);
+                const lng = parseFloat(c.lng);
+                if (!isNaN(lat) && !isNaN(lng)) {
+                    let colorPin = 'green';
+                    if (c.estatus === 'Con fallas') colorPin = 'orange';
+                    if (c.estatus === 'Inactivo') colorPin = 'red';
+
+                    const markerHtml = `<div style="background-color: ${colorPin === 'green' ? '#10b981' : colorPin === 'orange' ? '#f59e0b' : '#ef4444'}; width: 14px; height: 14px; border-radius: 50%; border: 2px solid white; box-shadow: 0 0 4px rgba(0,0,0,0.3);"></div>`;
+                    const customIcon = L.divIcon({ html: markerHtml, className: 'custom-leaflet-icon', iconSize: [14, 14] });
+
+                    const marker = L.marker([lat, lng], { icon: customIcon });
+                    marker.bindPopup(`<b>${c.nombre || 'Centro'}</b><br>Tipo: ${c.tipo}<br>Estatus: ${c.estatus || 'Operativo'}<br>Ubicación: ${c.ubicacion || 'N/A'}`);
+                    markersLayer.addLayer(marker);
+                }
+            }
+        });
+    }
+
+    function cambiarFiltro(tipo, btnElement) {
+        filtroTipoActual = tipo;
+        document.querySelectorAll(".filter-btn").forEach(b => b.classList.remove("active"));
+        btnElement.classList.add("active");
+        filtrarRedSalud();
+    }
+
+    function filtrarRedSalud() {
+        const textoBusqueda = document.getElementById("input-busqueda").value.toLowerCase().trim();
+        
+        const centrosFiltrados = centrosCache.filter(c => {
+            const cumpleTipo = (filtroTipoActual === "TODOS" || c.tipo === filtroTipoActual);
+            const matchTexto = (
+                (c.nombre && c.nombre.toLowerCase().includes(textoBusqueda)) ||
+                (c.ubicacion && c.ubicacion.toLowerCase().includes(textoBusqueda)) ||
+                (c.sector && c.sector.toLowerCase().includes(textoBusqueda)) ||
+                (c.detalle && c.detalle.toLowerCase().includes(textoBusqueda))
+            );
+            return cumpleTipo && matchTexto;
+        });
+
+        renderizarTarjetas(centrosFiltrados);
+        actualizarMapaMarkers(centrosFiltrados);
+    }
+
+    function renderizarTarjetas(listaCentros) {
+        const contenedor = document.getElementById("contenedor-ejes");
+        contenedor.innerHTML = "";
+
+        if (listaCentros.length === 0) {
+            contenedor.innerHTML = `<div style="color: #64748b; font-size: 13px; padding: 10px; grid-column: span 2;">🔍 No se encontraron establecimientos que coincidan con la búsqueda.</div>`;
+            return;
+        }
+
+        const ejesAsic = {};
+        listaCentros.forEach(centro => {
+            const ejeNombre = centro.sector || "Eje No Especificado";
+            if (!ejesAsic[ejeNombre]) ejesAsic[ejeNombre] = [];
+            ejesAsic[ejeNombre].push(centro);
+        });
+
+        Object.keys(ejesAsic).forEach(eje => {
+            const arr = ejesAsic[eje];
+            
+            const centrosHTML = arr.map(c => {
+                let tipoClase = "type-default";
+                if (c.tipo === 'CDI') tipoClase = "type-cdi";
+                if (c.tipo === 'CMP') tipoClase = "type-cmp";
+                if (c.tipo === 'Barrio Adentro') tipoClase = "type-ba";
+
+                let statusClase = "status-operativo";
+                let statusTexto = "🟢 Operativo";
+                if (c.estatus === 'Con fallas') { statusClase = "status-fallas"; statusTexto = "🟡 Con fallas"; }
+                if (c.estatus === 'Inactivo') { statusClase = "status-inactivo"; statusTexto = "🔴 Inactivo"; }
+
+                return `
+                    <div class="centro-item">
+                        <div class="centro-top-row">
+                            <span class="centro-name">${c.nombre || 'Sin nombre'}</span>
+                            <div class="badges-container">
+                                <span class="status-badge ${statusClase}">${statusTexto}</span>
+                                <span class="centro-type ${tipoClase}">${c.tipo || 'General'}</span>
+                            </div>
+                        </div>
+                        ${c.detalle ? `<div class="centro-detalles">${c.detalle}</div>` : ''}
+                        <div class="centro-location"><i class="fa-solid fa-location-dot"></i> <span><b>Ubicación:</b> ${c.ubicacion || 'No registrada'}</span></div>
+                        <div class="actions-area">
+                            <button class="btn-action btn-edit" title="Modificar" onclick="window.prepararEdicion('${c.id}')"><i class="fa-solid fa-pen"></i></button>
+                            <button class="btn-action btn-delete" title="Borrar" onclick="window.eliminarCentro('${c.id}')"><i class="fa-solid fa-trash"></i></button>
+                        </div>
                     </div>
                 `;
-                let marker = L.marker([centro.lat, centro.lng]).addTo(map);
-                marker.bindPopup(popupContent);
-                marcadoresSalud.push({ marker, tipo: centro.tipo });
-            }
+            }).join("");
+
+            contenedor.innerHTML += `
+                <div class="eje-card">
+                    <div class="eje-header">
+                        <h3>Eje: ${eje}</h3>
+                        <div class="eje-badge">${arr.length} Establecimientos</div>
+                    </div>
+                    <div class="eje-body">${centrosHTML}</div>
+                </div>
+            `;
         });
     }
 
-    function centrarMapa(lat, lng) {
-        map.setView([lat, lng], 16);
-        window.scrollTo({ top: document.getElementById('mapaSalud').offsetTop - 100, behavior: 'smooth' });
-    }
+    async function guardarCentro() {
+        const idOriginal = document.getElementById("centro-id").value;
+        const nombre = document.getElementById("form-nombre").value.trim();
+        const tipo = document.getElementById("form-tipo").value;
+        const estatus = document.getElementById("form-estatus").value;
+        const sector = document.getElementById("form-sector").value.trim();
+        const ubicacion = document.getElementById("form-ubicacion").value.trim();
+        const detalle = document.getElementById("form-detalle").value.trim();
+        const lat = document.getElementById("form-lat").value.trim();
+        const lng = document.getElementById("form-lng").value.trim();
 
-    function filtrarSalud(tipoSeleccionado, event) {
-        document.querySelectorAll('#grupo-filtros .btn').forEach(btn => btn.classList.remove('active'));
-        event.target.classList.add('active');
+        if (!nombre || !sector) {
+            alert("Por favor rellene al menos el Nombre y el Eje Territorial.");
+            return;
+        }
 
-        marcadoresSalud.forEach(item => {
-            if (tipoSeleccionado === 'todos' || item.tipo === tipoSeleccionado) {
-                item.marker.addTo(map);
+        try {
+            if (idOriginal) {
+                const idNum = Number(idOriginal);
+                await window.sql`
+                    UPDATE casos_salud 
+                    SET nombre = ${nombre}, tipo = ${tipo}, sector = ${sector}, ubicacion = ${ubicacion}, detalle = ${detalle}, estatus = ${estatus}, lat = ${lat}, lng = ${lng} 
+                    WHERE id = ${idNum}
+                `;
             } else {
-                map.removeLayer(item.marker);
+                await window.sql`
+                    INSERT INTO casos_salud (nombre, tipo, sector, ubicacion, detalle, coordinacion, estatus, lat, lng) 
+                    VALUES (${nombre}, ${tipo}, ${sector}, ${ubicacion}, ${detalle}, 'Ejecutiva', ${estatus}, ${lat}, ${lng})
+                `;
             }
-        });
+            
+            cerrarModal();
+            obtenerRedSalud();
+        } catch (err) {
+            alert("Error al guardar: " + err.message);
+        }
     }
 
-    cargarMapaYTabla();
+    function exportarExcel() {
+        if (centrosCache.length === 0) {
+            alert("No hay registros para exportar.");
+            return;
+        }
+
+        let csvContent = "\uFEFFID,Nombre,Tipo,Estatus,Eje Territorial,Ubicación,Latitud,Longitud,Detalles\n";
+        centrosCache.forEach(c => {
+            const fila = [
+                c.id,
+                `"${(c.nombre || '').replace(/"/g, '""')}"`,
+                `"${(c.tipo || '')}"`,
+                `"${(c.estatus || 'Operativo')}"`,
+                `"${(c.sector || '').replace(/"/g, '""')}"`,
+                `"${(c.ubicacion || '').replace(/"/g, '""')}"`,
+                `"${(c.lat || '')}"`,
+                `"${(c.lng || '')}"`,
+                `"${(c.detalle || '').replace(/"/g, '""')}"`
+            ];
+            csvContent += fila.join(",") + "\n";
+        });
+
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.setAttribute("href", url);
+        link.setAttribute("download", "Red_de_Salud_Municipal.csv");
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    }
 </script>
-<!-- Bootstrap 5 JS Bundle -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
