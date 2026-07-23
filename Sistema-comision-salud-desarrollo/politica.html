@@ -262,7 +262,7 @@
 
         let filtroActual = 'liderazgos';
         let todosLosRegistros = [];
-        let idRegistroEditando = null; // Variable para saber si estamos editando
+        let idRegistroEditando = null;
 
         window.iniciarApp = function() {
             const nombre = sessionStorage.getItem("usuario_nombre");
@@ -398,7 +398,7 @@
         }
 
         function abrirModalRegistro() {
-            idRegistroEditando = null; // Modo Creación
+            idRegistroEditando = null;
             const modal = document.getElementById("registroModal");
             const title = document.getElementById("modalTitle");
             const body = document.getElementById("modalFormBody");
@@ -460,9 +460,14 @@
         }
 
         function abrirModalEditar(id) {
-            idRegistroEditando = id; // Modo Edición
-            const registro = todosLosRegistros.find(r => r.id === id);
-            if (!registro) return;
+            // Conversión segura de ID para evitar conflictos de tipos (string vs number)
+            idRegistroEditando = Number(id);
+            const registro = todosLosRegistros.find(r => Number(r.id) === idRegistroEditando);
+            
+            if (!registro) {
+                alert("No se encontró el registro a editar.");
+                return;
+            }
 
             const modal = document.getElementById("registroModal");
             const title = document.getElementById("modalTitle");
@@ -540,7 +545,6 @@
 
             try {
                 if (idRegistroEditando === null) {
-                    // CREAR NUEVO
                     let nuevoRegistro = {};
                     if (filtroActual === 'liderazgos') {
                         nuevoRegistro = {
@@ -571,7 +575,6 @@
                         VALUES (${nuevoRegistro.nombre}, ${nuevoRegistro.cedula}, ${nuevoRegistro.telefono}, ${nuevoRegistro.sector}, ${nuevoRegistro.responsable}, ${nuevoRegistro.email}, ${nuevoRegistro.tipo}, ${nuevoRegistro.coordinacion})
                     `;
                 } else {
-                    // ACTUALIZAR EXISTENTE
                     const vNombre = nombre;
                     const vSector = document.getElementById("m_sector")?.value.trim() || null;
                     const vResponsable = document.getElementById("m_responsable")?.value.trim() || null;
