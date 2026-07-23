@@ -4,14 +4,10 @@
 <head>
     <meta charset="UTF-8">
      <script>
-        // 1. Verificamos la sesión inmediatamente
         const sesion = sessionStorage.getItem('usuario_logueado');
-        
-        // 2. Si no hay sesión Y no estamos en el login, redirigimos
         if (!sesion && window.location.pathname !== "/login.html") {
             window.location.replace("login.html");
         } else {
-            // 3. Si SÍ hay sesión, cuando el HTML cargue, mostramos el cuerpo
             document.addEventListener("DOMContentLoaded", () => {
                 document.body.style.display = "block";
             });
@@ -59,15 +55,30 @@
         /* PANEL CENTRAL */
         .main { padding:40px; min-width: 0; }
         .main h2 { font-size: 26px; color: var(--text-dark-title); font-weight: 700; margin-bottom: 6px; }
-        .header-actions { display: flex; justify-content: space-between; align-items: center; margin-bottom: 28px; flex-wrap: wrap; gap: 16px; }
+        .header-actions { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; flex-wrap: wrap; gap: 16px; }
         .subtitle { font-size: 13px; color: #64748b; font-weight: 500; margin-bottom: 0; }
         
-        /* BOTÓN REGISTRAR */
+        /* BOTONES Y ACCIONES */
         .btn-primary { background: var(--sidebar-active); color: white; border: none; padding: 11px 20px; font-size: 13px; font-weight: 600; border-radius: 8px; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: all 0.2s; box-shadow: 0 2px 4px rgba(0, 102, 204, 0.2); }
         .btn-primary:hover { background: #0052a3; transform: translateY(-1px); }
+        
+        .btn-success { background: var(--success-color); color: white; border: none; padding: 11px 16px; font-size: 13px; font-weight: 600; border-radius: 8px; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: all 0.2s; }
+        .btn-success:hover { background: #059669; }
+
+        /* BARRA DE FILTROS Y BÚSQUEDA */
+        .toolbar-container { background: white; padding: 16px 20px; border-radius: 12px; border: 1px solid var(--border-color); box-shadow: var(--card-shadow); display: flex; gap: 16px; align-items: center; margin-bottom: 24px; flex-wrap: wrap; }
+        .search-box { flex: 1; min-width: 240px; position: relative; }
+        .search-box input { width: 100%; padding: 10px 14px 10px 36px; border: 1px solid var(--border-color); border-radius: 8px; font-size: 13px; background: #f8fafc; outline: none; transition: all 0.2s; }
+        .search-box input:focus { background: white; border-color: var(--sidebar-active); box-shadow: 0 0 0 3px rgba(0,102,204,0.08); }
+        .search-icon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #94a3b8; font-size: 14px; }
+        
+        .filter-group { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+        .filter-btn { background: #f1f5f9; border: 1px solid var(--border-color); padding: 8px 14px; font-size: 12px; font-weight: 600; border-radius: 6px; color: #475569; cursor: pointer; transition: all 0.2s; }
+        .filter-btn:hover { background: #e2e8f0; }
+        .filter-btn.active { background: var(--sidebar-active); color: white; border-color: var(--sidebar-active); }
 
         /* KPI STATS */
-        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-bottom: 32px; }
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-bottom: 28px; }
         .stat-card { background: white; padding: 22px; border-radius: 12px; border: 1px solid var(--border-color); box-shadow: var(--card-shadow); border-left: 4px solid #cbd5e1; transition: transform 0.2s; }
         .stat-card:hover { transform: translateY(-2px); }
         .stat-card.sc-total { border-left-color: var(--sidebar-bg); }
@@ -93,11 +104,18 @@
         .centro-top-row { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
         .centro-name { font-size: 13.5px; font-weight: 600; color: #1e293b; }
         
+        .badges-container { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
         .centro-type { font-size: 10px; font-weight: 700; padding: 3px 8px; border-radius: 6px; text-transform: uppercase; letter-spacing: 0.3px; }
         .type-cdi { background: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; }
         .type-cmp { background: #e0f2fe; color: #0369a1; border: 1px solid #bae6fd; }
         .type-ba { background: #dcfce7; color: #166534; border: 1px solid #bbf7d0; }
         .type-default { background: #f1f5f9; color: #475569; }
+
+        /* SEMAFORIZACIÓN DE ESTATUS */
+        .status-badge { font-size: 10px; font-weight: 700; padding: 3px 8px; border-radius: 6px; display: flex; align-items: center; gap: 4px; }
+        .status-operativo { background: #dcfce7; color: #166534; border: 1px solid #bbf7d0; }
+        .status-fallas { background: #fef3c7; color: #b45309; border: 1px solid #fde68a; }
+        .status-inactivo { background: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; }
         
         .centro-detalles { font-size: 13px; color: #475569; line-height: 1.5; background: white; padding: 10px; border-radius: 6px; border: 1px solid #f1f5f9; }
         .centro-location { font-size: 12px; color: #64748b; margin-top: 2px; display: flex; align-items: center; gap: 6px; }
@@ -110,12 +128,12 @@
         /* VENTANA MODAL */
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.4); backdrop-filter: blur(4px); display: none; align-items: center; justify-content: center; z-index: 2000; padding: 16px; }
         .modal-overlay.active { display: flex; }
-        .modal-content { background: white; border-radius: 16px; width: 100%; max-width: 520px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.15); overflow: hidden; animation: slideUp 0.25s ease-out; border: 1px solid #e2e8f0; }
+        .modal-content { background: white; border-radius: 16px; width: 100%; max-width: 520px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.15); overflow: hidden; animation: slideUp 0.25s ease-out; border: 1px solid #e2e8f0; max-height: 90vh; display: flex; flex-direction: column; }
         .modal-header { background: #f8fafc; padding: 18px 24px; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; }
         .modal-header h3 { font-size: 16px; color: var(--text-dark-title); font-weight: 700; }
         .modal-close { background: transparent; border: none; font-size: 22px; cursor: pointer; color: #94a3b8; transition: color 0.2s; }
         .modal-close:hover { color: #475569; }
-        .modal-body { padding: 24px; display: flex; flex-direction: column; gap: 16px; }
+        .modal-body { padding: 24px; display: flex; flex-direction: column; gap: 16px; overflow-y: auto; }
         
         .form-group { display: flex; flex-direction: column; gap: 6px; }
         .form-group label { font-size: 11px; font-weight: 700; color: #475569; text-transform: uppercase; letter-spacing: 0.5px; }
@@ -141,6 +159,7 @@
             .main { padding: 24px 16px; }
             .main h2 { font-size: 22px; }
             .stats-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+            .toolbar-container { flex-direction: column; align-items: stretch; }
         }
     </style>
 </head>
@@ -154,37 +173,37 @@
 
     <div class="layout">
         <div class="sidebar" id="sidebarMenu">
-        <div class="sidebar-brand">
-            <h2>COMISIÓN PERMANENTE DE SALUD<br>Y DESARROLLO SOCIAL INTEGRAL</h2>
-        </div>
-        
-        <a class="menu" href="dashboard.html">Principal</a>
-        
-        <div class="menu-category">Coor. Ejecutiva</div>
-        <a class="menu" href="ejecutiva.html">Oficios e Informes</a>
-        <a class="menu" href="planificacion.html">Planificación Semanal</a>
-        
-        <div class="menu-category">Coor. Política</div>
-        <a class="menu" href="politica.html">Liderazgos y Comunas</a>
-        
-        <div class="menu-category">Coor. Social</div>
-        <a class="menu" href="social.html">Casos Sociales</a>
-        <a class="menu active-page" href="red_salud.html">Red de Salud (CPT/CDI)</a>
-        
-        <div class="menu-category">Gestión Digital</div>
-        <a class="menu" href="bitacora.html">Bitácora de Eventos</a>
-        <a class="menu" href="reportes.html">📄 Reportes e Informes</a>
-        <a class="menu" href="formatos.html">📁 Formatos de Oficina</a>
+            <div class="sidebar-brand">
+                <h2>COMISIÓN PERMANENTE DE SALUD<br>Y DESARROLLO SOCIAL INTEGRAL</h2>
+            </div>
+            
+            <a class="menu" href="dashboard.html">Principal</a>
+            
+            <div class="menu-category">Coor. Ejecutiva</div>
+            <a class="menu" href="ejecutiva.html">Oficios e Informes</a>
+            <a class="menu" href="planificacion.html">Planificación Semanal</a>
+            
+            <div class="menu-category">Coor. Política</div>
+            <a class="menu" href="politica.html">Liderazgos y Comunas</a>
+            
+            <div class="menu-category">Coor. Social</div>
+            <a class="menu" href="social.html">Casos Sociales</a>
+            <a class="menu active-page" href="red_salud.html">Red de Salud (CPT/CDI)</a>
+            
+            <div class="menu-category">Gestión Digital</div>
+            <a class="menu" href="bitacora.html">Bitácora de Eventos</a>
+            <a class="menu" href="reportes.html">📄 Reportes e Informes</a>
+            <a class="menu" href="formatos.html">📁 Formatos de Oficina</a>
 
-        <div id="enlaceAuditoria" style="display: none;">
-            <a href="auditoria.html" class="menu">🛡️ Panel de Auditoría</a>
-        </div>
+            <div id="enlaceAuditoria" style="display: none;">
+                <a href="auditoria.html" class="menu">🛡️ Panel de Auditoría</a>
+            </div>
 
-<script>
-    if (sessionStorage.getItem("usuario_rol") === "admin") {
-        document.getElementById("enlaceAuditoria").style.display = "block";
-    }
-</script>
+            <script>
+                if (sessionStorage.getItem("usuario_rol") === "admin") {
+                    document.getElementById("enlaceAuditoria").style.display = "block";
+                }
+            </script>
         </div>
 
         <div class="main">
@@ -193,7 +212,24 @@
                     <h2>Monitoreo de la Red de Salud Municipal</h2>
                     <div class="subtitle">Ejes Político-Asistenciales (CDI / CMP) — Municipio Plaza</div>
                 </div>
-                <button class="btn-primary" onclick="abrirModal()">➕ Registrar Centro / Reporte</button>
+                <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                    <button class="btn-success" onclick="exportarExcel()">📥 Descargar Excel</button>
+                    <button class="btn-primary" onclick="abrirModal()">➕ Registrar Centro</button>
+                </div>
+            </div>
+
+            <!-- BARRA DE BÚSQUEDA Y FILTROS -->
+            <div class="toolbar-container">
+                <div class="search-box">
+                    <span class="search-icon">🔍</span>
+                    <input type="text" id="input-busqueda" placeholder="Buscar por centro, ubicación o detalles..." oninput="filtrarRedSalud()">
+                </div>
+                <div class="filter-group">
+                    <button class="filter-btn active" data-filtro="TODOS" onclick="cambiarFiltro('TODOS', this)">Todos</button>
+                    <button class="filter-btn" data-filtro="CDI" onclick="cambiarFiltro('CDI', this)">CDI</button>
+                    <button class="filter-btn" data-filtro="CMP" onclick="cambiarFiltro('CMP', this)">CMP</button>
+                    <button class="filter-btn" data-filtro="Barrio Adentro" onclick="cambiarFiltro('Barrio Adentro', this)">Barrio Adentro</button>
+                </div>
             </div>
             
             <div class="stats-grid">
@@ -222,6 +258,7 @@
         </div>
     </div>
 
+    <!-- MODAL DE REGISTRO / EDICIÓN -->
     <div class="modal-overlay" id="modalCentro">
         <div class="modal-content">
             <div class="modal-header">
@@ -243,6 +280,15 @@
                         <option value="CMP">CMP (Consultorio Médico Popular)</option>
                         <option value="Barrio Adentro">Módulo Barrio Adentro</option>
                         <option value="Sala de Rehabilitación">SRI / Especializado</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Estatus Operativo</label>
+                    <select id="form-estatus">
+                        <option value="Operativo">🟢 Operativo (Funcionando con normalidad)</option>
+                        <option value="Con fallas">🟡 Con fallas (Limitaciones de insumos o personal)</option>
+                        <option value="Inactivo">🔴 Inactivo / Cerrado temporalmente</option>
                     </select>
                 </div>
                 
@@ -270,17 +316,19 @@
 
 <script>
     let centrosCache = [];
+    let filtroTipoActual = "TODOS";
 
     document.addEventListener("DOMContentLoaded", () => { obtenerRedSalud(); });
     function toggleSidebar() { document.getElementById("sidebarMenu").classList.toggle("active"); }
 
-    function abrirModal(id = '', nombre = '', tipo = 'CDI', sector = '', ubicacion = '', detalle = '') {
+    function abrirModal(id = '', nombre = '', tipo = 'CDI', sector = '', ubicacion = '', detalle = '', estatus = 'Operativo') {
         document.getElementById("centro-id").value = id;
         document.getElementById("form-nombre").value = nombre;
         document.getElementById("form-tipo").value = tipo;
         document.getElementById("form-sector").value = sector;
         document.getElementById("form-ubicacion").value = ubicacion;
         document.getElementById("form-detalle").value = detalle;
+        document.getElementById("form-estatus").value = estatus || "Operativo";
         
         document.getElementById("modal-titulo").innerText = id ? "Modificar Centro / Reporte" : "Registrar Nuevo Centro de Salud";
         document.getElementById("modalCentro").classList.add("active");
@@ -289,7 +337,7 @@
     window.prepararEdicion = function(id) {
         const centro = centrosCache.find(c => String(c.id) === String(id));
         if (centro) {
-            abrirModal(centro.id, centro.nombre || '', centro.tipo || 'CDI', centro.sector || '', centro.ubicacion || '', centro.detalle || '');
+            abrirModal(centro.id, centro.nombre || '', centro.tipo || 'CDI', centro.sector || '', centro.ubicacion || '', centro.detalle || '', centro.estatus || 'Operativo');
         } else {
             alert("Error al ubicar datos locales.");
         }
@@ -313,7 +361,6 @@
         const contenedor = document.getElementById("contenedor-ejes");
         try {
             const data = await window.sql`SELECT * FROM casos_salud`;
-            
             centrosCache = (data || []).filter(c => c.coordinacion === "Ejecutiva" && c.tipo !== "Autoridad");
 
             if (centrosCache.length === 0) {
@@ -324,65 +371,108 @@
             const totalCMP = centrosCache.filter(c => c.tipo === 'CMP').length;
             const totalOtros = centrosCache.filter(c => c.tipo === 'CDI' || c.tipo === 'Barrio Adentro').length;
             
-            const ejesAsic = {};
-            centrosCache.forEach(centro => {
-                const ejeNombre = centro.sector || "Eje No Especificado";
-                if (!ejesAsic[ejeNombre]) ejesAsic[ejeNombre] = [];
-                ejesAsic[ejeNombre].push(centro);
-            });
-
             document.getElementById("total-centros").innerText = centrosCache.length;
             document.getElementById("total-cmp").innerText = totalCMP;
             document.getElementById("total-ba").innerText = totalOtros;
-            document.getElementById("total-ejes").innerText = Object.keys(ejesAsic).length;
+            document.getElementById("total-ejes").innerText = new Set(centrosCache.map(c => c.sector || "Eje No Especificado")).size;
 
-            contenedor.innerHTML = "";
-
-            Object.keys(ejesAsic).forEach(eje => {
-                const listaCentros = ejesAsic[eje];
-                
-                const centrosHTML = listaCentros.map(c => {
-                    let tipoClase = "type-default";
-                    if (c.tipo === 'CDI') tipoClase = "type-cdi";
-                    if (c.tipo === 'CMP') tipoClase = "type-cmp";
-                    if (c.tipo === 'Barrio Adentro') tipoClase = "type-ba";
-
-                    return `
-                        <div class="centro-item">
-                            <div class="centro-top-row">
-                                <span class="centro-name">${c.nombre || 'Sin nombre'}</span>
-                                <span class="centro-type ${tipoClase}">${c.tipo || 'General'}</span>
-                            </div>
-                            ${c.detalle ? `<div class="centro-detalles">${c.detalle}</div>` : ''}
-                            <div class="centro-location">📍 <span><b>Ubicación:</b> ${c.ubicacion || 'No registrada'}</span></div>
-                            <div class="actions-area">
-                                <button class="btn-action btn-edit" title="Modificar" onclick="window.prepararEdicion('${c.id}')">✏️</button>
-                                <button class="btn-action btn-delete" title="Borrar" onclick="window.eliminarCentro('${c.id}')">🗑️</button>
-                            </div>
-                        </div>
-                    `;
-                }).join("");
-
-                contenedor.innerHTML += `
-                    <div class="eje-card">
-                        <div class="eje-header">
-                            <h3>Eje: ${eje}</h3>
-                            <div class="eje-badge">${listaCentros.length} Establecimientos</div>
-                        </div>
-                        <div class="eje-body">${centrosHTML}</div>
-                    </div>
-                `;
-            });
+            renderizarTarjetas(centrosCache);
         } catch (err) {
             console.error(err);
             contenedor.innerHTML = `<div style="color: #dc2626; font-size: 13px; padding: 10px;">❌ Error de comunicación con la base de datos.</div>`;
         }
     }
 
+    function cambiarFiltro(tipo, btnElement) {
+        filtroTipoActual = tipo;
+        document.querySelectorAll(".filter-btn").forEach(b => b.classList.remove("active"));
+        btnElement.classList.add("active");
+        filtrarRedSalud();
+    }
+
+    function filtrarRedSalud() {
+        const textoBusqueda = document.getElementById("input-busqueda").value.toLowerCase().trim();
+        
+        const centrosFiltrados = centrosCache.filter(c => {
+            const cumpleTipo = (filtroTipoActual === "TODOS" || c.tipo === filtroTipoActual);
+            const matchTexto = (
+                (c.nombre && c.nombre.toLowerCase().includes(textoBusqueda)) ||
+                (c.ubicacion && c.ubicacion.toLowerCase().includes(textoBusqueda)) ||
+                (c.sector && c.sector.toLowerCase().includes(textoBusqueda)) ||
+                (c.detalle && c.detalle.toLowerCase().includes(textoBusqueda))
+            );
+            return cumpleTipo && matchTexto;
+        });
+
+        renderizarTarjetas(centrosFiltrados);
+    }
+
+    function renderizarTarjetas(listaCentros) {
+        const contenedor = document.getElementById("contenedor-ejes");
+        contenedor.innerHTML = "";
+
+        if (listaCentros.length === 0) {
+            contenedor.innerHTML = `<div style="color: #64748b; font-size: 13px; padding: 10px; grid-column: span 2;">🔍 No se encontraron establecimientos que coincidan con la búsqueda.</div>`;
+            return;
+        }
+
+        const ejesAsic = {};
+        listaCentros.forEach(centro => {
+            const ejeNombre = centro.sector || "Eje No Especificado";
+            if (!ejesAsic[ejeNombre]) ejesAsic[ejeNombre] = [];
+            ejesAsic[ejeNombre].push(centro);
+        });
+
+        Object.keys(ejesAsic).forEach(eje => {
+            const arr = ejesAsic[eje];
+            
+            const centrosHTML = arr.map(c => {
+                let tipoClase = "type-default";
+                if (c.tipo === 'CDI') tipoClase = "type-cdi";
+                if (c.tipo === 'CMP') tipoClase = "type-cmp";
+                if (c.tipo === 'Barrio Adentro') tipoClase = "type-ba";
+
+                let statusClase = "status-operativo";
+                let statusTexto = "🟢 Operativo";
+                if (c.estatus === 'Con fallas') { statusClase = "status-fallas"; statusTexto = "🟡 Con fallas"; }
+                if (c.estatus === 'Inactivo') { statusClase = "status-inactivo"; statusTexto = "🔴 Inactivo"; }
+
+                return `
+                    <div class="centro-item">
+                        <div class="centro-top-row">
+                            <span class="centro-name">${c.nombre || 'Sin nombre'}</span>
+                            <div class="badges-container">
+                                <span class="status-badge ${statusClase}">${statusTexto}</span>
+                                <span class="centro-type ${tipoClase}">${c.tipo || 'General'}</span>
+                            </div>
+                        </div>
+                        ${c.detalle ? `<div class="centro-detalles">${c.detalle}</div>` : ''}
+                        <div class="centro-location">📍 <span><b>Ubicación:</b> ${c.ubicacion || 'No registrada'}</span></div>
+                        <div class="actions-area">
+                            <button class="btn-action btn-edit" title="Modificar" onclick="window.prepararEdicion('${c.id}')">✏️</button>
+                            <button class="btn-action btn-delete" title="Borrar" onclick="window.eliminarCentro('${c.id}')">🗑️</button>
+                        </div>
+                    </div>
+                `;
+            }).join("");
+
+            contenedor.innerHTML += `
+                <div class="eje-card">
+                    <div class="eje-header">
+                        <h3>Eje: ${eje}</h3>
+                        <div class="eje-badge">${arr.length} Establecimientos</div>
+                    </div>
+                    <div class="eje-body">${centrosHTML}</div>
+                </div>
+            `;
+        });
+    }
+
     async function guardarCentro() {
         const idOriginal = document.getElementById("centro-id").value;
         const nombre = document.getElementById("form-nombre").value.trim();
         const tipo = document.getElementById("form-tipo").value;
+        const estatus = document.getElementById("form-estatus").value;
         const sector = document.getElementById("form-sector").value.trim();
         const ubicacion = document.getElementById("form-ubicacion").value.trim();
         const detalle = document.getElementById("form-detalle").value.trim();
@@ -397,13 +487,13 @@
                 const idNum = Number(idOriginal);
                 await window.sql`
                     UPDATE casos_salud 
-                    SET nombre = ${nombre}, tipo = ${tipo}, sector = ${sector}, ubicacion = ${ubicacion}, detalle = ${detalle} 
+                    SET nombre = ${nombre}, tipo = ${tipo}, sector = ${sector}, ubicacion = ${ubicacion}, detalle = ${detalle}, estatus = ${estatus} 
                     WHERE id = ${idNum}
                 `;
             } else {
                 await window.sql`
-                    INSERT INTO casos_salud (nombre, tipo, sector, ubicacion, detalle, coordinacion) 
-                    VALUES (${nombre}, ${tipo}, ${sector}, ${ubicacion}, ${detalle}, 'Ejecutiva')
+                    INSERT INTO casos_salud (nombre, tipo, sector, ubicacion, detalle, coordinacion, estatus) 
+                    VALUES (${nombre}, ${tipo}, ${sector}, ${ubicacion}, ${detalle}, 'Ejecutiva', ${estatus})
                 `;
             }
             
@@ -412,6 +502,36 @@
         } catch (err) {
             alert("Error al guardar: " + err.message);
         }
+    }
+
+    function exportarExcel() {
+        if (centrosCache.length === 0) {
+            alert("No hay registros para exportar.");
+            return;
+        }
+
+        let csvContent = "\uFEFFID,Nombre,Tipo,Estatus,Eje Territorial,Ubicación,Detalles\n";
+        centrosCache.forEach(c => {
+            const fila = [
+                c.id,
+                `"${(c.nombre || '').replace(/"/g, '""')}"`,
+                `"${(c.tipo || '')}"`,
+                `"${(c.estatus || 'Operativo')}"`,
+                `"${(c.sector || '').replace(/"/g, '""')}"`,
+                `"${(c.ubicacion || '').replace(/"/g, '""')}"`,
+                `"${(c.detalle || '').replace(/"/g, '""')}"`
+            ];
+            csvContent += fila.join(",") + "\n";
+        });
+
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.setAttribute("href", url);
+        link.setAttribute("download", "Red_de_Salud_Municipal.csv");
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
     }
 </script>
 </body>
