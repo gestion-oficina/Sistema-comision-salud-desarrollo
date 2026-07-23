@@ -1,37 +1,419 @@
-<!-- 1. Importa el cliente ESM oficial de Neon en tu HTML -->
-<script type="module">
-    import { neon } from 'https://cdn.jsdelivr.net/npm/@neondatabase/serverless/+esm';
-    
-    // 2. Tu cadena de conexión directa a Neon
-    const connectionString = "postgresql://neondb_owner:npg_djCruebcPY94@ep-sparkling-math-avejx7o4-pooler.c-11.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require";
-    
-    // 3. Inicializas el cliente globalmente para usarlo en tus funciones
-    window.sqlClient = neon(connectionString, { disableWarningInBrowsers: true });
+<!DOCTYPE html>
+<html lang="es">
 
-    // 4. Llama a tu función de inicio o carga de datos existente
-    if (typeof window.iniciarApp === 'function') {
-        window.iniciarApp();
-    }
-</script>
+<head>
+    <meta charset="UTF-8">
+     <script>
+        // 1. Verificamos la sesión inmediatamente
+        const sesion = sessionStorage.getItem('usuario_logueado');
+        
+        // 2. Si no hay sesión Y no estamos en el login, redirigimos
+        if (!sesion && window.location.pathname !== "/login.html") {
+            window.location.replace("login.html");
+        } else {
+            // 3. Si SÍ hay sesión, cuando el HTML cargue, mostramos el cuerpo
+            document.addEventListener("DOMContentLoaded", () => {
+                document.body.style.display = "block";
+            });
+        }
+    </script>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Red de Salud - Coordinación Ejecutiva</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root { 
+            --bg-main: #f8fafc; 
+            --sidebar-bg: #1d3b6a; 
+            --sidebar-active: #0066cc; 
+            --sidebar-text-sub: #4ba3e3; 
+            --menu-text: #ffffff; 
+            --text-dark-title: #0f2547; 
+            --success-color: #10b981; 
+            --border-color: #e2e8f0; 
+            --danger-color: #ef4444;
+            --warning-color: #f59e0b;
+            --card-shadow: 0 4px 12px -2px rgba(15, 23, 42, 0.04), 0 2px 6px -1px rgba(15, 23, 42, 0.02);
+        }
+        * { margin:0; padding:0; box-sizing:border-box; font-family: 'Inter', sans-serif; }
+        body { background: var(--bg-main); color:#334155; overflow-x: hidden; }
+        
+        .layout { display:grid; grid-template-columns:280px 1fr; min-height:100vh; }
+        
+        /* SIDEBAR */
+        .sidebar { background: var(--sidebar-bg); padding:24px 0; display: flex; flex-direction: column; z-index: 1000; }
+        .sidebar-brand { display: flex; flex-direction: column; align-items: center; text-align: center; padding: 0 16px 20px 16px; border-bottom: 1px solid rgba(255, 255, 255, 0.1); margin-bottom: 10px; }
+        .sidebar-brand h2 { font-size: 11px; color: #ffffff; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; line-height: 1.4; margin-top: 5px; }
+        .menu-category { font-size: 10.5px; font-weight: 700; color: var(--sidebar-text-sub); text-transform: uppercase; letter-spacing: 0.5px; padding: 16px 20px 6px 20px; }
+        .menu { display: block; padding: 8px 36px; color: var(--menu-text); cursor: pointer; font-size: 13.5px; font-weight: 500; text-decoration: none; transition: all 0.2s ease; opacity: 0.9; }
+        .menu:hover { opacity: 1; background: rgba(255, 255, 255, 0.05); }
+        .menu.active-page { background: var(--sidebar-active); color: #ffffff; font-weight: 600; border-radius: 6px; margin: 2px 14px; padding: 10px 20px; opacity: 1; box-shadow: inset 0 1px 0 rgba(255,255,255,0.15); }
+        
+        /* PANEL CENTRAL */
+        .main { padding:40px; min-width: 0; }
+        .main h2 { font-size: 26px; color: var(--text-dark-title); font-weight: 700; margin-bottom: 6px; }
+        .header-actions { display: flex; justify-content: space-between; align-items: center; margin-bottom: 28px; flex-wrap: wrap; gap: 16px; }
+        .subtitle { font-size: 13px; color: #64748b; font-weight: 500; margin-bottom: 0; }
+        
+        /* BOTÓN REGISTRAR */
+        .btn-primary { background: var(--sidebar-active); color: white; border: none; padding: 11px 20px; font-size: 13px; font-weight: 600; border-radius: 8px; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: all 0.2s; box-shadow: 0 2px 4px rgba(0, 102, 204, 0.2); }
+        .btn-primary:hover { background: #0052a3; transform: translateY(-1px); }
+
+        /* KPI STATS */
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-bottom: 32px; }
+        .stat-card { background: white; padding: 22px; border-radius: 12px; border: 1px solid var(--border-color); box-shadow: var(--card-shadow); border-left: 4px solid #cbd5e1; transition: transform 0.2s; }
+        .stat-card:hover { transform: translateY(-2px); }
+        .stat-card.sc-total { border-left-color: var(--sidebar-bg); }
+        .stat-card.sc-cmp { border-left-color: var(--sidebar-active); }
+        .stat-card.sc-ba { border-left-color: var(--success-color); }
+        .stat-card.sc-ejes { border-left-color: #db2777; }
+        
+        .stat-card h4 { font-size: 11px; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
+        .stat-card .number { font-size: 32px; font-weight: 700; color: var(--text-dark-title); }
+        .stat-card .footer-text { font-size: 11px; color: var(--success-color); font-weight: 600; margin-top: 6px; display: flex; align-items: center; gap: 4px; }
+        
+        /* REJILLA EJES CRONOLÓGICOS */
+        .ejes-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(420px, 1fr)); gap: 28px; }
+        .eje-card { background: white; border: 1px solid var(--border-color); border-radius: 16px; overflow: hidden; display: flex; flex-direction: column; box-shadow: var(--card-shadow); }
+        .eje-header { background: #f8fafc; padding: 18px 24px; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; }
+        .eje-header h3 { font-size: 14px; color: var(--text-dark-title); font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+        .eje-badge { background: #f0fdf4; color: #166534; border: 1px solid #bbf7d0; padding: 4px 12px; border-radius: 99px; font-size: 11px; font-weight: 700; }
+        .eje-body { padding: 16px 24px; flex-grow: 1; display: flex; flex-direction: column; gap: 14px; }
+        
+        /* TARJETAS INTERNAS DE CENTROS */
+        .centro-item { padding: 16px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; display: flex; flex-direction: column; gap: 8px; transition: all 0.2s ease; }
+        .centro-item:hover { background: #ffffff; border-color: #cbd5e1; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.04); }
+        .centro-top-row { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+        .centro-name { font-size: 13.5px; font-weight: 600; color: #1e293b; }
+        
+        .centro-type { font-size: 10px; font-weight: 700; padding: 3px 8px; border-radius: 6px; text-transform: uppercase; letter-spacing: 0.3px; }
+        .type-cdi { background: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; }
+        .type-cmp { background: #e0f2fe; color: #0369a1; border: 1px solid #bae6fd; }
+        .type-ba { background: #dcfce7; color: #166534; border: 1px solid #bbf7d0; }
+        .type-default { background: #f1f5f9; color: #475569; }
+        
+        .centro-detalles { font-size: 13px; color: #475569; line-height: 1.5; background: white; padding: 10px; border-radius: 6px; border: 1px solid #f1f5f9; }
+        .centro-location { font-size: 12px; color: #64748b; margin-top: 2px; display: flex; align-items: center; gap: 6px; }
+        
+        .actions-area { margin-top: 4px; display: flex; gap: 8px; justify-content: flex-end; border-top: 1px dashed #e2e8f0; padding-top: 10px; }
+        .btn-action { border: none; border-radius: 6px; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; cursor: pointer; background: white; color: #64748b; border: 1px solid #e2e8f0; transition: all 0.2s; font-size: 13px; }
+        .btn-edit:hover { background: #fef3c7; color: #d97706; border-color: #fde68a; }
+        .btn-delete:hover { background: #fee2e2; color: var(--danger-color); border-color: #fca5a5; }
+
+        /* VENTANA MODAL */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.4); backdrop-filter: blur(4px); display: none; align-items: center; justify-content: center; z-index: 2000; padding: 16px; }
+        .modal-overlay.active { display: flex; }
+        .modal-content { background: white; border-radius: 16px; width: 100%; max-width: 520px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.15); overflow: hidden; animation: slideUp 0.25s ease-out; border: 1px solid #e2e8f0; }
+        .modal-header { background: #f8fafc; padding: 18px 24px; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; }
+        .modal-header h3 { font-size: 16px; color: var(--text-dark-title); font-weight: 700; }
+        .modal-close { background: transparent; border: none; font-size: 22px; cursor: pointer; color: #94a3b8; transition: color 0.2s; }
+        .modal-close:hover { color: #475569; }
+        .modal-body { padding: 24px; display: flex; flex-direction: column; gap: 16px; }
+        
+        .form-group { display: flex; flex-direction: column; gap: 6px; }
+        .form-group label { font-size: 11px; font-weight: 700; color: #475569; text-transform: uppercase; letter-spacing: 0.5px; }
+        .form-group input, .form-group select, .form-group textarea { padding: 11px 14px; border: 1px solid var(--border-color); border-radius: 8px; font-size: 13.5px; color: #1e293b; outline: none; background: #f8fafc; transition: all 0.2s; }
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus { background: white; border-color: var(--sidebar-active); box-shadow: 0 0 0 4px rgba(0,102,204,0.08); }
+        
+        .modal-footer { padding: 16px 24px; background: #f8fafc; border-top: 1px solid #e2e8f0; display: flex; justify-content: flex-end; gap: 12px; }
+        .btn-secondary { background: white; border: 1px solid var(--border-color); padding: 11px 20px; font-size: 13px; font-weight: 600; border-radius: 8px; cursor: pointer; color: #475569; transition: background 0.2s; }
+        .btn-secondary:hover { background: #f8fafc; }
+
+        /* HEADER FLOTANTE MOVIL */
+        .mobile-header { display: none; background: var(--sidebar-bg); color: white; padding: 14px 20px; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 1100; }
+        .mobile-toggle { background: transparent; border: none; color: white; font-size: 22px; cursor: pointer; }
+
+        @keyframes slideUp { from { transform: translateY(12px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+        @media (max-width: 1024px) { .ejes-grid { grid-template-columns: 1fr; } }
+        @media (max-width: 768px) {
+            .layout { grid-template-columns: 1fr; }
+            .sidebar { position: fixed; top: 52px; left: -280px; width: 280px; height: calc(100vh - 52px); transition: left 0.3s ease; }
+            .sidebar.active { left: 0; }
+            .mobile-header { display: flex; }
+            .main { padding: 24px 16px; }
+            .main h2 { font-size: 22px; }
+            .stats-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+        }
+    </style>
+</head>
+
+<body style="display: none;">
+
+    <div class="mobile-header">
+        <span style="font-size: 13px; font-weight: 700;">MONITOREO DE SALUD</span>
+        <button class="mobile-toggle" onclick="toggleSidebar()">☰</button>
+    </div>
+
+    <div class="layout">
+        <div class="sidebar" id="sidebarMenu">
+        <div class="sidebar-brand">
+            <h2>COMISIÓN PERMANENTE DE SALUD<br>Y DESARROLLO SOCIAL INTEGRAL</h2>
+        </div>
+        
+        <a class="menu" href="dashboard.html">Principal</a>
+        
+        <div class="menu-category">Coor. Ejecutiva</div>
+        <a class="menu" href="ejecutiva.html">Oficios e Informes</a>
+        <a class="menu" href="planificacion.html">Planificación Semanal</a>
+        
+        <div class="menu-category">Coor. Política</div>
+        <a class="menu" href="politica.html">Liderazgos y Comunas</a>
+        
+        <div class="menu-category">Coor. Social</div>
+        <a class="menu" href="social.html">Casos Sociales</a>
+        <a class="menu active-page" href="red_salud.html">Red de Salud (CPT/CDI)</a>
+        
+        <div class="menu-category">Gestión Digital</div>
+        <a class="menu" href="bitacora.html">Bitácora de Eventos</a>
+        <a class="menu" href="reportes.html">📄 Reportes e Informes</a>
+        <a class="menu" href="formatos.html">📁 Formatos de Oficina</a>
+
+        <div id="enlaceAuditoria" style="display: none;">
+            <a href="auditoria.html" class="menu">🛡️ Panel de Auditoría</a>
+        </div>
 
 <script>
-    // 5. Ejemplo de cómo hacer consultas directas desde cualquier función tuya sin tocar tu estructura:
-    async function cargarMisDatos() {
+    if (sessionStorage.getItem("usuario_rol") === "admin") {
+        document.getElementById("enlaceAuditoria").style.display = "block";
+    }
+</script>
+        </div>
+
+        <div class="main">
+            <div class="header-actions">
+                <div>
+                    <h2>Monitoreo de la Red de Salud Municipal</h2>
+                    <div class="subtitle">Ejes Político-Asistenciales (CDI / CMP) — Municipio Plaza</div>
+                </div>
+                <button class="btn-primary" onclick="abrirModal()">➕ Registrar Centro / Reporte</button>
+            </div>
+            
+            <div class="stats-grid">
+                <div class="stat-card sc-total">
+                    <h4>Total Centros Evaluados</h4>
+                    <div class="number" id="total-centros">0</div>
+                    <div class="footer-text">✓ 100% Cobertura</div>
+                </div>
+                <div class="stat-card sc-cmp">
+                    <h4>Consultorios Médicos (CMP)</h4>
+                    <div class="number" id="total-cmp" style="color: var(--sidebar-active);">0</div>
+                </div>
+                <div class="stat-card sc-ba">
+                    <h4>Módulos Barrio Adentro / CDI</h4>
+                    <div class="number" id="total-ba" style="color: var(--success-color);">0</div>
+                </div>
+                <div class="stat-card sc-ejes">
+                    <h4>Ejes Territoriales</h4>
+                    <div class="number" id="total-ejes" style="color: #db2777;">0</div>
+                </div>
+            </div>
+
+            <div class="ejes-grid" id="contenedor-ejes">
+                <div id="status-conexion" style="color: #64748b; font-size: 13px;">Sincronizando red...</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="modalCentro">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modal-titulo">Registrar Nuevo Centro de Salud</h3>
+                <button class="modal-close" onclick="cerrarModal()">×</button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="centro-id">
+                
+                <div class="form-group">
+                    <label>Nombre del Establecimiento / Reporte</label>
+                    <input type="text" id="form-nombre" placeholder="Ej: CDI Oropeza Castillo">
+                </div>
+                
+                <div class="form-group">
+                    <label>Tipo de Centro</label>
+                    <select id="form-tipo">
+                        <option value="CDI">CDI (Centro de Diagnóstico Integral)</option>
+                        <option value="CMP">CMP (Consultorio Médico Popular)</option>
+                        <option value="Barrio Adentro">Módulo Barrio Adentro</option>
+                        <option value="Sala de Rehabilitación">SRI / Especializado</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label>Eje Territorial / Sector</label>
+                    <input type="text" id="form-sector" placeholder="Ej: ASIC Oropeza Castillo">
+                </div>
+                
+                <div class="form-group">
+                    <label>Dirección / Ubicación Exacta</label>
+                    <input type="text" id="form-ubicacion" placeholder="Ej: Avenida Intercomunal, al lado del Liceo">
+                </div>
+                
+                <div class="form-group">
+                    <label>Novedades / Reporte del Servicio (Detalles)</label>
+                    <textarea id="form-detalle" rows="3" placeholder="Describa el estado de la infraestructura, personal médico o insumos..."></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" onclick="cerrarModal()">Cancelar</button>
+                <button class="btn-primary" id="btn-guardar" onclick="guardarCentro()">Guardar Registro</button>
+            </div>
+        </div>
+    </div>
+
+<script>
+    let centrosCache = [];
+
+    document.addEventListener("DOMContentLoaded", () => { obtenerRedSalud(); });
+    function toggleSidebar() { document.getElementById("sidebarMenu").classList.toggle("active"); }
+
+    function abrirModal(id = '', nombre = '', tipo = 'CDI', sector = '', ubicacion = '', detalle = '') {
+        document.getElementById("centro-id").value = id;
+        document.getElementById("form-nombre").value = nombre;
+        document.getElementById("form-tipo").value = tipo;
+        document.getElementById("form-sector").value = sector;
+        document.getElementById("form-ubicacion").value = ubicacion;
+        document.getElementById("form-detalle").value = detalle;
+        
+        document.getElementById("modal-titulo").innerText = id ? "Modificar Centro / Reporte" : "Registrar Nuevo Centro de Salud";
+        document.getElementById("modalCentro").classList.add("active");
+    }
+
+    window.prepararEdicion = function(id) {
+        const centro = centrosCache.find(c => String(c.id) === String(id));
+        if (centro) {
+            abrirModal(centro.id, centro.nombre || '', centro.tipo || 'CDI', centro.sector || '', centro.ubicacion || '', centro.detalle || '');
+        } else {
+            alert("Error al ubicar datos locales.");
+        }
+    };
+
+    window.eliminarCentro = async function(id) {
+        if (!confirm("¿Remover permanentemente este centro/reporte de la base de datos municipal?")) return;
         try {
-            // Consulta SELECT directa
-            const resultados = await window.sqlClient(`SELECT * FROM tu_tabla ORDER BY id DESC;`);
-            console.log("Datos obtenidos:", resultados);
+            const response = await fetch(`/api/casos_salud?id=${id}`, {
+                method: 'DELETE'
+            });
+            if (!response.ok) throw new Error("Error al eliminar en el servidor");
+            obtenerRedSalud();
+        } catch (err) {
+            console.error("Error al borrar:", err);
+            alert("No se pudo eliminar el registro.");
+        }
+    };
+
+    function cerrarModal() { document.getElementById("modalCentro").classList.remove("active"); }
+
+    async function obtenerRedSalud() {
+        const contenedor = document.getElementById("contenedor-ejes");
+        try {
+            const response = await fetch('/api/casos_salud');
+            if (!response.ok) throw new Error("Error al obtener los datos");
             
-            // Inserción directa
-            // await window.sqlClient(`INSERT INTO tu_tabla (columna) VALUES ($1);`, ['valor']);
+            const data = await response.json();
+            centrosCache = (data || []).filter(c => c.coordinacion === "Ejecutiva" && c.tipo !== "Autoridad");
+
+            if (centrosCache.length === 0) {
+                contenedor.innerHTML = `<div style="color: #64748b; font-size: 13px; padding: 10px;">⚠️ No se encontraron centros registrados aún.</div>`;
+                return;
+            }
+
+            const totalCMP = centrosCache.filter(c => c.tipo === 'CMP').length;
+            const totalOtros = centrosCache.filter(c => c.tipo === 'CDI' || c.tipo === 'Barrio Adentro').length;
             
-        } catch (error) {
-            console.error("Error en la consulta:", error);
+            const ejesAsic = {};
+            centrosCache.forEach(centro => {
+                const ejeNombre = centro.sector || "Eje No Especificado";
+                if (!ejesAsic[ejeNombre]) ejesAsic[ejeNombre] = [];
+                ejesAsic[ejeNombre].push(centro);
+            });
+
+            document.getElementById("total-centros").innerText = centrosCache.length;
+            document.getElementById("total-cmp").innerText = totalCMP;
+            document.getElementById("total-ba").innerText = totalOtros;
+            document.getElementById("total-ejes").innerText = Object.keys(ejesAsic).length;
+
+            contenedor.innerHTML = "";
+
+            Object.keys(ejesAsic).forEach(eje => {
+                const listaCentros = ejesAsic[eje];
+                
+                const centrosHTML = listaCentros.map(c => {
+                    let tipoClase = "type-default";
+                    if (c.tipo === 'CDI') tipoClase = "type-cdi";
+                    if (c.tipo === 'CMP') tipoClase = "type-cmp";
+                    if (c.tipo === 'Barrio Adentro') tipoClase = "type-ba";
+
+                    return `
+                        <div class="centro-item">
+                            <div class="centro-top-row">
+                                <span class="centro-name">${c.nombre || 'Sin nombre'}</span>
+                                <span class="centro-type ${tipoClase}">${c.tipo || 'General'}</span>
+                            </div>
+                            ${c.detalle ? `<div class="centro-detalles">${c.detalle}</div>` : ''}
+                            <div class="centro-location">📍 <span><b>Ubicación:</b> ${c.ubicacion || 'No registrada'}</span></div>
+                            <div class="actions-area">
+                                <button class="btn-action btn-edit" title="Modificar" onclick="window.prepararEdicion('${c.id}')">✏️</button>
+                                <button class="btn-action btn-delete" title="Borrar" onclick="window.eliminarCentro('${c.id}')">🗑️</button>
+                            </div>
+                        </div>
+                    `;
+                }).join("");
+
+                contenedor.innerHTML += `
+                    <div class="eje-card">
+                        <div class="eje-header">
+                            <h3>Eje: ${eje}</h3>
+                            <div class="eje-badge">${listaCentros.length} Establecimientos</div>
+                        </div>
+                        <div class="eje-body">${centrosHTML}</div>
+                    </div>
+                `;
+            });
+        } catch (err) {
+            console.error(err);
+            contenedor.innerHTML = `<div style="color: #dc2626; font-size: 13px; padding: 10px;">❌ Error de comunicación con el servidor.</div>`;
         }
     }
 
-    // Tu función principal que se conectará automáticamente
-    window.iniciarApp = function() {
-        cargarMisDatos();
-    };
+    async function guardarCentro() {
+        const idOriginal = document.getElementById("centro-id").value;
+        const nombre = document.getElementById("form-nombre").value.trim();
+        const tipo = document.getElementById("form-tipo").value;
+        const sector = document.getElementById("form-sector").value.trim();
+        const ubicacion = document.getElementById("form-ubicacion").value.trim();
+        const detalle = document.getElementById("form-detalle").value.trim();
+
+        if (!nombre || !sector) {
+            alert("Por favor rellene al menos el Nombre y el Eje Territorial.");
+            return;
+        }
+
+        const payload = { nombre, tipo, sector, ubicacion, detalle, coordinacion: "Ejecutiva" };
+
+        try {
+            let response;
+            if (idOriginal) {
+                response = await fetch(`/api/casos_salud`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ id: idOriginal, ...payload })
+                });
+            } else {
+                response = await fetch(`/api/casos_salud`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+            }
+
+            if (!response.ok) throw new Error("Error en la respuesta del servidor");
+            
+            cerrarModal();
+            obtenerRedSalud();
+        } catch (err) {
+            alert("Error al guardar: " + err.message);
+        }
+    }
 </script>
+</body>
+</html>
