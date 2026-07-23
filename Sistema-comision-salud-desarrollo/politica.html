@@ -2,186 +2,173 @@
 <html lang="es">
 
 <head>
-<meta charset="UTF-8">
-<script>
-    const sesion = sessionStorage.getItem('usuario_logueado');
-    if (!sesion && window.location.pathname !== "/login.html") {
-        window.location.replace("login.html");
-    } else {
-        document.addEventListener("DOMContentLoaded", () => {
-            document.body.style.display = "block";
-        });
-    }
-</script>
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Liderazgos y Comunas - Comisión de Salud</title>
-
-<!-- Tailwind CSS -->
-<script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-<!-- FontAwesome -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-
-<!-- CARGA DE NEON MEDIANTE MÓDULO ESM ESTÁNDAR -->
-<script type="module">
-    import { neon } from 'https://cdn.jsdelivr.net/npm/@neondatabase/serverless/+esm';
+    <meta charset="UTF-8">
+    <script>
+        const sesion = sessionStorage.getItem('usuario_logueado');
+        if (!sesion && window.location.pathname !== "/login.html") {
+            window.location.replace("login.html");
+        } else {
+            document.addEventListener("DOMContentLoaded", () => {
+                document.body.style.display = "block";
+            });
+        }
+    </script>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Coordinación Política - Liderazgos y Comunas</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
-    const connectionString = "postgresql://neondb_owner:npg_djCruebcPY94@ep-sparkling-math-avejx7o4-pooler.c-11.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require";
-    window.sqlClient = neon(connectionString, { disableWarningInBrowsers: true });
-    
-    if (typeof window.iniciarPoliticaApp === 'function') {
-        window.iniciarPoliticaApp();
-    }
-</script>
+    <script type="module">
+        import { neon } from 'https://cdn.jsdelivr.net/npm/@neondatabase/serverless/+esm';
+        
+        const connectionString = "postgresql://neondb_owner:npg_djCruebcPY94@ep-sparkling-math-avejx7o4-pooler.c-11.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require";
+        window.sqlClient = neon(connectionString, { disableWarningInBrowsers: true });
+        
+        if (typeof window.iniciarApp === 'function') {
+            window.iniciarApp();
+        }
+    </script>
 
-<style>
-:root {
-    --bg-main: #f4f6f9;
-    --sidebar-bg: #1d3b6a;
-    --sidebar-active: #0066cc;
-    --sidebar-text-sub: #4ba3e3;
-    --menu-text: #ffffff;
-    --text-dark-title: #0f2547;
-    --border-color: #cbd5e1;
-    --success-color: #16a34a;
-    --warning-color: #eab308;
-    --danger-color: #dc2626;
-}
+    <style>
+        :root { 
+            --bg-main: #f8fafc; 
+            --sidebar-bg: #003da5; 
+            --sidebar-active: #2563eb; 
+            --sidebar-text-sub: #94a3b8; 
+            --menu-text: #ffffff; 
+            --text-dark-title: #0f172a; 
+            --border-color: #e2e8f0; 
+            --danger-color: #ef4444; 
+            --success-color: #22c55e;
+            --primary: #2563eb;
+        }
+        * { margin:0; padding:0; box-sizing:border-box; font-family: 'Inter', sans-serif; }
+        body { background: var(--bg-main); color:#334155; }
+        .layout { display:grid; grid-template-columns:280px 1fr; min-height:100vh; }
+        
+        .mobile-menu-toggle {
+            display: none;
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: var(--sidebar-bg);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 56px;
+            height: 56px;
+            font-size: 24px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            z-index: 10000;
+            cursor: pointer;
+            align-items: center;
+            justify-content: center;
+        }
 
-*{ margin:0; padding:0; box-sizing:border-box; font-family: 'Inter', sans-serif; }
-body{ background: var(--bg-main); color:#334155; }
+        .sidebar { background: var(--sidebar-bg); padding:24px 0; display: flex; flex-direction: column; transition: transform 0.3s ease; border-right: 1px solid rgba(255, 255, 255, 0.1); }
+        .sidebar-brand { display: flex; flex-direction: column; align-items: center; text-align: center; padding: 0 16px 20px 16px; border-bottom: 1px solid rgba(255, 255, 255, 0.08); margin-bottom: 10px; }
+        .sidebar-brand h2 { font-size: 11px; color: #ffffff; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; line-height: 1.4; margin-top: 5px; }
+        .menu-category { font-size: 10px; font-weight: 700; color: var(--sidebar-text-sub); text-transform: uppercase; letter-spacing: 0.8px; padding: 16px 20px 6px 20px; }
+        .menu { display: block; padding: 9px 36px; color: var(--menu-text); cursor: pointer; font-size: 13px; font-weight: 500; text-decoration: none; transition: all 0.2s ease; opacity: 0.85; }
+        .menu:hover { opacity: 1; background: rgba(255, 255, 255, 0.08); }
+        .menu.active-page { background: var(--sidebar-active); color: #ffffff; font-weight: 600; border-radius: 8px; margin: 2px 14px; padding: 10px 18px; opacity: 1; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3); }
+        
+        .main { padding:36px 40px; overflow-x: hidden; display: flex; flex-direction: column; min-height: 100vh; }
+        
+        .content-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 24px; flex-wrap: wrap; gap: 16px; }
+        .main h2 { font-size: 24px; color: var(--text-dark-title); font-weight: 800; letter-spacing: -0.5px; }
+        .subtitle-concejala { font-size: 13px; color: #64748b; font-weight: 500; margin-top: 2px; }
+        
+        .header-actions { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+        
+        /* KPI STATS CARDS */
+        .kpi-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 24px; }
+        .kpi-card { background: white; border: 1px solid var(--border-color); border-radius: 12px; padding: 16px 20px; display: flex; flex-direction: column; gap: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.02); }
+        .kpi-title { font-size: 11.5px; font-weight: 600; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; }
+        .kpi-value { font-size: 22px; font-weight: 800; color: var(--text-dark-title); }
 
-.layout{ display: block; position: relative; min-height: 100vh; }
+        .search-box { position: relative; }
+        .search-box input { padding: 10px 16px 10px 38px; border-radius: 8px; border: 1px solid var(--border-color); background: white; font-size: 13px; width: 240px; outline: none; transition: all 0.2s; }
+        .search-box input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1); }
+        .search-box span { position: absolute; left: 12px; top: 11px; color: #94a3b8; font-size: 14px; }
 
-.mobile-header { display: none; background: var(--sidebar-bg); color: white; padding: 15px 20px; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 3000; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-.btn-menu-toggle { background: none; border: none; color: white; font-size: 24px; cursor: pointer; }
+        .toolbar-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 12px; }
+        .tabs-container { display: inline-flex; background: #e2e8f0; padding: 4px; border-radius: 10px; border: 1px solid #cbd5e1; gap: 4px; }
+        .tab-btn { padding: 8px 16px; border: none; background: transparent; color: #475569; font-size: 12.5px; font-weight: 600; cursor: pointer; border-radius: 8px; text-align: center; transition: all 0.2s; display: flex; align-items: center; gap: 6px; }
+        .tab-btn.active { background: white; color: var(--primary); box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
 
-/* BARRA LATERAL FIJA */
-.sidebar{ background: var(--sidebar-bg); padding:24px 0; display: flex; flex-direction: column; position: fixed; top: 0; left: 0; width: 280px; height: 100vh; z-index: 1000; overflow-y: auto; transition: transform 0.3s ease; }
-.sidebar-brand { display: flex; flex-direction: column; align-items: center; text-align: center; padding: 0 16px 20px 16px; border-bottom: 1px solid rgba(255, 255, 255, 0.1); margin-bottom: 10px; }
-.sidebar-brand h2 { font-size: 11px; color: #ffffff; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; line-height: 1.4; margin-top: 5px; }
-.menu-category { font-size: 10.5px; font-weight: 700; color: var(--sidebar-text-sub); text-transform: uppercase; letter-spacing: 0.5px; padding: 16px 20px 6px 20px; }
-.menu{ display: block; padding: 8px 36px; color: var(--menu-text); cursor: pointer; font-size: 13.5px; font-weight: 500; text-decoration: none; transition: all 0.2s ease; opacity: 0.9; }
-.menu:hover{ opacity: 1; background: rgba(255, 255, 255, 0.05); }
-.menu.active-page { background: var(--sidebar-active); color: #ffffff; font-weight: 600; border-radius: 6px; margin: 2px 14px; padding: 10px 20px; opacity: 1; }
+        .cards-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 16px; margin-bottom: 30px; }
+        
+        .territory-card { background: white; border: 1px solid var(--border-color); border-radius: 12px; padding: 20px; position: relative; transition: all 0.25s ease; box-shadow: 0 2px 4px rgba(0,0,0,0.01); display: flex; flex-direction: column; justify-content: space-between; }
+        .territory-card:hover { transform: translateY(-3px); box-shadow: 0 10px 25px -5px rgba(0,0,0,0.05), 0 8px 10px -6px rgba(0,0,0,0.05); border-color: #cbd5e1; }
+        
+        .card-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; }
+        .card-title { font-size: 15px; font-weight: 700; color: var(--text-dark-title); line-height: 1.3; }
+        .card-badge { font-size: 11px; font-weight: 600; padding: 4px 8px; border-radius: 6px; background: #eff6ff; color: #1d4ed8; }
+        
+        .card-body { display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px; }
+        .card-info-row { display: flex; align-items: center; gap: 8px; font-size: 12.5px; color: #475569; }
+        .card-info-row strong { color: #1e293b; font-weight: 600; }
+        
+        .card-footer { display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #f1f5f9; padding-top: 12px; margin-top: auto; gap: 6px; flex-wrap: wrap; }
+        .card-actions-group { display: flex; gap: 6px; align-items: center; }
+        
+        .btn-primary { padding: 10px 18px; border: none; border-radius: 8px; cursor: pointer; background: var(--primary); color: white; font-size: 13px; font-weight: 600; display: flex; align-items: center; gap: 6px; transition: background 0.2s; box-shadow: 0 2px 4px rgba(37, 99, 235, 0.2); }
+        .btn-primary:hover { background: #1d4ed8; }
 
-/* CONTENIDO PRINCIPAL */
-.main{ margin-left: 280px; padding:40px; overflow-x: hidden; display: flex; flex-direction: column; min-height: 100vh; }
+        .btn-export { background: #f0fdf4; color: #166534; border: 1px solid #bbf7d0; padding: 10px 16px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: background 0.2s; }
+        .btn-export:hover { background: #dcfce7; }
 
-.institutional-header { display: none; text-align: center; margin-bottom: 25px; border-bottom: 2px solid #0f2547; padding-bottom: 15px; }
-.institutional-header h1 { font-size: 12.5px; font-weight: 700; color: #0f2547; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 3px; }
-.institutional-header h2 { font-size: 11px; font-weight: 600; color: #334155; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 3px; }
-.institutional-header p { font-size: 10.5px; font-weight: 600; color: #0066cc; text-transform: uppercase; letter-spacing: 0.5px; }
+        .btn-wa { background: #dcfce7; color: #15803d; padding: 6px 10px; border: none; border-radius: 6px; font-size: 11.5px; font-weight: 600; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; gap: 4px; transition: background 0.2s; }
+        .btn-wa:hover { background: #bbf7d0; }
+        
+        .btn-edit { background: #fef3c7; color: #b45309; padding: 6px 10px; border: none; border-radius: 6px; font-size: 11.5px; font-weight: 600; cursor: pointer; transition: background 0.2s; display: inline-flex; align-items: center; gap: 4px; }
+        .btn-edit:hover { background: #fde68a; }
 
-.institutional-footer { margin-top: auto; padding-top: 30px; text-align: center; border-top: 1px solid #cbd5e1; font-size: 10.5px; color: #64748b; font-weight: 500; text-transform: uppercase; letter-spacing: 0.3px; }
+        .btn-del { background: #fee2e2; color: #b91c1c; padding: 6px 10px; border: none; border-radius: 6px; font-size: 11.5px; font-weight: 600; cursor: pointer; transition: background 0.2s; display: inline-flex; align-items: center; gap: 4px; }
+        .btn-del:hover { background: #fecaca; }
 
-.main h2.page-title{ font-size: 26px; color: var(--text-dark-title); font-weight: 700; margin-bottom: 6px; }
-.subtitle-concejala { font-size: 13px; color: #64748b; margin-bottom: 24px; font-weight: 500; }
+        /* ESTILOS DEL MODAL */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(4px); display: none; justify-content: center; align-items: center; z-index: 10001; opacity: 0; transition: opacity 0.25s ease; }
+        .modal-overlay.active { display: flex; opacity: 1; }
+        .modal-container { background: white; width: 100%; max-width: 480px; border-radius: 16px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04); overflow: hidden; transform: scale(0.95); transition: transform 0.25s ease; }
+        .modal-overlay.active .modal-container { transform: scale(1); }
+        .modal-header { padding: 20px 24px; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; background: #f8fafc; }
+        .modal-header h3 { font-size: 16px; font-weight: 700; color: var(--text-dark-title); }
+        .modal-close { background: transparent; border: none; font-size: 18px; color: #64748b; cursor: pointer; padding: 4px; }
+        .modal-body { padding: 24px; display: flex; flex-direction: column; gap: 16px; max-height: 70vh; overflow-y: auto; }
+        .form-group { display: flex; flex-direction: column; gap: 6px; }
+        .form-group label { font-size: 12px; font-weight: 600; color: #475569; text-transform: uppercase; letter-spacing: 0.3px; }
+        .form-group input, .form-group select { padding: 10px 14px; border-radius: 8px; border: 1px solid var(--border-color); font-size: 13.5px; outline: none; background: white; transition: all 0.2s; }
+        .form-group input:focus, .form-group select:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1); }
+        .modal-footer { padding: 16px 24px; background: #f8fafc; border-top: 1px solid var(--border-color); display: flex; justify-content: flex-end; gap: 10px; }
+        .btn-secondary { padding: 10px 16px; border-radius: 8px; border: 1px solid var(--border-color); background: white; color: #475569; font-size: 13px; font-weight: 600; cursor: pointer; transition: background 0.2s; }
+        .btn-secondary:hover { background: #f1f5f9; }
 
-/* ESTADÍSTICAS RÁPIDAS */
-.stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; margin-bottom: 20px; }
-.stat-card { background: white; padding: 14px 16px; border-radius: 10px; border: 1px solid #e2e8f0; box-shadow: 0 2px 4px rgba(0,0,0,0.01); display: flex; flex-direction: column; border-left: 4px solid #cbd5e1; }
-.stat-card.total { border-left-color: #1d3b6a; }
-.stat-card.comunas { border-left-color: #0369a1; }
-.stat-card.ubch { border-left-color: #16a34a; }
-.stat-card.lideres { border-left-color: #d97706; }
+        .empty-state { grid-column: 1 / -1; text-align: center; padding: 60px 20px; background: white; border: 1px dashed var(--border-color); border-radius: 12px; color: #94a3b8; font-size: 14px; }
 
-.stat-card span:first-child { font-size: 10.5px; font-weight: 700; text-transform: uppercase; color: #64748b; }
-.stat-card span:last-child { font-size: 22px; font-weight: 700; color: var(--text-dark-title); margin-top: 4px; }
+        .main-footer { margin-top: auto; padding-top: 40px; text-align: center; width: 100%; border-top: 1px solid var(--border-color); }
+        .main-footer-flag { display: flex; height: 4px; width: 100%; margin-bottom: 12px; border-radius: 2px; overflow: hidden; }
+        .main-footer-flag div { flex: 1; }
+        .main-footer p { font-size: 11px; color: #64748b; line-height: 1.4; margin: 2px 0; font-family: 'Inter', sans-serif; text-transform: uppercase; letter-spacing: 0.5px; }
 
-.agenda-container { background: white; border: 1px solid #e2e8f0; border-radius: 12px; padding: 24px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.01); }
-.agenda-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #f1f5f9; padding-bottom: 16px; margin-bottom: 20px; gap: 10px; flex-wrap: wrap; }
-.agenda-header h3 { font-size: 16px; font-weight: 700; color: var(--text-dark-title); }
-
-.agenda-header-actions { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
-
-.toolbar-agenda { display: flex; justify-content: space-between; align-items: center; gap: 15px; flex-wrap: wrap; margin-bottom: 20px; background: #f8fafc; padding: 14px 18px; border-radius: 10px; border: 1px solid #e2e8f0; }
-.filters-group { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
-.filter-chip { padding: 6px 12px; border-radius: 20px; font-size: 11.5px; font-weight: 600; border: 1px solid #cbd5e1; background: white; color: #475569; cursor: pointer; transition: all 0.2s; }
-.filter-chip.active { background: var(--sidebar-bg); color: white; border-color: var(--sidebar-bg); }
-
-.search-box { position: relative; min-width: 220px; }
-.search-box input { width: 100%; padding: 7px 12px 7px 32px; border: 1px solid #cbd5e1; border-radius: 20px; font-size: 12px; outline: none; background: white; }
-.search-box input:focus { border-color: var(--sidebar-active); }
-.search-box::before { content: "🔍"; position: absolute; left: 10px; top: 50%; transform: translateY(-50%); font-size: 11px; }
-
-.btn-action-toolbar { background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; padding: 9px 14px; border-radius: 6px; font-size: 12.5px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: background 0.2s; }
-.btn-action-toolbar:hover { background: #e2e8f0; }
-
-.btn-add { background: var(--sidebar-active); color: white; border: none; padding: 9px 16px; border-radius: 6px; font-size: 12.5px; font-weight: 600; cursor: pointer; transition: opacity 0.2s; white-space: nowrap; display: inline-flex; align-items: center; gap: 6px; }
-.btn-add:hover { opacity: 0.95; }
-
-/* TARJETAS */
-.grid-actividades { display: grid; grid-template-columns: 1fr; gap: 15px; }
-.card-actividad { background: white; padding: 20px; border-radius: 10px; border: 1px solid #e2e8f0; border-left: 5px solid var(--sidebar-active); box-shadow: 0 2px 4px rgba(0,0,0,0.02); display: flex; justify-content: space-between; align-items: flex-start; gap: 15px; transition: transform 0.2s; }
-.card-actividad:hover { transform: translateY(-2px); box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
-
-.card-content { flex-grow: 1; }
-.card-title-row { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; flex-wrap: wrap; }
-.card-title-row h4 { color: var(--text-dark-title); font-size: 15px; font-weight: 700; }
-
-.tipo-badge { font-size: 10.5px; font-weight: 700; text-transform: uppercase; background: #f1f5f9; color: #475569; padding: 2px 8px; border-radius: 4px; }
-.card-meta { font-size: 12px; color: #64748b; font-weight: 500; margin-bottom: 8px; display: flex; gap: 15px; flex-wrap: wrap; }
-.card-desc { font-size: 13px; color: #334155; line-height: 1.4; background: #f8fafc; padding: 8px 12px; border-radius: 6px; border: 1px solid #f1f5f9; margin-top: 8px; }
-
-.card-actions-side { display: flex; flex-direction: column; align-items: flex-end; gap: 10px; }
-.badge-status { padding: 4px 10px; border-radius: 4px; font-size: 10.5px; font-weight: 700; text-transform: uppercase; display: inline-block; text-align: center; }
-.status-comuna { background: #e0f2fe; color: #0369a1; }
-.status-ubch { background: #dcfce7; color: #14532d; }
-.status-clap { background: #fef3c7; color: #92400e; }
-
-.action-btns-row { display: flex; gap: 6px; }
-.btn-icon-action { background: #f1f5f9; border: 1px solid #cbd5e1; color: #475569; padding: 5px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; cursor: pointer; }
-.btn-icon-action:hover { background: #e2e8f0; }
-.btn-icon-danger { background: #fee2e2; border: 1px solid #fecaca; color: #b91c1c; }
-.btn-icon-danger:hover { background: #fecaca; }
-
-/* VENTANA MODAL */
-.modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 37, 71, 0.5); backdrop-filter: blur(2px); z-index: 4000; justify-content: center; align-items: center; padding: 15px; }
-.modal-content { background: white; padding: 24px; border-radius: 12px; width: 100%; max-width: 500px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.15); position: relative; max-height: 90vh; overflow-y: auto; }
-.modal-title { font-size: 18px; font-weight: 700; color: var(--text-dark-title); margin-bottom: 20px; }
-.close-modal { position: absolute; top: 20px; right: 20px; background: none; border: none; font-size: 24px; cursor: pointer; color: #94a3b8; }
-.form-group { margin-bottom: 14px; }
-.form-group label { display: block; font-size: 11px; font-weight: 700; color: #475569; margin-bottom: 4px; text-transform: uppercase; }
-.form-group input, .form-group textarea, .form-group select { width: 100%; padding: 9px 12px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 13px; color: #334155; outline: none; }
-.form-group input:focus, .form-group textarea:focus, .form-group select:focus { border-color: var(--sidebar-active); box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.12); }
-.modal-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px; border-top: 1px solid #e2e8f0; padding-top: 14px; }
-.btn-cancel { background: #e2e8f0; color: #475569; border: none; padding: 9px 16px; border-radius: 6px; font-size: 12.5px; font-weight: 600; cursor: pointer; }
-.btn-save { background: var(--success-color); color: white; border: none; padding: 9px 16px; border-radius: 6px; font-size: 12.5px; font-weight: 600; cursor: pointer; }
-
-/* ESTILOS PARA IMPRESIÓN */
-@media print {
-    .sidebar, .mobile-header, .toolbar-agenda, .agenda-header-actions, .action-btns-row, .btn-add, .search-box { display: none !important; }
-    .main { margin-left: 0 !important; padding: 0 !important; }
-    .institutional-header { display: block !important; }
-    .agenda-container { border: none !important; box-shadow: none !important; padding: 0 !important; }
-    body { background: white !important; color: black !important; }
-    .card-actividad { break-inside: avoid; border: 1px solid #cbd5e1 !important; box-shadow: none !important; }
-}
-
-@media (max-width: 768px) {
-    .mobile-header { display: flex; }
-    .sidebar { position: fixed; top: 58px; left: 0; width: 280px; height: calc(100vh - 58px); z-index: 2500; transform: translateX(-100%); box-shadow: 4px 0 10px rgba(0,0,0,0.1); overflow-y: auto; }
-    .sidebar.open { transform: translateX(0); }
-    .main { margin-left: 0 !important; padding: 20px 15px; }
-    .agenda-header { flex-direction: column; align-items: stretch; }
-    .agenda-header-actions { width: 100%; justify-content: space-between; flex-wrap: wrap; }
-    .btn-add { flex-grow: 1; justify-content: center; }
-    .card-actividad { flex-direction: column; align-items: stretch; }
-    .card-actions-side { flex-direction: row; justify-content: space-between; align-items: center; border-top: 1px dashed #e2e8f0; padding-top: 10px; margin-top: 6px; }
-}
-</style>
+        @media (max-width: 900px) { 
+            .layout { grid-template-columns: 1fr; }
+            .mobile-menu-toggle { display: flex; }
+            .sidebar { position: fixed; top: 0; left: 0; width: 280px; height: 100vh; z-index: 9998; transform: translateX(-100%); box-shadow: 5px 0 15px rgba(0,0,0,0.2); }
+            .sidebar.mobile-open { transform: translateX(0); }
+            .main { padding: 20px 16px; }
+            .content-header { flex-direction: column; align-items: stretch; }
+            .search-box input { width: 100%; }
+        }
+    </style>
 </head>
 
 <body style="display: none;">
 
-<div class="mobile-header">
-    <span style="font-size: 13px; font-weight: 700; letter-spacing: 0.5px;">COMISIÓN DE SALUD</span>
-    <button class="btn-menu-toggle" onclick="toggleMenu()">☰</button>
-</div>
+    <button class="mobile-menu-toggle" id="menuToggleBtn" onclick="toggleMobileMenu()">☰</button>
 
-<div class="layout">
-   <div class="sidebar" id="sidebarMenu">
+    <div class="layout">
+    <div class="sidebar" id="sidebarMenu">
         <div class="sidebar-brand">
             <h2>COMISIÓN PERMANENTE DE SALUD<br>Y DESARROLLO SOCIAL INTEGRAL</h2>
         </div>
@@ -194,6 +181,8 @@ body{ background: var(--bg-main); color:#334155; }
         
         <div class="menu-category">Coor. Política</div>
         <a class="menu active-page" href="politica.html">Liderazgos y Comunas</a>
+        <!-- ENLACE CORREGIDO A DIFUSION.HTML CON LA CLASE .MENU -->
+        <a class="menu" href="difusion.html">Difusión Política</a>
         
         <div class="menu-category">Coor. Social</div>
         <a class="menu" href="social.html">Casos Sociales</a>
@@ -207,459 +196,537 @@ body{ background: var(--bg-main); color:#334155; }
         <div id="enlaceAuditoria" style="display: none;">
             <a href="auditoria.html" class="menu">🛡️ Panel de Auditoría</a>
         </div>
-
-        <div style="margin-top: auto; padding: 24px 20px; border-top: 1px solid rgba(255,255,255,0.1);">
-            <div id="usuarioNombre" style="font-size:13px; color:#ffffff; font-weight:600; margin-bottom: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">Cargando...</div>
-            <div id="usuarioCoordinacion" style="font-size:10.5px; color:var(--sidebar-text-sub); font-weight: 500; margin-bottom: 16px; text-transform: uppercase; letter-spacing: 0.3px;">Cargando...</div>
-            <a class="menu" onclick="logout()" style="cursor:pointer; font-size:12px; color:#f87171; padding: 8px 0; display: block; border-top: 1px solid rgba(255,255,255,0.05);">Cerrar sesión</a>
+        
+        <div style="margin-top: auto; padding: 24px 20px; border-top: 1px solid rgba(255,255,255,0.08);">
+            <div id="usuarioNombre" style="font-size:13px; color:#ffffff; font-weight:600; margin-bottom: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                Cargando...
+            </div>
+            <div id="usuarioCoordinacion" style="font-size:10px; color:var(--sidebar-text-sub); font-weight: 500; margin-bottom: 16px; text-transform: uppercase; letter-spacing: 0.5px;">
+                Cargando...
+            </div>
+            <a class="menu" onclick="logout()" style="cursor:pointer; font-size:12px; color:#f87171; padding: 8px 0; display: block; border-top: 1px solid rgba(255,255,255,0.04);">
+                Cerrar sesión
+            </a>
         </div>
     </div>
 
     <div class="main">
-        <div class="institutional-header">
-            <h1>República Bolivariana de Venezuela</h1>
-            <h2>Concejo Municipal del Municipio Ambrosio Plaza</h2>
-            <p>Comisión Permanente de Salud y Desarrollo Social Integral &mdash; Concejala Letty Bastidas</p>
+        <div class="content-header">
+            <div>
+                <h2 id="page-title">Estructura de Liderazgos Territoriales</h2>
+                <div class="subtitle-concejala">Oficina de la Concejala Letty Bastidas — Municipio Ambrosio Plaza</div>
+            </div>
+            <div class="header-actions">
+                <button class="btn-export" onclick="exportarCSV()">
+                    <span>📥</span> Exportar Datos
+                </button>
+                <button class="btn-primary" onclick="abrirModalRegistro()" id="btn-nuevo-registro">
+                    <span>➕</span> Registrar Líder Territorial
+                </button>
+            </div>
         </div>
 
-        <h2 class="page-title">Liderazgos y Comunas</h2>
-        <div class="subtitle-concejala">Articulación Política, Comunas, UBCH y Estructuras de Base</div>
+        <!-- TARJETAS DE INDICADORES (KPIs) -->
+        <div class="kpi-container">
+            <div class="kpi-card">
+                <span class="kpi-title">Total Líderes UBCh</span>
+                <span class="kpi-value" id="kpiLideres">0</span>
+            </div>
+            <div class="kpi-card">
+                <span class="kpi-title">Total Comunas / Consejos</span>
+                <span class="kpi-value" id="kpiComunas">0</span>
+            </div>
+            <div class="kpi-card">
+                <span class="kpi-title">Sectores Registrados</span>
+                <span class="kpi-value" id="kpiSectores">0</span>
+            </div>
+        </div>
         
-        <!-- ESTADÍSTICAS RÁPIDAS -->
-        <div class="stats-grid">
-            <div class="stat-card total">
-                <span>Total Registros</span>
-                <span id="stat-total">0</span>
+        <div class="toolbar-row">
+            <div class="tabs-container">
+                <button class="tab-btn active" id="tab-lideres" onclick="switchData('liderazgos')">🚩 Líderes de Comunidad / UBCh</button>
+                <button class="tab-btn" id="tab-comunas" onclick="switchData('comunas')">☖ Comunas y Consejos</button>
             </div>
-            <div class="stat-card comunas">
-                <span>Comunas</span>
-                <span id="stat-comunas" style="color: #0369a1;">0</span>
-            </div>
-            <div class="stat-card ubch">
-                <span>UBCH</span>
-                <span id="stat-ubch" style="color: #14532d;">0</span>
-            </div>
-            <div class="stat-card lideres">
-                <span>Liderazgos / CLAP</span>
-                <span id="stat-lideres" style="color: #92400e;">0</span>
+            <div class="search-box">
+                <span>🔍</span>
+                <input type="text" id="searchInput" placeholder="Buscar registro..." oninput="filtrarPorTexto()">
             </div>
         </div>
 
-        <div class="agenda-container">
-            <div class="agenda-header">
-                <h3>Directorio de Comunas, UBCH y Líderes de Base</h3>
-                <div class="agenda-header-actions">
-                    <button class="btn-action-toolbar" onclick="exportarExcel()" style="background-color: #059669; color: white; border: none;">
-                        <i class="fa-solid fa-file-excel"></i> Descargar Excel
-                    </button>
-                    <button class="btn-action-toolbar" onclick="window.print()">🖨️ Imprimir / PDF</button>
-                    <button class="btn-add" onclick="abrirModal()">➕ Registrar Estructura</button>
-                </div>
-            </div>
-
-            <!-- FILTROS Y BUSCADOR -->
-            <div class="toolbar-agenda">
-                <div class="filters-group">
-                    <button class="filter-chip active" id="chip-todos" onclick="filtrarAgenda('Todos')">Todas</button>
-                    <button class="filter-chip" id="chip-comuna" onclick="filtrarAgenda('Comuna')">Comunas</button>
-                    <button class="filter-chip" id="chip-ubch" onclick="filtrarAgenda('UBCH')">UBCH</button>
-                    <button class="filter-chip" id="chip-clap" onclick="filtrarAgenda('CLAP')">CLAP / Líderes</button>
-                </div>
-
-                <div class="search-box">
-                    <input type="text" id="inputBuscador" placeholder="Buscar por nombre, territorio..." oninput="manejarBusqueda()">
-                </div>
-            </div>
-
-            <!-- VISTA DE LISTA / TARJETAS -->
-            <div id="lista-actividades" class="grid-actividades">
-                <p style="text-align:center; padding:30px; color:#94a3b8;">Cargando registros políticos...</p>
-            </div>
+        <!-- CONTENEDOR EN GRID CREATIVO DE TARJETAS -->
+        <div class="cards-grid" id="cardsGridContainer">
+            <div class="empty-state">Conectando con la base de datos de Neon...</div>
         </div>
 
-        <div class="institutional-footer">
-            Sistema de Gestión de la Comisión Permanente de Salud y Desarrollo Social Integral &mdash; Municipio Ambrosio Plaza | Despacho Concejala Letty Bastidas
+        <!-- PIE DE PÁGINA INSTITUCIONAL -->
+        <footer class="main-footer">
+            <div class="main-footer-flag">
+                <div style="background-color: #ffde00;"></div>
+                <div style="background-color: #003da5;"></div>
+                <div style="background-color: #d12421;"></div>
+            </div>
+            <p>Sistema de Gestión de la Comisión Permanente de Salud y Desarrollo Social Integral — Municipio Ambrosio Plaza | Despacho Concejala Letty Bastidas</p>
+        </footer>
+    </div>
+    </div>
+
+    <!-- MODAL DE REGISTRO / EDICIÓN INTEGRADO -->
+    <div class="modal-overlay" id="registroModal">
+        <div class="modal-container">
+            <div class="modal-header">
+                <h3 id="modalTitle">Registrar Líder Territorial</h3>
+                <button class="modal-close" onclick="cerrarModalRegistro()">✕</button>
+            </div>
+            <div class="modal-body" id="modalFormBody">
+                <!-- Se llena dinámicamente -->
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" onclick="cerrarModalRegistro()">Cancelar</button>
+                <button class="btn-primary" onclick="guardarRegistroModal()" id="btnGuardarModal">Guardar Registro</button>
+            </div>
         </div>
     </div>
-</div>
 
-<!-- MODAL CREAR / EDITAR -->
-<div class="modal" id="modalActividad">
-    <div class="modal-content">
-        <button class="close-modal" onclick="cerrarModal()">×</button>
-        <div class="modal-title" id="modalTituloLabel">Registrar Estructura Política</div>
-        
-        <form id="formAgenda" onsubmit="guardarActividad(event)">
-            <input type="hidden" id="actividadIndice">
-            
-            <div class="form-group">
-                <label>Nombre de la Organización / Líder</label>
-                <input type="text" id="titulo" placeholder="Ej: Comuna Socialista Guairita / Juan Pérez" required>
-            </div>
-            
-            <div class="form-group" style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-                <div>
-                    <label>Tipo de Registro</label>
-                    <select id="tipo">
-                        <option value="Comuna">Comuna</option>
-                        <option value="UBCH">UBCH</option>
-                        <option value="CLAP">CLAP</option>
-                        <option value="Liderazgo de Base">Liderazgo de Base</option>
-                    </select>
-                </div>
-                <div>
-                    <label>Categoría / Estatus</label>
-                    <select id="estatus">
-                        <option value="Comuna">Comuna</option>
-                        <option value="UBCH">UBCH</option>
-                        <option value="CLAP">CLAP</option>
-                    </select>
-                </div>
-            </div>
-
-            <div class="form-group" style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-                <div>
-                    <label>Fecha de Registro</label>
-                    <input type="date" id="fecha" required>
-                </div>
-                <div>
-                    <label>Contacto / Teléfono</label>
-                    <input type="text" id="hora" placeholder="Ej: 0414-0000000" required>
-                </div>
-            </div>
-
-            <div class="form-group">
-                <label>Territorio / Sector</label>
-                <input type="text" id="lugar" placeholder="Ej: Urbanización Trapichito, Sector 3" required>
-            </div>
-
-            <div class="form-group">
-                <label>Descripción / Observaciones</label>
-                <textarea id="descripcion" rows="3" placeholder="Detalles de la estructura, voceros o enlaces..." required></textarea>
-            </div>
-
-            <div class="modal-actions">
-                <button type="button" class="btn-cancel" onclick="cerrarModal()">Cancelar</button>
-                <button type="submit" class="btn-save">Guardar Registro</button>
-            </div>
-        </form>
-    </div>
-</div>
-
-<script>
-let listaEventosGlobal = [];
-let filtroSeleccionado = 'Todos';
-let textoBusquedaGlobal = '';
-
-window.iniciarPoliticaApp = function() {
-    cargarPoliticaOficina();
-};
-
-document.addEventListener("DOMContentLoaded", () => {
-    if (sessionStorage.getItem("usuario_rol") === "admin") {
-        const aud = document.getElementById("enlaceAuditoria");
-        if(aud) aud.style.display = "block";
-    }
-
-    if (window.sqlClient) {
-        window.iniciarPoliticaApp();
-    }
-    
-    const nombre = sessionStorage.getItem("usuario_nombre");
-    const coord = sessionStorage.getItem("usuario_coordinacion");
-    if (nombre) document.getElementById("usuarioNombre").textContent = nombre;
-    if (coord) document.getElementById("usuarioCoordinacion").textContent = coord.toUpperCase();
-});
-
-function toggleMenu() {
-    document.getElementById("sidebarMenu").classList.toggle("open");
-}
-
-function abrirModal() {
-    document.getElementById("actividadIndice").value = "";
-    document.getElementById("modalTituloLabel").textContent = "Registrar Estructura Política";
-    document.getElementById("formAgenda").reset();
-    document.getElementById("modalActividad").style.display = "flex";
-}
-
-function cerrarModal() {
-    document.getElementById("modalActividad").style.display = "none";
-}
-
-async function cargarPoliticaOficina() {
-    const contenedor = document.getElementById("lista-actividades");
-    if (!window.sqlClient) await new Promise(resolve => setTimeout(resolve, 800));
-    if (!window.sqlClient) {
-        contenedor.innerHTML = `<p style="text-align:center; padding:30px; color:#dc2626;">Error: Conexión con Neon no disponible.</p>`;
-        return;
-    }
-
-    try {
-        await window.sqlClient`
-            CREATE TABLE IF NOT EXISTS politica_oficina (
-                id SERIAL PRIMARY KEY,
-                titulo TEXT,
-                fecha TEXT,
-                hora TEXT,
-                tipo TEXT,
-                estatus TEXT,
-                lugar TEXT,
-                descripcion TEXT
-            )
-        `;
-        const eventos = await window.sqlClient`SELECT * FROM politica_oficina ORDER BY id DESC`;
-        listaEventosGlobal = Array.from(eventos || []);
-        actualizarEstadisticas();
-        renderizarAgenda(listaEventosGlobal);
-    } catch (err) {
-        console.error("Error cargando registros políticos:", err);
-        contenedor.innerHTML = `<p style="text-align:center; padding:30px; color:#dc2626;">Error al cargar la base de datos: ${err.message}</p>`;
-    }
-}
-
-function actualizarEstadisticas() {
-    const total = listaEventosGlobal.length;
-    const comunas = listaEventosGlobal.filter(e => e.estatus === 'Comuna' || e.tipo === 'Comuna').length;
-    const ubch = listaEventosGlobal.filter(e => e.estatus === 'UBCH' || e.tipo === 'UBCH').length;
-    const lideres = listaEventosGlobal.filter(e => e.estatus === 'CLAP' || e.tipo === 'CLAP' || e.tipo === 'Liderazgo de Base').length;
-
-    document.getElementById("stat-total").textContent = total;
-    document.getElementById("stat-comunas").textContent = comunas;
-    document.getElementById("stat-ubch").textContent = ubch;
-    document.getElementById("stat-lideres").textContent = lideres;
-}
-
-function renderizarAgenda(eventos) {
-    const contenedor = document.getElementById("lista-actividades");
-    let filtrados = eventos;
-    
-    if (filtroSeleccionado !== 'Todos') {
-        if (filtroSeleccionado === 'CLAP') {
-            filtrados = filtrados.filter(e => e.estatus === 'CLAP' || e.tipo === 'CLAP' || e.tipo === 'Liderazgo de Base');
-        } else {
-            filtrados = filtrados.filter(e => e.estatus === filtroSeleccionado || e.tipo === filtroSeleccionado);
+    <script>
+        if (sessionStorage.getItem("usuario_rol") === "admin") {
+            const el = document.getElementById("enlaceAuditoria");
+            if (el) el.style.display = "block";
         }
-    }
 
-    if (textoBusquedaGlobal.trim() !== '') {
-        const query = textoBusquedaGlobal.toLowerCase();
-        filtrados = filtrados.filter(e => 
-            (e.titulo && e.titulo.toLowerCase().includes(query)) ||
-            (e.lugar && e.lugar.toLowerCase().includes(query)) ||
-            (e.descripcion && e.descripcion.toLowerCase().includes(query)) ||
-            (e.tipo && e.tipo.toLowerCase().includes(query))
-        );
-    }
+        let filtroActual = 'liderazgos';
+        let todosLosRegistros = [];
+        let idRegistroEditando = null;
 
-    if (filtrados.length === 0) {
-        contenedor.innerHTML = `<p style="text-align:center; padding:30px; color:#94a3b8;">No se encontraron registros políticos almacenados.</p>`;
-        return;
-    }
+        const sectoresPlaza = [
+            "Las Clavelinas",
+            "Ruiz Pineda",
+            "Menca de Leoni",
+            "Trapichito",
+            "Valle Verde",
+            "Zulia",
+            "Sector Las Mandarinas",
+            "Oropeza Castillo",
+            "Pueblo Arriba",
+            "El Tamarindo",
+            "Nueva Casarapa",
+            "Otro Sector"
+        ];
 
-    contenedor.innerHTML = filtrados.map((e) => {
-        const indexGlobal = listaEventosGlobal.findIndex(item => item === e);
-        let estatusClase = 'status-comuna';
-        if(e.estatus === 'UBCH' || e.tipo === 'UBCH') estatusClase = 'status-ubch';
-        if(e.estatus === 'CLAP' || e.tipo === 'CLAP') estatusClase = 'status-clap';
+        window.iniciarApp = function() {
+            const nombre = sessionStorage.getItem("usuario_nombre");
+            const coord = sessionStorage.getItem("usuario_coordinacion");
+            if (nombre) document.getElementById("usuarioNombre").textContent = nombre;
+            if (coord) document.getElementById("usuarioCoordinacion").textContent = coord.toUpperCase();
 
-        return `
-            <div class="card-actividad">
-                <div class="card-content">
-                    <div class="card-title-row">
-                        <h4>${e.titulo || 'Sin título'}</h4>
-                        <span class="tipo-badge">${e.tipo || 'General'}</span>
+            cargarDatosPoliticos();
+        };
+
+        document.addEventListener("DOMContentLoaded", () => {
+            if (window.sqlClient) {
+                window.iniciarApp();
+            }
+        });
+
+        function toggleMobileMenu() {
+            const sidebar = document.getElementById("sidebarMenu");
+            const btn = document.getElementById("menuToggleBtn");
+            sidebar.classList.toggle("mobile-open");
+            btn.innerText = sidebar.classList.contains("mobile-open") ? "✕" : "☰";
+        }
+
+        async function cargarDatosPoliticos() {
+            const container = document.getElementById("cardsGridContainer");
+
+            if (!window.sqlClient) {
+                await new Promise(resolve => setTimeout(resolve, 800));
+            }
+
+            if (!window.sqlClient) {
+                container.innerHTML = `<div class="empty-state" style="color:var(--danger-color);">⚠️ Error crítico: La librería de Neon no se ha cargado correctamente.</div>`;
+                return;
+            }
+
+            try {
+                const registros = await window.sqlClient`SELECT * FROM casos_salud ORDER BY id DESC`;
+                todosLosRegistros = Array.from(registros);
+                actualizarKPIs(todosLosRegistros);
+                renderizarDatos();
+            } catch (err) {
+                console.error("Error de conexión:", err);
+                container.innerHTML = `<div class="empty-state" style="color:var(--danger-color);">Error de conexión con Neon: ${err.message}</div>`;
+            }
+        }
+
+        function actualizarKPIs(registros) {
+            const politicos = registros.filter(r => (r.coordinacion && r.coordinacion.toLowerCase() === 'politica') || r.tipo === 'Liderazgo' || r.tipo === 'Comuna');
+            const lideresCount = politicos.filter(r => r.tipo !== 'Comuna').length;
+            const comunasCount = politicos.filter(r => r.tipo === 'Comuna').length;
+            
+            const sectoresUnicos = new Set(politicos.map(r => r.sector).filter(Boolean));
+
+            document.getElementById("kpiLideres").innerText = lideresCount;
+            document.getElementById("kpiComunas").innerText = comunasCount;
+            document.getElementById("kpiSectores").innerText = sectoresUnicos.size;
+        }
+
+        function renderizarDatos() {
+            const container = document.getElementById("cardsGridContainer");
+            const termino = document.getElementById("searchInput").value.toLowerCase();
+
+            const datosPoliticos = todosLosRegistros.filter(r => (r.coordinacion && r.coordinacion.toLowerCase() === 'politica') || r.tipo === 'Liderazgo' || r.tipo === 'Comuna');
+
+            let filtrados = [];
+            if (filtroActual === 'liderazgos') {
+                filtrados = datosPoliticos.filter(r => r.tipo !== 'Comuna');
+            } else {
+                filtrados = datosPoliticos.filter(r => r.tipo === 'Comuna');
+            }
+
+            if (termino) {
+                filtrados = filtrados.filter(item => {
+                    return Object.values(item).some(val => String(val || '').toLowerCase().includes(termino));
+                });
+            }
+
+            if (filtrados.length === 0) {
+                container.innerHTML = `<div class="empty-state">No se encontraron registros en esta sección.</div>`;
+                return;
+            }
+
+            if (filtroActual === 'liderazgos') {
+                container.innerHTML = filtrados.map(l => `
+                    <div class="territory-card">
+                        <div>
+                            <div class="card-top">
+                                <div class="card-title">${l.nombre || 'Sin Nombre'}</div>
+                                <span class="card-badge">UBCh / Líder</span>
+                            </div>
+                            <div class="card-body">
+                                <div class="card-info-row"><span>🆔 Cédula:</span> <strong>${l.cedula || 'N/A'}</strong></div>
+                                <div class="card-info-row"><span>📞 Teléfono:</span> <strong>${l.telefono || 'N/A'}</strong></div>
+                                <div class="card-info-row"><span>📍 Sector:</span> <strong>${l.sector || 'N/A'}</strong></div>
+                            </div>
+                        </div>
+                        <div class="card-footer">
+                            ${l.telefono ? `<a class="btn-wa" href="https://wa.me/58${l.telefono.replace(/\s+/g, '')}" target="_blank">💬 WhatsApp</a>` : '<span></span>'}
+                            <div class="card-actions-group">
+                                <button class="btn-edit" onclick="abrirModalEditar(${l.id})">✏️ Editar</button>
+                                <button class="btn-del" onclick="eliminarRegistro(${l.id})">🗑️ Eliminar</button>
+                            </div>
+                        </div>
                     </div>
-                    <div class="card-meta">
-                        <span>📅 ${e.fecha || '--'}</span>
-                        <span>📞 ${e.hora || '--'}</span>
-                        <span>📍 ${e.lugar || 'No especificado'}</span>
+                `).join("");
+            } else {
+                container.innerHTML = filtrados.map(c => `
+                    <div class="territory-card">
+                        <div>
+                            <div class="card-top">
+                                <div class="card-title">${c.nombre || 'Organización sin nombre'}</div>
+                                <span class="card-badge" style="background:#fef3c7; color:#b45309;">Comuna</span>
+                            </div>
+                            <div class="card-body">
+                                <div class="card-info-row"><span>🗺️ Eje / Sector:</span> <strong>${c.sector || 'N/A'}</strong></div>
+                                <div class="card-info-row"><span>👤 Responsable:</span> <strong>${c.responsable || 'N/A'}</strong></div>
+                                <div class="card-info-row"><span>🆔 Cédula:</span> <strong>${c.cedula || 'N/A'}</strong></div>
+                                <div class="card-info-row"><span>📞 Teléfono:</span> <strong>${c.telefono || 'N/A'}</strong></div>
+                                <div class="card-info-row"><span>✉️ Email:</span> <strong>${c.email || 'N/A'}</strong></div>
+                            </div>
+                        </div>
+                        <div class="card-footer">
+                            ${c.telefono ? `<a class="btn-wa" href="https://wa.me/58${c.telefono.replace(/\s+/g, '')}" target="_blank">💬 WhatsApp</a>` : '<span></span>'}
+                            <div class="card-actions-group">
+                                <button class="btn-edit" onclick="abrirModalEditar(${c.id})">✏️ Editar</button>
+                                <button class="btn-del" onclick="eliminarRegistro(${c.id})">🗑️ Eliminar</button>
+                            </div>
+                        </div>
                     </div>
-                    ${e.descripcion ? `<div class="card-desc">${e.descripcion}</div>` : ''}
-                </div>
-                <div class="card-actions-side">
-                    <span class="badge-status ${estatusClase}">${e.estatus || 'Comuna'}</span>
-                    <div class="action-btns-row">
-                        <button class="btn-icon-action" onclick="abrirEditar(${indexGlobal})">Editar</button>
-                        <button class="btn-icon-action btn-icon-danger" onclick="eliminarActividad(${indexGlobal})">Borrar</button>
+                `).join("");
+            }
+        }
+
+        function filtrarPorTexto() {
+            renderizarDatos();
+        }
+
+        function switchData(tipo) {
+            filtroActual = tipo;
+            document.getElementById("tab-lideres").classList.toggle("active", tipo === 'liderazgos');
+            document.getElementById("tab-comunas").classList.toggle("active", tipo === 'comunas');
+            document.getElementById("page-title").innerText = tipo === 'liderazgos' ? "Estructura de Liderazgos Territoriales" : "Comunas y Consejos Comunales";
+            document.getElementById("btn-nuevo-registro").innerHTML = tipo === 'liderazgos' ? "<span>➕</span> Registrar Líder Territorial" : "<span>➕</span> Registrar Organización / Comuna";
+            document.getElementById("searchInput").value = "";
+            renderizarDatos();
+        }
+
+        function abrirModalRegistro() {
+            idRegistroEditando = null;
+            const modal = document.getElementById("registroModal");
+            const title = document.getElementById("modalTitle");
+            const body = document.getElementById("modalFormBody");
+            const btnGuardar = document.getElementById("btnGuardarModal");
+
+            btnGuardar.innerText = "Guardar Registro";
+
+            const opcionesSectores = sectoresPlaza.map(s => `<option value="${s}">${s}</option>`).join("");
+
+            if (filtroActual === 'liderazgos') {
+                title.innerText = "Registrar Líder Territorial / UBCh";
+                body.innerHTML = `
+                    <div class="form-group">
+                        <label>Nombre Completo</label>
+                        <input type="text" id="m_nombre" placeholder="Ej. Juan Pérez">
                     </div>
-                </div>
-            </div>
-        `;
-    }).join("");
-}
-
-function exportarExcel() {
-    if (listaEventosGlobal.length === 0) {
-        alert("No hay registros para exportar.");
-        return;
-    }
-
-    let xmlContent = `<?xml version="1.0" encoding="UTF-8"?>
-<?mso-application progid="Excel.Sheet"?>
-<Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet"
- xmlns:o="urn:schemas-microsoft-com:office:office"
- xmlns:x="urn:schemas-microsoft-com:office:excel"
- xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet"
- xmlns:html="http://www.w3.org/TR/REC-html40">
- <Worksheet ss:Name="Politica">
-  <Table>
-   <Row>
-    <Cell><Data ss:Type="String">ID</Data></Cell>
-    <Cell><Data ss:Type="String">Título</Data></Cell>
-    <Cell><Data ss:Type="String">Fecha</Data></Cell>
-    <Cell><Data ss:Type="String">Contacto</Data></Cell>
-    <Cell><Data ss:Type="String">Tipo</Data></Cell>
-    <Cell><Data ss:Type="String">Estatus</Data></Cell>
-    <Cell><Data ss:Type="String">Territorio</Data></Cell>
-    <Cell><Data ss:Type="String">Descripción</Data></Cell>
-   </Row>`;
-
-    listaEventosGlobal.forEach(row => {
-        const titulo = (row.titulo || "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-        const fecha = row.fecha || "";
-        const hora = row.hora || "";
-        const tipo = (row.tipo || "").replace(/&/g, "&amp;");
-        const estatus = row.estatus || "";
-        const lugar = (row.lugar || "").replace(/&/g, "&amp;");
-        const descripcion = (row.descripcion || "").replace(/&/g, "&amp;").replace(/[\r\n]+/g, " ");
-
-        xmlContent += `
-   <Row>
-    <Cell><Data ss:Type="Number">${row.id || 0}</Data></Cell>
-    <Cell><Data ss:Type="String">${titulo}</Data></Cell>
-    <Cell><Data ss:Type="String">${fecha}</Data></Cell>
-    <Cell><Data ss:Type="String">${hora}</Data></Cell>
-    <Cell><Data ss:Type="String">${tipo}</Data></Cell>
-    <Cell><Data ss:Type="String">${estatus}</Data></Cell>
-    <Cell><Data ss:Type="String">${lugar}</Data></Cell>
-    <Cell><Data ss:Type="String">${descripcion}</Data></Cell>
-   </Row>`;
-    });
-
-    xmlContent += `
-  </Table>
- </Worksheet>
-</Workbook>`;
-
-    const blob = new Blob([xmlContent], { type: 'application/vnd.ms-excel' });
-    const url = window.URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = "politica_liderazgos_comunas.xls";
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    window.URL.revokeObjectURL(url);
-}
-
-function filtrarAgenda(estatus) {
-    filtroSeleccionado = estatus;
-    ['todos', 'comuna', 'ubch', 'clap'].forEach(id => {
-        const btn = document.getElementById(`chip-${id}`);
-        if(btn) btn.classList.toggle('active', id === estatus.toLowerCase() || (id === 'todos' && estatus === 'Todos'));
-    });
-    renderizarAgenda(listaEventosGlobal);
-}
-
-function manejarBusqueda() {
-    textoBusquedaGlobal = document.getElementById("inputBuscador").value;
-    renderizarAgenda(listaEventosGlobal);
-}
-
-function abrirEditar(index) {
-    const item = listaEventosGlobal[index];
-    if (!item) {
-        alert("No se encontró el registro para editar.");
-        return;
-    }
-
-    document.getElementById("actividadIndice").value = index;
-    document.getElementById("modalTituloLabel").textContent = "Modificar Registro Político";
-    document.getElementById("titulo").value = item.titulo || "";
-    document.getElementById("fecha").value = item.fecha || "";
-    document.getElementById("hora").value = item.hora || "";
-    document.getElementById("tipo").value = item.tipo || "Comuna";
-    document.getElementById("estatus").value = item.estatus || "Comuna";
-    document.getElementById("lugar").value = item.lugar || "";
-    document.getElementById("descripcion").value = item.descripcion || "";
-
-    document.getElementById("modalActividad").style.display = "flex";
-}
-
-async function guardarActividad(event) {
-    event.preventDefault();
-    if (!window.sqlClient) return;
-
-    const indexInput = document.getElementById("actividadIndice").value;
-    const titulo = document.getElementById("titulo").value.trim();
-    const fecha = document.getElementById("fecha").value;
-    const hora = document.getElementById("hora").value.trim();
-    const tipo = document.getElementById("tipo").value;
-    const estatus = document.getElementById("estatus").value;
-    const lugar = document.getElementById("lugar").value.trim();
-    const descripcion = document.getElementById("descripcion").value.trim();
-
-    try {
-        if (indexInput !== "") {
-            const indexNum = Number(indexInput);
-            const itemOriginal = listaEventosGlobal[indexNum];
-
-            if (itemOriginal && itemOriginal.id !== undefined && itemOriginal.id !== null) {
-                await window.sqlClient`
-                    UPDATE politica_oficina 
-                    SET titulo = ${titulo}, fecha = ${fecha}, hora = ${hora}, tipo = ${tipo}, 
-                        estatus = ${estatus}, lugar = ${lugar}, descripcion = ${descripcion}
-                    WHERE id = ${Number(itemOriginal.id)}
+                    <div class="form-group">
+                        <label>Cédula de Identidad</label>
+                        <input type="text" id="m_cedula" placeholder="Ej. V-12345678">
+                    </div>
+                    <div class="form-group">
+                        <label>Teléfono de Contacto</label>
+                        <input type="text" id="m_telefono" placeholder="Ej. 04141234567">
+                    </div>
+                    <div class="form-group">
+                        <label>Sector / Comunidad</label>
+                        <select id="m_sector">
+                            <option value="">Seleccione un sector...</option>
+                            ${opcionesSectores}
+                        </select>
+                    </div>
                 `;
             } else {
-                await window.sqlClient`
-                    UPDATE politica_oficina 
-                    SET titulo = ${titulo}, fecha = ${fecha}, hora = ${hora}, tipo = ${tipo}, 
-                        estatus = ${estatus}, lugar = ${lugar}, descripcion = ${descripcion}
-                    WHERE titulo = ${itemOriginal.titulo} AND lugar = ${itemOriginal.lugar}
+                title.innerText = "Registrar Organización o Comuna";
+                body.innerHTML = `
+                    <div class="form-group">
+                        <label>Nombre de la Organización</label>
+                        <input type="text" id="m_nombre" placeholder="Ej. Comuna 27 de Febrero">
+                    </div>
+                    <div class="form-group">
+                        <label>Eje / Sector</label>
+                        <select id="m_sector">
+                            <option value="">Seleccione un sector...</option>
+                            ${opcionesSectores}
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Nombre del Responsable</label>
+                        <input type="text" id="m_responsable" placeholder="Ej. María Calzado">
+                    </div>
+                    <div class="form-group">
+                        <label>Cédula del Responsable</label>
+                        <input type="text" id="m_cedula" placeholder="Ej. V-12345678">
+                    </div>
+                    <div class="form-group">
+                        <label>Teléfono</label>
+                        <input type="text" id="m_telefono" placeholder="Ej. 04121234567">
+                    </div>
+                    <div class="form-group">
+                        <label>Correo Electrónico (Opcional)</label>
+                        <input type="email" id="m_email" placeholder="Ej. correo@gmail.com">
+                    </div>
                 `;
             }
-            alert("Registro político actualizado con éxito.");
-        } else {
-            await window.sqlClient`
-                INSERT INTO politica_oficina (titulo, fecha, hora, tipo, estatus, lugar, descripcion)
-                VALUES (${titulo}, ${fecha}, ${hora}, ${tipo}, ${estatus}, ${lugar}, ${descripcion})
-            `;
-            alert("Registro político guardado con éxito.");
-        }
-        cerrarModal();
-        cargarPoliticaOficina();
-    } catch (err) {
-        console.error("Error al guardar:", err);
-        alert("Error al intentar procesar la solicitud: " + err.message);
-    }
-}
 
-async function eliminarActividad(index) {
-    const item = listaEventosGlobal[index];
-    if (!item) {
-        alert("Error: No se pudo identificar el registro a eliminar.");
-        return;
-    }
-    
-    if (!confirm("¿Está seguro de eliminar este registro de política?")) return;
-    try {
-        if (item.id !== null && item.id !== undefined && !isNaN(Number(item.id))) {
-            await window.sqlClient`DELETE FROM politica_oficina WHERE id = ${Number(item.id)}`;
-        } else {
-            await window.sqlClient`DELETE FROM politica_oficina WHERE titulo = ${item.titulo}`;
+            modal.classList.add("active");
         }
-        cargarPoliticaOficina();
-    } catch (err) {
-        console.error("Error al eliminar:", err);
-        alert("No se pudo eliminar el registro.");
-    }
-}
 
-async function logout() {
-    sessionStorage.clear();
-    window.location.href = "index.html";
-}
-</script>
+        function abrirModalEditar(id) {
+            idRegistroEditando = Number(id);
+            const registro = todosLosRegistros.find(r => Number(r.id) === idRegistroEditando);
+            
+            if (!registro) {
+                alert("No se encontró el registro a editar.");
+                return;
+            }
+
+            const modal = document.getElementById("registroModal");
+            const title = document.getElementById("modalTitle");
+            const body = document.getElementById("modalFormBody");
+            const btnGuardar = document.getElementById("btnGuardarModal");
+
+            btnGuardar.innerText = "Guardar Cambios";
+
+            const opcionesSectores = sectoresPlaza.map(s => `
+                <option value="${s}" ${registro.sector === s ? 'selected' : ''}>${s}</option>
+            `).join("");
+
+            if (registro.tipo !== 'Comuna') {
+                title.innerText = "Editar Líder Territorial / UBCh";
+                body.innerHTML = `
+                    <div class="form-group">
+                        <label>Nombre Completo</label>
+                        <input type="text" id="m_nombre" value="${registro.nombre || ''}">
+                    </div>
+                    <div class="form-group">
+                        <label>Cédula de Identidad</label>
+                        <input type="text" id="m_cedula" value="${registro.cedula || ''}">
+                    </div>
+                    <div class="form-group">
+                        <label>Teléfono de Contacto</label>
+                        <input type="text" id="m_telefono" value="${registro.telefono || ''}">
+                    </div>
+                    <div class="form-group">
+                        <label>Sector / Comunidad</label>
+                        <select id="m_sector">
+                            <option value="">Seleccione un sector...</option>
+                            ${opcionesSectores}
+                        </select>
+                    </div>
+                `;
+            } else {
+                title.innerText = "Editar Organización o Comuna";
+                body.innerHTML = `
+                    <div class="form-group">
+                        <label>Nombre de la Organización</label>
+                        <input type="text" id="m_nombre" value="${registro.nombre || ''}">
+                    </div>
+                    <div class="form-group">
+                        <label>Eje / Sector</label>
+                        <select id="m_sector">
+                            <option value="">Seleccione un sector...</option>
+                            ${opcionesSectores}
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Nombre del Responsable</label>
+                        <input type="text" id="m_responsable" value="${registro.responsable || ''}">
+                    </div>
+                    <div class="form-group">
+                        <label>Cédula del Responsable</label>
+                        <input type="text" id="m_cedula" value="${registro.cedula || ''}">
+                    </div>
+                    <div class="form-group">
+                        <label>Teléfono</label>
+                        <input type="text" id="m_telefono" value="${registro.telefono || ''}">
+                    </div>
+                    <div class="form-group">
+                        <label>Correo Electrónico (Opcional)</label>
+                        <input type="email" id="m_email" value="${registro.email || ''}">
+                    </div>
+                `;
+            }
+
+            modal.classList.add("active");
+        }
+
+        function cerrarModalRegistro() {
+            document.getElementById("registroModal").classList.remove("active");
+            idRegistroEditando = null;
+        }
+
+        async function guardarRegistroModal() {
+            if (!window.sqlClient) { alert("No hay conexión con la base de datos."); return; }
+
+            const nombre = document.getElementById("m_nombre")?.value.trim();
+            if (!nombre) {
+                alert("Por favor ingresa al menos el nombre.");
+                return;
+            }
+
+            try {
+                if (idRegistroEditando === null) {
+                    let nuevoRegistro = {};
+                    if (filtroActual === 'liderazgos') {
+                        nuevoRegistro = {
+                            nombre: nombre,
+                            cedula: document.getElementById("m_cedula")?.value.trim() || null,
+                            telefono: document.getElementById("m_telefono")?.value.trim() || null,
+                            sector: document.getElementById("m_sector")?.value || null,
+                            responsable: null,
+                            email: null,
+                            tipo: 'Liderazgo',
+                            coordinacion: 'Politica'
+                        };
+                    } else {
+                        nuevoRegistro = {
+                            nombre: nombre,
+                            sector: document.getElementById("m_sector")?.value || null,
+                            responsable: document.getElementById("m_responsable")?.value.trim() || null,
+                            cedula: document.getElementById("m_cedula")?.value.trim() || null,
+                            telefono: document.getElementById("m_telefono")?.value.trim() || null,
+                            email: document.getElementById("m_email")?.value.trim() || null,
+                            tipo: 'Comuna',
+                            coordinacion: 'Politica'
+                        };
+                    }
+
+                    await window.sqlClient`
+                        INSERT INTO casos_salud (nombre, cedula, telefono, sector, responsable, email, tipo, coordinacion) 
+                        VALUES (${nuevoRegistro.nombre}, ${nuevoRegistro.cedula}, ${nuevoRegistro.telefono}, ${nuevoRegistro.sector}, ${nuevoRegistro.responsable}, ${nuevoRegistro.email}, ${nuevoRegistro.tipo}, ${nuevoRegistro.coordinacion})
+                    `;
+                } else {
+                    const vNombre = nombre;
+                    const vSector = document.getElementById("m_sector")?.value || null;
+                    const vResponsable = document.getElementById("m_responsable")?.value.trim() || null;
+                    const vCedula = document.getElementById("m_cedula")?.value.trim() || null;
+                    const vTelefono = document.getElementById("m_telefono")?.value.trim() || null;
+                    const vEmail = document.getElementById("m_email")?.value.trim() || null;
+
+                    await window.sqlClient`
+                        UPDATE casos_salud 
+                        SET nombre = ${vNombre}, sector = ${vSector}, responsable = ${vResponsable}, cedula = ${vCedula}, telefono = ${vTelefono}, email = ${vEmail}
+                        WHERE id = ${Number(idRegistroEditando)}
+                    `;
+                }
+
+                cerrarModalRegistro();
+                cargarDatosPoliticos();
+                
+            } catch (err) {
+                console.error("Error al guardar:", err);
+                alert("No se pudo guardar: " + err.message);
+            }
+        }
+
+        async function eliminarRegistro(id) {
+            if (!window.sqlClient) { alert("No hay conexión con la base de datos."); return; }
+            if (!confirm("¿Estás seguro de que deseas eliminar este registro?")) return;
+
+            try {
+                await window.sqlClient`
+                    DELETE FROM casos_salud 
+                    WHERE id = ${Number(id)}
+                `;
+                cargarDatosPoliticos();
+            } catch (e) {
+                console.error(e);
+                alert("ERROR AL ELIMINAR:\n\n" + e.message);
+            }
+        }
+
+        function exportarCSV() {
+            const politicos = todosLosRegistros.filter(r => (r.coordinacion && r.coordinacion.toLowerCase() === 'politica') || r.tipo === 'Liderazgo' || r.tipo === 'Comuna');
+            if (politicos.length === 0) {
+                alert("No hay registros para exportar.");
+                return;
+            }
+
+            let csvContent = "data:text/csv;charset=utf-8,ID,Tipo,Nombre,Cedula,Telefono,Sector,Responsable,Email\n";
+            politicos.forEach(r => {
+                let row = [
+                    r.id,
+                    r.tipo || 'Liderazgo',
+                    `"${(r.nombre || '').replace(/"/g, '""')}"`,
+                    `"${(r.cedula || '').replace(/"/g, '""')}"`,
+                    `"${(r.telefono || '').replace(/"/g, '""')}"`,
+                    `"${(r.sector || '').replace(/"/g, '""')}"`,
+                    `"${(r.responsable || '').replace(/"/g, '""')}"`,
+                    `"${(r.email || '').replace(/"/g, '""')}"`
+                ];
+                csvContent += row.join(",") + "\n";
+            });
+
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", `reporte_liderazgos_comunas_${new Date().toISOString().slice(0,10)}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        async function logout() { 
+            sessionStorage.clear();
+            window.location.href = "index.html"; 
+        }
+    </script>
 </body>
 </html>
