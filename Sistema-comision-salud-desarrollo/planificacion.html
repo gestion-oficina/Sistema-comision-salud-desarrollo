@@ -62,14 +62,16 @@ body{ background: var(--bg-main); color:#334155; }
 
 .main{ padding:40px; overflow-x: hidden; display: flex; flex-direction: column; min-height: 100vh; }
 
-/* ENCABEZADO INSTITUCIONAL / MEMBRETE */
-.institutional-header { text-align: center; margin-bottom: 25px; border-bottom: 2px solid #cbd5e1; padding-bottom: 15px; }
-.institutional-header p { font-size: 11.5px; font-weight: 700; color: #475569; text-transform: uppercase; letter-spacing: 1px; line-height: 1.5; }
+/* ENCABEZADO INSTITUCIONAL / MEMBRETE (OCULTO EN PANTALLA, VISIBLE SOLO AL IMPRIMIR) */
+.institutional-header { display: none; text-align: center; margin-bottom: 25px; border-bottom: 2px solid #0f2547; padding-bottom: 15px; }
+.institutional-header h1 { font-size: 12.5px; font-weight: 700; color: #0f2547; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 3px; }
+.institutional-header h2 { font-size: 11px; font-weight: 600; color: #334155; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 3px; }
+.institutional-header p { font-size: 10.5px; font-weight: 600; color: #0066cc; text-transform: uppercase; letter-spacing: 0.5px; }
 
-/* PIE DE PÁGINA INSTITUCIONAL */
-.institutional-footer { margin-top: auto; padding-top: 30px; text-align: center; border-top: 1px solid #cbd5e1; font-size: 11px; color: #64748b; font-weight: 500; }
+/* PIE DE PÁGINA INSTITUCIONAL VISIBLE EN TODA LA PÁGINA */
+.institutional-footer { margin-top: auto; padding-top: 30px; text-align: center; border-top: 1px solid #cbd5e1; font-size: 10.5px; color: #64748b; font-weight: 500; text-transform: uppercase; letter-spacing: 0.3px; }
 
-.main h2{ font-size: 26px; color: var(--text-dark-title); font-weight: 700; margin-bottom: 6px; }
+.main h2.page-title{ font-size: 26px; color: var(--text-dark-title); font-weight: 700; margin-bottom: 6px; }
 .subtitle-concejala { font-size: 13px; color: #64748b; margin-bottom: 24px; font-weight: 500; }
 
 /* ESTADÍSTICAS RÁPIDAS */
@@ -138,11 +140,12 @@ body{ background: var(--bg-main); color:#334155; }
 .btn-cancel { background: #e2e8f0; color: #475569; border: none; padding: 9px 16px; border-radius: 6px; font-size: 12.5px; font-weight: 600; cursor: pointer; }
 .btn-save { background: var(--success-color); color: white; border: none; padding: 9px 16px; border-radius: 6px; font-size: 12.5px; font-weight: 600; cursor: pointer; }
 
-/* ESTILOS PARA IMPRESIÓN / REPORTE PDF */
+/* ESTILOS PARA IMPRESIÓN / REPORTE PDF (AQUÍ APARECE EL MEMBRETE) */
 @media print {
     .sidebar, .mobile-header, .toolbar-agenda, .agenda-header-actions, .action-btns-row, .btn-add, .search-box { display: none !important; }
     .layout { display: block !important; }
     .main { padding: 0 !important; }
+    .institutional-header { display: block !important; } /* FUERZA A MOSTRAR EL MEMBRETE SOLO EN IMPRESIÓN */
     .agenda-container { border: none !important; box-shadow: none !important; padding: 0 !important; }
     body { background: white !important; color: black !important; }
     .card-actividad { break-inside: avoid; border: 1px solid #cbd5e1 !important; box-shadow: none !important; }
@@ -207,13 +210,14 @@ body{ background: var(--bg-main); color:#334155; }
     </div>
 
     <div class="main">
-        <!-- ENCABEZADO INSTITUCIONAL / MEMBRETE -->
+        <!-- ENCABEZADO INSTITUCIONAL / MEMBRETE (SOLO APARECE AL IMPRIMIR) -->
         <div class="institutional-header">
-            <p>República Bolivariana de Venezuela &bull; Estado Miranda &bull; Concejo Municipal</p>
-            <p>Comisión Permanente de Salud y Desarrollo Social Integral &bull; Oficina de la Concejala Letty Bastidas</p>
+            <h1>República Bolivariana de Venezuela</h1>
+            <h2>Concejo Municipal del Municipio Ambrosio Plaza</h2>
+            <p>Comisión Permanente de Salud y Desarrollo Social Integral &mdash; Concejala Letty Bastidas</p>
         </div>
 
-        <h2>Planificación Semanal</h2>
+        <h2 class="page-title">Planificación Semanal</h2>
         <div class="subtitle-concejala">Control de Compromisos y Agenda de Trabajo Institucional</div>
         
         <!-- ESTADÍSTICAS RÁPIDAS -->
@@ -263,9 +267,9 @@ body{ background: var(--bg-main); color:#334155; }
             </div>
         </div>
 
-        <!-- PIE DE PÁGINA INSTITUCIONAL -->
+        <!-- PIE DE PÁGINA INSTITUCIONAL VISIBLE -->
         <div class="institutional-footer">
-            Sistema de Gestión y Control Institucional &mdash; Comisión Permanente de Salud y Desarrollo Social Integral
+            Sistema de Gestión de la Comisión Permanente de Salud y Desarrollo Social Integral &mdash; Municipio Ambrosio Plaza | Despacho Concejala Letty Bastidas
         </div>
     </div>
 </div>
