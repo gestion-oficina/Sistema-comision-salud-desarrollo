@@ -80,12 +80,19 @@
         
         .header-actions { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
         
+        /* KPI STATS CARDS */
+        .kpi-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 24px; }
+        .kpi-card { background: white; border: 1px solid var(--border-color); border-radius: 12px; padding: 16px 20px; display: flex; flex-direction: column; gap: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.02); }
+        .kpi-title { font-size: 11.5px; font-weight: 600; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; }
+        .kpi-value { font-size: 22px; font-weight: 800; color: var(--text-dark-title); }
+
         .search-box { position: relative; }
         .search-box input { padding: 10px 16px 10px 38px; border-radius: 8px; border: 1px solid var(--border-color); background: white; font-size: 13px; width: 240px; outline: none; transition: all 0.2s; }
         .search-box input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1); }
         .search-box span { position: absolute; left: 12px; top: 11px; color: #94a3b8; font-size: 14px; }
 
-        .tabs-container { display: inline-flex; background: #e2e8f0; padding: 4px; border-radius: 10px; border: 1px solid #cbd5e1; gap: 4px; margin-bottom: 20px; }
+        .toolbar-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 12px; }
+        .tabs-container { display: inline-flex; background: #e2e8f0; padding: 4px; border-radius: 10px; border: 1px solid #cbd5e1; gap: 4px; }
         .tab-btn { padding: 8px 16px; border: none; background: transparent; color: #475569; font-size: 12.5px; font-weight: 600; cursor: pointer; border-radius: 8px; text-align: center; transition: all 0.2s; display: flex; align-items: center; gap: 6px; }
         .tab-btn.active { background: white; color: var(--primary); box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
 
@@ -108,6 +115,9 @@
         .btn-primary { padding: 10px 18px; border: none; border-radius: 8px; cursor: pointer; background: var(--primary); color: white; font-size: 13px; font-weight: 600; display: flex; align-items: center; gap: 6px; transition: background 0.2s; box-shadow: 0 2px 4px rgba(37, 99, 235, 0.2); }
         .btn-primary:hover { background: #1d4ed8; }
 
+        .btn-export { background: #f0fdf4; color: #166534; border: 1px solid #bbf7d0; padding: 10px 16px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: background 0.2s; }
+        .btn-export:hover { background: #dcfce7; }
+
         .btn-wa { background: #dcfce7; color: #15803d; padding: 6px 10px; border: none; border-radius: 6px; font-size: 11.5px; font-weight: 600; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; gap: 4px; transition: background 0.2s; }
         .btn-wa:hover { background: #bbf7d0; }
         
@@ -128,8 +138,8 @@
         .modal-body { padding: 24px; display: flex; flex-direction: column; gap: 16px; max-height: 70vh; overflow-y: auto; }
         .form-group { display: flex; flex-direction: column; gap: 6px; }
         .form-group label { font-size: 12px; font-weight: 600; color: #475569; text-transform: uppercase; letter-spacing: 0.3px; }
-        .form-group input { padding: 10px 14px; border-radius: 8px; border: 1px solid var(--border-color); font-size: 13.5px; outline: none; transition: all 0.2s; }
-        .form-group input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1); }
+        .form-group input, .form-group select { padding: 10px 14px; border-radius: 8px; border: 1px solid var(--border-color); font-size: 13.5px; outline: none; background: white; transition: all 0.2s; }
+        .form-group input:focus, .form-group select:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1); }
         .modal-footer { padding: 16px 24px; background: #f8fafc; border-top: 1px solid var(--border-color); display: flex; justify-content: flex-end; gap: 10px; }
         .btn-secondary { padding: 10px 16px; border-radius: 8px; border: 1px solid var(--border-color); background: white; color: #475569; font-size: 13px; font-weight: 600; cursor: pointer; transition: background 0.2s; }
         .btn-secondary:hover { background: #f1f5f9; }
@@ -205,19 +215,40 @@
                 <div class="subtitle-concejala">Oficina de la Concejala Letty Bastidas — Municipio Ambrosio Plaza</div>
             </div>
             <div class="header-actions">
-                <div class="search-box">
-                    <span>🔍</span>
-                    <input type="text" id="searchInput" placeholder="Buscar registro..." oninput="filtrarPorTexto()">
-                </div>
+                <button class="btn-export" onclick="exportarCSV()">
+                    <span>📥</span> Exportar Datos
+                </button>
                 <button class="btn-primary" onclick="abrirModalRegistro()" id="btn-nuevo-registro">
                     <span>➕</span> Registrar Líder Territorial
                 </button>
             </div>
         </div>
+
+        <!-- TARJETAS DE INDICADORES (KPIs) -->
+        <div class="kpi-container">
+            <div class="kpi-card">
+                <span class="kpi-title">Total Líderes UBCh</span>
+                <span class="kpi-value" id="kpiLideres">0</span>
+            </div>
+            <div class="kpi-card">
+                <span class="kpi-title">Total Comunas / Consejos</span>
+                <span class="kpi-value" id="kpiComunas">0</span>
+            </div>
+            <div class="kpi-card">
+                <span class="kpi-title">Sectores Registrados</span>
+                <span class="kpi-value" id="kpiSectores">0</span>
+            </div>
+        </div>
         
-        <div class="tabs-container">
-            <button class="tab-btn active" id="tab-lideres" onclick="switchData('liderazgos')">🚩 Líderes de Comunidad / UBCh</button>
-            <button class="tab-btn" id="tab-comunas" onclick="switchData('comunas')">☖ Comunas y Consejos</button>
+        <div class="toolbar-row">
+            <div class="tabs-container">
+                <button class="tab-btn active" id="tab-lideres" onclick="switchData('liderazgos')">🚩 Líderes de Comunidad / UBCh</button>
+                <button class="tab-btn" id="tab-comunas" onclick="switchData('comunas')">☖ Comunas y Consejos</button>
+            </div>
+            <div class="search-box">
+                <span>🔍</span>
+                <input type="text" id="searchInput" placeholder="Buscar registro..." oninput="filtrarPorTexto()">
+            </div>
         </div>
 
         <!-- CONTENEDOR EN GRID CREATIVO DE TARJETAS -->
@@ -264,6 +295,21 @@
         let todosLosRegistros = [];
         let idRegistroEditando = null;
 
+        const sectoresPlaza = [
+            "Las Clavelinas",
+            "Ruiz Pineda",
+            "Menca de Leoni",
+            "Trapichito",
+            "Valle Verde",
+            "Zulia",
+            "Sector Las Mandarinas",
+            "Oropeza Castillo",
+            "Pueblo Arriba",
+            "El Tamarindo",
+            "Nueva Casarapa",
+            "Otro Sector"
+        ];
+
         window.iniciarApp = function() {
             const nombre = sessionStorage.getItem("usuario_nombre");
             const coord = sessionStorage.getItem("usuario_coordinacion");
@@ -301,11 +347,24 @@
             try {
                 const registros = await window.sqlClient`SELECT * FROM casos_salud ORDER BY id DESC`;
                 todosLosRegistros = Array.from(registros);
+                actualizarKPIs(todosLosRegistros);
                 renderizarDatos();
             } catch (err) {
                 console.error("Error de conexión:", err);
                 container.innerHTML = `<div class="empty-state" style="color:var(--danger-color);">Error de conexión con Neon: ${err.message}</div>`;
             }
+        }
+
+        function actualizarKPIs(registros) {
+            const politicos = registros.filter(r => (r.coordinacion && r.coordinacion.toLowerCase() === 'politica') || r.tipo === 'Liderazgo' || r.tipo === 'Comuna');
+            const lideresCount = politicos.filter(r => r.tipo !== 'Comuna').length;
+            const comunasCount = politicos.filter(r => r.tipo === 'Comuna').length;
+            
+            const sectoresUnicos = new Set(politicos.map(r => r.sector).filter(Boolean));
+
+            document.getElementById("kpiLideres").innerText = lideresCount;
+            document.getElementById("kpiComunas").innerText = comunasCount;
+            document.getElementById("kpiSectores").innerText = sectoresUnicos.size;
         }
 
         function renderizarDatos() {
@@ -406,6 +465,8 @@
 
             btnGuardar.innerText = "Guardar Registro";
 
+            const opcionesSectores = sectoresPlaza.map(s => `<option value="${s}">${s}</option>`).join("");
+
             if (filtroActual === 'liderazgos') {
                 title.innerText = "Registrar Líder Territorial / UBCh";
                 body.innerHTML = `
@@ -423,7 +484,10 @@
                     </div>
                     <div class="form-group">
                         <label>Sector / Comunidad</label>
-                        <input type="text" id="m_sector" placeholder="Ej. Las Clavelinas">
+                        <select id="m_sector">
+                            <option value="">Seleccione un sector...</option>
+                            ${opcionesSectores}
+                        </select>
                     </div>
                 `;
             } else {
@@ -435,7 +499,10 @@
                     </div>
                     <div class="form-group">
                         <label>Eje / Sector</label>
-                        <input type="text" id="m_sector" placeholder="Ej. Ruiz Pineda">
+                        <select id="m_sector">
+                            <option value="">Seleccione un sector...</option>
+                            ${opcionesSectores}
+                        </select>
                     </div>
                     <div class="form-group">
                         <label>Nombre del Responsable</label>
@@ -460,7 +527,6 @@
         }
 
         function abrirModalEditar(id) {
-            // Conversión segura de ID para evitar conflictos de tipos (string vs number)
             idRegistroEditando = Number(id);
             const registro = todosLosRegistros.find(r => Number(r.id) === idRegistroEditando);
             
@@ -475,6 +541,10 @@
             const btnGuardar = document.getElementById("btnGuardarModal");
 
             btnGuardar.innerText = "Guardar Cambios";
+
+            const opcionesSectores = sectoresPlaza.map(s => `
+                <option value="${s}" ${registro.sector === s ? 'selected' : ''}>${s}</option>
+            `).join("");
 
             if (registro.tipo !== 'Comuna') {
                 title.innerText = "Editar Líder Territorial / UBCh";
@@ -493,7 +563,10 @@
                     </div>
                     <div class="form-group">
                         <label>Sector / Comunidad</label>
-                        <input type="text" id="m_sector" value="${registro.sector || ''}">
+                        <select id="m_sector">
+                            <option value="">Seleccione un sector...</option>
+                            ${opcionesSectores}
+                        </select>
                     </div>
                 `;
             } else {
@@ -505,7 +578,10 @@
                     </div>
                     <div class="form-group">
                         <label>Eje / Sector</label>
-                        <input type="text" id="m_sector" value="${registro.sector || ''}">
+                        <select id="m_sector">
+                            <option value="">Seleccione un sector...</option>
+                            ${opcionesSectores}
+                        </select>
                     </div>
                     <div class="form-group">
                         <label>Nombre del Responsable</label>
@@ -551,7 +627,7 @@
                             nombre: nombre,
                             cedula: document.getElementById("m_cedula")?.value.trim() || null,
                             telefono: document.getElementById("m_telefono")?.value.trim() || null,
-                            sector: document.getElementById("m_sector")?.value.trim() || null,
+                            sector: document.getElementById("m_sector")?.value || null,
                             responsable: null,
                             email: null,
                             tipo: 'Liderazgo',
@@ -560,7 +636,7 @@
                     } else {
                         nuevoRegistro = {
                             nombre: nombre,
-                            sector: document.getElementById("m_sector")?.value.trim() || null,
+                            sector: document.getElementById("m_sector")?.value || null,
                             responsable: document.getElementById("m_responsable")?.value.trim() || null,
                             cedula: document.getElementById("m_cedula")?.value.trim() || null,
                             telefono: document.getElementById("m_telefono")?.value.trim() || null,
@@ -576,7 +652,7 @@
                     `;
                 } else {
                     const vNombre = nombre;
-                    const vSector = document.getElementById("m_sector")?.value.trim() || null;
+                    const vSector = document.getElementById("m_sector")?.value || null;
                     const vResponsable = document.getElementById("m_responsable")?.value.trim() || null;
                     const vCedula = document.getElementById("m_cedula")?.value.trim() || null;
                     const vTelefono = document.getElementById("m_telefono")?.value.trim() || null;
@@ -612,6 +688,37 @@
                 console.error(e);
                 alert("ERROR AL ELIMINAR:\n\n" + e.message);
             }
+        }
+
+        function exportarCSV() {
+            const politicos = todosLosRegistros.filter(r => (r.coordinacion && r.coordinacion.toLowerCase() === 'politica') || r.tipo === 'Liderazgo' || r.tipo === 'Comuna');
+            if (politicos.length === 0) {
+                alert("No hay registros para exportar.");
+                return;
+            }
+
+            let csvContent = "data:text/csv;charset=utf-8,ID,Tipo,Nombre,Cedula,Telefono,Sector,Responsable,Email\n";
+            politicos.forEach(r => {
+                let row = [
+                    r.id,
+                    r.tipo || 'Liderazgo',
+                    `"${(r.nombre || '').replace(/"/g, '""')}"`,
+                    `"${(r.cedula || '').replace(/"/g, '""')}"`,
+                    `"${(r.telefono || '').replace(/"/g, '""')}"`,
+                    `"${(r.sector || '').replace(/"/g, '""')}"`,
+                    `"${(r.responsable || '').replace(/"/g, '""')}"`,
+                    `"${(r.email || '').replace(/"/g, '""')}"`
+                ];
+                csvContent += row.join(",") + "\n";
+            });
+
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", `reporte_liderazgos_comunas_${new Date().toISOString().slice(0,10)}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
         }
 
         async function logout() { 
