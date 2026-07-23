@@ -31,7 +31,7 @@
     <style>
         :root { 
             --bg-main: #f8fafc; 
-            --sidebar-bg: #003da5; 
+            --sidebar-bg: #0f172a; 
             --sidebar-active: #2563eb; 
             --sidebar-text-sub: #94a3b8; 
             --menu-text: #ffffff; 
@@ -43,8 +43,7 @@
         }
         * { margin:0; padding:0; box-sizing:border-box; font-family: 'Inter', sans-serif; }
         body { background: var(--bg-main); color:#334155; }
-        
-        .layout { display:grid; grid-template-columns: 240px 1fr; min-height:100vh; }
+        .layout { display:grid; grid-template-columns:280px 1fr; min-height:100vh; }
         
         .mobile-menu-toggle {
             display: none;
@@ -65,15 +64,15 @@
             justify-content: center;
         }
 
-        .sidebar { background: var(--sidebar-bg); padding: 20px 0; display: flex; flex-direction: column; transition: transform 0.3s ease; border-right: 1px solid rgba(255, 255, 255, 0.1); }
-        .sidebar-brand { display: flex; flex-direction: column; align-items: center; text-align: center; padding: 0 12px 16px 12px; border-bottom: 1px solid rgba(255, 255, 255, 0.08); margin-bottom: 8px; }
-        .sidebar-brand h2 { font-size: 10.5px; color: #ffffff; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; line-height: 1.3; margin-top: 4px; }
-        .menu-category { font-size: 9.5px; font-weight: 700; color: var(--sidebar-text-sub); text-transform: uppercase; letter-spacing: 0.8px; padding: 12px 16px 4px 16px; }
-        .menu { display: block; padding: 8px 20px; color: var(--menu-text); cursor: pointer; font-size: 12.5px; font-weight: 500; text-decoration: none; transition: all 0.2s ease; opacity: 0.85; }
-        .menu:hover { opacity: 1; background: rgba(255, 255, 255, 0.08); }
-        .menu.active-page { background: var(--sidebar-active); color: #ffffff; font-weight: 600; border-radius: 6px; margin: 2px 10px; padding: 8px 12px; opacity: 1; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3); }
+        .sidebar { background: var(--sidebar-bg); padding:24px 0; display: flex; flex-direction: column; transition: transform 0.3s ease; border-right: 1px solid #1e293b; }
+        .sidebar-brand { display: flex; flex-direction: column; align-items: center; text-align: center; padding: 0 16px 20px 16px; border-bottom: 1px solid rgba(255, 255, 255, 0.08); margin-bottom: 10px; }
+        .sidebar-brand h2 { font-size: 11px; color: #ffffff; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; line-height: 1.4; margin-top: 5px; }
+        .menu-category { font-size: 10px; font-weight: 700; color: var(--sidebar-text-sub); text-transform: uppercase; letter-spacing: 0.8px; padding: 16px 20px 6px 20px; }
+        .menu { display: block; padding: 9px 36px; color: var(--menu-text); cursor: pointer; font-size: 13px; font-weight: 500; text-decoration: none; transition: all 0.2s ease; opacity: 0.85; }
+        .menu:hover { opacity: 1; background: rgba(255, 255, 255, 0.04); }
+        .menu.active-page { background: var(--sidebar-active); color: #ffffff; font-weight: 600; border-radius: 8px; margin: 2px 14px; padding: 10px 18px; opacity: 1; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3); }
         
-        .main { padding: 28px 32px; overflow-x: hidden; display: flex; flex-direction: column; min-height: 100vh; }
+        .main { padding:36px 40px; overflow-x: hidden; display: flex; flex-direction: column; min-height: 100vh; }
         
         .content-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 24px; flex-wrap: wrap; gap: 16px; }
         .main h2 { font-size: 24px; color: var(--text-dark-title); font-weight: 800; letter-spacing: -0.5px; }
@@ -81,6 +80,7 @@
         
         .header-actions { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
         
+        /* KPI STATS CARDS */
         .kpi-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 24px; }
         .kpi-card { background: white; border: 1px solid var(--border-color); border-radius: 12px; padding: 16px 20px; display: flex; flex-direction: column; gap: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.02); }
         .kpi-title { font-size: 11.5px; font-weight: 600; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; }
@@ -96,7 +96,7 @@
         .tab-btn { padding: 8px 16px; border: none; background: transparent; color: #475569; font-size: 12.5px; font-weight: 600; cursor: pointer; border-radius: 8px; text-align: center; transition: all 0.2s; display: flex; align-items: center; gap: 6px; }
         .tab-btn.active { background: white; color: var(--primary); box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
 
-        .cards-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; margin-bottom: 30px; }
+        .cards-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 16px; margin-bottom: 30px; }
         
         .territory-card { background: white; border: 1px solid var(--border-color); border-radius: 12px; padding: 20px; position: relative; transition: all 0.25s ease; box-shadow: 0 2px 4px rgba(0,0,0,0.01); display: flex; flex-direction: column; justify-content: space-between; }
         .territory-card:hover { transform: translateY(-3px); box-shadow: 0 10px 25px -5px rgba(0,0,0,0.05), 0 8px 10px -6px rgba(0,0,0,0.05); border-color: #cbd5e1; }
@@ -127,6 +127,7 @@
         .btn-del { background: #fee2e2; color: #b91c1c; padding: 6px 10px; border: none; border-radius: 6px; font-size: 11.5px; font-weight: 600; cursor: pointer; transition: background 0.2s; display: inline-flex; align-items: center; gap: 4px; }
         .btn-del:hover { background: #fecaca; }
 
+        /* ESTILOS DEL MODAL */
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(4px); display: none; justify-content: center; align-items: center; z-index: 10001; opacity: 0; transition: opacity 0.25s ease; }
         .modal-overlay.active { display: flex; opacity: 1; }
         .modal-container { background: white; width: 100%; max-width: 480px; border-radius: 16px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04); overflow: hidden; transform: scale(0.95); transition: transform 0.25s ease; }
@@ -153,7 +154,7 @@
         @media (max-width: 900px) { 
             .layout { grid-template-columns: 1fr; }
             .mobile-menu-toggle { display: flex; }
-            .sidebar { position: fixed; top: 0; left: 0; width: 240px; height: 100vh; z-index: 9998; transform: translateX(-100%); box-shadow: 5px 0 15px rgba(0,0,0,0.2); }
+            .sidebar { position: fixed; top: 0; left: 0; width: 280px; height: 100vh; z-index: 9998; transform: translateX(-100%); box-shadow: 5px 0 15px rgba(0,0,0,0.2); }
             .sidebar.mobile-open { transform: translateX(0); }
             .main { padding: 20px 16px; }
             .content-header { flex-direction: column; align-items: stretch; }
@@ -180,6 +181,7 @@
         
         <div class="menu-category">Coor. Política</div>
         <a class="menu active-page" href="politica.html">Liderazgos y Comunas</a>
+        <!-- ENLACE CORREGIDO A DIFUSION.HTML CON LA CLASE .MENU -->
         <a class="menu" href="difusion.html">Difusión Política</a>
         
         <div class="menu-category">Coor. Social</div>
@@ -224,6 +226,7 @@
             </div>
         </div>
 
+        <!-- TARJETAS DE INDICADORES (KPIs) -->
         <div class="kpi-container">
             <div class="kpi-card">
                 <span class="kpi-title">Total Líderes UBCh</span>
@@ -250,10 +253,12 @@
             </div>
         </div>
 
+        <!-- CONTENEDOR EN GRID CREATIVO DE TARJETAS -->
         <div class="cards-grid" id="cardsGridContainer">
             <div class="empty-state">Conectando con la base de datos de Neon...</div>
         </div>
 
+        <!-- PIE DE PÁGINA INSTITUCIONAL -->
         <footer class="main-footer">
             <div class="main-footer-flag">
                 <div style="background-color: #ffde00;"></div>
@@ -265,13 +270,16 @@
     </div>
     </div>
 
+    <!-- MODAL DE REGISTRO / EDICIÓN INTEGRADO -->
     <div class="modal-overlay" id="registroModal">
         <div class="modal-container">
             <div class="modal-header">
                 <h3 id="modalTitle">Registrar Líder Territorial</h3>
                 <button class="modal-close" onclick="cerrarModalRegistro()">✕</button>
             </div>
-            <div class="modal-body" id="modalFormBody"></div>
+            <div class="modal-body" id="modalFormBody">
+                <!-- Se llena dinámicamente -->
+            </div>
             <div class="modal-footer">
                 <button class="btn-secondary" onclick="cerrarModalRegistro()">Cancelar</button>
                 <button class="btn-primary" onclick="guardarRegistroModal()" id="btnGuardarModal">Guardar Registro</button>
@@ -290,9 +298,18 @@
         let idRegistroEditando = null;
 
         const sectoresPlaza = [
-            "Las Clavelinas", "Ruiz Pineda", "Menca de Leoni", "Trapichito",
-            "Valle Verde", "Zulia", "Sector Las Mandarinas", "Oropeza Castillo",
-            "Pueblo Arriba", "El Tamarindo", "Nueva Casarapa", "Otro Sector"
+            "Las Clavelinas",
+            "Ruiz Pineda",
+            "Menca de Leoni",
+            "Trapichito",
+            "Valle Verde",
+            "Zulia",
+            "Sector Las Mandarinas",
+            "Oropeza Castillo",
+            "Pueblo Arriba",
+            "El Tamarindo",
+            "Nueva Casarapa",
+            "Otro Sector"
         ];
 
         window.iniciarApp = function() {
@@ -300,11 +317,14 @@
             const coord = sessionStorage.getItem("usuario_coordinacion");
             if (nombre) document.getElementById("usuarioNombre").textContent = nombre;
             if (coord) document.getElementById("usuarioCoordinacion").textContent = coord.toUpperCase();
+
             cargarDatosPoliticos();
         };
 
         document.addEventListener("DOMContentLoaded", () => {
-            if (window.sqlClient) { window.iniciarApp(); }
+            if (window.sqlClient) {
+                window.iniciarApp();
+            }
         });
 
         function toggleMobileMenu() {
@@ -316,11 +336,16 @@
 
         async function cargarDatosPoliticos() {
             const container = document.getElementById("cardsGridContainer");
-            if (!window.sqlClient) { await new Promise(resolve => setTimeout(resolve, 800)); }
+
+            if (!window.sqlClient) {
+                await new Promise(resolve => setTimeout(resolve, 800));
+            }
+
             if (!window.sqlClient) {
                 container.innerHTML = `<div class="empty-state" style="color:var(--danger-color);">⚠️ Error crítico: La librería de Neon no se ha cargado correctamente.</div>`;
                 return;
             }
+
             try {
                 const registros = await window.sqlClient`SELECT * FROM casos_salud ORDER BY id DESC`;
                 todosLosRegistros = Array.from(registros);
@@ -336,6 +361,7 @@
             const politicos = registros.filter(r => (r.coordinacion && r.coordinacion.toLowerCase() === 'politica') || r.tipo === 'Liderazgo' || r.tipo === 'Comuna');
             const lideresCount = politicos.filter(r => r.tipo !== 'Comuna').length;
             const comunasCount = politicos.filter(r => r.tipo === 'Comuna').length;
+            
             const sectoresUnicos = new Set(politicos.map(r => r.sector).filter(Boolean));
 
             document.getElementById("kpiLideres").innerText = lideresCount;
@@ -346,12 +372,20 @@
         function renderizarDatos() {
             const container = document.getElementById("cardsGridContainer");
             const termino = document.getElementById("searchInput").value.toLowerCase();
+
             const datosPoliticos = todosLosRegistros.filter(r => (r.coordinacion && r.coordinacion.toLowerCase() === 'politica') || r.tipo === 'Liderazgo' || r.tipo === 'Comuna');
 
-            let filtrados = filtroActual === 'liderazgos' ? datosPoliticos.filter(r => r.tipo !== 'Comuna') : datosPoliticos.filter(r => r.tipo === 'Comuna');
+            let filtrados = [];
+            if (filtroActual === 'liderazgos') {
+                filtrados = datosPoliticos.filter(r => r.tipo !== 'Comuna');
+            } else {
+                filtrados = datosPoliticos.filter(r => r.tipo === 'Comuna');
+            }
 
             if (termino) {
-                filtrados = filtrados.filter(item => Object.values(item).some(val => String(val || '').toLowerCase().includes(termino)));
+                filtrados = filtrados.filter(item => {
+                    return Object.values(item).some(val => String(val || '').toLowerCase().includes(termino));
+                });
             }
 
             if (filtrados.length === 0) {
@@ -410,7 +444,9 @@
             }
         }
 
-        function filtrarPorTexto() { renderizarDatos(); }
+        function filtrarPorTexto() {
+            renderizarDatos();
+        }
 
         function switchData(tipo) {
             filtroActual = tipo;
@@ -427,59 +463,147 @@
             const modal = document.getElementById("registroModal");
             const title = document.getElementById("modalTitle");
             const body = document.getElementById("modalFormBody");
+            const btnGuardar = document.getElementById("btnGuardarModal");
+
+            btnGuardar.innerText = "Guardar Registro";
+
             const opcionesSectores = sectoresPlaza.map(s => `<option value="${s}">${s}</option>`).join("");
 
             if (filtroActual === 'liderazgos') {
                 title.innerText = "Registrar Líder Territorial / UBCh";
                 body.innerHTML = `
-                    <div class="form-group"><label>Nombre Completo</label><input type="text" id="m_nombre" placeholder="Ej. Juan Pérez"></div>
-                    <div class="form-group"><label>Cédula de Identidad</label><input type="text" id="m_cedula" placeholder="Ej. V-12345678"></div>
-                    <div class="form-group"><label>Teléfono de Contacto</label><input type="text" id="m_telefono" placeholder="Ej. 04141234567"></div>
-                    <div class="form-group"><label>Sector / Comunidad</label><select id="m_sector"><option value="">Seleccione un sector...</option>${opcionesSectores}</select></div>
+                    <div class="form-group">
+                        <label>Nombre Completo</label>
+                        <input type="text" id="m_nombre" placeholder="Ej. Juan Pérez">
+                    </div>
+                    <div class="form-group">
+                        <label>Cédula de Identidad</label>
+                        <input type="text" id="m_cedula" placeholder="Ej. V-12345678">
+                    </div>
+                    <div class="form-group">
+                        <label>Teléfono de Contacto</label>
+                        <input type="text" id="m_telefono" placeholder="Ej. 04141234567">
+                    </div>
+                    <div class="form-group">
+                        <label>Sector / Comunidad</label>
+                        <select id="m_sector">
+                            <option value="">Seleccione un sector...</option>
+                            ${opcionesSectores}
+                        </select>
+                    </div>
                 `;
             } else {
                 title.innerText = "Registrar Organización o Comuna";
                 body.innerHTML = `
-                    <div class="form-group"><label>Nombre de la Organización</label><input type="text" id="m_nombre" placeholder="Ej. Comuna 27 de Febrero"></div>
-                    <div class="form-group"><label>Eje / Sector</label><select id="m_sector"><option value="">Seleccione un sector...</option>${opcionesSectores}</select></div>
-                    <div class="form-group"><label>Nombre del Responsable</label><input type="text" id="m_responsable" placeholder="Ej. María Calzado"></div>
-                    <div class="form-group"><label>Cédula del Responsable</label><input type="text" id="m_cedula" placeholder="Ej. V-12345678"></div>
-                    <div class="form-group"><label>Teléfono</label><input type="text" id="m_telefono" placeholder="Ej. 04121234567"></div>
-                    <div class="form-group"><label>Correo Electrónico (Opcional)</label><input type="email" id="m_email" placeholder="Ej. correo@gmail.com"></div>
+                    <div class="form-group">
+                        <label>Nombre de la Organización</label>
+                        <input type="text" id="m_nombre" placeholder="Ej. Comuna 27 de Febrero">
+                    </div>
+                    <div class="form-group">
+                        <label>Eje / Sector</label>
+                        <select id="m_sector">
+                            <option value="">Seleccione un sector...</option>
+                            ${opcionesSectores}
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Nombre del Responsable</label>
+                        <input type="text" id="m_responsable" placeholder="Ej. María Calzado">
+                    </div>
+                    <div class="form-group">
+                        <label>Cédula del Responsable</label>
+                        <input type="text" id="m_cedula" placeholder="Ej. V-12345678">
+                    </div>
+                    <div class="form-group">
+                        <label>Teléfono</label>
+                        <input type="text" id="m_telefono" placeholder="Ej. 04121234567">
+                    </div>
+                    <div class="form-group">
+                        <label>Correo Electrónico (Opcional)</label>
+                        <input type="email" id="m_email" placeholder="Ej. correo@gmail.com">
+                    </div>
                 `;
             }
+
             modal.classList.add("active");
         }
 
         function abrirModalEditar(id) {
             idRegistroEditando = Number(id);
             const registro = todosLosRegistros.find(r => Number(r.id) === idRegistroEditando);
-            if (!registro) { alert("No se encontró el registro a editar."); return; }
+            
+            if (!registro) {
+                alert("No se encontró el registro a editar.");
+                return;
+            }
 
             const modal = document.getElementById("registroModal");
             const title = document.getElementById("modalTitle");
             const body = document.getElementById("modalFormBody");
-            const opcionesSectores = sectoresPlaza.map(s => `<option value="${s}" ${registro.sector === s ? 'selected' : ''}>${s}</option>`).join("");
+            const btnGuardar = document.getElementById("btnGuardarModal");
+
+            btnGuardar.innerText = "Guardar Cambios";
+
+            const opcionesSectores = sectoresPlaza.map(s => `
+                <option value="${s}" ${registro.sector === s ? 'selected' : ''}>${s}</option>
+            `).join("");
 
             if (registro.tipo !== 'Comuna') {
                 title.innerText = "Editar Líder Territorial / UBCh";
                 body.innerHTML = `
-                    <div class="form-group"><label>Nombre Completo</label><input type="text" id="m_nombre" value="${registro.nombre || ''}"></div>
-                    <div class="form-group"><label>Cédula de Identidad</label><input type="text" id="m_cedula" value="${registro.cedula || ''}"></div>
-                    <div class="form-group"><label>Teléfono de Contacto</label><input type="text" id="m_telefono" value="${registro.telefono || ''}"></div>
-                    <div class="form-group"><label>Sector / Comunidad</label><select id="m_sector"><option value="">Seleccione un sector...</option>${opcionesSectores}</select></div>
+                    <div class="form-group">
+                        <label>Nombre Completo</label>
+                        <input type="text" id="m_nombre" value="${registro.nombre || ''}">
+                    </div>
+                    <div class="form-group">
+                        <label>Cédula de Identidad</label>
+                        <input type="text" id="m_cedula" value="${registro.cedula || ''}">
+                    </div>
+                    <div class="form-group">
+                        <label>Teléfono de Contacto</label>
+                        <input type="text" id="m_telefono" value="${registro.telefono || ''}">
+                    </div>
+                    <div class="form-group">
+                        <label>Sector / Comunidad</label>
+                        <select id="m_sector">
+                            <option value="">Seleccione un sector...</option>
+                            ${opcionesSectores}
+                        </select>
+                    </div>
                 `;
             } else {
                 title.innerText = "Editar Organización o Comuna";
                 body.innerHTML = `
-                    <div class="form-group"><label>Nombre de la Organización</label><input type="text" id="m_nombre" value="${registro.nombre || ''}"></div>
-                    <div class="form-group"><label>Eje / Sector</label><select id="m_sector"><option value="">Seleccione un sector...</option>${opcionesSectores}</select></div>
-                    <div class="form-group"><label>Nombre del Responsable</label><input type="text" id="m_responsable" value="${registro.responsable || ''}"></div>
-                    <div class="form-group"><label>Cédula del Responsable</label><input type="text" id="m_cedula" value="${registro.cedula || ''}"></div>
-                    <div class="form-group"><label>Teléfono</label><input type="text" id="m_telefono" value="${registro.telefono || ''}"></div>
-                    <div class="form-group"><label>Correo Electrónico (Opcional)</label><input type="email" id="m_email" value="${registro.email || ''}"></div>
+                    <div class="form-group">
+                        <label>Nombre de la Organización</label>
+                        <input type="text" id="m_nombre" value="${registro.nombre || ''}">
+                    </div>
+                    <div class="form-group">
+                        <label>Eje / Sector</label>
+                        <select id="m_sector">
+                            <option value="">Seleccione un sector...</option>
+                            ${opcionesSectores}
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Nombre del Responsable</label>
+                        <input type="text" id="m_responsable" value="${registro.responsable || ''}">
+                    </div>
+                    <div class="form-group">
+                        <label>Cédula del Responsable</label>
+                        <input type="text" id="m_cedula" value="${registro.cedula || ''}">
+                    </div>
+                    <div class="form-group">
+                        <label>Teléfono</label>
+                        <input type="text" id="m_telefono" value="${registro.telefono || ''}">
+                    </div>
+                    <div class="form-group">
+                        <label>Correo Electrónico (Opcional)</label>
+                        <input type="email" id="m_email" value="${registro.email || ''}">
+                    </div>
                 `;
             }
+
             modal.classList.add("active");
         }
 
@@ -490,42 +614,62 @@
 
         async function guardarRegistroModal() {
             if (!window.sqlClient) { alert("No hay conexión con la base de datos."); return; }
+
             const nombre = document.getElementById("m_nombre")?.value.trim();
-            if (!nombre) { alert("Por favor ingresa al menos el nombre."); return; }
+            if (!nombre) {
+                alert("Por favor ingresa al menos el nombre.");
+                return;
+            }
 
             try {
                 if (idRegistroEditando === null) {
-                    let nuevoRegistro = filtroActual === 'liderazgos' ? {
-                        nombre, cedula: document.getElementById("m_cedula")?.value.trim() || null,
-                        telefono: document.getElementById("m_telefono")?.value.trim() || null,
-                        sector: document.getElementById("m_sector")?.value || null,
-                        responsable: null, email: null, tipo: 'Liderazgo', coordinacion: 'Politica'
-                    } : {
-                        nombre, sector: document.getElementById("m_sector")?.value || null,
-                        responsable: document.getElementById("m_responsable")?.value.trim() || null,
-                        cedula: document.getElementById("m_cedula")?.value.trim() || null,
-                        telefono: document.getElementById("m_telefono")?.value.trim() || null,
-                        email: document.getElementById("m_email")?.value.trim() || null,
-                        tipo: 'Comuna', coordinacion: 'Politica'
-                    };
+                    let nuevoRegistro = {};
+                    if (filtroActual === 'liderazgos') {
+                        nuevoRegistro = {
+                            nombre: nombre,
+                            cedula: document.getElementById("m_cedula")?.value.trim() || null,
+                            telefono: document.getElementById("m_telefono")?.value.trim() || null,
+                            sector: document.getElementById("m_sector")?.value || null,
+                            responsable: null,
+                            email: null,
+                            tipo: 'Liderazgo',
+                            coordinacion: 'Politica'
+                        };
+                    } else {
+                        nuevoRegistro = {
+                            nombre: nombre,
+                            sector: document.getElementById("m_sector")?.value || null,
+                            responsable: document.getElementById("m_responsable")?.value.trim() || null,
+                            cedula: document.getElementById("m_cedula")?.value.trim() || null,
+                            telefono: document.getElementById("m_telefono")?.value.trim() || null,
+                            email: document.getElementById("m_email")?.value.trim() || null,
+                            tipo: 'Comuna',
+                            coordinacion: 'Politica'
+                        };
+                    }
 
                     await window.sqlClient`
                         INSERT INTO casos_salud (nombre, cedula, telefono, sector, responsable, email, tipo, coordinacion) 
                         VALUES (${nuevoRegistro.nombre}, ${nuevoRegistro.cedula}, ${nuevoRegistro.telefono}, ${nuevoRegistro.sector}, ${nuevoRegistro.responsable}, ${nuevoRegistro.email}, ${nuevoRegistro.tipo}, ${nuevoRegistro.coordinacion})
                     `;
                 } else {
+                    const vNombre = nombre;
+                    const vSector = document.getElementById("m_sector")?.value || null;
+                    const vResponsable = document.getElementById("m_responsable")?.value.trim() || null;
+                    const vCedula = document.getElementById("m_cedula")?.value.trim() || null;
+                    const vTelefono = document.getElementById("m_telefono")?.value.trim() || null;
+                    const vEmail = document.getElementById("m_email")?.value.trim() || null;
+
                     await window.sqlClient`
                         UPDATE casos_salud 
-                        SET nombre = ${nombre}, sector = ${document.getElementById("m_sector")?.value || null}, 
-                            responsable = ${document.getElementById("m_responsable")?.value.trim() || null}, 
-                            cedula = ${document.getElementById("m_cedula")?.value.trim() || null}, 
-                            telefono = ${document.getElementById("m_telefono")?.value.trim() || null}, 
-                            email = ${document.getElementById("m_email")?.value.trim() || null}
+                        SET nombre = ${vNombre}, sector = ${vSector}, responsable = ${vResponsable}, cedula = ${vCedula}, telefono = ${vTelefono}, email = ${vEmail}
                         WHERE id = ${Number(idRegistroEditando)}
                     `;
                 }
+
                 cerrarModalRegistro();
                 cargarDatosPoliticos();
+                
             } catch (err) {
                 console.error("Error al guardar:", err);
                 alert("No se pudo guardar: " + err.message);
@@ -535,8 +679,12 @@
         async function eliminarRegistro(id) {
             if (!window.sqlClient) { alert("No hay conexión con la base de datos."); return; }
             if (!confirm("¿Estás seguro de que deseas eliminar este registro?")) return;
+
             try {
-                await window.sqlClient`DELETE FROM casos_salud WHERE id = ${Number(id)}`;
+                await window.sqlClient`
+                    DELETE FROM casos_salud 
+                    WHERE id = ${Number(id)}
+                `;
                 cargarDatosPoliticos();
             } catch (e) {
                 console.error(e);
@@ -546,11 +694,23 @@
 
         function exportarCSV() {
             const politicos = todosLosRegistros.filter(r => (r.coordinacion && r.coordinacion.toLowerCase() === 'politica') || r.tipo === 'Liderazgo' || r.tipo === 'Comuna');
-            if (politicos.length === 0) { alert("No hay registros para exportar."); return; }
+            if (politicos.length === 0) {
+                alert("No hay registros para exportar.");
+                return;
+            }
 
             let csvContent = "data:text/csv;charset=utf-8,ID,Tipo,Nombre,Cedula,Telefono,Sector,Responsable,Email\n";
             politicos.forEach(r => {
-                let row = [r.id, r.tipo || 'Liderazgo', `"${(r.nombre || '').replace(/"/g, '""')}"`, `"${(r.cedula || '').replace(/"/g, '""')}"`, `"${(r.telefono || '').replace(/"/g, '""')}"`, `"${(r.sector || '').replace(/"/g, '""')}"`, `"${(r.responsable || '').replace(/"/g, '""')}"`, `"${(r.email || '').replace(/"/g, '""')}"`];
+                let row = [
+                    r.id,
+                    r.tipo || 'Liderazgo',
+                    `"${(r.nombre || '').replace(/"/g, '""')}"`,
+                    `"${(r.cedula || '').replace(/"/g, '""')}"`,
+                    `"${(r.telefono || '').replace(/"/g, '""')}"`,
+                    `"${(r.sector || '').replace(/"/g, '""')}"`,
+                    `"${(r.responsable || '').replace(/"/g, '""')}"`,
+                    `"${(r.email || '').replace(/"/g, '""')}"`
+                ];
                 csvContent += row.join(",") + "\n";
             });
 
@@ -563,10 +723,4 @@
             document.body.removeChild(link);
         }
 
-        async function logout() { 
-            sessionStorage.clear();
-            window.location.href = "index.html"; 
-        }
-    </script>
-</body>
-</html>
+        async function lo
