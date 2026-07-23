@@ -415,18 +415,19 @@ function cambiarVista(vista) {
     const contCal = document.getElementById('contenedorCalendario');
 
     if (vista === 'lista') {
+        // Estilo activo para Tarjetas y ocultar Calendario
         btnLista.className = "px-3 py-1.5 rounded-md text-xs font-bold transition bg-white text-blue-700 shadow-sm flex items-center gap-1.5";
         btnCal.className = "px-3 py-1.5 rounded-md text-xs font-bold transition text-slate-600 hover:text-slate-900 flex items-center gap-1.5";
         contLista.classList.remove('hidden');
         contCal.classList.add('hidden');
     } else {
+        // Estilo activo para Calendario y ocultar Tarjetas
         btnCal.className = "px-3 py-1.5 rounded-md text-xs font-bold transition bg-white text-blue-700 shadow-sm flex items-center gap-1.5";
         btnLista.className = "px-3 py-1.5 rounded-md text-xs font-bold transition text-slate-600 hover:text-slate-900 flex items-center gap-1.5";
         contCal.classList.remove('hidden');
         contLista.classList.add('hidden');
         renderizarCalendario();
     }
-    renderizarAgenda(listaEventosGlobal);
 }
 
 function abrirModal() {
