@@ -56,7 +56,8 @@ body{ background: var(--bg-main); color:#334155; }
 .mobile-header { display: none; background: var(--sidebar-bg); color: white; padding: 15px 20px; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 3000; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
 .btn-menu-toggle { background: none; border: none; color: white; font-size: 24px; cursor: pointer; }
 
-.sidebar{ background: var(--sidebar-bg); padding:24px 0; display: flex; flex-direction: column; transition: transform 0.3s ease; }
+/* BARRA LATERAL FIJA PARA EVITAR QUE SE DESORDENE */
+.sidebar{ background: var(--sidebar-bg); padding:24px 0; display: flex; flex-direction: column; position: fixed; top: 0; left: 0; width: 280px; height: 100vh; z-index: 1000; overflow-y: auto; transition: transform 0.3s ease; }
 .sidebar-brand { display: flex; flex-direction: column; align-items: center; text-align: center; padding: 0 16px 20px 16px; border-bottom: 1px solid rgba(255, 255, 255, 0.1); margin-bottom: 10px; }
 .sidebar-brand h2 { font-size: 11px; color: #ffffff; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; line-height: 1.4; margin-top: 5px; }
 .menu-category { font-size: 10.5px; font-weight: 700; color: var(--sidebar-text-sub); text-transform: uppercase; letter-spacing: 0.5px; padding: 16px 20px 6px 20px; }
@@ -64,7 +65,8 @@ body{ background: var(--bg-main); color:#334155; }
 .menu:hover{ opacity: 1; background: rgba(255, 255, 255, 0.05); }
 .menu.active-page { background: var(--sidebar-active); color: #ffffff; font-weight: 600; border-radius: 6px; margin: 2px 14px; padding: 10px 20px; opacity: 1; }
 
-.main{ padding:40px; overflow-x: hidden; display: flex; flex-direction: column; min-height: 100vh; }
+/* CONTENIDO PRINCIPAL CON MARGEN IZQUIERDO PARA COMPENSAR EL SIDEBAR FIJO */
+.main{ margin-left: 280px; padding:40px; overflow-x: hidden; display: flex; flex-direction: column; min-height: 100vh; }
 
 /* ENCABEZADO INSTITUCIONAL / MEMBRETE (OCULTO EN PANTALLA, VISIBLE SOLO AL IMPRIMIR) */
 .institutional-header { display: none; text-align: center; margin-bottom: 25px; border-bottom: 2px solid #0f2547; padding-bottom: 15px; }
@@ -148,7 +150,7 @@ body{ background: var(--bg-main); color:#334155; }
 @media print {
     .sidebar, .mobile-header, .toolbar-agenda, .agenda-header-actions, .action-btns-row, .btn-add, .search-box, #selectorVistasContainer { display: none !important; }
     .layout { display: block !important; }
-    .main { padding: 0 !important; }
+    .main { margin-left: 0 !important; padding: 0 !important; }
     .institutional-header { display: block !important; }
     .agenda-container { border: none !important; box-shadow: none !important; padding: 0 !important; }
     body { background: white !important; color: black !important; }
@@ -157,11 +159,11 @@ body{ background: var(--bg-main); color:#334155; }
 }
 
 @media (max-width: 768px) {
-    .layout { grid-template-columns: 1fr; }
+    .layout { display: block; }
     .mobile-header { display: flex; }
     .sidebar { position: fixed; top: 58px; left: 0; width: 280px; height: calc(100vh - 58px); z-index: 2500; transform: translateX(-100%); box-shadow: 4px 0 10px rgba(0,0,0,0.1); overflow-y: auto; }
     .sidebar.open { transform: translateX(0); }
-    .main { padding: 20px 15px; }
+    .main { margin-left: 0 !important; padding: 20px 15px; }
     .agenda-header { flex-direction: column; align-items: stretch; }
     .agenda-header-actions { width: 100%; justify-content: space-between; flex-wrap: wrap; }
     .btn-add { flex-grow: 1; justify-content: center; }
@@ -415,17 +417,15 @@ function cambiarVista(vista) {
     const contCal = document.getElementById('contenedorCalendario');
 
     if (vista === 'lista') {
-        // Estilo activo para Tarjetas y ocultar Calendario
         btnLista.className = "px-3 py-1.5 rounded-md text-xs font-bold transition bg-white text-blue-700 shadow-sm flex items-center gap-1.5";
         btnCal.className = "px-3 py-1.5 rounded-md text-xs font-bold transition text-slate-600 hover:text-slate-900 flex items-center gap-1.5";
-        contLista.classList.remove('hidden');
-        contCal.classList.add('hidden');
+        contLista.style.display = "grid";
+        contCal.style.display = "none";
     } else {
-        // Estilo activo para Calendario y ocultar Tarjetas
         btnCal.className = "px-3 py-1.5 rounded-md text-xs font-bold transition bg-white text-blue-700 shadow-sm flex items-center gap-1.5";
         btnLista.className = "px-3 py-1.5 rounded-md text-xs font-bold transition text-slate-600 hover:text-slate-900 flex items-center gap-1.5";
-        contCal.classList.remove('hidden');
-        contLista.classList.add('hidden');
+        contCal.style.display = "block";
+        contLista.style.display = "none";
         renderizarCalendario();
     }
 }
