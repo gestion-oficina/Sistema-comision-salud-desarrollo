@@ -151,7 +151,7 @@ body{ background: var(--bg-main); color:#334155; }
 
 /* ESTILOS PARA IMPRESIÓN */
 @media print {
-    .sidebar, .mobile-header, .toolbar-agenda, .agenda-header-actions, .action-btns-row, .btn-add, .search-box, #selectorVistasContainer { display: none !important; }
+    .sidebar, .mobile-header, .toolbar-agenda, .agenda-header-actions, .action-btns-row, .btn-add, .search-box, #selectorVistasContainer, .date-filter-box { display: none !important; }
     .main { margin-left: 0 !important; padding: 0 !important; }
     .institutional-header { display: block !important; }
     .agenda-container { border: none !important; box-shadow: none !important; padding: 0 !important; }
@@ -257,13 +257,22 @@ body{ background: var(--bg-main); color:#334155; }
                 </div>
             </div>
 
-            <!-- FILTROS, BUSCADOR Y NUEVO SELECTOR DE VISTA ESTILIZADO -->
+            <!-- FILTROS, BUSCADOR, RANGO DE FECHAS Y SELECTOR DE VISTA -->
             <div class="toolbar-agenda">
                 <div class="filters-group">
                     <button class="filter-chip active" id="chip-todos" onclick="filtrarAgenda('Todos')">Todas</button>
                     <button class="filter-chip" id="chip-programado" onclick="filtrarAgenda('Programado')">Programados</button>
                     <button class="filter-chip" id="chip-completado" onclick="filtrarAgenda('Completado')">Completados</button>
                     <button class="filter-chip" id="chip-suspendido" onclick="filtrarAgenda('Suspendido')">Suspendidos</button>
+                </div>
+
+                <!-- NUEVO: FILTRO POR RANGO DE FECHAS -->
+                <div class="date-filter-box flex items-center gap-2 bg-white px-3 py-1.5 rounded-lg border border-slate-300 text-xs">
+                    <span class="text-slate-500 font-bold"><i class="fa-solid fa-filter"></i> Desde:</span>
+                    <input type="date" id="filtroFechaDesde" onchange="manejarBusqueda()" class="outline-none bg-transparent font-medium">
+                    <span class="text-slate-500 font-bold">Hasta:</span>
+                    <input type="date" id="filtroFechaHasta" onchange="manejarBusqueda()" class="outline-none bg-transparent font-medium">
+                    <button onclick="limpiarFiltroFechas()" class="text-rose-600 hover:text-rose-800 ml-1 font-bold" title="Limpiar fechas">×</button>
                 </div>
 
                 <div class="flex items-center gap-3">
@@ -477,12 +486,28 @@ function actualizarEstadisticas() {
     document.getElementById("stat-suspendidos").textContent = suspendidos;
 }
 
+function limpiarFiltroFechas() {
+    document.getElementById("filtroFechaDesde").value = '';
+    document.getElementById("filtroFechaHasta").value = '';
+    manejarBusqueda();
+}
+
 function renderizarAgenda(eventos) {
     const contenedor = document.getElementById("lista-actividades");
     let filtrados = eventos;
     
     if (filtroSeleccionado !== 'Todos') {
         filtrados = filtrados.filter(e => e.estatus === filtroSeleccionado);
+    }
+
+    const fechaDesde = document.getElementById("filtroFechaDesde").value;
+    const fechaHasta = document.getElementById("filtroFechaHasta").value;
+
+    if (fechaDesde) {
+        filtrados = filtrados.filter(e => e.fecha >= fechaDesde);
+    }
+    if (fechaHasta) {
+        filtrados = filtrados.filter(e => e.fecha <= fechaHasta);
     }
 
     if (textoBusquedaGlobal.trim() !== '') {
@@ -496,7 +521,7 @@ function renderizarAgenda(eventos) {
     }
 
     if (filtrados.length === 0) {
-        contenedor.innerHTML = `<p style="text-align:center; padding:30px; color:#94a3b8;">No se encontraron actividades registradas.</p>`;
+        contenedor.innerHTML = `<p style="text-align:center; padding:30px; color:#94a3b8;">No se encontraron actividades registradas con los filtros seleccionados.</p>`;
         return;
     }
 
