@@ -20,6 +20,14 @@
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <title>Red de Salud - Coordinación Ejecutiva</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Importamos el cliente ESM de Neon para conectar directo -->
+    <script type="module">
+        import { neon } from 'https://cdn.jsdelivr.net/npm/@neondatabase/serverless/+esm';
+        const connectionString = "postgresql://neondb_owner:npg_djCruebcPY94@ep-sparkling-math-avejx7o4-pooler.c-11.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require";
+        window.sql = neon(connectionString, { disableWarningInBrowsers: true });
+    </script>
+
     <style>
         :root { 
             --bg-main: #f8fafc; 
@@ -290,10 +298,8 @@
     window.eliminarCentro = async function(id) {
         if (!confirm("¿Remover permanentemente este centro/reporte de la base de datos municipal?")) return;
         try {
-            const response = await fetch(`/api/casos_salud?id=${id}`, {
-                method: 'DELETE'
-            });
-            if (!response.ok) throw new Error("Error al eliminar en el servidor");
+            // Ejecución directa contra la base de datos Neon
+            await window.sql`DELETE FROM casos_salud WHERE id = ${id}`;
             obtenerRedSalud();
         } catch (err) {
             console.error("Error al borrar:", err);
@@ -306,10 +312,9 @@
     async function obtenerRedSalud() {
         const contenedor = document.getElementById("contenedor-ejes");
         try {
-            const response = await fetch('/api/casos_salud');
-            if (!response.ok) throw new Error("Error al obtener los datos");
+            // Consulta directa a tu tabla de Neon
+            const data = await window.sql`SELECT * FROM casos_salud`;
             
-            const data = await response.json();
             centrosCache = (data || []).filter(c => c.coordinacion === "Ejecutiva" && c.tipo !== "Autoridad");
 
             if (centrosCache.length === 0) {
@@ -371,7 +376,7 @@
             });
         } catch (err) {
             console.error(err);
-            contenedor.innerHTML = `<div style="color: #dc2626; font-size: 13px; padding: 10px;">❌ Error de comunicación con el servidor.</div>`;
+            contenedor.innerHTML = `<div style="color: #dc2626; font-size: 13px; padding: 10px;">❌ Error de comunicación con la base de datos.</div>`;
         }
     }
 
@@ -388,25 +393,21 @@
             return;
         }
 
-        const payload = { nombre, tipo, sector, ubicacion, detalle, coordinacion: "Ejecutiva" };
-
         try {
-            let response;
             if (idOriginal) {
-                response = await fetch(`/api/casos_salud`, {
-                    method: 'PUT',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ id: idOriginal, ...payload })
-                });
+                // Actualizar registro existente en Neon
+                await window.sql`
+                    UPDATE casos_salud 
+                    SET nombre = ${nombre}, tipo = ${tipo}, sector = ${sector}, ubicacion = ${ubicacion}, detalle = ${detalle} 
+                    WHERE id = ${idOriginal}
+                `;
             } else {
-                response = await fetch(`/api/casos_salud`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                });
+                // Insertar nuevo registro en Neon
+                await window.sql`
+                    INSERT INTO casos_salud (nombre, tipo, sector, ubicacion, detalle, coordinacion) 
+                    VALUES (${nombre}, ${tipo}, ${sector}, ${ubicacion}, ${detalle}, 'Ejecutiva')
+                `;
             }
-
-            if (!response.ok) throw new Error("Error en la respuesta del servidor");
             
             cerrarModal();
             obtenerRedSalud();
