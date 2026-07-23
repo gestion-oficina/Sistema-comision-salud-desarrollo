@@ -72,7 +72,7 @@
         .menu:hover { opacity: 1; background: rgba(255, 255, 255, 0.05); }
         .menu.active-page { background: var(--sidebar-active); color: #ffffff; font-weight: 600; border-radius: 6px; margin: 2px 14px; padding: 10px 20px; opacity: 1; box-shadow: inset 0 1px 0 rgba(255,255,255,0.15); }
         
-        .main { padding:40px; overflow-x: hidden; }
+        .main { padding:40px; overflow-x: hidden; display: flex; flex-direction: column; min-height: 100vh; }
         .main h2 { font-size: 26px; color: var(--text-dark-title); font-weight: 700; margin-bottom: 6px; }
         .subtitle-concejala { font-size: 13px; color: #64748b; margin-bottom: 24px; font-weight: 500; }
         
@@ -120,6 +120,14 @@
         .info-label { font-size: 11px; text-transform: uppercase; color: #64748b; font-weight: 700; letter-spacing: 0.5px; }
         .info-value { font-size: 14px; color: #1e293b; font-weight: 500; line-height: 1.5; }
         .modal-footer { padding: 16px 24px; background: #f8fafc; border-top: 1px solid #e2e8f0; display: flex; justify-content: flex-end; flex-shrink: 0; gap: 8px; }
+
+        .main-footer { margin-top: auto; padding-top: 40px; text-align: center; width: 100%; }
+        .main-footer-flag { display: flex; height: 4px; width: 100%; margin-bottom: 10px; }
+        .main-footer-flag div { flex: 1; }
+        .main-footer p { font-size: 11.5px; color: #64748b; line-height: 1.4; margin: 2px 0; font-family: 'Inter', sans-serif; }
+        .main-footer p.footer-title { font-weight: 700; font-style: italic; color: #475569; margin-bottom: 6px; }
+        .main-footer p a { color: #0284c7; text-decoration: none; }
+        .main-footer p a:hover { text-decoration: underline; }
         
         @media (max-width: 900px) { 
             .layout { grid-template-columns: 1fr; }
@@ -180,7 +188,7 @@
 
     <div class="main">
         <h2 id="page-title">Gestión de Oficios Institucionales</h2>
-        <div class="subtitle-concejala">Oficina de la Concejala Letty Bastidas — Municipio Ambrosio Plaza</div>
+        <div class="subtitle-concejala">Office de la Concejala Letty Bastidas — Municipio Ambrosio Plaza</div>
         
         <div class="tabs-container">
             <button class="tab-btn active" id="tab-oficios" onclick="switchData('Oficio')">✉ Oficios Enviados</button>
@@ -218,6 +226,19 @@
                 </tbody>
             </table>
         </div>
+
+        <!-- PIE DE PÁGINA INSTITUCIONAL -->
+        <footer class="main-footer">
+            <div class="main-footer-flag">
+                <div style="background-color: #ffde00;"></div>
+                <div style="background-color: #003da5;"></div>
+                <div style="background-color: #d12421;"></div>
+            </div>
+            <p class="footer-title">Salud para Todos y Todas</p>
+            <p>Dirección: Calle Bolívar con Monagas, diagonal al Hospitalito Francisco Rafael García.</p>
+            <p>Guarenas, Estado Bolivariano de Miranda. Nro. Telefónico: 0426-3147191</p>
+            <p>Correo Electrónico: <a href="mailto:Comisiondesaludgestion2025@Gmail.com">Comisiondesaludgestion2025@Gmail.com</a></p>
+        </footer>
     </div>
     </div>
 
@@ -441,7 +462,7 @@
                 if (filtroActual === 'Oficio') {
                     thead.innerHTML = `<tr><th style="width: 120px;">Nro Oficio</th><th>Asunto / Clasificación</th><th>Sector / Ente Destino</th><th>Estado</th><th style="width: 180px;">Acciones</th></tr>`;
                 } else {
-                    thead.innerHTML = `<tr><th style="width: 120px;">Nro Informe</th><th>Título del Informe Legislativo</th><th>Área de Cobertura</th><th>Estado</th><th style="width: 220px;">Acciones</th></tr>`;
+                    thead.innerHTML = `<tr><th style="width: 120px;">Nro Informe</th><th>Título del Informe Legislativo</th><th>Área de Cobertura</th><th>Estado</th><th style="width: 180px;">Acciones</th></tr>`;
                 }
                 renderFilas();
             } catch (err) {
@@ -529,10 +550,6 @@
                     lineaTitulo = asuntoInforme ? asuntoInforme[1].trim() : lineaTitulo.split('\n')[2] || lineaTitulo.split('\n')[0];
                 }
 
-                const botonesAccion = filtroActual === 'Informe' 
-                    ? `<button class="btn-word" onclick="exportarRegistroAWord(${r.id})">Word</button>`
-                    : '';
-
                 return `
                     <tr>
                         <td><code>${numeroDocumento}</code></td>
@@ -542,7 +559,6 @@
                         <td>
                             <div class="action-buttons">
                                 <button class="btn-wa" onclick="verDetallesModal(${r.id})">Ver</button>
-                                ${botonesAccion}
                                 <button class="btn-success" onclick="abrirEditarRegistro(${r.id})">Editar</button>
                                 <button class="btn-del" onclick="eliminarRegistro(${r.id})">Borrar</button>
                             </div>
