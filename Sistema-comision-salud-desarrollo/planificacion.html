@@ -74,11 +74,16 @@ body{ background: var(--bg-main); color:#334155; }
 .main h2.page-title{ font-size: 26px; color: var(--text-dark-title); font-weight: 700; margin-bottom: 6px; }
 .subtitle-concejala { font-size: 13px; color: #64748b; margin-bottom: 24px; font-weight: 500; }
 
-/* ESTADÍSTICAS RÁPIDAS */
-.stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; margin-bottom: 20px; }
+/* ESTADÍSTICAS RÁPIDAS Y BARRA DE PROGRESO */
+.stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; margin-bottom: 15px; }
 .stat-card { background: white; padding: 14px 16px; border-radius: 10px; border: 1px solid #e2e8f0; box-shadow: 0 2px 4px rgba(0,0,0,0.01); display: flex; flex-direction: column; }
 .stat-card span:first-child { font-size: 10.5px; font-weight: 700; text-transform: uppercase; color: #64748b; }
 .stat-card span:last-child { font-size: 22px; font-weight: 700; color: var(--text-dark-title); margin-top: 4px; }
+
+.progress-container-card { background: white; padding: 16px 20px; border-radius: 10px; border: 1px solid #e2e8f0; margin-bottom: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.01); }
+.progress-header-info { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; font-size: 12px; font-weight: 700; color: var(--text-dark-title); text-transform: uppercase; }
+.progress-bar-bg { width: 100%; height: 8px; background: #e2e8f0; border-radius: 4px; overflow: hidden; }
+.progress-bar-fill { height: 100%; background: var(--success-color); width: 0%; transition: width 0.4s ease; }
 
 .agenda-container { background: white; border: 1px solid #e2e8f0; border-radius: 12px; padding: 24px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.01); }
 .agenda-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #f1f5f9; padding-bottom: 16px; margin-bottom: 20px; gap: 10px; flex-wrap: wrap; }
@@ -90,6 +95,8 @@ body{ background: var(--bg-main); color:#334155; }
 .filters-group { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
 .filter-chip { padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; border: 1px solid #cbd5e1; background: white; color: #475569; cursor: pointer; transition: all 0.2s; }
 .filter-chip.active { background: var(--sidebar-bg); color: white; border-color: var(--sidebar-bg); }
+.filter-chip-time { border-color: #0284c7; color: #0284c7; }
+.filter-chip-time.active { background: #0284c7; color: white; }
 
 .search-box { position: relative; min-width: 240px; }
 .search-box input { width: 100%; padding: 7px 12px 7px 32px; border: 1px solid #cbd5e1; border-radius: 20px; font-size: 12.5px; outline: none; }
@@ -140,12 +147,12 @@ body{ background: var(--bg-main); color:#334155; }
 .btn-cancel { background: #e2e8f0; color: #475569; border: none; padding: 9px 16px; border-radius: 6px; font-size: 12.5px; font-weight: 600; cursor: pointer; }
 .btn-save { background: var(--success-color); color: white; border: none; padding: 9px 16px; border-radius: 6px; font-size: 12.5px; font-weight: 600; cursor: pointer; }
 
-/* ESTILOS PARA IMPRESIÓN / REPORTE PDF (AQUÍ APARECE EL MEMBRETE) */
+/* ESTILOS PARA IMPRESIÓN / REPORTE PDF */
 @media print {
     .sidebar, .mobile-header, .toolbar-agenda, .agenda-header-actions, .action-btns-row, .btn-add, .search-box { display: none !important; }
     .layout { display: block !important; }
     .main { padding: 0 !important; }
-    .institutional-header { display: block !important; } /* FUERZA A MOSTRAR EL MEMBRETE SOLO EN IMPRESIÓN */
+    .institutional-header { display: block !important; }
     .agenda-container { border: none !important; box-shadow: none !important; padding: 0 !important; }
     body { background: white !important; color: black !important; }
     .card-actividad { break-inside: avoid; border: 1px solid #cbd5e1 !important; box-shadow: none !important; }
@@ -240,6 +247,17 @@ body{ background: var(--bg-main); color:#334155; }
             </div>
         </div>
 
+        <!-- BARRA DE PROGRESO DE CUMPLIMIENTO -->
+        <div class="progress-container-card">
+            <div class="progress-header-info">
+                <span>Progreso de Cumplimiento General</span>
+                <span id="progress-percentage-text">0%</span>
+            </div>
+            <div class="progress-bar-bg">
+                <div class="progress-bar-fill" id="progressBarFill"></div>
+            </div>
+        </div>
+
         <div class="agenda-container">
             <div class="agenda-header">
                 <h3>Cronograma de Actividades e Inspecciones</h3>
@@ -249,13 +267,16 @@ body{ background: var(--bg-main); color:#334155; }
                 </div>
             </div>
 
-            <!-- FILTROS Y BUSCADOR -->
+            <!-- FILTROS, RANGO DE TIEMPO Y BUSCADOR -->
             <div class="toolbar-agenda">
                 <div class="filters-group">
                     <button class="filter-chip active" id="chip-todos" onclick="filtrarAgenda('Todos')">Todas</button>
                     <button class="filter-chip" id="chip-programado" onclick="filtrarAgenda('Programado')">Programados</button>
                     <button class="filter-chip" id="chip-completado" onclick="filtrarAgenda('Completado')">Completados</button>
                     <button class="filter-chip" id="chip-suspendido" onclick="filtrarAgenda('Suspendido')">Suspendidos</button>
+                    <span style="border-left: 1px solid #cbd5e1; height: 20px; margin: 0 4px;"></span>
+                    <button class="filter-chip filter-chip-time" id="chip-hoy" onclick="filtrarPorTiempo('hoy')">📅 Hoy</button>
+                    <button class="filter-chip filter-chip-time" id="chip-semana" onclick="filtrarPorTiempo('semana')">⚡ Esta Semana</button>
                 </div>
                 <div class="search-box">
                     <input type="text" id="inputBuscador" placeholder="Buscar por título, lugar..." oninput="manejarBusqueda()">
@@ -340,6 +361,7 @@ body{ background: var(--bg-main); color:#334155; }
 <script>
 let listaEventosGlobal = [];
 let filtroSeleccionado = 'Todos';
+let filtroTiempoActual = 'todos';
 let textoBusquedaGlobal = '';
 
 window.iniciarAgendaApp = function() {
@@ -418,6 +440,14 @@ function actualizarEstadisticas() {
     document.getElementById("stat-programados").textContent = programados;
     document.getElementById("stat-completados").textContent = completados;
     document.getElementById("stat-suspendidos").textContent = suspendidos;
+
+    // Calcular barra de progreso
+    let porcentaje = 0;
+    if (total > 0) {
+        porcentaje = Math.round((completados / total) * 100);
+    }
+    document.getElementById("progress-percentage-text").textContent = porcentaje + "% completado";
+    document.getElementById("progressBarFill").style.width = porcentaje + "%";
 }
 
 function renderizarAgenda(eventos) {
@@ -427,6 +457,24 @@ function renderizarAgenda(eventos) {
     
     if (filtroSeleccionado !== 'Todos') {
         filtrados = filtrados.filter(e => e.estatus === filtroSeleccionado);
+    }
+
+    // Filtro por tiempo (Hoy / Esta Semana)
+    if (filtroTiempoActual === 'hoy') {
+        const hoyStr = new Date().toISOString().split('T')[0];
+        filtrados = filtrados.filter(e => e.fecha === hoyStr);
+    } else if (filtroTiempoActual === 'semana') {
+        const hoy = new Date();
+        const primerDiaSemana = new Date(hoy);
+        primerDiaSemana.setDate(hoy.getDate() - hoy.getDay());
+        const ultimoDiaSemana = new Date(primerDiaSemana);
+        ultimoDiaSemana.setDate(primerDiaSemana.getDate() + 6);
+
+        filtrados = filtrados.filter(e => {
+            if (!e.fecha) return false;
+            const fEvent = new Date(e.fecha + 'T00:00:00');
+            return fEvent >= primerDiaSemana && fEvent <= ultimoDiaSemana;
+        });
     }
 
     if (textoBusquedaGlobal.trim() !== '') {
@@ -440,7 +488,7 @@ function renderizarAgenda(eventos) {
     }
 
     if (filtrados.length === 0) {
-        contenedor.innerHTML = `<p style="text-align:center; padding:30px; color:#94a3b8;">No se encontraron actividades registradas.</p>`;
+        contenedor.innerHTML = `<p style="text-align:center; padding:30px; color:#94a3b8;">No se encontraron actividades registradas con los filtros seleccionados.</p>`;
         return;
     }
 
@@ -482,6 +530,19 @@ function filtrarAgenda(estatus) {
         const btn = document.getElementById(`chip-${id}`);
         if(btn) btn.classList.toggle('active', id === estatus.toLowerCase() || (id === 'todos' && estatus === 'Todos'));
     });
+    renderizarAgenda(listaEventosGlobal);
+}
+
+function filtrarPorTiempo(tipoTiempo) {
+    if (filtroTiempoActual === tipoTiempo) {
+        filtroTiempoActual = 'todos';
+        document.getElementById(`chip-${tipoTiempo}`).classList.remove('active');
+    } else {
+        filtroTiempoActual = tipoTiempo;
+        document.getElementById('chip-hoy').classList.remove('active');
+        document.getElementById('chip-semana').classList.remove('active');
+        document.getElementById(`chip-${tipoTiempo}`).classList.add('active');
+    }
     renderizarAgenda(listaEventosGlobal);
 }
 
