@@ -90,13 +90,13 @@ body{ background: var(--bg-main); color:#334155; }
 
 .agenda-header-actions { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
 
-.toolbar-agenda { display: flex; justify-content: space-between; align-items: center; gap: 15px; flex-wrap: wrap; margin-bottom: 20px; }
-.filters-group { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
-.filter-chip { padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; border: 1px solid #cbd5e1; background: white; color: #475569; cursor: pointer; transition: all 0.2s; }
+.toolbar-agenda { display: flex; justify-content: space-between; align-items: center; gap: 15px; flex-wrap: wrap; margin-bottom: 20px; background: #f8fafc; padding: 14px 18px; border-radius: 10px; border: 1px solid #e2e8f0; }
+.filters-group { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+.filter-chip { padding: 6px 12px; border-radius: 20px; font-size: 11.5px; font-weight: 600; border: 1px solid #cbd5e1; background: white; color: #475569; cursor: pointer; transition: all 0.2s; }
 .filter-chip.active { background: var(--sidebar-bg); color: white; border-color: var(--sidebar-bg); }
 
-.search-box { position: relative; min-width: 240px; }
-.search-box input { width: 100%; padding: 7px 12px 7px 32px; border: 1px solid #cbd5e1; border-radius: 20px; font-size: 12.5px; outline: none; }
+.search-box { position: relative; min-width: 220px; }
+.search-box input { width: 100%; padding: 7px 12px 7px 32px; border: 1px solid #cbd5e1; border-radius: 20px; font-size: 12px; outline: none; background: white; }
 .search-box input:focus { border-color: var(--sidebar-active); }
 .search-box::before { content: "🔍"; position: absolute; left: 10px; top: 50%; transform: translateY(-50%); font-size: 11px; }
 
@@ -248,7 +248,6 @@ body{ background: var(--bg-main); color:#334155; }
             <div class="agenda-header">
                 <h3>Cronograma de Actividades e Inspecciones</h3>
                 <div class="agenda-header-actions">
-                    <!-- BOTÓN EXPORTAR A CSV AGREGADO -->
                     <button class="btn-action-toolbar" onclick="exportarCSV()" style="background-color: #059669; color: white; border: none;">
                         <i class="fa-solid fa-file-excel"></i> Exportar CSV
                     </button>
@@ -257,8 +256,9 @@ body{ background: var(--bg-main); color:#334155; }
                 </div>
             </div>
 
-            <!-- FILTROS, BUSCADOR Y SELECTOR DE VISTA (LISTA / CALENDARIO) -->
+            <!-- FILTROS, BUSCADOR Y SELECTOR DE VISTA PROFESIONAL -->
             <div class="toolbar-agenda">
+                <!-- Filtros por estatus -->
                 <div class="filters-group">
                     <button class="filter-chip active" id="chip-todos" onclick="filtrarAgenda('Todos')">Todas</button>
                     <button class="filter-chip" id="chip-programado" onclick="filtrarAgenda('Programado')">Programados</button>
@@ -266,18 +266,21 @@ body{ background: var(--bg-main); color:#334155; }
                     <button class="filter-chip" id="chip-suspendido" onclick="filtrarAgenda('Suspendido')">Suspendidos</button>
                 </div>
 
-                <!-- SELECTOR DE VISTA AGREGADO -->
-                <div id="selectorVistasContainer" class="flex bg-gray-100 p-1 rounded-lg">
-                    <button onclick="cambiarVista('lista')" id="btnVistaLista" class="px-3 py-1.5 rounded-md text-xs font-semibold transition bg-white text-blue-600 shadow-sm">
-                        <i class="fa-solid fa-list mr-1"></i> Tarjetas
-                    </button>
-                    <button onclick="cambiarVista('calendario')" id="btnVistaCalendario" class="px-3 py-1.5 rounded-md text-xs font-semibold transition text-gray-600 hover:text-blue-600">
-                        <i class="fa-solid fa-calendar-days mr-1"></i> Calendario
-                    </button>
-                </div>
+                <div class="flex items-center gap-3">
+                    <!-- SELECTOR DE VISTA ESTILO PÍLDORA (PROFESIONAL) -->
+                    <div id="selectorVistasContainer" class="flex bg-slate-200/80 p-1 rounded-lg border border-slate-300">
+                        <button onclick="cambiarVista('lista')" id="btnVistaLista" class="px-3 py-1.5 rounded-md text-xs font-bold transition bg-white text-blue-700 shadow-sm flex items-center gap-1.5">
+                            <i class="fa-solid fa-table-cells-large text-[11px]"></i> Tarjetas
+                        </button>
+                        <button onclick="cambiarVista('calendario')" id="btnVistaCalendario" class="px-3 py-1.5 rounded-md text-xs font-bold transition text-slate-600 hover:text-slate-900 flex items-center gap-1.5">
+                            <i class="fa-solid fa-calendar-days text-[11px]"></i> Calendario
+                        </button>
+                    </div>
 
-                <div class="search-box">
-                    <input type="text" id="inputBuscador" placeholder="Buscar por título, lugar..." oninput="manejarBusqueda()">
+                    <!-- BUSCADOR -->
+                    <div class="search-box">
+                        <input type="text" id="inputBuscador" placeholder="Buscar por título, lugar..." oninput="manejarBusqueda()">
+                    </div>
                 </div>
             </div>
 
@@ -286,7 +289,7 @@ body{ background: var(--bg-main); color:#334155; }
                 <p style="text-align:center; padding:30px; color:#94a3b8;">Cargando agenda de trabajo...</p>
             </div>
 
-            <!-- VISTA DE CALENDARIO MENSUAL AGREGADA -->
+            <!-- VISTA DE CALENDARIO MENSUAL -->
             <div id="contenedorCalendario" class="hidden bg-white rounded-xl shadow-sm border border-gray-100 p-4 mt-4">
                 <div class="flex justify-between items-center mb-4">
                     <button onclick="mesAnterior()" class="p-2 hover:bg-gray-100 rounded-lg text-gray-600 transition"><i class="fa-solid fa-chevron-left"></i></button>
@@ -412,13 +415,13 @@ function cambiarVista(vista) {
     const contCal = document.getElementById('contenedorCalendario');
 
     if (vista === 'lista') {
-        btnLista.className = "px-3 py-1.5 rounded-md text-xs font-semibold transition bg-white text-blue-600 shadow-sm";
-        btnCal.className = "px-3 py-1.5 rounded-md text-xs font-semibold transition text-gray-600 hover:text-blue-600";
+        btnLista.className = "px-3 py-1.5 rounded-md text-xs font-bold transition bg-white text-blue-700 shadow-sm flex items-center gap-1.5";
+        btnCal.className = "px-3 py-1.5 rounded-md text-xs font-bold transition text-slate-600 hover:text-slate-900 flex items-center gap-1.5";
         contLista.classList.remove('hidden');
         contCal.classList.add('hidden');
     } else {
-        btnCal.className = "px-3 py-1.5 rounded-md text-xs font-semibold transition bg-white text-blue-600 shadow-sm";
-        btnLista.className = "px-3 py-1.5 rounded-md text-xs font-semibold transition text-gray-600 hover:text-blue-600";
+        btnCal.className = "px-3 py-1.5 rounded-md text-xs font-bold transition bg-white text-blue-700 shadow-sm flex items-center gap-1.5";
+        btnLista.className = "px-3 py-1.5 rounded-md text-xs font-bold transition text-slate-600 hover:text-slate-900 flex items-center gap-1.5";
         contCal.classList.remove('hidden');
         contLista.classList.add('hidden');
         renderizarCalendario();
@@ -512,7 +515,6 @@ function renderizarAgenda(eventos) {
         if(e.estatus === 'Completado') estatusClase = 'status-completado';
         if(e.estatus === 'Suspendido') estatusClase = 'status-suspendido';
 
-        // Lógica de alerta visual de vencimiento o actividades para hoy
         let badgeAlerta = '';
         if (e.estatus !== 'Completado' && e.estatus !== 'Suspendido') {
             if (e.fecha === hoyStr) {
@@ -553,7 +555,6 @@ function renderizarAgenda(eventos) {
     }
 }
 
-// Lógica del Calendario Mensual
 function renderizarCalendario() {
     const grid = document.getElementById('gridCalendario');
     const tituloMes = document.getElementById('tituloMesAno');
@@ -567,19 +568,17 @@ function renderizarCalendario() {
     tituloMes.innerText = `${nombresMeses[mes]} ${año}`;
 
     const primerDiaDelMes = new Date(año, mes, 1);
-    let diaInicioSemana = primerDiaDelMes.getDay() - 1; // Lunes como primer día
+    let diaInicioSemana = primerDiaDelMes.getDay() - 1;
     if (diaInicioSemana === -1) diaInicioSemana = 6;
 
     const ultimoDia = new Date(año, mes + 1, 0).getDate();
 
-    // Espacios vacíos previos
     for (let i = 0; i < diaInicioSemana; i++) {
         const celdaVacia = document.createElement('div');
         celdaVacia.className = "h-24 bg-gray-50/50 rounded-lg border border-transparent";
         grid.appendChild(celdaVacia);
     }
 
-    // Días del mes
     for (let dia = 1; dia <= ultimoDia; dia++) {
         const fechaStr = `${año}-${String(mes + 1).padStart(2, '0')}-${String(dia).padStart(2, '0')}`;
         const celda = document.createElement('div');
@@ -611,7 +610,6 @@ function mesSiguiente() {
     renderizarCalendario();
 }
 
-// Función para Exportar a CSV (Excel)
 function exportarCSV() {
     if (listaEventosGlobal.length === 0) {
         alert("No hay actividades para exportar.");
