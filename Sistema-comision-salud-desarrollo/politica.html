@@ -68,9 +68,10 @@
         .sidebar-brand { display: flex; flex-direction: column; align-items: center; text-align: center; padding: 0 16px 20px 16px; border-bottom: 1px solid rgba(255, 255, 255, 0.08); margin-bottom: 10px; }
         .sidebar-brand h2 { font-size: 11px; color: #ffffff; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; line-height: 1.4; margin-top: 5px; }
         .menu-category { font-size: 10px; font-weight: 700; color: var(--sidebar-text-sub); text-transform: uppercase; letter-spacing: 0.8px; padding: 16px 20px 6px 20px; }
-        .menu { display: block; padding: 9px 36px; color: var(--menu-text); cursor: pointer; font-size: 13px; font-weight: 500; text-decoration: none; transition: all 0.2s ease; opacity: 0.85; }
+        .menu { display: flex; align-items: center; gap: 10px; padding: 9px 24px; color: var(--menu-text); cursor: pointer; font-size: 13px; font-weight: 500; text-decoration: none; transition: all 0.2s ease; opacity: 0.85; }
         .menu:hover { opacity: 1; background: rgba(255, 255, 255, 0.04); }
         .menu.active-page { background: var(--sidebar-active); color: #ffffff; font-weight: 600; border-radius: 8px; margin: 2px 14px; padding: 10px 18px; opacity: 1; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3); }
+        .menu span.icon { font-size: 14px; width: 20px; text-align: center; }
         
         .main { padding:36px 40px; overflow-x: hidden; display: flex; flex-direction: column; min-height: 100vh; }
         
@@ -173,27 +174,27 @@
             <h2>COMISIÓN PERMANENTE DE SALUD<br>Y DESARROLLO SOCIAL INTEGRAL</h2>
         </div>
         
-        <a class="menu" href="dashboard.html">Principal</a>
+        <a class="menu" href="dashboard.html"><span class="icon">🏠</span> Principal</a>
         
         <div class="menu-category">Coor. Ejecutiva</div>
-        <a class="menu" href="ejecutiva.html">Oficios e Informes</a>
-        <a class="menu" href="planificacion.html">Planificación Semanal</a>
+        <a class="menu" href="ejecutiva.html"><span class="icon">📁</span> Oficios e Informes</a>
+        <a class="menu" href="planificacion.html"><span class="icon">📅</span> Planificación Semanal</a>
         
         <div class="menu-category">Coor. Política</div>
-        <a class="menu active-page" href="politica.html">Liderazgos y Comunas</a>
-        <a class="menu" href="difusion.html">Difusión Política</a>
+        <a class="menu active-page" href="politica.html"><span class="icon">🚩</span> Liderazgos y Comunas</a>
+        <a class="menu" href="difusion.html"><span class="icon">📢</span> Difusión Política</a>
         
         <div class="menu-category">Coor. Social</div>
-        <a class="menu" href="social.html">Casos Sociales</a>
-        <a class="menu" href="red_salud.html">Red de Salud (CPT/CDI)</a>
+        <a class="menu" href="social.html"><span class="icon">👥</span> Casos Sociales</a>
+        <a class="menu" href="red_salud.html"><span class="icon">🏥</span> Red de Salud (CPT/CDI)</a>
         
         <div class="menu-category">Gestión Digital</div>
-        <a class="menu" href="bitacora.html">Bitácora de Eventos</a>
-        <a class="menu" href="reportes.html">Reportes e Informes</a>
-        <a class="menu" href="formatos.html">Formatos de Oficina</a>
+        <a class="menu" href="bitacora.html"><span class="icon">📋</span> Bitácora de Eventos</a>
+        <a class="menu" href="reportes.html"><span class="icon">📈</span> Reportes e Informes</a>
+        <a class="menu" href="formatos.html"><span class="icon">📄</span> Formatos de Oficina</a>
 
         <div id="enlaceAuditoria" style="display: none;">
-            <a href="auditoria.html" class="menu">Panel de Auditoría</a>
+            <a href="auditoria.html" class="menu"><span class="icon">🛡️</span> Panel de Auditoría</a>
         </div>
         
         <div style="margin-top: auto; padding: 24px 20px; border-top: 1px solid rgba(255,255,255,0.08);">
@@ -203,8 +204,8 @@
             <div id="usuarioCoordinacion" style="font-size:10px; color:var(--sidebar-text-sub); font-weight: 500; margin-bottom: 16px; text-transform: uppercase; letter-spacing: 0.5px;">
                 Cargando...
             </div>
-            <a class="menu" onclick="logout()" style="cursor:pointer; font-size:12px; color:#f87171; padding: 8px 0; display: block; border-top: 1px solid rgba(255,255,255,0.04);">
-                Cerrar sesión
+            <a class="menu" onclick="logout()" style="cursor:pointer; font-size:12px; color:#f87171; padding: 8px 12px; display: flex; align-items: center; border-top: 1px solid rgba(255,255,255,0.04);">
+                <span class="icon">🚪</span> Cerrar sesión
             </a>
         </div>
     </div>
