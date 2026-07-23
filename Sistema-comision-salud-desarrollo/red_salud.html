@@ -56,17 +56,41 @@
         
         .layout { display: flex; min-height: 100vh; position: relative; }
         
-        /* SIDEBAR INSTITUCIONAL FIJO */
-        .sidebar { background: var(--sidebar-bg); color: #fff; width: 260px; min-width: 260px; height: 100vh; padding: 15px 12px; display: flex; flex-direction: column; justify-content: space-between; z-index: 1000; position: fixed; top: 0; left: 0; overflow-y: auto; }
+        /* SIDEBAR INSTITUCIONAL CORREGIDO (FIXED & SCROLLABLE INTERNAL) */
+        .sidebar { 
+            background: var(--sidebar-bg); 
+            color: #fff; 
+            width: 260px; 
+            min-width: 260px; 
+            height: 100vh; 
+            position: fixed; 
+            top: 0; 
+            left: 0; 
+            z-index: 1000; 
+            display: flex; 
+            flex-direction: column; 
+            justify-content: space-between; 
+            padding: 16px 12px;
+            overflow-y: auto; 
+        }
         .sidebar-top-wrapper { display: flex; flex-direction: column; }
-        .sidebar-brand { font-size: 10px; font-weight: bold; color: #cbd5e1; text-transform: uppercase; line-height: 1.3; margin-bottom: 15px; border-bottom: 1px solid #1e293b; padding-bottom: 12px; text-align: center; }
-        .menu-category { font-size: 9px; color: var(--sidebar-text-sub); font-weight: bold; text-transform: uppercase; margin-top: 12px; margin-bottom: 4px; letter-spacing: 0.5px; padding-left: 10px; }
+        .sidebar-brand { font-size: 10px; font-weight: bold; color: #cbd5e1; text-transform: uppercase; line-height: 1.3; margin-bottom: 12px; border-bottom: 1px solid #1e293b; padding-bottom: 10px; text-align: center; }
+        .menu-category { font-size: 9px; color: var(--sidebar-text-sub); font-weight: bold; text-transform: uppercase; margin-top: 10px; margin-bottom: 3px; letter-spacing: 0.5px; padding-left: 8px; }
         .menu { color: var(--menu-text); text-decoration: none; padding: 6px 10px; display: block; border-radius: 4px; font-size: 12px; margin-bottom: 2px; transition: all 0.2s; }
         .menu:hover { background: rgba(255, 255, 255, 0.05); color: #fff; }
         .menu.active-page { background: var(--sidebar-active); color: #ffffff; font-weight: 600; }
-        .user-box { border-top: 1px solid #1e293b; padding-top: 12px; margin-top: 10px; font-size: 12px; }
         
-        /* PANEL CENTRAL CORREGIDO PARA EVITAR SOLAPAMIENTO */
+        /* CONTENEDOR INFERIOR FIJO DENTRO DEL SIDEBAR (PERFIL Y CERRAR SESIÓN) */
+        .user-box { 
+            border-top: 1px solid #1e293b; 
+            padding-top: 10px; 
+            margin-top: 8px; 
+            font-size: 12px; 
+            background: var(--sidebar-bg);
+            flex-shrink: 0;
+        }
+        
+        /* PANEL CENTRAL CON MARGEN IZQUIERDO EXACTO */
         .main { flex-grow: 1; padding: 30px; margin-left: 260px; min-width: 0; width: calc(100% - 260px); }
         .main h2 { font-size: 24px; color: var(--text-dark-title); font-weight: 700; margin-bottom: 4px; }
         .header-actions { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; flex-wrap: wrap; gap: 16px; }
@@ -194,7 +218,7 @@
     </div>
 
     <div class="layout">
-        <!-- Sidebar Institucional Fijo -->
+        <!-- Sidebar Institucional Fijo y Optimizado -->
         <div class="sidebar" id="sidebarMenu">
             <div class="sidebar-top-wrapper">
                 <div class="sidebar-brand">
