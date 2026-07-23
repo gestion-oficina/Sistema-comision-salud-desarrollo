@@ -51,12 +51,12 @@
 *{ margin:0; padding:0; box-sizing:border-box; font-family: 'Inter', sans-serif; }
 body{ background: var(--bg-main); color:#334155; }
 
-.layout{ display: grid; grid-template-columns: 280px 1fr; min-height: 100vh; }
+.layout{ display: block; position: relative; min-height: 100vh; }
 
 .mobile-header { display: none; background: var(--sidebar-bg); color: white; padding: 15px 20px; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 3000; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
 .btn-menu-toggle { background: none; border: none; color: white; font-size: 24px; cursor: pointer; }
 
-/* BARRA LATERAL FIJA PARA EVITAR QUE SE DESORDENE */
+/* BARRA LATERAL FIJA */
 .sidebar{ background: var(--sidebar-bg); padding:24px 0; display: flex; flex-direction: column; position: fixed; top: 0; left: 0; width: 280px; height: 100vh; z-index: 1000; overflow-y: auto; transition: transform 0.3s ease; }
 .sidebar-brand { display: flex; flex-direction: column; align-items: center; text-align: center; padding: 0 16px 20px 16px; border-bottom: 1px solid rgba(255, 255, 255, 0.1); margin-bottom: 10px; }
 .sidebar-brand h2 { font-size: 11px; color: #ffffff; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; line-height: 1.4; margin-top: 5px; }
@@ -65,7 +65,7 @@ body{ background: var(--bg-main); color:#334155; }
 .menu:hover{ opacity: 1; background: rgba(255, 255, 255, 0.05); }
 .menu.active-page { background: var(--sidebar-active); color: #ffffff; font-weight: 600; border-radius: 6px; margin: 2px 14px; padding: 10px 20px; opacity: 1; }
 
-/* CONTENIDO PRINCIPAL CON MARGEN IZQUIERDO PARA COMPENSAR EL SIDEBAR FIJO */
+/* CONTENIDO PRINCIPAL CON MARGEN IZQUIERDO EXACTO */
 .main{ margin-left: 280px; padding:40px; overflow-x: hidden; display: flex; flex-direction: column; min-height: 100vh; }
 
 /* ENCABEZADO INSTITUCIONAL / MEMBRETE (OCULTO EN PANTALLA, VISIBLE SOLO AL IMPRIMIR) */
@@ -74,7 +74,7 @@ body{ background: var(--bg-main); color:#334155; }
 .institutional-header h2 { font-size: 11px; font-weight: 600; color: #334155; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 3px; }
 .institutional-header p { font-size: 10.5px; font-weight: 600; color: #0066cc; text-transform: uppercase; letter-spacing: 0.5px; }
 
-/* PIE DE PÁGINA INSTITUCIONAL VISIBLE EN TODA LA PÁGINA */
+/* PIE DE PÁGINA INSTITUCIONAL VISIBLE */
 .institutional-footer { margin-top: auto; padding-top: 30px; text-align: center; border-top: 1px solid #cbd5e1; font-size: 10.5px; color: #64748b; font-weight: 500; text-transform: uppercase; letter-spacing: 0.3px; }
 
 .main h2.page-title{ font-size: 26px; color: var(--text-dark-title); font-weight: 700; margin-bottom: 6px; }
@@ -146,20 +146,17 @@ body{ background: var(--bg-main); color:#334155; }
 .btn-cancel { background: #e2e8f0; color: #475569; border: none; padding: 9px 16px; border-radius: 6px; font-size: 12.5px; font-weight: 600; cursor: pointer; }
 .btn-save { background: var(--success-color); color: white; border: none; padding: 9px 16px; border-radius: 6px; font-size: 12.5px; font-weight: 600; cursor: pointer; }
 
-/* ESTILOS PARA IMPRESIÓN / REPORTE PDF */
+/* ESTILOS PARA IMPRESIÓN */
 @media print {
     .sidebar, .mobile-header, .toolbar-agenda, .agenda-header-actions, .action-btns-row, .btn-add, .search-box, #selectorVistasContainer { display: none !important; }
-    .layout { display: block !important; }
     .main { margin-left: 0 !important; padding: 0 !important; }
     .institutional-header { display: block !important; }
     .agenda-container { border: none !important; box-shadow: none !important; padding: 0 !important; }
     body { background: white !important; color: black !important; }
     .card-actividad { break-inside: avoid; border: 1px solid #cbd5e1 !important; box-shadow: none !important; }
-    .institutional-footer { position: fixed; bottom: 0; width: 100%; padding: 10px 0; background: white; }
 }
 
 @media (max-width: 768px) {
-    .layout { display: block; }
     .mobile-header { display: flex; }
     .sidebar { position: fixed; top: 58px; left: 0; width: 280px; height: calc(100vh - 58px); z-index: 2500; transform: translateX(-100%); box-shadow: 4px 0 10px rgba(0,0,0,0.1); overflow-y: auto; }
     .sidebar.open { transform: translateX(0); }
@@ -216,7 +213,6 @@ body{ background: var(--bg-main); color:#334155; }
     </div>
 
     <div class="main">
-        <!-- ENCABEZADO INSTITUCIONAL / MEMBRETE (SOLO APARECE AL IMPRIMIR) -->
         <div class="institutional-header">
             <h1>República Bolivariana de Venezuela</h1>
             <h2>Concejo Municipal del Municipio Ambrosio Plaza</h2>
@@ -258,9 +254,8 @@ body{ background: var(--bg-main); color:#334155; }
                 </div>
             </div>
 
-            <!-- FILTROS, BUSCADOR Y SELECTOR DE VISTA PROFESIONAL -->
+            <!-- FILTROS, BUSCADOR Y SELECTOR DE VISTA -->
             <div class="toolbar-agenda">
-                <!-- Filtros por estatus -->
                 <div class="filters-group">
                     <button class="filter-chip active" id="chip-todos" onclick="filtrarAgenda('Todos')">Todas</button>
                     <button class="filter-chip" id="chip-programado" onclick="filtrarAgenda('Programado')">Programados</button>
@@ -269,7 +264,6 @@ body{ background: var(--bg-main); color:#334155; }
                 </div>
 
                 <div class="flex items-center gap-3">
-                    <!-- SELECTOR DE VISTA ESTILO PÍLDORA (PROFESIONAL) -->
                     <div id="selectorVistasContainer" class="flex bg-slate-200/80 p-1 rounded-lg border border-slate-300">
                         <button onclick="cambiarVista('lista')" id="btnVistaLista" class="px-3 py-1.5 rounded-md text-xs font-bold transition bg-white text-blue-700 shadow-sm flex items-center gap-1.5">
                             <i class="fa-solid fa-table-cells-large text-[11px]"></i> Tarjetas
@@ -279,7 +273,6 @@ body{ background: var(--bg-main); color:#334155; }
                         </button>
                     </div>
 
-                    <!-- BUSCADOR -->
                     <div class="search-box">
                         <input type="text" id="inputBuscador" placeholder="Buscar por título, lugar..." oninput="manejarBusqueda()">
                     </div>
@@ -301,14 +294,11 @@ body{ background: var(--bg-main); color:#334155; }
                 <div class="grid grid-cols-7 gap-1 text-center font-semibold text-xs text-gray-400 mb-2">
                     <div>Lun</div><div>Mar</div><div>Mié</div><div>Jue</div><div>Vie</div><div>Sáb</div><div>Dom</div>
                 </div>
-                <div id="gridCalendario" class="grid grid-cols-7 gap-1">
-                    <!-- Generado dinámicamente por JS -->
-                </div>
+                <div id="gridCalendario" class="grid grid-cols-7 gap-1"></div>
             </div>
 
         </div>
 
-        <!-- PIE DE PÁGINA INSTITUCIONAL VISIBLE -->
         <div class="institutional-footer">
             Sistema de Gestión de la Comisión Permanente de Salud y Desarrollo Social Integral &mdash; Municipio Ambrosio Plaza | Despacho Concejala Letty Bastidas
         </div>
@@ -486,7 +476,6 @@ function actualizarEstadisticas() {
 
 function renderizarAgenda(eventos) {
     const contenedor = document.getElementById("lista-actividades");
-    
     let filtrados = eventos;
     
     if (filtroSeleccionado !== 'Todos') {
