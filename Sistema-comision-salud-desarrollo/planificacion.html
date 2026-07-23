@@ -16,9 +16,9 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Planificación Semanal - Comisión de Salud</title>
 
-<!-- Tailwind CSS para componentes avanzados y diseño limpio -->
+<!-- Tailwind CSS -->
 <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-<!-- FontAwesome para iconos -->
+<!-- FontAwesome -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
@@ -65,24 +65,27 @@ body{ background: var(--bg-main); color:#334155; }
 .menu:hover{ opacity: 1; background: rgba(255, 255, 255, 0.05); }
 .menu.active-page { background: var(--sidebar-active); color: #ffffff; font-weight: 600; border-radius: 6px; margin: 2px 14px; padding: 10px 20px; opacity: 1; }
 
-/* CONTENIDO PRINCIPAL CON MARGEN IZQUIERDO EXACTO */
+/* CONTENIDO PRINCIPAL */
 .main{ margin-left: 280px; padding:40px; overflow-x: hidden; display: flex; flex-direction: column; min-height: 100vh; }
 
-/* ENCABEZADO INSTITUCIONAL / MEMBRETE (OCULTO EN PANTALLA, VISIBLE SOLO AL IMPRIMIR) */
 .institutional-header { display: none; text-align: center; margin-bottom: 25px; border-bottom: 2px solid #0f2547; padding-bottom: 15px; }
 .institutional-header h1 { font-size: 12.5px; font-weight: 700; color: #0f2547; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 3px; }
 .institutional-header h2 { font-size: 11px; font-weight: 600; color: #334155; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 3px; }
 .institutional-header p { font-size: 10.5px; font-weight: 600; color: #0066cc; text-transform: uppercase; letter-spacing: 0.5px; }
 
-/* PIE DE PÁGINA INSTITUCIONAL VISIBLE */
 .institutional-footer { margin-top: auto; padding-top: 30px; text-align: center; border-top: 1px solid #cbd5e1; font-size: 10.5px; color: #64748b; font-weight: 500; text-transform: uppercase; letter-spacing: 0.3px; }
 
 .main h2.page-title{ font-size: 26px; color: var(--text-dark-title); font-weight: 700; margin-bottom: 6px; }
 .subtitle-concejala { font-size: 13px; color: #64748b; margin-bottom: 24px; font-weight: 500; }
 
-/* ESTADÍSTICAS RÁPIDAS */
+/* ESTADÍSTICAS RÁPIDAS CON COLORES */
 .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; margin-bottom: 20px; }
-.stat-card { background: white; padding: 14px 16px; border-radius: 10px; border: 1px solid #e2e8f0; box-shadow: 0 2px 4px rgba(0,0,0,0.01); display: flex; flex-direction: column; }
+.stat-card { background: white; padding: 14px 16px; border-radius: 10px; border: 1px solid #e2e8f0; box-shadow: 0 2px 4px rgba(0,0,0,0.01); display: flex; flex-direction: column; border-left: 4px solid #cbd5e1; }
+.stat-card.total { border-left-color: #1d3b6a; }
+.stat-card.programados { border-left-color: #0369a1; }
+.stat-card.completados { border-left-color: #16a34a; }
+.stat-card.suspendidos { border-left-color: #dc2626; }
+
 .stat-card span:first-child { font-size: 10.5px; font-weight: 700; text-transform: uppercase; color: #64748b; }
 .stat-card span:last-child { font-size: 22px; font-weight: 700; color: var(--text-dark-title); margin-top: 4px; }
 
@@ -222,21 +225,21 @@ body{ background: var(--bg-main); color:#334155; }
         <h2 class="page-title">Planificación Semanal</h2>
         <div class="subtitle-concejala">Control de Compromisos y Agenda de Trabajo Institucional</div>
         
-        <!-- ESTADÍSTICAS RÁPIDAS -->
+        <!-- ESTADÍSTICAS RÁPIDAS CON COLORES -->
         <div class="stats-grid">
-            <div class="stat-card">
+            <div class="stat-card total">
                 <span>Total Agenda</span>
                 <span id="stat-total">0</span>
             </div>
-            <div class="stat-card">
+            <div class="stat-card programados">
                 <span>Programados</span>
                 <span id="stat-programados" style="color: #0369a1;">0</span>
             </div>
-            <div class="stat-card">
+            <div class="stat-card completados">
                 <span>Completados</span>
                 <span id="stat-completados" style="color: #14532d;">0</span>
             </div>
-            <div class="stat-card">
+            <div class="stat-card suspendidos">
                 <span>Suspendidos</span>
                 <span id="stat-suspendidos" style="color: #b91c1c;">0</span>
             </div>
@@ -246,15 +249,15 @@ body{ background: var(--bg-main); color:#334155; }
             <div class="agenda-header">
                 <h3>Cronograma de Actividades e Inspecciones</h3>
                 <div class="agenda-header-actions">
-                    <button class="btn-action-toolbar" onclick="exportarCSV()" style="background-color: #059669; color: white; border: none;">
-                        <i class="fa-solid fa-file-excel"></i> Exportar CSV
+                    <button class="btn-action-toolbar" onclick="exportarExcel()" style="background-color: #059669; color: white; border: none;">
+                        <i class="fa-solid fa-file-excel"></i> Descargar Excel
                     </button>
                     <button class="btn-action-toolbar" onclick="window.print()">🖨️ Imprimir / PDF</button>
                     <button class="btn-add" onclick="abrirModal()">➕ Agregar Actividad</button>
                 </div>
             </div>
 
-            <!-- FILTROS, BUSCADOR Y SELECTOR DE VISTA -->
+            <!-- FILTROS, BUSCADOR Y SELECTOR DE VISTA OPTIMIZADO -->
             <div class="toolbar-agenda">
                 <div class="filters-group">
                     <button class="filter-chip active" id="chip-todos" onclick="filtrarAgenda('Todos')">Todas</button>
@@ -264,12 +267,12 @@ body{ background: var(--bg-main); color:#334155; }
                 </div>
 
                 <div class="flex items-center gap-3">
-                    <div id="selectorVistasContainer" class="flex bg-slate-200/80 p-1 rounded-lg border border-slate-300">
-                        <button onclick="cambiarVista('lista')" id="btnVistaLista" class="px-3 py-1.5 rounded-md text-xs font-bold transition bg-white text-blue-700 shadow-sm flex items-center gap-1.5">
-                            <i class="fa-solid fa-table-cells-large text-[11px]"></i> Tarjetas
+                    <div id="selectorVistasContainer" class="flex bg-slate-200/90 p-1 rounded-xl shadow-inner border border-slate-300">
+                        <button onclick="cambiarVista('lista')" id="btnVistaLista" class="px-4 py-2 rounded-lg text-xs font-bold transition bg-white text-blue-700 shadow-md flex items-center gap-2">
+                            <i class="fa-solid fa-table-cells-large text-[12px]"></i> Tarjetas
                         </button>
-                        <button onclick="cambiarVista('calendario')" id="btnVistaCalendario" class="px-3 py-1.5 rounded-md text-xs font-bold transition text-slate-600 hover:text-slate-900 flex items-center gap-1.5">
-                            <i class="fa-solid fa-calendar-days text-[11px]"></i> Calendario
+                        <button onclick="cambiarVista('calendario')" id="btnVistaCalendario" class="px-4 py-2 rounded-lg text-xs font-bold transition text-slate-600 hover:text-slate-900 flex items-center gap-2">
+                            <i class="fa-solid fa-calendar-days text-[12px]"></i> Calendario
                         </button>
                     </div>
 
@@ -407,13 +410,13 @@ function cambiarVista(vista) {
     const contCal = document.getElementById('contenedorCalendario');
 
     if (vista === 'lista') {
-        btnLista.className = "px-3 py-1.5 rounded-md text-xs font-bold transition bg-white text-blue-700 shadow-sm flex items-center gap-1.5";
-        btnCal.className = "px-3 py-1.5 rounded-md text-xs font-bold transition text-slate-600 hover:text-slate-900 flex items-center gap-1.5";
+        btnLista.className = "px-4 py-2 rounded-lg text-xs font-bold transition bg-white text-blue-700 shadow-md flex items-center gap-2";
+        btnCal.className = "px-4 py-2 rounded-lg text-xs font-bold transition text-slate-600 hover:text-slate-900 flex items-center gap-2";
         contLista.style.display = "grid";
         contCal.style.display = "none";
     } else {
-        btnCal.className = "px-3 py-1.5 rounded-md text-xs font-bold transition bg-white text-blue-700 shadow-sm flex items-center gap-1.5";
-        btnLista.className = "px-3 py-1.5 rounded-md text-xs font-bold transition text-slate-600 hover:text-slate-900 flex items-center gap-1.5";
+        btnCal.className = "px-4 py-2 rounded-lg text-xs font-bold transition bg-white text-blue-700 shadow-md flex items-center gap-2";
+        btnLista.className = "px-4 py-2 rounded-lg text-xs font-bold transition text-slate-600 hover:text-slate-900 flex items-center gap-2";
         contCal.style.display = "block";
         contLista.style.display = "none";
         renderizarCalendario();
@@ -600,25 +603,68 @@ function mesSiguiente() {
     renderizarCalendario();
 }
 
-function exportarCSV() {
+function exportarExcel() {
     if (listaEventosGlobal.length === 0) {
         alert("No hay actividades para exportar.");
         return;
     }
 
-    let csvContent = "data:text/csv;charset=utf-8,ID,Titulo,Fecha,Hora,Tipo,Estatus,Lugar,Descripcion\r\n";
+    let xmlContent = `<?xml version="1.0" encoding="UTF-8"?>
+<?mso-application progid="Excel.Sheet"?>
+<Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet"
+ xmlns:o="urn:schemas-microsoft-com:office:office"
+ xmlns:x="urn:schemas-microsoft-com:office:excel"
+ xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet"
+ xmlns:html="http://www.w3.org/TR/REC-html40">
+ <Worksheet ss:Name="Planificacion">
+  <Table>
+   <Row>
+    <Cell><Data ss:Type="String">ID</Data></Cell>
+    <Cell><Data ss:Type="String">Título</Data></Cell>
+    <Cell><Data ss:Type="String">Fecha</Data></Cell>
+    <Cell><Data ss:Type="String">Hora</Data></Cell>
+    <Cell><Data ss:Type="String">Tipo</Data></Cell>
+    <Cell><Data ss:Type="String">Estatus</Data></Cell>
+    <Cell><Data ss:Type="String">Lugar</Data></Cell>
+    <Cell><Data ss:Type="String">Descripción</Data></Cell>
+   </Row>`;
+
     listaEventosGlobal.forEach(row => {
-        const descLimpia = (row.descripcion || "").replace(/[\r\n]+/g, " ").replace(/,/g, " ");
-        csvContent += `${row.id},"${row.titulo}",${row.fecha},${row.hora},"${row.tipo}",${row.estatus},"${row.lugar}","${descLimpia}"\r\n`;
+        const titulo = (row.titulo || "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+        const fecha = row.fecha || "";
+        const hora = row.hora || "";
+        const tipo = (row.tipo || "").replace(/&/g, "&amp;");
+        const estatus = row.estatus || "";
+        const lugar = (row.lugar || "").replace(/&/g, "&amp;");
+        const descripcion = (row.descripcion || "").replace(/&/g, "&amp;").replace(/[\r\n]+/g, " ");
+
+        xmlContent += `
+   <Row>
+    <Cell><Data ss:Type="Number">${row.id || 0}</Data></Cell>
+    <Cell><Data ss:Type="String">${titulo}</Data></Cell>
+    <Cell><Data ss:Type="String">${fecha}</Data></Cell>
+    <Cell><Data ss:Type="String">${hora}</Data></Cell>
+    <Cell><Data ss:Type="String">${tipo}</Data></Cell>
+    <Cell><Data ss:Type="String">${estatus}</Data></Cell>
+    <Cell><Data ss:Type="String">${lugar}</Data></Cell>
+    <Cell><Data ss:Type="String">${descripcion}</Data></Cell>
+   </Row>`;
     });
 
-    const encodedUri = encodeURI(csvContent);
+    xmlContent += `
+  </Table>
+ </Worksheet>
+</Workbook>`;
+
+    const blob = new Blob([xmlContent], { type: 'application/vnd.ms-excel' });
+    const url = window.URL.createObjectURL(blob);
     const link = document.createElement("a");
-    link.setAttribute("href", encodedUri);
-    link.setAttribute("download", "planificacion_comision_salud.csv");
+    link.href = url;
+    link.download = "planificacion_comision_salud.xls";
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+    window.URL.revokeObjectURL(url);
 }
 
 function filtrarAgenda(estatus) {
