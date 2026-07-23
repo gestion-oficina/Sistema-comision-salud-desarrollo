@@ -8,7 +8,6 @@
         const sesion = sessionStorage.getItem('usuario_logueado');
         
         // 2. Si no hay sesión Y no estamos en el login, redirigimos
-        // Nota: Si tu archivo de login no está en la raíz, ajusta la ruta
         if (!sesion && window.location.pathname !== "/login.html") {
             window.location.replace("login.html");
         } else {
@@ -21,7 +20,6 @@
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <title>Red de Salud - Coordinación Ejecutiva</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         :root { 
             --bg-main: #f8fafc; 
@@ -175,7 +173,6 @@
         </div>
 
 <script>
-    // Esto hace que el botón aparezca solo si el rol guardado es 'admin'
     if (sessionStorage.getItem("usuario_rol") === "admin") {
         document.getElementById("enlaceAuditoria").style.display = "block";
     }
@@ -264,15 +261,6 @@
     </div>
 
 <script>
-    const supabaseUrl = window.__env__?.NEXT_PUBLIC_SUPABASE_URL 
-                        || (typeof process !== 'undefined' && process.env?.NEXT_PUBLIC_SUPABASE_URL)
-                        || "https://soqgmwzknfgmxefbnfgs.supabase.co";
-                        
-    const supabaseAnonKey = window.__env__?.NEXT_PUBLIC_SUPABASE_ANON_KEY 
-                            || (typeof process !== 'undefined' && process.env?.NEXT_PUBLIC_SUPABASE_ANON_KEY)
-                            || "sb_publishable_VytLFdygkUVqnTLWNkiM3g_75HnE8qQ";
-
-    const client = supabase.createClient(supabaseUrl, supabaseAnonKey);
     let centrosCache = [];
 
     document.addEventListener("DOMContentLoaded", () => { obtenerRedSalud(); });
@@ -302,11 +290,14 @@
     window.eliminarCentro = async function(id) {
         if (!confirm("¿Remover permanentemente este centro/reporte de la base de datos municipal?")) return;
         try {
-            const { error } = await client.from("casos_salud").delete().eq("id", id);
-            if (error) throw error;
+            const response = await fetch(`/api/casos_salud?id=${id}`, {
+                method: 'DELETE'
+            });
+            if (!response.ok) throw new Error("Error al eliminar en el servidor");
             obtenerRedSalud();
         } catch (err) {
             console.error("Error al borrar:", err);
+            alert("No se pudo eliminar el registro.");
         }
     };
 
@@ -315,14 +306,11 @@
     async function obtenerRedSalud() {
         const contenedor = document.getElementById("contenedor-ejes");
         try {
-            const { data: centros, error } = await client
-                .from("casos_salud")
-                .select("id, nombre, sector, detalle, ubicacion, tipo")
-                .eq("coordinacion", "Ejecutiva")
-                .neq("tipo", "Autoridad");
-
-            if (error) throw error;
-            centrosCache = centros || [];
+            const response = await fetch('/api/casos_salud');
+            if (!response.ok) throw new Error("Error al obtener los datos");
+            
+            const data = await response.json();
+            centrosCache = (data || []).filter(c => c.coordinacion === "Ejecutiva" && c.tipo !== "Autoridad");
 
             if (centrosCache.length === 0) {
                 contenedor.innerHTML = `<div style="color: #64748b; font-size: 13px; padding: 10px;">⚠️ No se encontraron centros registrados aún.</div>`;
@@ -403,15 +391,22 @@
         const payload = { nombre, tipo, sector, ubicacion, detalle, coordinacion: "Ejecutiva" };
 
         try {
-            let error;
+            let response;
             if (idOriginal) {
-                const idNumerico = isNaN(idOriginal) ? idOriginal : parseInt(idOriginal, 10);
-                ({ error } = await client.from("casos_salud").update(payload).eq("id", idNumerico));
+                response = await fetch(`/api/casos_salud`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ id: idOriginal, ...payload })
+                });
             } else {
-                ({ error } = await client.from("casos_salud").insert([payload]));
+                response = await fetch(`/api/casos_salud`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
             }
 
-            if (error) throw error;
+            if (!response.ok) throw new Error("Error en la respuesta del servidor");
             
             cerrarModal();
             obtenerRedSalud();
