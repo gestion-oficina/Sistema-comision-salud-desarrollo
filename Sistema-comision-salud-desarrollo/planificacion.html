@@ -64,18 +64,36 @@ body{ background: var(--bg-main); color:#334155; }
 .main h2{ font-size: 26px; color: var(--text-dark-title); font-weight: 700; margin-bottom: 6px; }
 .subtitle-concejala { font-size: 13px; color: #64748b; margin-bottom: 24px; font-weight: 500; }
 
+/* NUEVO: ESTADÍSTICAS RÁPIDAS */
+.stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; margin-bottom: 20px; }
+.stat-card { background: white; padding: 14px 16px; border-radius: 10px; border: 1px solid #e2e8f0; box-shadow: 0 2px 4px rgba(0,0,0,0.01); display: flex; flex-direction: column; }
+.stat-card span:first-child { font-size: 10.5px; font-weight: 700; text-transform: uppercase; color: #64748b; }
+.stat-card span:last-child { font-size: 22px; font-weight: 700; color: var(--text-dark-title); margin-top: 4px; }
+
 .agenda-container { background: white; border: 1px solid #e2e8f0; border-radius: 12px; padding: 24px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.01); }
 .agenda-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #f1f5f9; padding-bottom: 16px; margin-bottom: 20px; gap: 10px; flex-wrap: wrap; }
 .agenda-header h3 { font-size: 16px; font-weight: 700; color: var(--text-dark-title); }
 
-.toolbar-agenda { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-bottom: 20px; }
+.agenda-header-actions { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+
+.toolbar-agenda { display: flex; justify-content: space-between; align-items: center; gap: 15px; flex-wrap: wrap; margin-bottom: 20px; }
+.filters-group { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
 .filter-chip { padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; border: 1px solid #cbd5e1; background: white; color: #475569; cursor: pointer; transition: all 0.2s; }
 .filter-chip.active { background: var(--sidebar-bg); color: white; border-color: var(--sidebar-bg); }
 
-.btn-add { background: var(--sidebar-active); color: white; border: none; padding: 10px 16px; border-radius: 6px; font-size: 12.5px; font-weight: 600; cursor: pointer; transition: background 0.2s; white-space: nowrap; display: inline-flex; align-items: center; gap: 6px; }
+/* NUEVO: BUSCADOR */
+.search-box { position: relative; min-width: 240px; }
+.search-box input { width: 100%; padding: 7px 12px 7px 32px; border: 1px solid #cbd5e1; border-radius: 20px; font-size: 12.5px; outline: none; }
+.search-box input:focus { border-color: var(--sidebar-active); }
+.search-box::before { content: "🔍"; position: absolute; left: 10px; top: 50%; transform: translateY(-50%); font-size: 11px; }
+
+.btn-action-toolbar { background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; padding: 9px 14px; border-radius: 6px; font-size: 12.5px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: background 0.2s; }
+.btn-action-toolbar:hover { background: #e2e8f0; }
+
+.btn-add { background: var(--sidebar-active); color: white; border: none; padding: 9px 16px; border-radius: 6px; font-size: 12.5px; font-weight: 600; cursor: pointer; transition: opacity 0.2s; white-space: nowrap; display: inline-flex; align-items: center; gap: 6px; }
 .btn-add:hover { opacity: 0.95; }
 
-/* TARJETAS DE ACTIVIDAD CREATIVAS */
+/* TARJETAS DE ACTIVIDAD */
 .grid-actividades { display: grid; grid-template-columns: 1fr; gap: 15px; }
 .card-actividad { background: white; padding: 20px; border-radius: 10px; border: 1px solid #e2e8f0; border-left: 5px solid var(--sidebar-active); box-shadow: 0 2px 4px rgba(0,0,0,0.02); display: flex; justify-content: space-between; align-items: flex-start; gap: 15px; transition: transform 0.2s; }
 .card-actividad:hover { transform: translateY(-2px); box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
@@ -113,6 +131,16 @@ body{ background: var(--bg-main); color:#334155; }
 .btn-cancel { background: #e2e8f0; color: #475569; border: none; padding: 9px 16px; border-radius: 6px; font-size: 12.5px; font-weight: 600; cursor: pointer; }
 .btn-save { background: var(--success-color); color: white; border: none; padding: 9px 16px; border-radius: 6px; font-size: 12.5px; font-weight: 600; cursor: pointer; }
 
+/* ESTILOS PARA IMPRESIÓN / REPORTE PDF */
+@media print {
+    .sidebar, .mobile-header, .toolbar-agenda, .agenda-header-actions, .action-btns-row, .btn-add, .search-box { display: none !important; }
+    .layout { display: block !important; }
+    .main { padding: 0 !important; }
+    .agenda-container { border: none !important; box-shadow: none !important; padding: 0 !important; }
+    body { background: white !important; color: black !important; }
+    .card-actividad { break-inside: avoid; border: 1px solid #cbd5e1 !important; box-shadow: none !important; }
+}
+
 @media (max-width: 768px) {
     .layout { grid-template-columns: 1fr; }
     .mobile-header { display: flex; }
@@ -120,7 +148,8 @@ body{ background: var(--bg-main); color:#334155; }
     .sidebar.open { transform: translateX(0); }
     .main { padding: 20px 15px; }
     .agenda-header { flex-direction: column; align-items: stretch; }
-    .btn-add { width: 100%; justify-content: center; }
+    .agenda-header-actions { width: 100%; justify-content: space-between; }
+    .btn-add { flex-grow: 1; justify-content: center; }
     .card-actividad { flex-direction: column; align-items: stretch; }
     .card-actions-side { flex-direction: row; justify-content: space-between; align-items: center; border-top: 1px dashed #e2e8f0; padding-top: 10px; margin-top: 6px; }
 }
@@ -173,18 +202,46 @@ body{ background: var(--bg-main); color:#334155; }
         <h2>Planificación Semanal</h2>
         <div class="subtitle-concejala">Oficina de la Concejala Letty Bastidas — Control de Compromisos y Agenda de Trabajo</div>
         
+        <!-- ESTADÍSTICAS RÁPIDAS -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <span>Total Agenda</span>
+                <span id="stat-total">0</span>
+            </div>
+            <div class="stat-card">
+                <span>Programados</span>
+                <span id="stat-programados" style="color: #0369a1;">0</span>
+            </div>
+            <div class="stat-card">
+                <span>Completados</span>
+                <span id="stat-completados" style="color: #14532d;">0</span>
+            </div>
+            <div class="stat-card">
+                <span>Suspendidos</span>
+                <span id="stat-suspendidos" style="color: #b91c1c;">0</span>
+            </div>
+        </div>
+
         <div class="agenda-container">
             <div class="agenda-header">
                 <h3>Cronograma de Actividades e Inspecciones</h3>
-                <button class="btn-add" onclick="abrirModal()">➕ Agregar Actividad</button>
+                <div class="agenda-header-actions">
+                    <button class="btn-action-toolbar" onclick="window.print()">🖨️ Imprimir / PDF</button>
+                    <button class="btn-add" onclick="abrirModal()">➕ Agregar Actividad</button>
+                </div>
             </div>
 
-            <!-- FILTROS RÁPIDOS DE AGENDA -->
+            <!-- FILTROS Y BUSCADOR -->
             <div class="toolbar-agenda">
-                <button class="filter-chip active" id="chip-todos" onclick="filtrarAgenda('Todos')">Todas</button>
-                <button class="filter-chip" id="chip-programado" onclick="filtrarAgenda('Programado')">Programados</button>
-                <button class="filter-chip" id="chip-completado" onclick="filtrarAgenda('Completado')">Completados</button>
-                <button class="filter-chip" id="chip-suspendido" onclick="filtrarAgenda('Suspendido')">Suspendidos</button>
+                <div class="filters-group">
+                    <button class="filter-chip active" id="chip-todos" onclick="filtrarAgenda('Todos')">Todas</button>
+                    <button class="filter-chip" id="chip-programado" onclick="filtrarAgenda('Programado')">Programados</button>
+                    <button class="filter-chip" id="chip-completado" onclick="filtrarAgenda('Completado')">Completados</button>
+                    <button class="filter-chip" id="chip-suspendido" onclick="filtrarAgenda('Suspendido')">Suspendidos</button>
+                </div>
+                <div class="search-box">
+                    <input type="text" id="inputBuscador" placeholder="Buscar por título, lugar..." oninput="manejarBusqueda()">
+                </div>
             </div>
 
             <div id="lista-actividades" class="grid-actividades">
@@ -260,6 +317,7 @@ body{ background: var(--bg-main); color:#334155; }
 <script>
 let listaEventosGlobal = [];
 let filtroSeleccionado = 'Todos';
+let textoBusquedaGlobal = '';
 
 window.iniciarAgendaApp = function() {
     cargarAgendaOficina();
@@ -300,12 +358,11 @@ async function cargarAgendaOficina() {
     const contenedor = document.getElementById("lista-actividades");
     if (!window.sqlClient) await new Promise(resolve => setTimeout(resolve, 800));
     if (!window.sqlClient) {
-        contenedor.innerHTML = `<p style="text-align:center; padding:30px; color:#dc2626;">Error: Conexión con Neon não disponible.</p>`;
+        contenedor.innerHTML = `<p style="text-align:center; padding:30px; color:#dc2626;">Error: Conexión con Neon no disponible.</p>`;
         return;
     }
 
     try {
-        // Aseguramos la tabla con id autoincremental real
         await window.sqlClient`
             CREATE TABLE IF NOT EXISTS agenda_oficina (
                 id SERIAL PRIMARY KEY,
@@ -320,6 +377,7 @@ async function cargarAgendaOficina() {
         `;
         const eventos = await window.sqlClient`SELECT * FROM agenda_oficina ORDER BY id DESC`;
         listaEventosGlobal = Array.from(eventos || []);
+        actualizarEstadisticas();
         renderizarAgenda(listaEventosGlobal);
     } catch (err) {
         console.error("Error cargando agenda:", err);
@@ -327,16 +385,41 @@ async function cargarAgendaOficina() {
     }
 }
 
+function actualizarEstadisticas() {
+    const total = listaEventosGlobal.length;
+    const programados = listaEventosGlobal.filter(e => e.estatus === 'Programado').length;
+    const completados = listaEventosGlobal.filter(e => e.estatus === 'Completado').length;
+    const suspendidos = listaEventosGlobal.filter(e => e.estatus === 'Suspendido').length;
+
+    document.getElementById("stat-total").textContent = total;
+    document.getElementById("stat-programados").textContent = programados;
+    document.getElementById("stat-completados").textContent = completados;
+    document.getElementById("stat-suspendidos").textContent = suspendidos;
+}
+
 function renderizarAgenda(eventos) {
     const contenedor = document.getElementById("lista-actividades");
     
     let filtrados = eventos;
+    
+    // Filtrar por estatus
     if (filtroSeleccionado !== 'Todos') {
-        filtrados = eventos.filter(e => e.estatus === filtroSeleccionado);
+        filtrados = filtrados.filter(e => e.estatus === filtroSeleccionado);
+    }
+
+    // Filtrar por buscador de texto
+    if (textoBusquedaGlobal.trim() !== '') {
+        const query = textoBusquedaGlobal.toLowerCase();
+        filtrados = filtrados.filter(e => 
+            (e.titulo && e.titulo.toLowerCase().includes(query)) ||
+            (e.lugar && e.lugar.toLowerCase().includes(query)) ||
+            (e.descripcion && e.descripcion.toLowerCase().includes(query)) ||
+            (e.tipo && e.tipo.toLowerCase().includes(query))
+        );
     }
 
     if (filtrados.length === 0) {
-        contenedor.innerHTML = `<p style="text-align:center; padding:30px; color:#94a3b8;">No hay actividades registradas en esta categoría.</p>`;
+        contenedor.innerHTML = `<p style="text-align:center; padding:30px; color:#94a3b8;">No se encontraron actividades registradas.</p>`;
         return;
     }
 
@@ -381,6 +464,11 @@ function filtrarAgenda(estatus) {
     renderizarAgenda(listaEventosGlobal);
 }
 
+function manejarBusqueda() {
+    textoBusquedaGlobal = document.getElementById("inputBuscador").value;
+    renderizarAgenda(listaEventosGlobal);
+}
+
 function abrirEditar(index) {
     const item = listaEventosGlobal[index];
     if (!item) {
@@ -419,8 +507,7 @@ async function guardarActividad(event) {
             const indexNum = Number(indexInput);
             const itemOriginal = listaEventosGlobal[indexNum];
 
-            if (itemOriginal && itemOriginal.id !== undefined) {
-                // Actualización directa por ID único de base de datos
+            if (itemOriginal && itemOriginal.id !== undefined && itemOriginal.id !== null) {
                 await window.sqlClient`
                     UPDATE agenda_oficina 
                     SET titulo = ${titulo}, fecha = ${fecha}, hora = ${hora}, tipo = ${tipo}, 
@@ -428,7 +515,6 @@ async function guardarActividad(event) {
                     WHERE id = ${Number(itemOriginal.id)}
                 `;
             } else {
-                // Respaldo por título y lugar si el ID viniera alterado
                 await window.sqlClient`
                     UPDATE agenda_oficina 
                     SET titulo = ${titulo}, fecha = ${fecha}, hora = ${hora}, tipo = ${tipo}, 
@@ -438,11 +524,32 @@ async function guardarActividad(event) {
             }
             alert("Actividad actualizada con éxito.");
         } else {
-            // Inserción de nueva actividad
             await window.sqlClient`
                 INSERT INTO agenda_oficina (titulo, fecha, hora, tipo, estatus, lugar, descripcion)
                 VALUES (${titulo}, ${fecha}, ${hora}, ${tipo}, ${estatus}, ${lugar}, ${descripcion})
             `;
+            
+            // Si el usuario guardó la actividad directamente como Completada, opcionalmente alimentamos la bitácora
+            if (estatus === 'Completado') {
+                try {
+                    await window.sqlClient`
+                        CREATE TABLE IF NOT EXISTS bitacora_eventos (
+                            id SERIAL PRIMARY KEY,
+                            titulo TEXT,
+                            fecha TEXT,
+                            descripcion TEXT,
+                            lugar TEXT
+                        )
+                    `;
+                    await window.sqlClient`
+                        INSERT INTO bitacora_eventos (titulo, fecha, descripcion, lugar)
+                        VALUES (${titulo}, ${fecha}, ${descripcion}, ${lugar})
+                    `;
+                } catch (bErr) {
+                    console.error("Aviso: No se pudo registrar en bitácora automáticamente", bErr);
+                }
+            }
+
             alert("Actividad agendada con éxito.");
         }
         cerrarModal();
@@ -462,10 +569,10 @@ async function eliminarActividad(index) {
     
     if (!confirm("¿Está seguro de eliminar esta actividad de la planificación?")) return;
     try {
-        if (item.id !== undefined) {
+        if (item.id !== null && item.id !== undefined && !isNaN(Number(item.id))) {
             await window.sqlClient`DELETE FROM agenda_oficina WHERE id = ${Number(item.id)}`;
         } else {
-            await window.sqlClient`DELETE FROM agenda_oficina WHERE titulo = ${item.titulo} AND lugar = ${item.lugar}`;
+            await window.sqlClient`DELETE FROM agenda_oficina WHERE titulo = ${item.titulo}`;
         }
         cargarAgendaOficina();
     } catch (err) {
