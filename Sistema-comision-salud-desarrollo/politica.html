@@ -14,7 +14,7 @@
         }
     </script>
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <title>Gestión de Difusión - Liderazgos y Comunas</title>
+    <title>Liderazgos y Comunas - Despacho Concejala Letty Bastidas</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
     <script type="module">
@@ -77,35 +77,18 @@
         .content-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 24px; flex-wrap: wrap; gap: 16px; }
         .main h2 { font-size: 24px; color: var(--text-dark-title); font-weight: 800; letter-spacing: -0.5px; }
         .subtitle-concejala { font-size: 13px; color: #64748b; font-weight: 500; margin-top: 2px; }
-        
-        /* PANEL DE DIFUSIÓN */
-        .broadcast-panel { background: white; border: 1px solid var(--border-color); border-radius: 12px; padding: 24px; margin-bottom: 24px; box-shadow: 0 2px 4px rgba(0,0,0,0.01); }
-        .broadcast-panel h3 { font-size: 16px; font-weight: 700; color: var(--text-dark-title); margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
-        .broadcast-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; margin-bottom: 16px; }
-        .form-group { display: flex; flex-direction: column; gap: 6px; }
-        .form-group label { font-size: 12px; font-weight: 600; color: #475569; text-transform: uppercase; letter-spacing: 0.3px; }
-        .form-group select, .form-group textarea { padding: 10px 14px; border-radius: 8px; border: 1px solid var(--border-color); font-size: 13.5px; outline: none; background: white; transition: all 0.2s; }
-        .form-group textarea { resize: vertical; min-height: 100px; }
-        .form-group select:focus, .form-group textarea:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1); }
-        
-        .broadcast-actions { display: flex; justify-content: flex-end; gap: 12px; align-items: center; }
 
-        /* TABLA DE DESTINATARIOS MASIVOS */
-        .table-container { background: white; border: 1px solid var(--border-color); border-radius: 12px; overflow: hidden; box-shadow: 0 2px 4px rgba(0,0,0,0.01); margin-bottom: 30px; }
-        .table-header-bar { padding: 16px 20px; background: #f8fafc; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; }
-        .table-header-bar h4 { font-size: 14px; font-weight: 700; color: var(--text-dark-title); }
-        
+        /* TARJETAS Y CONTENIDOS DE POLÍTICA */
+        .card-container { background: white; border: 1px solid var(--border-color); border-radius: 12px; padding: 24px; box-shadow: 0 2px 4px rgba(0,0,0,0.01); margin-bottom: 24px; }
+        .card-container h3 { font-size: 16px; font-weight: 700; color: var(--text-dark-title); margin-bottom: 16px; }
+
+        .table-container { background: white; border: 1px solid var(--border-color); border-radius: 12px; overflow: hidden; box-shadow: 0 2px 4px rgba(0,0,0,0.01); }
         table { width: 100%; border-collapse: collapse; text-align: left; font-size: 13px; }
         th { background: #f8fafc; padding: 12px 16px; font-weight: 600; color: #475569; border-bottom: 1px solid var(--border-color); }
         td { padding: 12px 16px; border-bottom: 1px solid #f1f5f9; color: #334155; }
         tr:hover td { background: #f8fafc; }
 
-        .btn-primary { padding: 10px 18px; border: none; border-radius: 8px; cursor: pointer; background: var(--primary); color: white; font-size: 13px; font-weight: 600; display: flex; align-items: center; gap: 6px; transition: background 0.2s; box-shadow: 0 2px 4px rgba(37, 99, 235, 0.2); }
-        .btn-primary:hover { background: #1d4ed8; }
-
-        .btn-wa { background: #dcfce7; color: #15803d; padding: 6px 12px; border: none; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; transition: background 0.2s; }
-        .btn-wa:hover { background: #bbf7d0; }
-
+        .btn-wa { background: #dcfce7; color: #15803d; padding: 6px 12px; border: none; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; }
         .empty-state { text-align: center; padding: 40px 20px; color: #94a3b8; font-size: 13.5px; }
 
         .main-footer { margin-top: auto; padding-top: 40px; text-align: center; width: 100%; border-top: 1px solid var(--border-color); }
@@ -119,7 +102,6 @@
             .sidebar { position: fixed; top: 0; left: 0; width: 280px; height: 100vh; z-index: 9998; transform: translateX(-100%); box-shadow: 5px 0 15px rgba(0,0,0,0.2); }
             .sidebar.mobile-open { transform: translateX(0); }
             .main { padding: 20px 16px; }
-            .table-container { overflow-x: auto; }
         }
     </style>
 </head>
@@ -141,8 +123,8 @@
         <a class="menu" href="planificacion.html">Planificación Semanal</a>
         
         <div class="menu-category">Coor. Política</div>
-        <a class="menu" href="politica.html">Liderazgos y Comunas</a>
-        <a class="menu active-page" href="difusion.html">📢 Gestión de Difusión</a>
+        <a class="menu active-page" href="politica.html">Liderazgos y Comunas</a>
+        <a class="menu" href="difusion.html">📢 Gestión de Difusión</a>
         
         <div class="menu-category">Coor. Social</div>
         <a class="menu" href="social.html">Casos Sociales</a>
@@ -173,57 +155,12 @@
     <div class="main">
         <div class="content-header">
             <div>
-                <h2>Gestión de Difusión y Campañas</h2>
-                <div class="subtitle-concejala">Centro de Comunicación Masiva — Oficina de la Concejala Letty Bastidas</div>
+                <h2>Liderazgos y Comunas</h2>
+                <div class="subtitle-concejala">Coordinación Política — Oficina de la Concejala Letty Bastidas</div>
             </div>
         </div>
 
-        <!-- PANEL DE CONFIGURACIÓN DE MENSAJE -->
-        <div class="broadcast-panel">
-            <h3>💬 Redactar Comunicado o Convocatoria</h3>
-            <div class="broadcast-grid">
-                <div class="form-group">
-                    <label>Filtrar Destinatarios por Zona / Sector</label>
-                    <select id="filtroSector" onchange="renderizarTablaDifusion()">
-                        <option value="TODOS">Todos los Sectores</option>
-                        <option value="Las Clavelinas">Las Clavelinas</option>
-                        <option value="Ruiz Pineda">Ruiz Pineda</option>
-                        <option value="Menca de Leoni">Menca de Leoni</option>
-                        <option value="Trapichito">Trapichito</option>
-                        <option value="Valle Verde">Valle Verde</option>
-                        <option value="Zulia">Zulia</option>
-                        <option value="Sector Las Mandarinas">Sector Las Mandarinas</option>
-                        <option value="Oropeza Castillo">Oropeza Castillo</option>
-                        <option value="Pueblo Arriba">Pueblo Arriba</option>
-                        <option value="El Tamarindo">El Tamarindo</option>
-                        <option value="Nueva Casarapa">Nueva Casarapa</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label>Tipo de Registro</label>
-                    <select id="filtroTipo" onchange="renderizarTablaDifusion()">
-                        <option value="TODOS">Líderes y Comunas</option>
-                        <option value="Liderazgo">Solo Líderes / UBCh</option>
-                        <option value="Comuna">Solo Comunas / Consejos</option>
-                    </select>
-                </div>
-            </div>
-            <div class="form-group" style="margin-bottom: 16px;">
-                <label>Texto del Mensaje Oficial</label>
-                <textarea id="textoMensaje" placeholder="Escribe aquí el comunicado de la Concejala Letty Bastidas o los detalles de la asamblea...">Estimado/a líder, le escribimos desde la Comisión Permanente de Salud y Desarrollo Social Integral para informarle sobre la agenda de trabajo de esta semana en nuestra comunidad. Contamos con su valioso respaldo.</textarea>
-            </div>
-            <div class="broadcast-actions">
-                <button class="btn-primary" onclick="aplicarMensajeATodos()">
-                    <span>🔄</span> Actualizar Enlaces de Envío
-                </button>
-            </div>
-        </div>
-
-        <!-- TABLA DE LISTADO Y ENVÍO RÁPIDO -->
         <div class="table-container">
-            <div class="table-header-bar">
-                <h4 id="contadorDestinatarios">Cargando destinatarios...</h4>
-            </div>
             <table>
                 <thead>
                     <tr>
@@ -231,16 +168,15 @@
                         <th>Tipo</th>
                         <th>Sector / Eje</th>
                         <th>Teléfono</th>
-                        <th style="text-align: right;">Acción de Envío</th>
+                        <th style="text-align: right;">Acción</th>
                     </tr>
                 </thead>
-                <tbody id="tablaDifusionBody">
-                    <tr><td colspan="5" class="empty-state">Conectando con la base de datos...</td></tr>
+                <tbody id="tablaPoliticaBody">
+                    <tr><td colspan="5" class="empty-state">Cargando registros de liderazgo...</td></tr>
                 </tbody>
             </table>
         </div>
 
-        <!-- PIE DE PÁGINA INSTITUCIONAL -->
         <footer class="main-footer">
             <div class="main-footer-flag">
                 <div style="background-color: #ffde00;"></div>
@@ -258,15 +194,13 @@
             if (el) el.style.display = "block";
         }
 
-        let todosLosRegistros = [];
-
         window.iniciarApp = function() {
             const nombre = sessionStorage.getItem("usuario_nombre");
             const coord = sessionStorage.getItem("usuario_coordinacion");
             if (nombre) document.getElementById("usuarioNombre").textContent = nombre;
             if (coord) document.getElementById("usuarioCoordinacion").textContent = coord.toUpperCase();
 
-            cargarDatosDifusion();
+            cargarDatosPolitica();
         };
 
         document.addEventListener("DOMContentLoaded", () => {
@@ -282,75 +216,47 @@
             btn.innerText = sidebar.classList.contains("mobile-open") ? "✕" : "☰";
         }
 
-        async function cargarDatosDifusion() {
+        async function cargarDatosPolitica() {
             if (!window.sqlClient) {
                 await new Promise(resolve => setTimeout(resolve, 800));
             }
 
             if (!window.sqlClient) {
-                document.getElementById("tablaDifusionBody").innerHTML = `<tr><td colspan="5" class="empty-state" style="color:var(--danger-color);">⚠️ Error de conexión con Neon.</td></tr>`;
+                document.getElementById("tablaPoliticaBody").innerHTML = `<tr><td colspan="5" class="empty-state" style="color:var(--danger-color);">⚠️ Error de conexión con Neon.</td></tr>`;
                 return;
             }
 
             try {
-                const registros = await window.sqlClient`SELECT * FROM casos_salud ORDER BY id DESC`;
-                todosLosRegistros = Array.from(registros);
-                renderizarTablaDifusion();
+                const registros = await window.sqlClient`SELECT * FROM casos_salud WHERE coordinacion ILIKE 'politica' OR tipo = 'Liderazgo' OR tipo = 'Comuna' ORDER BY id DESC`;
+                
+                const tbody = document.getElementById("tablaPoliticaBody");
+                if (registros.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="5" class="empty-state">No hay registros políticos cargados actualmente.</td></tr>`;
+                    return;
+                }
+
+                tbody.innerHTML = registros.map(r => {
+                    const nombreContacto = r.nombre || r.responsable || 'Sin Nombre';
+                    const telefonoLimpio = r.telefono ? r.telefono.replace(/\D/g, '') : '';
+                    const urlWa = telefonoLimpio ? `https://wa.me/58${telefonoLimpio}?text=Hola%20*%${nombreContacto}*` : '#';
+
+                    return `
+                        <tr>
+                            <td><strong>${nombreContacto}</strong>${r.responsable && r.nombre !== r.responsable ? `<br><small style="color:#64748b;">Resp: ${r.responsable}</small>` : ''}</td>
+                            <td><span style="font-size:11px; font-weight:600; padding:3px 8px; border-radius:4px; background:${r.tipo === 'Comuna' ? '#fef3c7' : '#eff6ff'}; color:${r.tipo === 'Comuna' ? '#b45309' : '#1d4ed8'};">${r.tipo || 'Liderazgo'}</span></td>
+                            <td>${r.sector || 'N/A'}</td>
+                            <td>${r.telefono || 'No registrado'}</td>
+                            <td style="text-align: right;">
+                                ${telefonoLimpio ? `<a class="btn-wa" href="${urlWa}" target="_blank">💬 WhatsApp</a>` : '<span style="color:#94a3b8; font-size:11.5px;">Sin Teléfono</span>'}
+                            </td>
+                        </tr>
+                    `;
+                }).join("");
+
             } catch (err) {
                 console.error("Error al cargar datos:", err);
-                document.getElementById("tablaDifusionBody").innerHTML = `<tr><td colspan="5" class="empty-state" style="color:var(--danger-color);">Error al cargar registros: ${err.message}</td></tr>`;
+                document.getElementById("tablaPoliticaBody").innerHTML = `<tr><td colspan="5" class="empty-state" style="color:var(--danger-color);">Error al cargar registros: ${err.message}</td></tr>`;
             }
-        }
-
-        function renderizarTablaDifusion() {
-            const tbody = document.getElementById("tablaDifusionBody");
-            const sectorFiltro = document.getElementById("filtroSector").value;
-            const tipoFiltro = document.getElementById("filtroTipo").value;
-            const mensajeBase = document.getElementById("textoMensaje").value.trim();
-
-            // Filtrar solo registros del área política o tipos afines
-            let datos = todosLosRegistros.filter(r => (r.coordinacion && r.coordinacion.toLowerCase() === 'politica') || r.tipo === 'Liderazgo' || r.tipo === 'Comuna');
-
-            if (sectorFiltro !== 'TODOS') {
-                datos = datos.filter(r => r.sector === sectorFiltro);
-            }
-
-            if (tipoFiltro !== 'TODOS') {
-                datos = datos.filter(r => r.tipo === tipoFiltro);
-            }
-
-            document.getElementById("contadorDestinatarios").innerText = `Destinatarios listos para difusión: ${datos.length} registros`;
-
-            if (datos.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="5" class="empty-state">No hay registros que coincidan con los filtros seleccionados.</td></tr>`;
-                return;
-            }
-
-            tbody.innerHTML = datos.map(r => {
-                const nombreContacto = r.nombre || r.responsable || 'Sin Nombre';
-                const telefonoLimpio = r.telefono ? r.telefono.replace(/\D/g, '') : '';
-                
-                // Mensaje personalizado combinando nombre y el texto redactado
-                const textoPersonalizado = encodeURIComponent(`Hola *${nombreContacto}*,\n\n${mensajeBase}\n\nAtentamente,\nConcejala Letty Bastidas`);
-                const urlWa = telefonoLimpio ? `https://wa.me/58${telefonoLimpio}?text=${textoPersonalizado}` : '#';
-
-                return `
-                    <tr>
-                        <td><strong>${nombreContacto}</strong>${r.responsable && r.nombre !== r.responsable ? `<br><small style="color:#64748b;">Resp: ${r.responsable}</small>` : ''}</td>
-                        <td><span style="font-size:11px; font-weight:600; padding:3px 8px; border-radius:4px; background:${r.tipo === 'Comuna' ? '#fef3c7' : '#eff6ff'}; color:${r.tipo === 'Comuna' ? '#b45309' : '#1d4ed8'};">${r.tipo || 'Liderazgo'}</span></td>
-                        <td>${r.sector || 'N/A'}</td>
-                        <td>${r.telefono || 'No registrado'}</td>
-                        <td style="text-align: right;">
-                            ${telefonoLimpio ? `<a class="btn-wa" href="${urlWa}" target="_blank">💬 Enviar WhatsApp</a>` : '<span style="color:#94a3b8; font-size:11.5px;">Sin Teléfono</span>'}
-                        </td>
-                    </tr>
-                `;
-            }).join("");
-        }
-
-        function aplicarMensajeATodos() {
-            renderizarTablaDifusion();
-            alert("¡Enlaces de difusión actualizados correctamente con el texto redactado!");
         }
 
         async function logout() { 
