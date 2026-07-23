@@ -298,8 +298,8 @@
     window.eliminarCentro = async function(id) {
         if (!confirm("¿Remover permanentemente este centro/reporte de la base de datos municipal?")) return;
         try {
-            // Ejecución directa contra la base de datos Neon
-            await window.sql`DELETE FROM casos_salud WHERE id = ${id}`;
+            const idNum = Number(id);
+            await window.sql`DELETE FROM casos_salud WHERE id = ${idNum}`;
             obtenerRedSalud();
         } catch (err) {
             console.error("Error al borrar:", err);
@@ -312,7 +312,6 @@
     async function obtenerRedSalud() {
         const contenedor = document.getElementById("contenedor-ejes");
         try {
-            // Consulta directa a tu tabla de Neon
             const data = await window.sql`SELECT * FROM casos_salud`;
             
             centrosCache = (data || []).filter(c => c.coordinacion === "Ejecutiva" && c.tipo !== "Autoridad");
@@ -395,14 +394,13 @@
 
         try {
             if (idOriginal) {
-                // Actualizar registro existente en Neon
+                const idNum = Number(idOriginal);
                 await window.sql`
                     UPDATE casos_salud 
                     SET nombre = ${nombre}, tipo = ${tipo}, sector = ${sector}, ubicacion = ${ubicacion}, detalle = ${detalle} 
-                    WHERE id = ${idOriginal}
+                    WHERE id = ${idNum}
                 `;
             } else {
-                // Insertar nuevo registro en Neon
                 await window.sql`
                     INSERT INTO casos_salud (nombre, tipo, sector, ubicacion, detalle, coordinacion) 
                     VALUES (${nombre}, ${tipo}, ${sector}, ${ubicacion}, ${detalle}, 'Ejecutiva')
