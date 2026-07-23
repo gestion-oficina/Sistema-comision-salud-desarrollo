@@ -74,7 +74,6 @@
         
         .main { padding:36px 40px; overflow-x: hidden; display: flex; flex-direction: column; min-height: 100vh; }
         
-        /* HEADER CREATIVO MODERNO */
         .content-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 24px; flex-wrap: wrap; gap: 16px; }
         .main h2 { font-size: 24px; color: var(--text-dark-title); font-weight: 800; letter-spacing: -0.5px; }
         .subtitle-concejala { font-size: 13px; color: #64748b; font-weight: 500; margin-top: 2px; }
@@ -86,12 +85,10 @@
         .search-box input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1); }
         .search-box span { position: absolute; left: 12px; top: 11px; color: #94a3b8; font-size: 14px; }
 
-        /* TABS MODERNAS */
         .tabs-container { display: inline-flex; background: #e2e8f0; padding: 4px; border-radius: 10px; border: 1px solid #cbd5e1; gap: 4px; margin-bottom: 20px; }
         .tab-btn { padding: 8px 16px; border: none; background: transparent; color: #475569; font-size: 12.5px; font-weight: 600; cursor: pointer; border-radius: 8px; text-align: center; transition: all 0.2s; display: flex; align-items: center; gap: 6px; }
         .tab-btn.active { background: white; color: var(--primary); box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
 
-        /* VISTA DE TARJETAS MODERNA (GRID CREATIVO) */
         .cards-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 16px; margin-bottom: 30px; }
         
         .territory-card { background: white; border: 1px solid var(--border-color); border-radius: 12px; padding: 20px; position: relative; transition: all 0.25s ease; box-shadow: 0 2px 4px rgba(0,0,0,0.01); display: flex; flex-direction: column; justify-content: space-between; }
@@ -115,6 +112,23 @@
         
         .btn-del { background: #fee2e2; color: #b91c1c; padding: 6px 10px; border: none; border-radius: 6px; font-size: 11.5px; font-weight: 600; cursor: pointer; transition: background 0.2s; }
         .btn-del:hover { background: #fecaca; }
+
+        /* ESTILOS DEL MODAL CREATIVO */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(4px); display: none; justify-content: center; align-items: center; z-index: 10001; opacity: 0; transition: opacity 0.25s ease; }
+        .modal-overlay.active { display: flex; opacity: 1; }
+        .modal-container { background: white; width: 100%; max-width: 480px; border-radius: 16px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04); overflow: hidden; transform: scale(0.95); transition: transform 0.25s ease; }
+        .modal-overlay.active .modal-container { transform: scale(1); }
+        .modal-header { padding: 20px 24px; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; background: #f8fafc; }
+        .modal-header h3 { font-size: 16px; font-weight: 700; color: var(--text-dark-title); }
+        .modal-close { background: transparent; border: none; font-size: 18px; color: #64748b; cursor: pointer; padding: 4px; }
+        .modal-body { padding: 24px; display: flex; flex-direction: column; gap: 16px; max-height: 70vh; overflow-y: auto; }
+        .form-group { display: flex; flex-direction: column; gap: 6px; }
+        .form-group label { font-size: 12px; font-weight: 600; color: #475569; text-transform: uppercase; letter-spacing: 0.3px; }
+        .form-group input { padding: 10px 14px; border-radius: 8px; border: 1px solid var(--border-color); font-size: 13.5px; outline: none; transition: all 0.2s; }
+        .form-group input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1); }
+        .modal-footer { padding: 16px 24px; background: #f8fafc; border-top: 1px solid var(--border-color); display: flex; justify-content: flex-end; gap: 10px; }
+        .btn-secondary { padding: 10px 16px; border-radius: 8px; border: 1px solid var(--border-color); background: white; color: #475569; font-size: 13px; font-weight: 600; cursor: pointer; transition: background 0.2s; }
+        .btn-secondary:hover { background: #f1f5f9; }
 
         .empty-state { grid-column: 1 / -1; text-align: center; padding: 60px 20px; background: white; border: 1px dashed var(--border-color); border-radius: 12px; color: #94a3b8; font-size: 14px; }
 
@@ -191,7 +205,7 @@
                     <span>🔍</span>
                     <input type="text" id="searchInput" placeholder="Buscar registro..." oninput="filtrarPorTexto()">
                 </div>
-                <button class="btn-primary" onclick="agregarRegistro()" id="btn-nuevo-registro">
+                <button class="btn-primary" onclick="abrirModalRegistro()" id="btn-nuevo-registro">
                     <span>➕</span> Registrar Líder Territorial
                 </button>
             </div>
@@ -217,6 +231,23 @@
             <p>Sistema de Gestión de la Comisión Permanente de Salud y Desarrollo Social Integral — Municipio Ambrosio Plaza | Despacho Concejala Letty Bastidas</p>
         </footer>
     </div>
+    </div>
+
+    <!-- MODAL DE REGISTRO INTEGRADO -->
+    <div class="modal-overlay" id="registroModal">
+        <div class="modal-container">
+            <div class="modal-header">
+                <h3 id="modalTitle">Registrar Líder Territorial</h3>
+                <button class="modal-close" onclick="cerrarModalRegistro()">✕</button>
+            </div>
+            <div class="modal-body" id="modalFormBody">
+                <!-- Se llena dinámicamente según la pestaña -->
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" onclick="cerrarModalRegistro()">Cancelar</button>
+                <button class="btn-primary" onclick="guardarRegistroModal()">Guardar Registro</button>
+            </div>
+        </div>
     </div>
 
     <script>
@@ -355,46 +386,114 @@
             renderizarDatos();
         }
 
-        async function agregarRegistro() {
+        function abrirModalRegistro() {
+            const modal = document.getElementById("registroModal");
+            const title = document.getElementById("modalTitle");
+            const body = document.getElementById("modalFormBody");
+
+            if (filtroActual === 'liderazgos') {
+                title.innerText = "Registrar Líder Territorial / UBCh";
+                body.innerHTML = `
+                    <div class="form-group">
+                        <label>Nombre Completo</label>
+                        <input type="text" id="m_nombre" placeholder="Ej. Juan Pérez">
+                    </div>
+                    <div class="form-group">
+                        <label>Cédula de Identidad</label>
+                        <input type="text" id="m_cedula" placeholder="Ej. V-12345678">
+                    </div>
+                    <div class="form-group">
+                        <label>Teléfono de Contacto</label>
+                        <input type="text" id="m_telefono" placeholder="Ej. 04141234567">
+                    </div>
+                    <div class="form-group">
+                        <label>Sector / Comunidad</label>
+                        <input type="text" id="m_sector" placeholder="Ej. Las Clavelinas">
+                    </div>
+                `;
+            } else {
+                title.innerText = "Registrar Organización o Comuna";
+                body.innerHTML = `
+                    <div class="form-group">
+                        <label>Nombre de la Organización</label>
+                        <input type="text" id="m_nombre" placeholder="Ej. Comuna 27 de Febrero">
+                    </div>
+                    <div class="form-group">
+                        <label>Eje / Sector</label>
+                        <input type="text" id="m_sector" placeholder="Ej. Ruiz Pineda">
+                    </div>
+                    <div class="form-group">
+                        <label>Nombre del Responsable</label>
+                        <input type="text" id="m_responsable" placeholder="Ej. María Calzado">
+                    </div>
+                    <div class="form-group">
+                        <label>Cédula del Responsable</label>
+                        <input type="text" id="m_cedula" placeholder="Ej. V-12345678">
+                    </div>
+                    <div class="form-group">
+                        <label>Teléfono</label>
+                        <input type="text" id="m_telefono" placeholder="Ej. 04121234567">
+                    </div>
+                    <div class="form-group">
+                        <label>Correo Electrónico (Opcional)</label>
+                        <input type="email" id="m_email" placeholder="Ej. correo@gmail.com">
+                    </div>
+                `;
+            }
+
+            modal.classList.add("active");
+        }
+
+        function cerrarModalRegistro() {
+            document.getElementById("registroModal").classList.remove("active");
+        }
+
+        async function guardarRegistroModal() {
             if (!window.sqlClient) { alert("No hay conexión con la base de datos."); return; }
-            
+
+            const nombre = document.getElementById("m_nombre")?.value.trim();
+            if (!nombre) {
+                alert("Por favor ingresa al menos el nombre.");
+                return;
+            }
+
             try {
                 let nuevoRegistro = {};
-                
+
                 if (filtroActual === 'liderazgos') {
                     nuevoRegistro = {
-                        nombre: prompt("Nombre:"),
-                        cedula: prompt("Cédula:"),
-                        telefono: prompt("Teléfono:"),
-                        sector: prompt("Sector:"),
+                        nombre: nombre,
+                        cedula: document.getElementById("m_cedula")?.value.trim() || null,
+                        telefono: document.getElementById("m_telefono")?.value.trim() || null,
+                        sector: document.getElementById("m_sector")?.value.trim() || null,
+                        responsable: null,
+                        email: null,
                         tipo: 'Liderazgo',
                         coordinacion: 'Politica'
                     };
                 } else {
                     nuevoRegistro = {
-                        nombre: prompt("Nombre de la Organización:"),
-                        sector: prompt("Eje / Sector:"),
-                        responsable: prompt("Nombre del Responsable:"),
-                        cedula: prompt("Cédula:"),
-                        telefono: prompt("Teléfono:"),
-                        email: prompt("Email:"),
+                        nombre: nombre,
+                        sector: document.getElementById("m_sector")?.value.trim() || null,
+                        responsable: document.getElementById("m_responsable")?.value.trim() || null,
+                        cedula: document.getElementById("m_cedula")?.value.trim() || null,
+                        telefono: document.getElementById("m_telefono")?.value.trim() || null,
+                        email: document.getElementById("m_email")?.value.trim() || null,
                         tipo: 'Comuna',
                         coordinacion: 'Politica'
                     };
                 }
 
-                if (!nuevoRegistro.nombre) return;
-
                 await window.sqlClient`
                     INSERT INTO casos_salud (nombre, cedula, telefono, sector, responsable, email, tipo, coordinacion) 
-                    VALUES (${nuevoRegistro.nombre || null}, ${nuevoRegistro.cedula || null}, ${nuevoRegistro.telefono || null}, ${nuevoRegistro.sector || null}, ${nuevoRegistro.responsable || null}, ${nuevoRegistro.email || null}, ${nuevoRegistro.tipo}, ${nuevoRegistro.coordinacion})
+                    VALUES (${nuevoRegistro.nombre}, ${nuevoRegistro.cedula}, ${nuevoRegistro.telefono}, ${nuevoRegistro.sector}, ${nuevoRegistro.responsable}, ${nuevoRegistro.email}, ${nuevoRegistro.tipo}, ${nuevoRegistro.coordinacion})
                 `;
 
-                alert("Registro guardado exitosamente.");
+                cerrarModalRegistro();
                 cargarDatosPoliticos();
                 
             } catch (err) {
-                console.error("Error capturado:", err);
+                console.error("Error al guardar:", err);
                 alert("No se pudo guardar: " + err.message);
             }
         }
@@ -408,7 +507,6 @@
                     DELETE FROM casos_salud 
                     WHERE id = ${Number(id)}
                 `;
-                alert("Registro eliminado correctamente");
                 cargarDatosPoliticos();
             } catch (e) {
                 console.error(e);
