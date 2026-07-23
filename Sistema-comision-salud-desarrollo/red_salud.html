@@ -16,47 +16,47 @@
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             overflow-x: hidden;
         }
-        /* Sidebar Estilo Institucional */
+        /* Sidebar Idéntico al Sistema Original */
         .sidebar {
             background-color: #0f172a;
             color: #fff;
             min-height: 100vh;
-            width: 260px;
+            width: 240px;
             position: fixed;
             top: 0;
             left: 0;
             z-index: 1000;
-            padding: 20px 15px;
+            padding: 15px 12px;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
         }
         .sidebar-brand {
-            font-size: 11px;
+            font-size: 10px;
             font-weight: bold;
             color: #cbd5e1;
             text-transform: uppercase;
             line-height: 1.3;
-            margin-bottom: 20px;
-            border-bottom: 1px solid #334155;
-            padding-bottom: 15px;
+            margin-bottom: 15px;
+            border-bottom: 1px solid #1e293b;
+            padding-bottom: 12px;
         }
         .sidebar .nav-label {
-            font-size: 10px;
+            font-size: 9px;
             color: #64748b;
             font-weight: bold;
             text-transform: uppercase;
-            margin-top: 15px;
-            margin-bottom: 5px;
+            margin-top: 12px;
+            margin-bottom: 4px;
             letter-spacing: 0.5px;
         }
         .sidebar a {
             color: #94a3b8;
             text-decoration: none;
-            padding: 8px 12px;
+            padding: 6px 10px;
             display: block;
-            border-radius: 6px;
-            font-size: 13px;
+            border-radius: 4px;
+            font-size: 12px;
             margin-bottom: 2px;
             transition: all 0.2s;
         }
@@ -65,15 +65,15 @@
             color: #fff;
         }
         .user-box {
-            border-top: 1px solid #334155;
-            padding-top: 15px;
-            margin-top: 15px;
-            font-size: 13px;
+            border-top: 1px solid #1e293b;
+            padding-top: 12px;
+            margin-top: 10px;
+            font-size: 12px;
         }
-        /* Contenido Principal Ajustado */
+        /* Contenido Principal Ajustado al Ancho del Sidebar */
         .main-content {
-            margin-left: 260px;
-            padding: 30px;
+            margin-left: 240px;
+            padding: 25px;
         }
         .card-stat {
             border: none;
@@ -100,11 +100,11 @@
 </head>
 <body>
 
-    <!-- Sidebar Institucional Fijo -->
+    <!-- Sidebar Institucional Original -->
     <div class="sidebar">
         <div>
             <div class="sidebar-brand">
-                Comisión Permanente de Salud<br>y Desarrollo Social Integral
+                COMISIÓN PERMANENTE DE SALUD<br>Y DESARROLLO SOCIAL INTEGRAL
             </div>
             
             <a href="/principal"><i class="fa-solid fa-house me-2"></i> Principal</a>
@@ -129,8 +129,8 @@
 
         <div class="user-box">
             <div class="fw-bold text-white">Willie Aponte</div>
-            <div class="text-info small mb-2">ADMIN</div>
-            <a href="/logout" class="text-danger p-0"><i class="fa-solid fa-arrow-right-from-bracket me-1"></i> Cerrar sesión</a>
+            <div class="text-info small mb-1" style="font-size: 10px; font-weight: bold;">ADMIN</div>
+            <a href="/logout" class="text-danger p-0" style="font-size: 11px;"><i class="fa-solid fa-arrow-right-from-bracket me-1"></i> Cerrar sesión</a>
         </div>
     </div>
 
