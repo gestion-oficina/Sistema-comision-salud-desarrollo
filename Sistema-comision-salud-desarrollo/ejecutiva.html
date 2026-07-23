@@ -85,6 +85,8 @@
         .form-control:focus { border-color: var(--sidebar-active); }
         
         .action-bar { margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; }
+        .table-counter { font-size: 12px; font-weight: 600; color: #64748b; }
+        
         .table-container { background: white; border: 1px solid #e2e8f0; border-radius: 8px; overflow-x: auto; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02); }
         table { width:100%; border-collapse:collapse; min-width: 1000px; }
         th, td { padding:14px 18px; border-bottom:1px solid #f1f5f9; text-align:left; font-size:13px; }
@@ -93,11 +95,13 @@
         .btn-primary { padding:11px 20px; border:none; border-radius:6px; cursor:pointer; background: var(--sidebar-active); color:white; font-size:13px; font-weight: 600; width: auto; text-align: center; }
         .btn-success { padding:6px 12px; border:none; border-radius:4px; cursor:pointer; background: var(--success-color); color:white; font-size:11px; font-weight: 600; }
         .btn-success:hover { background: #15803d; }
-        .action-buttons { display: flex; gap: 6px; }
+        .action-buttons { display: flex; gap: 6px; flex-wrap: wrap; }
         .btn-wa { background: #e2e8f0; color: #1e293b; padding: 6px 12px; border: none; border-radius: 4px; font-size: 11px; font-weight:600; cursor: pointer; }
         .btn-wa:hover { background: #cbd5e1; }
         .btn-del { background: var(--danger-color); color: white; padding: 6px 12px; border: none; border-radius: 4px; font-size: 11px; font-weight:600; cursor: pointer; }
         .btn-del:hover { background: #b91c1c; }
+        .btn-word { background: #0284c7; color: white; padding: 6px 12px; border: none; border-radius: 4px; font-size: 11px; font-weight:600; cursor: pointer; }
+        .btn-word:hover { background: #0369a1; }
         
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 37, 71, 0.6); backdrop-filter: blur(3px); display: none; align-items: center; justify-content: center; z-index: 9999; opacity: 0; transition: opacity 0.25s ease; padding: 16px; }
         .modal-overlay.open { opacity: 1; display: flex !important; }
@@ -203,6 +207,7 @@
 
         <div class="action-bar">
             <button class="btn-primary" onclick="registrarNuevo()" id="btn-nuevo-registro">➕ Registrar Nuevo Oficio</button>
+            <span class="table-counter" id="tableCounter">Mostrando 0 registros</span>
         </div>
 
         <div class="table-container">
@@ -242,7 +247,7 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <button class="btn-success" id="btnDescargarWord" onclick="exportarRegistroAWord()">📥 Descargar Word</button>
+                <button class="btn-word" id="btnDescargarWordModal" onclick="exportarRegistroAWord(idSeleccionadoActual)">📥 Descargar Word</button>
                 <button class="btn-primary" style="padding: 8px 16px; font-size: 12px; background: var(--sidebar-bg);" onclick="closeDocModal()">Cerrar</button>
             </div>
         </div>
@@ -436,7 +441,7 @@
                 if (filtroActual === 'Oficio') {
                     thead.innerHTML = `<tr><th style="width: 120px;">Nro Oficio</th><th>Asunto / Clasificación</th><th>Sector / Ente Destino</th><th>Estado</th><th style="width: 180px;">Acciones</th></tr>`;
                 } else {
-                    thead.innerHTML = `<tr><th style="width: 120px;">Nro Informe</th><th>Título del Informe Legislativo</th><th>Área de Cobertura</th><th>Estado</th><th style="width: 180px;">Acciones</th></tr>`;
+                    thead.innerHTML = `<tr><th style="width: 120px;">Nro Informe</th><th>Título del Informe Legislativo</th><th>Área de Cobertura</th><th>Estado</th><th style="width: 220px;">Acciones</th></tr>`;
                 }
                 renderFilas();
             } catch (err) {
@@ -497,6 +502,8 @@
                 return true;
             });
 
+            document.getElementById("tableCounter").innerText = `Mostrando ${datosFiltrados.length} registro(s)`;
+
             if (datosFiltrados.length === 0) {
                 tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:#94a3b8; padding:30px;">No se encontraron registros que coincidan con los filtros.</td></tr>`;
                 return;
@@ -522,6 +529,10 @@
                     lineaTitulo = asuntoInforme ? asuntoInforme[1].trim() : lineaTitulo.split('\n')[2] || lineaTitulo.split('\n')[0];
                 }
 
+                const botonesAccion = filtroActual === 'Informe' 
+                    ? `<button class="btn-word" onclick="exportarRegistroAWord(${r.id})">Word</button>`
+                    : '';
+
                 return `
                     <tr>
                         <td><code>${numeroDocumento}</code></td>
@@ -531,6 +542,7 @@
                         <td>
                             <div class="action-buttons">
                                 <button class="btn-wa" onclick="verDetallesModal(${r.id})">Ver</button>
+                                ${botonesAccion}
                                 <button class="btn-success" onclick="abrirEditarRegistro(${r.id})">Editar</button>
                                 <button class="btn-del" onclick="eliminarRegistro(${r.id})">Borrar</button>
                             </div>
@@ -542,7 +554,7 @@
 
         function verDetallesModal(id) {
             const idBuscado = Number(id);
-            idSeleccionadoActual = idBuscado; // Asignación indispensable para Word
+            idSeleccionadoActual = idBuscado;
             
             const registro = todosLosRegistros.find(r => Number(r.id) === idBuscado);
             if (!registro) {
@@ -564,16 +576,18 @@
             document.getElementById("modal-nombre").innerText = registro.nombre || "Sin título";
             document.getElementById("modal-sector").innerText = registro.sector || "No especificado";
 
+            const btnDescargarWordModal = document.getElementById("btnDescargarWordModal");
+
             if (filtroActual === "Oficio") {
                 document.getElementById("modal-title-doc").innerText = "Expediente de Oficio Enviado";
                 document.getElementById("modal-label-nombre").innerText = "Clasificación del Oficio";
                 document.getElementById("modal-label-sector").innerText = "Sector / Organismo Destinatario";
-                document.getElementById("btnDescargarWord").style.display = "none";
+                if (btnDescargarWordModal) btnDescargarWordModal.style.display = "none";
             } else {
                 document.getElementById("modal-title-doc").innerText = "Expediente de Informe Legislativo";
                 document.getElementById("modal-label-nombre").innerText = "Contenido Estructurado del Informe";
                 document.getElementById("modal-label-sector").innerText = "Actores / Responsable";
-                document.getElementById("btnDescargarWord").style.display = "inline-block";
+                if (btnDescargarWordModal) btnDescargarWordModal.style.display = "inline-block";
             }
 
             document.getElementById("documentModal").classList.add("open");
@@ -729,9 +743,10 @@
             }
         }
 
-        /* EXPORTACIÓN FORMATEADA A WORD (Márgenes Carta, Línea Roja, Tricolor y Firmas) */
-        function exportarRegistroAWord() {
-            const registro = todosLosRegistros.find(r => Number(r.id) === Number(idSeleccionadoActual));
+        /* EXPORTACIÓN FORMATEADA A WORD */
+        function exportarRegistroAWord(idRegistro) {
+            const idTarget = idRegistro || idSeleccionadoActual;
+            const registro = todosLosRegistros.find(r => Number(r.id) === Number(idTarget));
             if (!registro) {
                 alert("No se encontró el registro para exportar.");
                 return;
@@ -795,7 +810,6 @@
                 <table border="0" cellspacing="0" cellpadding="0" style="width: 100%; border-collapse: collapse; margin-bottom: 5pt;">
                     <tr>
                          <td style="width: 14%; text-align: left; vertical-align: middle;">
-                          <!-- Logo del Concejo (Izquierda) -->
                           <img src="https://6tq1hvhd6i4nm9rm.public.blob.vercel-storage.com/logo-concejo.jpg" width="75" height="75" style="display:block;">
                       </td>
                         <td style="width: 70%; text-align: center; vertical-align: middle;">
@@ -806,7 +820,6 @@
                             <p style="font-size: 12pt; font-weight: bold; color: #4a4a4a; margin: 0; font-family: 'Arial', sans-serif; line-height: 1.1;">Desarrollo Social Integral</p>
                         </td>
                          <td style="width: 14%; text-align: right; vertical-align: middle;">
-                            <!-- Logo de la Comisión (Derecha) -->
                             <img src="https://6tq1hvhd6i4nm9rm.public.blob.vercel-storage.com/Logo-comision.png" width="100" height="100" style="display:block; margin-left: auto;">
                         </td>
                     </tr>
