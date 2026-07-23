@@ -10,19 +10,20 @@
         } else {
             document.addEventListener("DOMContentLoaded", () => {
                 document.body.style.display = "block";
+                
+                // Mostrar datos del usuario en el sidebar
+                const nombreUsuario = sessionStorage.getItem('usuario_nombre') || 'Willie Aponte';
+                const rolUsuario = sessionStorage.getItem('usuario_rol') || 'ADMIN';
+                
+                document.getElementById('user-name-display').innerText = nombreUsuario;
+                document.getElementById('user-role-display').innerText = rolUsuario.toUpperCase();
             });
         }
     </script>
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <title>Red de Salud - Municipio Plaza</title>
+    <title>Monitoreo de la Red de Salud Municipal</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
-    <!-- Bootstrap 5 CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    
-    <!-- FontAwesome Icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
     <!-- Chart.js para gráficos estadísticos -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
@@ -30,7 +31,7 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 
-    <!-- Importamos el cliente ESM de Neon para conectar directo -->
+    <!-- Conexión ESM con Neon PostgreSQL -->
     <script type="module">
         import { neon } from 'https://cdn.jsdelivr.net/npm/@neondatabase/serverless/+esm';
         const connectionString = "postgresql://neondb_owner:npg_djCruebcPY94@ep-sparkling-math-avejx7o4-pooler.c-11.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require";
@@ -40,9 +41,9 @@
     <style>
         :root { 
             --bg-main: #f8fafc; 
-            --sidebar-bg: #0f172a; 
-            --sidebar-active: #0284c7; 
-            --sidebar-text-sub: #64748b; 
+            --sidebar-bg: #0b1528; 
+            --sidebar-active: #0066cc; 
+            --sidebar-text-sub: #4ba3e3; 
             --menu-text: #94a3b8; 
             --text-dark-title: #0f2547; 
             --success-color: #10b981; 
@@ -54,72 +55,38 @@
         * { margin:0; padding:0; box-sizing:border-box; font-family: 'Inter', sans-serif; }
         body { background: var(--bg-main); color:#334155; overflow-x: hidden; }
         
-        .layout { display: flex; min-height: 100vh; position: relative; }
+        .layout { display:grid; grid-template-columns:280px 1fr; min-height:100vh; }
         
-        /* SIDEBAR INSTITUCIONAL CORREGIDO (FIXED & SCROLLABLE INTERNAL) */
-        .sidebar { 
-            background: var(--sidebar-bg); 
-            color: #fff; 
-            width: 260px; 
-            min-width: 260px; 
-            height: 100vh; 
-            position: fixed; 
-            top: 0; 
-            left: 0; 
-            z-index: 1000; 
-            display: flex; 
-            flex-direction: column; 
-            justify-content: space-between; 
-            padding: 16px 12px;
-            overflow-y: auto; 
-        }
-        .sidebar-top-wrapper { display: flex; flex-direction: column; }
-        .sidebar-brand { font-size: 10px; font-weight: bold; color: #cbd5e1; text-transform: uppercase; line-height: 1.3; margin-bottom: 12px; border-bottom: 1px solid #1e293b; padding-bottom: 10px; text-align: center; }
-        .menu-category { font-size: 9px; color: var(--sidebar-text-sub); font-weight: bold; text-transform: uppercase; margin-top: 10px; margin-bottom: 3px; letter-spacing: 0.5px; padding-left: 8px; }
-        .menu { color: var(--menu-text); text-decoration: none; padding: 6px 10px; display: block; border-radius: 4px; font-size: 12px; margin-bottom: 2px; transition: all 0.2s; }
-        .menu:hover { background: rgba(255, 255, 255, 0.05); color: #fff; }
-        .menu.active-page { background: var(--sidebar-active); color: #ffffff; font-weight: 600; }
+        /* SIDEBAR UNIFICADO */
+        .sidebar { background: var(--sidebar-bg); padding:24px 0 16px 0; display: flex; flex-direction: column; justify-content: space-between; z-index: 1000; min-height: 100vh; }
+        .sidebar-brand { display: flex; flex-direction: column; align-items: flex-start; text-align: left; padding: 0 20px 20px 20px; border-bottom: 1px solid rgba(255, 255, 255, 0.08); margin-bottom: 10px; }
+        .sidebar-brand h2 { font-size: 11px; color: #ffffff; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; line-height: 1.4; }
+        .menu-category { font-size: 10px; font-weight: 700; color: #475569; text-transform: uppercase; letter-spacing: 0.8px; padding: 16px 20px 6px 20px; }
         
-        /* CONTENEDOR INFERIOR FIJO DENTRO DEL SIDEBAR (PERFIL Y CERRAR SESIÓN) */
-        .user-box { 
-            border-top: 1px solid #1e293b; 
-            padding-top: 10px; 
-            margin-top: 8px; 
-            font-size: 12px; 
-            background: var(--sidebar-bg);
-            flex-shrink: 0;
-        }
-        
-        /* PANEL CENTRAL CON MARGEN IZQUIERDO EXACTO */
-        .main { flex-grow: 1; padding: 30px; margin-left: 260px; min-width: 0; width: calc(100% - 260px); }
-        .main h2 { font-size: 24px; color: var(--text-dark-title); font-weight: 700; margin-bottom: 4px; }
+        .menu { display: flex; align-items: center; gap: 12px; padding: 10px 20px; color: var(--menu-text); cursor: pointer; font-size: 13px; font-weight: 500; text-decoration: none; transition: all 0.2s ease; border-radius: 8px; margin: 2px 12px; }
+        .menu:hover { color: #ffffff; background: rgba(255, 255, 255, 0.05); }
+        .menu.active-page { background: var(--sidebar-active); color: #ffffff; font-weight: 600; box-shadow: 0 2px 6px rgba(0, 102, 204, 0.3); }
+        .menu-icon { font-size: 15px; width: 18px; text-align: center; }
+
+        /* PERFIL DE USUARIO FOOTER */
+        .sidebar-footer { padding: 16px 20px 0 20px; border-top: 1px solid rgba(255, 255, 255, 0.08); margin-top: auto; }
+        .user-info { display: flex; flex-direction: column; margin-bottom: 12px; }
+        .user-name { font-size: 13px; font-weight: 700; color: #ffffff; }
+        .user-role { font-size: 10px; font-weight: 700; color: #38bdf8; letter-spacing: 0.5px; }
+        .btn-logout { background: transparent; border: none; color: #ef4444; font-size: 12px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px; padding: 0; transition: opacity 0.2s; }
+        .btn-logout:hover { opacity: 0.8; }
+
+        /* PANEL CENTRAL */
+        .main { padding:40px; min-width: 0; }
+        .main h2 { font-size: 26px; color: var(--text-dark-title); font-weight: 700; margin-bottom: 6px; }
         .header-actions { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; flex-wrap: wrap; gap: 16px; }
         .subtitle { font-size: 13px; color: #64748b; font-weight: 500; margin-bottom: 0; }
         
         /* BOTONES */
-        .btn-primary { background: var(--sidebar-active); color: white; border: none; padding: 10px 18px; font-size: 13px; font-weight: 600; border-radius: 8px; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: all 0.2s; box-shadow: 0 2px 4px rgba(2, 132, 199, 0.2); }
-        .btn-primary:hover { background: #0369a1; transform: translateY(-1px); }
-        .btn-success { background: var(--success-color); color: white; border: none; padding: 10px 16px; font-size: 13px; font-weight: 600; border-radius: 8px; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: all 0.2s; }
+        .btn-primary { background: var(--sidebar-active); color: white; border: none; padding: 11px 20px; font-size: 13px; font-weight: 600; border-radius: 8px; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: all 0.2s; box-shadow: 0 2px 4px rgba(0, 102, 204, 0.2); }
+        .btn-primary:hover { background: #0052a3; transform: translateY(-1px); }
+        .btn-success { background: var(--success-color); color: white; border: none; padding: 11px 16px; font-size: 13px; font-weight: 600; border-radius: 8px; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: all 0.2s; }
         .btn-success:hover { background: #059669; }
-
-        /* SECCIÓN DE ANALÍTICA (GRÁFICOS Y MAPA) */
-        .analytics-container { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 28px; }
-        .analytics-card { background: white; border: 1px solid var(--border-color); border-radius: 16px; padding: 22px; box-shadow: var(--card-shadow); display: flex; flex-direction: column; gap: 14px; }
-        .analytics-card h3 { font-size: 14px; color: var(--text-dark-title); font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; display: flex; align-items: center; justify-content: space-between; }
-        .chart-box { position: relative; height: 260px; width: 100%; display: flex; justify-content: center; align-items: center; }
-        #mapa-red { height: 260px; width: 100%; border-radius: 10px; z-index: 10; border: 1px solid var(--border-color); }
-
-        /* BARRA DE FILTROS Y BÚSQUEDA */
-        .toolbar-container { background: white; padding: 16px 20px; border-radius: 12px; border: 1px solid var(--border-color); box-shadow: var(--card-shadow); display: flex; gap: 16px; align-items: center; margin-bottom: 24px; flex-wrap: wrap; }
-        .search-box { flex: 1; min-width: 240px; position: relative; }
-        .search-box input { width: 100%; padding: 10px 14px 10px 36px; border: 1px solid var(--border-color); border-radius: 8px; font-size: 13px; background: #f8fafc; outline: none; transition: all 0.2s; }
-        .search-box input:focus { background: white; border-color: var(--sidebar-active); box-shadow: 0 0 0 3px rgba(2,132,199,0.08); }
-        .search-icon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #94a3b8; font-size: 14px; }
-        
-        .filter-group { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
-        .filter-btn { background: #f1f5f9; border: 1px solid var(--border-color); padding: 8px 14px; font-size: 12px; font-weight: 600; border-radius: 6px; color: #475569; cursor: pointer; transition: all 0.2s; }
-        .filter-btn:hover { background: #e2e8f0; }
-        .filter-btn.active { background: var(--sidebar-active); color: white; border-color: var(--sidebar-active); }
 
         /* KPI STATS */
         .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-bottom: 28px; }
@@ -131,10 +98,29 @@
         .stat-card.sc-ejes { border-left-color: #db2777; }
         
         .stat-card h4 { font-size: 11px; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
-        .stat-card .number { font-size: 30px; font-weight: 700; color: var(--text-dark-title); }
+        .stat-card .number { font-size: 32px; font-weight: 700; color: var(--text-dark-title); }
         .stat-card .footer-text { font-size: 11px; color: var(--success-color); font-weight: 600; margin-top: 6px; display: flex; align-items: center; gap: 4px; }
+
+        /* ANALÍTICA (GRÁFICO Y MAPA) */
+        .analytics-container { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 28px; }
+        .analytics-card { background: white; border: 1px solid var(--border-color); border-radius: 16px; padding: 22px; box-shadow: var(--card-shadow); display: flex; flex-direction: column; gap: 14px; }
+        .analytics-card h3 { font-size: 14px; color: var(--text-dark-title); font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; display: flex; align-items: center; justify-content: space-between; }
+        .chart-box { position: relative; height: 240px; width: 100%; display: flex; justify-content: center; align-items: center; }
+        #mapa-red { height: 240px; width: 100%; border-radius: 10px; z-index: 10; border: 1px solid var(--border-color); }
+
+        /* BARRA DE FILTROS Y BÚSQUEDA */
+        .toolbar-container { background: white; padding: 16px 20px; border-radius: 12px; border: 1px solid var(--border-color); box-shadow: var(--card-shadow); display: flex; gap: 16px; align-items: center; margin-bottom: 24px; flex-wrap: wrap; }
+        .search-box { flex: 1; min-width: 240px; position: relative; }
+        .search-box input { width: 100%; padding: 10px 14px 10px 36px; border: 1px solid var(--border-color); border-radius: 8px; font-size: 13px; background: #f8fafc; outline: none; transition: all 0.2s; }
+        .search-box input:focus { background: white; border-color: var(--sidebar-active); box-shadow: 0 0 0 3px rgba(0,102,204,0.08); }
+        .search-icon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #94a3b8; font-size: 14px; }
         
-        /* REJILLA EJES CRONOLÓGICOS */
+        .filter-group { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+        .filter-btn { background: #f1f5f9; border: 1px solid var(--border-color); padding: 8px 14px; font-size: 12px; font-weight: 600; border-radius: 6px; color: #475569; cursor: pointer; transition: all 0.2s; }
+        .filter-btn:hover { background: #e2e8f0; }
+        .filter-btn.active { background: var(--sidebar-active); color: white; border-color: var(--sidebar-active); }
+
+        /* REJILLA DE EJES */
         .ejes-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(420px, 1fr)); gap: 28px; }
         .eje-card { background: white; border: 1px solid var(--border-color); border-radius: 16px; overflow: hidden; display: flex; flex-direction: column; box-shadow: var(--card-shadow); }
         .eje-header { background: #f8fafc; padding: 18px 24px; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; }
@@ -142,7 +128,7 @@
         .eje-badge { background: #f0fdf4; color: #166534; border: 1px solid #bbf7d0; padding: 4px 12px; border-radius: 99px; font-size: 11px; font-weight: 700; }
         .eje-body { padding: 16px 24px; flex-grow: 1; display: flex; flex-direction: column; gap: 14px; }
         
-        /* TARJETAS INTERNAS DE CENTROS */
+        /* TARJETAS DE CENTROS */
         .centro-item { padding: 16px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; display: flex; flex-direction: column; gap: 8px; transition: all 0.2s ease; }
         .centro-item:hover { background: #ffffff; border-color: #cbd5e1; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.04); }
         .centro-top-row { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
@@ -168,108 +154,98 @@
         .btn-edit:hover { background: #fef3c7; color: #d97706; border-color: #fde68a; }
         .btn-delete:hover { background: #fee2e2; color: var(--danger-color); border-color: #fca5a5; }
 
-        /* VENTANA MODAL */
+        /* MODAL */
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.4); backdrop-filter: blur(4px); display: none; align-items: center; justify-content: center; z-index: 2000; padding: 16px; }
         .modal-overlay.active { display: flex; }
-        .modal-content { background: white; border-radius: 16px; width: 100%; max-width: 520px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.15); overflow: hidden; animation: slideUp 0.25s ease-out; border: 1px solid #e2e8f0; max-height: 90vh; display: flex; flex-direction: column; }
+        .modal-content { background: white; border-radius: 16px; width: 100%; max-width: 520px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.15); overflow: hidden; border: 1px solid #e2e8f0; max-height: 90vh; display: flex; flex-direction: column; }
         .modal-header { background: #f8fafc; padding: 18px 24px; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; }
         .modal-header h3 { font-size: 16px; color: var(--text-dark-title); font-weight: 700; }
-        .modal-close { background: transparent; border: none; font-size: 22px; cursor: pointer; color: #94a3b8; transition: color 0.2s; }
-        .modal-close:hover { color: #475569; }
+        .modal-close { background: transparent; border: none; font-size: 22px; cursor: pointer; color: #94a3b8; }
         .modal-body { padding: 24px; display: flex; flex-direction: column; gap: 16px; overflow-y: auto; }
         
         .form-group { display: flex; flex-direction: column; gap: 6px; }
         .form-group label { font-size: 11px; font-weight: 700; color: #475569; text-transform: uppercase; letter-spacing: 0.5px; }
-        .form-group input, .form-group select, .form-group textarea { padding: 11px 14px; border: 1px solid var(--border-color); border-radius: 8px; font-size: 13.5px; color: #1e293b; outline: none; background: #f8fafc; transition: all 0.2s; }
-        .form-group input:focus, .form-group select:focus, .form-group textarea:focus { background: white; border-color: var(--sidebar-active); box-shadow: 0 0 0 4px rgba(2,132,199,0.08); }
+        .form-group input, .form-group select, .form-group textarea { padding: 11px 14px; border: 1px solid var(--border-color); border-radius: 8px; font-size: 13.5px; color: #1e293b; outline: none; background: #f8fafc; }
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus { background: white; border-color: var(--sidebar-active); }
         
         .modal-footer { padding: 16px 24px; background: #f8fafc; border-top: 1px solid #e2e8f0; display: flex; justify-content: flex-end; gap: 12px; }
-        .btn-secondary { background: white; border: 1px solid var(--border-color); padding: 11px 20px; font-size: 13px; font-weight: 600; border-radius: 8px; cursor: pointer; color: #475569; transition: background 0.2s; }
-        .btn-secondary:hover { background: #f8fafc; }
-
-        /* HEADER FLOTANTE MOVIL */
-        .mobile-header { display: none; background: var(--sidebar-bg); color: white; padding: 14px 20px; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 1100; width: 100%; }
-        .mobile-toggle { background: transparent; border: none; color: white; font-size: 22px; cursor: pointer; }
-
-        @keyframes slideUp { from { transform: translateY(12px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        .btn-secondary { background: white; border: 1px solid var(--border-color); padding: 11px 20px; font-size: 13px; font-weight: 600; border-radius: 8px; cursor: pointer; color: #475569; }
 
         @media (max-width: 1024px) { 
             .ejes-grid { grid-template-columns: 1fr; } 
             .analytics-container { grid-template-columns: 1fr; }
         }
         @media (max-width: 768px) {
-            .layout { display: block; }
-            .sidebar { position: fixed; top: 52px; left: -260px; width: 260px; height: calc(100vh - 52px); transition: left 0.3s ease; }
-            .sidebar.active { left: 0; }
-            .mobile-header { display: flex; }
-            .main { padding: 20px 16px; margin-left: 0; width: 100%; }
-            .main h2 { font-size: 20px; }
+            .layout { grid-template-columns: 1fr; }
+            .sidebar { display: none; }
+            .main { padding: 24px 16px; }
             .stats-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
-            .toolbar-container { flex-direction: column; align-items: stretch; }
         }
     </style>
 </head>
 
 <body style="display: none;">
 
-    <div class="mobile-header">
-        <span style="font-size: 13px; font-weight: 700;">RED DE SALUD - PLAZA</span>
-        <button class="mobile-toggle" onclick="toggleSidebar()"><i class="fa-solid fa-bars"></i></button>
-    </div>
-
     <div class="layout">
-        <!-- Sidebar Institucional Fijo y Optimizado -->
-        <div class="sidebar" id="sidebarMenu">
-            <div class="sidebar-top-wrapper">
+        <!-- SIDEBAR RESTAURADO IDENTICO AL ORIGINAL -->
+        <div class="sidebar">
+            <div>
                 <div class="sidebar-brand">
-                    COMISIÓN PERMANENTE DE SALUD<br>Y DESARROLLO SOCIAL INTEGRAL
+                    <h2>COMISIÓN PERMANENTE DE SALUD<br>Y DESARROLLO SOCIAL INTEGRAL</h2>
                 </div>
                 
-                <a class="menu" href="dashboard.html"><i class="fa-solid fa-house me-2"></i> Principal</a>
-
+                <a class="menu" href="dashboard.html">
+                    <span class="menu-icon">🏠</span> Principal
+                </a>
+                
                 <div class="menu-category">Coor. Ejecutiva</div>
-                <a class="menu" href="ejecutiva.html"><i class="fa-solid fa-file-lines me-2"></i> Oficios e Informes</a>
-                <a class="menu" href="planificacion.html"><i class="fa-solid fa-calendar-days me-2"></i> Planificación Semanal</a>
-
+                <a class="menu" href="ejecutiva.html">
+                    <span class="menu-icon">📄</span> Oficios e Informes
+                </a>
+                <a class="menu" href="planificacion.html">
+                    <span class="menu-icon">📅</span> Planificación Semanal
+                </a>
+                
                 <div class="menu-category">Coor. Política</div>
-                <a class="menu" href="politica.html"><i class="fa-solid fa-users-rectangle me-2"></i> Liderazgos y Comunas</a>
-
+                <a class="menu" href="politica.html">
+                    <span class="menu-icon">👥</span> Liderazgos y Comunas
+                </a>
+                
                 <div class="menu-category">Coor. Social</div>
-                <a class="menu" href="social.html"><i class="fa-solid fa-hand-holding-medical me-2"></i> Casos Sociales</a>
-                <a class="menu active-page" href="red_salud.html"><i class="fa-solid fa-hospital me-2"></i> Red de Salud (CPT/CDI)</a>
-
+                <a class="menu" href="social.html">
+                    <span class="menu-icon">🩺</span> Casos Sociales
+                </a>
+                <a class="menu active-page" href="red_salud.html">
+                    <span class="menu-icon">🏥</span> Red de Salud (CPT/CDI)
+                </a>
+                
                 <div class="menu-category">Gestión Digital</div>
-                <a class="menu" href="bitacora.html"><i class="fa-solid fa-book me-2"></i> Bitácora de Eventos</a>
-                <a class="menu" href="reportes.html"><i class="fa-solid fa-chart-line me-2"></i> Reportes e Informes</a>
-                <a class="menu" href="formatos.html"><i class="fa-solid fa-folder-open me-2"></i> Formatos de Oficina</a>
+                <a class="menu" href="bitacora.html">
+                    <span class="menu-icon">💻</span> Bitácora de Eventos
+                </a>
+                <a class="menu" href="reportes.html">
+                    <span class="menu-icon">📈</span> Reportes e Informes
+                </a>
+                <a class="menu" href="formatos.html">
+                    <span class="menu-icon">📁</span> Formatos de Oficina
+                </a>
+                <a class="menu" href="auditoria.html" id="enlaceAuditoria">
+                    <span class="menu-icon">🛡️</span> Panel de Auditoría
+                </a>
+            </div>
 
-                <div id="enlaceAuditoria" style="display: none;">
-                    <a href="auditoria.html" class="menu"><i class="fa-solid fa-shield-halved me-2"></i> Panel de Auditoría</a>
+            <!-- FOOTER DE USUARIO -->
+            <div class="sidebar-footer">
+                <div class="user-info">
+                    <span class="user-name" id="user-name-display">Willie Aponte</span>
+                    <span class="user-role" id="user-role-display">ADMIN</span>
                 </div>
+                <button class="btn-logout" onclick="cerrarSesion()">
+                    <span>🚪</span> Cerrar sesión
+                </button>
             </div>
-
-            <div class="user-box">
-                <div class="fw-bold text-white" id="nombreUsuarioSidebar">Willie Aponte</div>
-                <div class="text-info small mb-1" style="font-size: 10px; font-weight: bold;" id="rolUsuarioSidebar">ADMIN</div>
-                <a href="#" onclick="cerrarSesion()" class="text-danger p-0 text-decoration-none" style="font-size: 11px;"><i class="fa-solid fa-arrow-right-from-bracket me-1"></i> Cerrar sesión</a>
-            </div>
-
-            <script>
-                if (sessionStorage.getItem("usuario_rol") === "admin") {
-                    document.getElementById("enlaceAuditoria").style.display = "block";
-                }
-                const nombreGuardado = sessionStorage.getItem("usuario_nombre");
-                if(nombreGuardado) {
-                    document.getElementById("nombreUsuarioSidebar").innerText = nombreGuardado;
-                }
-                function cerrarSesion() {
-                    sessionStorage.clear();
-                    window.location.replace("login.html");
-                }
-            </script>
         </div>
 
-        <!-- Panel Central con Margen Ajustado -->
         <div class="main">
             <div class="header-actions">
                 <div>
@@ -277,8 +253,8 @@
                     <div class="subtitle">Ejes Político-Asistenciales (CDI / CMP) — Municipio Ambrosio Plaza</div>
                 </div>
                 <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-                    <button class="btn-success" onclick="exportarExcel()"><i class="fa-solid fa-file-excel me-1"></i> Descargar Excel</button>
-                    <button class="btn-primary" onclick="abrirModal()"><i class="fa-solid fa-plus me-1"></i> Registrar Centro</button>
+                    <button class="btn-success" onclick="exportarExcel()">📥 Descargar Excel</button>
+                    <button class="btn-primary" onclick="abrirModal()">➕ Registrar Centro</button>
                 </div>
             </div>
 
@@ -287,7 +263,7 @@
                 <div class="stat-card sc-total">
                     <h4>Total Centros Evaluados</h4>
                     <div class="number" id="total-centros">0</div>
-                    <div class="footer-text"><i class="fa-solid fa-circle-check"></i> 100% Cobertura</div>
+                    <div class="footer-text">✓ 100% Cobertura</div>
                 </div>
                 <div class="stat-card sc-cmp">
                     <h4>Consultorios Médicos (CMP)</h4>
@@ -303,16 +279,16 @@
                 </div>
             </div>
 
-            <!-- SECCIÓN ANALÍTICA: GRÁFICO ESTADÍSTICO Y MAPA -->
+            <!-- SECCIÓN ANALÍTICA: GRÁFICO Y MAPA -->
             <div class="analytics-container">
                 <div class="analytics-card">
-                    <h3><span><i class="fa-solid fa-chart-pie text-primary me-2"></i> Operabilidad de la Red</span></h3>
+                    <h3>📊 Operabilidad de la Red</h3>
                     <div class="chart-box">
                         <canvas id="graficoOperabilidad"></canvas>
                     </div>
                 </div>
                 <div class="analytics-card">
-                    <h3><span><i class="fa-solid fa-map-location-dot text-primary me-2"></i> Mapa de Ubicación Georreferenciada</span></h3>
+                    <h3>🗺️ Mapa de Ubicación Georreferenciada</h3>
                     <div id="mapa-red"></div>
                 </div>
             </div>
@@ -320,7 +296,7 @@
             <!-- BARRA DE BÚSQUEDA Y FILTROS -->
             <div class="toolbar-container">
                 <div class="search-box">
-                    <span class="search-icon"><i class="fa-solid fa-magnifying-glass"></i></span>
+                    <span class="search-icon">🔍</span>
                     <input type="text" id="input-busqueda" placeholder="Buscar por centro, ubicación o detalles..." oninput="filtrarRedSalud()">
                 </div>
                 <div class="filter-group">
@@ -332,17 +308,17 @@
             </div>
 
             <div class="ejes-grid" id="contenedor-ejes">
-                <div id="status-conexion" style="color: #64748b; font-size: 13px;"><i class="fa-solid fa-spinner fa-spin me-2"></i> Sincronizando red...</div>
+                <div id="status-conexion" style="color: #64748b; font-size: 13px;">Sincronizando red...</div>
             </div>
         </div>
     </div>
 
-    <!-- MODAL DE REGISTRO / EDICIÓN -->
+    <!-- MODAL REGISTRO / EDICIÓN -->
     <div class="modal-overlay" id="modalCentro">
         <div class="modal-content">
             <div class="modal-header">
                 <h3 id="modal-titulo">Registrar Nuevo Centro de Salud</h3>
-                <button class="modal-close" onclick="cerrarModal()">&times;</button>
+                <button class="modal-close" onclick="cerrarModal()">×</button>
             </div>
             <div class="modal-body">
                 <input type="hidden" id="centro-id">
@@ -416,7 +392,10 @@
         obtenerRedSalud(); 
     });
 
-    function toggleSidebar() { document.getElementById("sidebarMenu").classList.toggle("active"); }
+    function cerrarSesion() {
+        sessionStorage.clear();
+        window.location.replace("login.html");
+    }
 
     function inicializarMapa() {
         map = L.map('mapa-red').setView([10.4633, -66.6272], 13);
@@ -614,10 +593,10 @@
                             </div>
                         </div>
                         ${c.detalle ? `<div class="centro-detalles">${c.detalle}</div>` : ''}
-                        <div class="centro-location"><i class="fa-solid fa-location-dot"></i> <span><b>Ubicación:</b> ${c.ubicacion || 'No registrada'}</span></div>
+                        <div class="centro-location">📍 <span><b>Ubicación:</b> ${c.ubicacion || 'No registrada'}</span></div>
                         <div class="actions-area">
-                            <button class="btn-action btn-edit" title="Modificar" onclick="window.prepararEdicion('${c.id}')"><i class="fa-solid fa-pen"></i></button>
-                            <button class="btn-action btn-delete" title="Borrar" onclick="window.eliminarCentro('${c.id}')"><i class="fa-solid fa-trash"></i></button>
+                            <button class="btn-action btn-edit" title="Modificar" onclick="window.prepararEdicion('${c.id}')">✏️</button>
+                            <button class="btn-action btn-delete" title="Borrar" onclick="window.eliminarCentro('${c.id}')">🗑️</button>
                         </div>
                     </div>
                 `;
