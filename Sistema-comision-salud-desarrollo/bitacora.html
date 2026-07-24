@@ -77,15 +77,28 @@
         .btn-del:hover { background: #fecaca; }
 
         /* GRID DE BITÁCORA */
-        .blog-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 24px; }
+        .blog-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 24px; }
         .evento-card { background: white; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden; padding: 20px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02); display: flex; flex-direction: column; justify-content: space-between; }
-        .evento-card img { width: 100%; height: 180px; object-fit: cover; border-radius: 8px; margin-bottom: 14px; background: #e2e8f0; }
+        
+        /* GALERÍA DE MÚLTIPLES IMÁGENES */
+        .galeria-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); gap: 8px; margin-bottom: 14px; }
+        .galeria-grid.single-img { grid-template-columns: 1fr; }
+        .galeria-item { width: 100%; height: 110px; object-fit: cover; border-radius: 6px; background: #0f172a; cursor: pointer; transition: opacity 0.2s; border: 1px solid #e2e8f0; }
+        .galeria-item:hover { opacity: 0.88; }
+        .single-img .galeria-item { height: auto; max-height: 340px; object-fit: contain; }
+
         .evento-card h3 { font-size: 16px; color: var(--text-dark-title); font-weight: 700; margin-bottom: 6px; }
         .evento-card .meta-sector { font-size: 12px; color: var(--sidebar-active); font-weight: 600; margin-bottom: 10px; text-transform: uppercase; }
-        .evento-card p { font-size: 13px; color: #475569; line-height: 1.5; flex-grow: 1; }
-        .evento-card .fecha { font-size: 11px; color: #94a3b8; margin-top: 10px; font-weight: 500; }
+        
+        /* DESCRIPCIÓN COLAPSADA */
+        .desc-container { font-size: 13px; color: #475569; line-height: 1.5; flex-grow: 1; }
+        .desc-text { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; text-overflow: ellipsis; }
+        .desc-text.expanded { display: block; }
+        .btn-leer-mas { background: none; border: none; color: var(--sidebar-active); font-weight: 600; font-size: 12px; cursor: pointer; margin-top: 4px; padding: 0; }
+        
+        .evento-card .fecha { font-size: 11px; color: #94a3b8; margin-top: 12px; font-weight: 500; }
 
-        /* VENTANA MODAL */
+        /* VENTANA MODAL FORMULARIO */
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(4px); display: none; align-items: center; justify-content: center; z-index: 2000; padding: 16px; }
         .modal-overlay.active { display: flex; }
         .modal-content { background: white; border-radius: 12px; width: 100%; max-width: 500px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); overflow: hidden; animation: slideUp 0.25s ease-out; }
@@ -100,6 +113,11 @@
         .form-group input:focus, .form-group textarea:focus { border-color: var(--sidebar-active); box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1); }
         
         .modal-footer { padding: 16px 20px; background: #f8fafc; border-top: 1px solid #e2e8f0; display: flex; justify-content: flex-end; gap: 10px; }
+
+        /* MODAL VISOR DE IMAGEN A PANTALLA COMPLETA */
+        .image-modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(6px); display: none; align-items: center; justify-content: center; z-index: 3000; padding: 20px; cursor: zoom-out; }
+        .image-modal-overlay.active { display: flex; }
+        .image-modal-content { max-width: 90vw; max-height: 90vh; object-fit: contain; border-radius: 8px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
 
         /* HEADER MOVIL */
         .mobile-header { display: none; background: var(--sidebar-bg); color: white; padding: 14px 20px; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 1100; }
@@ -164,7 +182,7 @@
         </div>
     </div>
 
-    <!-- VENTANA MODAL -->
+    <!-- VENTANA MODAL PARA CREAR / EDITAR -->
     <div class="modal-overlay" id="modalEvento">
         <div class="modal-content">
             <div class="modal-header">
@@ -172,7 +190,6 @@
                 <button class="modal-close" onclick="cerrarModal()">×</button>
             </div>
             <div class="modal-body">
-                <!-- Campos ocultos para conservar archivos previos al editar -->
                 <input type="hidden" id="in-url-foto-hidden">
                 <input type="hidden" id="in-url-video-hidden">
 
@@ -185,8 +202,8 @@
                     <input type="text" id="in-sector" placeholder="Ej: Comuna La Guairita">
                 </div>
                 <div class="form-group">
-                    <label>Foto de Evidencia (Archivo Local)</label>
-                    <input type="file" id="in-file-foto" accept="image/*">
+                    <label>Fotos de Evidencia (Puedes seleccionar varias)</label>
+                    <input type="file" id="in-file-foto" accept="image/*" multiple>
                 </div>
                 <div class="form-group">
                     <label>Descripción / Resumen del Despliegue</label>
@@ -202,6 +219,11 @@
                 <button class="btn btn-primary" onclick="guardarPublicacion()">Guardar Publicación</button>
             </div>
         </div>
+    </div>
+
+    <!-- MODAL VISOR DE IMAGEN PANTALLA COMPLETA -->
+    <div class="image-modal-overlay" id="imageModal" onclick="cerrarModalImagen()">
+        <img class="image-modal-content" id="imgModalFull" alt="Vista Ampliada">
     </div>
 
 <script>
@@ -241,11 +263,32 @@
                 return;
             }
 
-            container.innerHTML = data.map(ev => {
-                const fotoUrl = ev.url_foto ? ev.url_foto : 'https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=500';
+            container.innerHTML = data.map((ev, index) => {
+                let fotosArray = [];
+                try {
+                    if (ev.url_foto) {
+                        fotosArray = JSON.parse(ev.url_foto);
+                        if (!Array.isArray(fotosArray)) fotosArray = [ev.url_foto];
+                    }
+                } catch(e) {
+                    fotosArray = ev.url_foto ? [ev.url_foto] : [];
+                }
+
+                if (fotosArray.length === 0) {
+                    fotosArray = ['https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=500'];
+                }
+
+                const isSingle = fotosArray.length === 1;
+                const galeriaHTML = `
+                    <div class="galeria-grid ${isSingle ? 'single-img' : ''}">
+                        ${fotosArray.map(url => `
+                            <img src="${url}" class="galeria-item" alt="Evidencia" onclick="abrirModalImagen('${url}')" title="Clic para ampliar imagen">
+                        `).join('')}
+                    </div>
+                `;
                 
                 const videoElement = ev.url_video ? `
-                    <video width="100%" height="160" controls style="border-radius: 8px; margin-top: 10px; background: #000; object-fit: cover;">
+                    <video width="100%" height="180" controls style="border-radius: 8px; margin-top: 10px; background: #000; object-fit: cover;">
                         <source src="${ev.url_video}" type="video/mp4">
                         Tu navegador no soporta la reproducción de video.
                     </video>
@@ -254,16 +297,19 @@
                 return `
                     <div class="evento-card">
                         <div>
-                            <img src="${fotoUrl}" alt="Evidencia">
+                            ${galeriaHTML}
                             <div class="meta-sector">📍 ${ev.sector || 'Municipio Plaza'}</div>
                             <h3>${ev.titulo || 'Actividad Especial'}</h3>
-                            <p>${ev.descripcion || 'Sin descripción proporcionada.'}</p>
+                            <div class="desc-container">
+                                <div class="desc-text" id="desc-${index}">${ev.descripcion || 'Sin descripción proporcionada.'}</div>
+                                <button class="btn-leer-mas" id="btn-desc-${index}" onclick="alternarTexto(${index})">Ver más</button>
+                            </div>
                             ${videoElement}
                         </div>
                         <div>
                             <div class="fecha">📅 Fecha: ${ev.fecha || 'Reciente'}</div>
                             <div class="actions-area">
-                                <button class="btn-small btn-edit" onclick="prepararEdicion(${ev.id}, '${(ev.titulo || '').replace(/'/g, "\\'")}', '${(ev.descripcion || '').replace(/'/g, "\\'")}', '${(ev.sector || '').replace(/'/g, "\\'")}', '${ev.url_foto || ''}', '${ev.url_video || ''}')">✏️ Editar</button>
+                                <button class="btn-small btn-edit" onclick="prepararEdicion(${ev.id}, '${(ev.titulo || '').replace(/'/g, "\\'")}', '${(ev.descripcion || '').replace(/'/g, "\\'")}', '${(ev.sector || '').replace(/'/g, "\\'")}', '${(ev.url_foto || '').replace(/'/g, "\\'")}', '${ev.url_video || ''}')">✏️ Editar</button>
                                 <button class="btn-small btn-del" onclick="borrarEvento(${ev.id})">🗑️ Borrar</button>
                             </div>
                         </div>
@@ -274,6 +320,31 @@
             console.error("Error cargando base de datos:", err);
             container.innerHTML = `<div style="color: var(--danger-color); font-size: 13px; padding: 10px;">❌ Error de comunicación con Neon: ${err.message}</div>`;
         }
+    }
+
+    // Funciones para expandir/colapsar texto
+    function alternarTexto(index) {
+        const textElement = document.getElementById(`desc-${index}`);
+        const btnElement = document.getElementById(`btn-desc-${index}`);
+        
+        textElement.classList.toggle('expanded');
+        if (textElement.classList.contains('expanded')) {
+            btnElement.innerText = "Ver menos";
+        } else {
+            btnElement.innerText = "Ver más";
+        }
+    }
+
+    // Funciones del Visor de Imagen en Pantalla Completa
+    function abrirModalImagen(url) {
+        const modal = document.getElementById('imageModal');
+        const imgFull = document.getElementById('imgModalFull');
+        imgFull.src = url;
+        modal.classList.add('active');
+    }
+
+    function cerrarModalImagen() {
+        document.getElementById('imageModal').classList.remove('active');
     }
 
     function abrirModal() { 
@@ -333,7 +404,7 @@
         const titulo = document.getElementById('in-titulo').value.trim();
         const sector = document.getElementById('in-sector').value.trim();
         const descripcion = document.getElementById('in-desc').value.trim();
-        const fileFoto = document.getElementById('in-file-foto').files[0];
+        const fileInputFotos = document.getElementById('in-file-foto').files;
         const fileVideo = document.getElementById('in-file-video').files[0];
 
         if (!titulo || !descripcion) {
@@ -342,13 +413,28 @@
         }
 
         try {
-            let url_foto = document.getElementById('in-url-foto-hidden').value;
-            let url_video = document.getElementById('in-url-video-hidden').value;
+            let fotosUrls = [];
+            const hiddenFotoVal = document.getElementById('in-url-foto-hidden').value;
 
-            if (fileFoto) {
-                url_foto = await convertirBase64(fileFoto);
+            // Si hay fotos nuevas seleccionadas, las convertimos todas a Base64
+            if (fileInputFotos && fileInputFotos.length > 0) {
+                for (let i = 0; i < fileInputFotos.length; i++) {
+                    const base64 = await convertirBase64(fileInputFotos[i]);
+                    fotosUrls.push(base64);
+                }
+            } else if (hiddenFotoVal) {
+                // Si estamos editando y no seleccionamos nuevas, mantenemos las anteriores
+                try {
+                    fotosUrls = JSON.parse(hiddenFotoVal);
+                    if (!Array.isArray(fotosUrls)) fotosUrls = [hiddenFotoVal];
+                } catch(e) {
+                    fotosUrls = [hiddenFotoVal];
+                }
             }
 
+            const url_foto_json = JSON.stringify(fotosUrls);
+
+            let url_video = document.getElementById('in-url-video-hidden').value;
             if (fileVideo) {
                 url_video = await convertirBase64(fileVideo);
             }
@@ -361,14 +447,14 @@
                     SET titulo = ${titulo}, 
                         sector = ${sector}, 
                         descripcion = ${descripcion}, 
-                        url_foto = ${url_foto}, 
+                        url_foto = ${url_foto_json}, 
                         url_video = ${url_video}
                     WHERE id = ${Number(editId)}
                 `;
             } else {
                 await window.sqlClient`
                     INSERT INTO bitacora_eventos (titulo, sector, descripcion, url_foto, url_video, fecha) 
-                    VALUES (${titulo}, ${sector}, ${descripcion}, ${url_foto}, ${url_video}, ${fechaHoy})
+                    VALUES (${titulo}, ${sector}, ${descripcion}, ${url_foto_json}, ${url_video}, ${fechaHoy})
                 `;
             }
             
