@@ -1,469 +1,70 @@
-<!DOCTYPE html>
-<html lang="es">
+async function guardarPublicacion() {
+    if (!window.sqlClient) { alert("No hay conexión con la base de datos Neon."); return; }
 
-<head>
-    <meta charset="UTF-8">
-    <script>
-        const sesion = sessionStorage.getItem('usuario_logueado');
-        if (!sesion && window.location.pathname !== "/login.html") {
-            window.location.replace("login.html");
+    const titulo = document.getElementById('in-titulo').value.trim();
+    const sector = document.getElementById('in-sector').value.trim();
+    const descripcion = document.getElementById('in-desc').value.trim();
+    const fileInputFotos = document.getElementById('in-file-foto').files;
+    const fileVideo = document.getElementById('in-file-video').files[0];
+
+    if (!titulo || !descripcion) {
+        alert("Por favor ingrese al menos el Título y la Descripción del evento.");
+        return;
+    }
+
+    // Validación de tamaño para el video (Límite sugerido: 6 MB para servidores Serverless)
+    if (fileVideo && fileVideo.size > 6 * 1024 * 1024) {
+        alert("⚠️ El video es demasiado pesado (" + (fileVideo.size / (1024*1024)).toFixed(1) + " MB).\n\nPara que la plataforma funcione de forma rápida y sin errores en Neon, por favor sube un video corto de menos de 6 MB o comprimido.");
+        return;
+    }
+
+    try {
+        let fotosUrls = [];
+        const hiddenFotoVal = document.getElementById('in-url-foto-hidden').value;
+
+        if (fileInputFotos && fileInputFotos.length > 0) {
+            for (let i = 0; i < fileInputFotos.length; i++) {
+                const base64 = await convertirBase64(fileInputFotos[i]);
+                fotosUrls.push(base64);
+            }
+        } else if (hiddenFotoVal) {
+            try {
+                fotosUrls = JSON.parse(hiddenFotoVal);
+                if (!Array.isArray(fotosUrls)) fotosUrls = [hiddenFotoVal];
+            } catch(e) {
+                fotosUrls = [hiddenFotoVal];
+            }
+        }
+
+        const url_foto_json = JSON.stringify(fotosUrls);
+
+        let url_video = document.getElementById('in-url-video-hidden').value;
+        if (fileVideo) {
+            url_video = await convertirBase64(fileVideo);
+        }
+
+        const fechaHoy = new Date().toISOString().split('T')[0];
+
+        if (editId) {
+            await window.sqlClient`
+                UPDATE bitacora_eventos 
+                SET titulo = ${titulo}, 
+                    sector = ${sector}, 
+                    descripcion = ${descripcion}, 
+                    url_foto = ${url_foto_json}, 
+                    url_video = ${url_video}
+                WHERE id = ${Number(editId)}
+            `;
         } else {
-            document.addEventListener("DOMContentLoaded", () => {
-                document.body.style.display = "block";
-            });
+            await window.sqlClient`
+                INSERT INTO bitacora_eventos (titulo, sector, descripcion, url_foto, url_video, fecha) 
+                VALUES (${titulo}, ${sector}, ${descripcion}, ${url_foto_json}, ${url_video}, ${fechaHoy})
+            `;
         }
-    </script>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bitácora de Gestión Digital - Comisión de Salud</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    
-    <!-- IMPORTACIÓN DE NEON DATABASE -->
-    <script type="module">
-        import { neon } from 'https://cdn.jsdelivr.net/npm/@neondatabase/serverless/+esm';
         
-        const connectionString = "postgresql://neondb_owner:npg_djCruebcPY94@ep-sparkling-math-avejx7o4-pooler.c-11.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require";
-        window.sqlClient = neon(connectionString, { disableWarningInBrowsers: true });
-        
-        if (typeof window.iniciarApp === 'function') {
-            window.iniciarApp();
-        }
-    </script>
-
-    <style>
-        :root { 
-            --bg-main: #f4f6f9; 
-            --sidebar-bg: #003da5; 
-            --sidebar-active: #2563eb; 
-            --sidebar-text-sub: #94a3b8; 
-            --menu-text: #ffffff; 
-            --text-dark-title: #0f2547; 
-            --success-color: #16a34a; 
-            --border-color: #cbd5e1; 
-            --danger-color: #dc2626;
-            --warning-color: #f59e0b;
-        }
-        * { margin:0; padding:0; box-sizing:border-box; font-family: 'Inter', sans-serif; }
-        body { background: var(--bg-main); color:#334155; overflow-x: hidden; }
-        
-        .layout { display:grid; grid-template-columns:280px 1fr; min-height:100vh; }
-        
-        /* SIDEBAR */
-        .sidebar { background: var(--sidebar-bg); padding:24px 0; display: flex; flex-direction: column; z-index: 1000; border-right: 1px solid rgba(255, 255, 255, 0.1); }
-        .sidebar-brand { display: flex; flex-direction: column; align-items: center; text-align: center; padding: 0 16px 20px 16px; border-bottom: 1px solid rgba(255, 255, 255, 0.08); margin-bottom: 10px; }
-        .sidebar-brand h2 { font-size: 11px; color: #ffffff; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; line-height: 1.4; margin-top: 5px; }
-        .menu-category { font-size: 10px; font-weight: 700; color: var(--sidebar-text-sub); text-transform: uppercase; letter-spacing: 0.8px; padding: 16px 20px 6px 20px; }
-        .menu { display: block; padding: 9px 36px; color: var(--menu-text); cursor: pointer; font-size: 13px; font-weight: 500; text-decoration: none; transition: all 0.2s ease; opacity: 0.85; }
-        .menu:hover { opacity: 1; background: rgba(255, 255, 255, 0.08); }
-        .menu.active-page { background: var(--sidebar-active); color: #ffffff; font-weight: 600; border-radius: 8px; margin: 2px 14px; padding: 10px 18px; opacity: 1; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3); }
-        
-        /* PANEL CENTRAL */
-        .main { padding:40px; min-width: 0; }
-        .main h2 { font-size: 26px; color: var(--text-dark-title); font-weight: 700; margin-bottom: 6px; }
-        .header-actions { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; flex-wrap: wrap; gap: 16px; }
-        .subtitle { font-size: 13px; color: #64748b; font-weight: 500; margin-bottom: 0; }
-        
-        /* BOTONES */
-        .btn { padding: 10px 16px; font-size: 13px; font-weight: 600; border-radius: 8px; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: all 0.2s; border: none; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
-        .btn-primary { background: var(--sidebar-active); color: white; box-shadow: 0 2px 4px rgba(37, 99, 235, 0.2); }
-        .btn-primary:hover { background: #1d4ed8; }
-        .btn-secondary { background: white; border: 1px solid var(--border-color); color: #475569; }
-        .btn-secondary:hover { background: #f8fafc; }
-        
-        .actions-area { display: flex; gap: 8px; margin-top: 15px; border-top: 1px dashed #e2e8f0; padding-top: 12px; }
-        .btn-small { padding: 6px 12px; font-size: 12px; font-weight: 600; border-radius: 6px; border: none; cursor: pointer; }
-        .btn-edit { background: #fef3c7; color: #b45309; }
-        .btn-edit:hover { background: #fde68a; }
-        .btn-del { background: #fee2e2; color: var(--danger-color); }
-        .btn-del:hover { background: #fecaca; }
-
-        /* GRID DE BITÁCORA */
-        .blog-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 24px; }
-        .evento-card { background: white; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden; padding: 20px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02); display: flex; flex-direction: column; justify-content: space-between; }
-        
-        /* GALERÍA DE MÚLTIPLES IMÁGENES */
-        .galeria-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); gap: 8px; margin-bottom: 14px; }
-        .galeria-grid.single-img { grid-template-columns: 1fr; }
-        .galeria-item { width: 100%; height: 110px; object-fit: cover; border-radius: 6px; background: #0f172a; cursor: pointer; transition: opacity 0.2s; border: 1px solid #e2e8f0; }
-        .galeria-item:hover { opacity: 0.88; }
-        .single-img .galeria-item { height: auto; max-height: 340px; object-fit: contain; }
-
-        .evento-card h3 { font-size: 16px; color: var(--text-dark-title); font-weight: 700; margin-bottom: 6px; }
-        .evento-card .meta-sector { font-size: 12px; color: var(--sidebar-active); font-weight: 600; margin-bottom: 10px; text-transform: uppercase; }
-        
-        /* DESCRIPCIÓN COLAPSADA */
-        .desc-container { font-size: 13px; color: #475569; line-height: 1.5; flex-grow: 1; }
-        .desc-text { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; text-overflow: ellipsis; }
-        .desc-text.expanded { display: block; }
-        .btn-leer-mas { background: none; border: none; color: var(--sidebar-active); font-weight: 600; font-size: 12px; cursor: pointer; margin-top: 4px; padding: 0; }
-        
-        .evento-card .fecha { font-size: 11px; color: #94a3b8; margin-top: 12px; font-weight: 500; }
-
-        /* VENTANA MODAL FORMULARIO */
-        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(4px); display: none; align-items: center; justify-content: center; z-index: 2000; padding: 16px; }
-        .modal-overlay.active { display: flex; }
-        .modal-content { background: white; border-radius: 12px; width: 100%; max-width: 500px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); overflow: hidden; animation: slideUp 0.25s ease-out; }
-        .modal-header { background: #f8fafc; padding: 16px 20px; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; }
-        .modal-header h3 { font-size: 16px; color: var(--text-dark-title); font-weight: 700; }
-        .modal-close { background: transparent; border: none; font-size: 20px; cursor: pointer; color: #64748b; }
-        .modal-body { padding: 20px; display: flex; flex-direction: column; gap: 14px; max-height: 75vh; overflow-y: auto; }
-        
-        .form-group { display: flex; flex-direction: column; gap: 6px; }
-        .form-group label { font-size: 11px; font-weight: 700; color: #475569; text-transform: uppercase; letter-spacing: 0.5px; }
-        .form-group input, .form-group textarea { padding: 10px 12px; border: 1px solid var(--border-color); border-radius: 8px; font-size: 13.5px; color: #1e293b; outline: none; width: 100%; }
-        .form-group input:focus, .form-group textarea:focus { border-color: var(--sidebar-active); box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1); }
-        
-        .modal-footer { padding: 16px 20px; background: #f8fafc; border-top: 1px solid #e2e8f0; display: flex; justify-content: flex-end; gap: 10px; }
-
-        /* MODAL VISOR DE IMAGEN A PANTALLA COMPLETA */
-        .image-modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(6px); display: none; align-items: center; justify-content: center; z-index: 3000; padding: 20px; cursor: zoom-out; }
-        .image-modal-overlay.active { display: flex; }
-        .image-modal-content { max-width: 90vw; max-height: 90vh; object-fit: contain; border-radius: 8px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
-
-        /* HEADER MOVIL */
-        .mobile-header { display: none; background: var(--sidebar-bg); color: white; padding: 14px 20px; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 1100; }
-        .mobile-toggle { background: transparent; border: none; color: white; font-size: 22px; cursor: pointer; }
-
-        @keyframes slideUp { from { transform: translateY(15px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-
-        @media (max-width: 768px) {
-            .layout { grid-template-columns: 1fr; }
-            .sidebar { position: fixed; top: 52px; left: -280px; width: 280px; height: calc(100vh - 52px); transition: left 0.3s ease; }
-            .sidebar.active { left: 0; }
-            .mobile-header { display: flex; }
-            .main { padding: 24px 16px; }
-            .main h2 { font-size: 22px; }
-            .blog-grid { grid-template-columns: 1fr; }
-        }
-    </style>
-</head>
-
-<body style="display: none;">
-
-    <div class="mobile-header">
-        <span style="font-size: 13px; font-weight: 700;">BITÁCORA DIGITAL</span>
-        <button class="mobile-toggle" onclick="toggleSidebar()">☰</button>
-    </div>
-
-    <div class="layout">
-        <div class="sidebar" id="sidebarMenu">
-            <div class="sidebar-brand">
-                <h2>COMISIÓN PERMANENTE DE SALUD<br>Y DESARROLLO SOCIAL INTEGRAL</h2>
-            </div>
-            <a class="menu" href="dashboard.html">Principal</a>
-            
-            <div class="menu-category">Coor. Ejecutiva</div>
-            <a class="menu" href="ejecutiva.html">Oficios e Informes</a>
-            <a class="menu" href="red_salud.html">Red de Salud (CPT/CDI)</a>
-            <a class="menu" href="planificacion.html">Planificación Semanal</a>
-            
-            <div class="menu-category">Coor. Política</div>
-            <a class="menu" href="politica.html">Liderazgos y Comunas</a>
-            
-            <div class="menu-category">Coor. Social</div>
-            <a class="menu" href="social.html">Casos Sociales</a>
-            
-            <div class="menu-category">Gestión Digital</div>
-            <a class="menu active-page" href="bitacora.html">Bitácora de Eventos</a>
-            <a class="menu" href="reportes.html">📄 Reportes e Informes</a>
-        </div>
-
-        <div class="main">
-            <div class="header-actions">
-                <div>
-                    <h2>Bitácora de Eventos y Gestión Pública</h2>
-                    <div class="subtitle">Evidencias, despliegues territoriales y jornadas de salud social — Guarenas</div>
-                </div>
-                <button class="btn btn-primary" onclick="abrirModal()">➕ Nueva Publicación / Evento</button>
-            </div>
-            
-            <div class="blog-grid" id="blog-container">
-                <div style="color: #64748b; font-size: 13px;">Cargando bitácora municipal desde Neon...</div>
-            </div>
-        </div>
-    </div>
-
-    <!-- VENTANA MODAL PARA CREAR / EDITAR -->
-    <div class="modal-overlay" id="modalEvento">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3 id="modal-title">Registrar Evento Territorial</h3>
-                <button class="modal-close" onclick="cerrarModal()">×</button>
-            </div>
-            <div class="modal-body">
-                <input type="hidden" id="in-url-foto-hidden">
-                <input type="hidden" id="in-url-video-hidden">
-
-                <div class="form-group">
-                    <label>Título de la Actividad</label>
-                    <input type="text" id="in-titulo" placeholder="Ej: Jornada Médica Integral en las Clavellinas">
-                </div>
-                <div class="form-group">
-                    <label>Sector / Comunidad</label>
-                    <input type="text" id="in-sector" placeholder="Ej: Comuna La Guairita">
-                </div>
-                <div class="form-group">
-                    <label>Fotos de Evidencia (Puedes seleccionar varias)</label>
-                    <input type="file" id="in-file-foto" accept="image/*" multiple>
-                </div>
-                <div class="form-group">
-                    <label>Descripción / Resumen del Despliegue</label>
-                    <textarea id="in-desc" rows="4" placeholder="Detalle la cantidad de atendidos, insumos entregados..."></textarea>
-                </div>
-                <div class="form-group">
-                    <label>Video de Resumen (Opcional - Archivo Local)</label>
-                    <input type="file" id="in-file-video" accept="video/*">
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button class="btn btn-secondary" onclick="cerrarModal()">Cancelar</button>
-                <button class="btn btn-primary" onclick="guardarPublicacion()">Guardar Publicación</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- MODAL VISOR DE IMAGEN PANTALLA COMPLETA -->
-    <div class="image-modal-overlay" id="imageModal" onclick="cerrarModalImagen()">
-        <img class="image-modal-content" id="imgModalFull" alt="Vista Ampliada">
-    </div>
-
-<script>
-    let editId = null;
-
-    window.iniciarApp = function() {
+        cerrarModal();
         cargarBitacora();
-    };
-
-    document.addEventListener("DOMContentLoaded", () => {
-        if (window.sqlClient) {
-            window.iniciarApp();
-        }
-    });
-
-    function toggleSidebar() { 
-        document.getElementById("sidebarMenu").classList.toggle("active"); 
+    } catch (err) {
+        alert("Error al procesar los archivos o guardar en Neon:\n" + err.message);
     }
-
-    async function cargarBitacora() {
-        const container = document.getElementById('blog-container');
-
-        if (!window.sqlClient) {
-            await new Promise(resolve => setTimeout(resolve, 800));
-        }
-
-        if (!window.sqlClient) {
-            container.innerHTML = `<div style="color: var(--danger-color); font-size: 13px; padding: 10px;">⚠️ Error crítico: La conexión con Neon no está lista.</div>`;
-            return;
-        }
-
-        try {
-            const data = await window.sqlClient`SELECT * FROM bitacora_eventos ORDER BY id DESC`;
-
-            if (!data || data.length === 0) {
-                container.innerHTML = `<div style="color: #64748b; font-size: 13px; padding: 10px;">📝 No hay eventos registrados en la bitácora aún.</div>`;
-                return;
-            }
-
-            container.innerHTML = data.map((ev, index) => {
-                let fotosArray = [];
-                try {
-                    if (ev.url_foto) {
-                        fotosArray = JSON.parse(ev.url_foto);
-                        if (!Array.isArray(fotosArray)) fotosArray = [ev.url_foto];
-                    }
-                } catch(e) {
-                    fotosArray = ev.url_foto ? [ev.url_foto] : [];
-                }
-
-                if (fotosArray.length === 0) {
-                    fotosArray = ['https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=500'];
-                }
-
-                const isSingle = fotosArray.length === 1;
-                const galeriaHTML = `
-                    <div class="galeria-grid ${isSingle ? 'single-img' : ''}">
-                        ${fotosArray.map(url => `
-                            <img src="${url}" class="galeria-item" alt="Evidencia" onclick="abrirModalImagen('${url}')" title="Clic para ampliar imagen">
-                        `).join('')}
-                    </div>
-                `;
-                
-                const videoElement = ev.url_video ? `
-                    <video width="100%" height="180" controls style="border-radius: 8px; margin-top: 10px; background: #000; object-fit: cover;">
-                        <source src="${ev.url_video}" type="video/mp4">
-                        Tu navegador no soporta la reproducción de video.
-                    </video>
-                ` : '';
-                
-                return `
-                    <div class="evento-card">
-                        <div>
-                            ${galeriaHTML}
-                            <div class="meta-sector">📍 ${ev.sector || 'Municipio Plaza'}</div>
-                            <h3>${ev.titulo || 'Actividad Especial'}</h3>
-                            <div class="desc-container">
-                                <div class="desc-text" id="desc-${index}">${ev.descripcion || 'Sin descripción proporcionada.'}</div>
-                                <button class="btn-leer-mas" id="btn-desc-${index}" onclick="alternarTexto(${index})">Ver más</button>
-                            </div>
-                            ${videoElement}
-                        </div>
-                        <div>
-                            <div class="fecha">📅 Fecha: ${ev.fecha || 'Reciente'}</div>
-                            <div class="actions-area">
-                                <button class="btn-small btn-edit" onclick="prepararEdicion(${ev.id}, '${(ev.titulo || '').replace(/'/g, "\\'")}', '${(ev.descripcion || '').replace(/'/g, "\\'")}', '${(ev.sector || '').replace(/'/g, "\\'")}', '${(ev.url_foto || '').replace(/'/g, "\\'")}', '${ev.url_video || ''}')">✏️ Editar</button>
-                                <button class="btn-small btn-del" onclick="borrarEvento(${ev.id})">🗑️ Borrar</button>
-                            </div>
-                        </div>
-                    </div>
-                `;
-            }).join('');
-        } catch (err) {
-            console.error("Error cargando base de datos:", err);
-            container.innerHTML = `<div style="color: var(--danger-color); font-size: 13px; padding: 10px;">❌ Error de comunicación con Neon: ${err.message}</div>`;
-        }
-    }
-
-    // Funciones para expandir/colapsar texto
-    function alternarTexto(index) {
-        const textElement = document.getElementById(`desc-${index}`);
-        const btnElement = document.getElementById(`btn-desc-${index}`);
-        
-        textElement.classList.toggle('expanded');
-        if (textElement.classList.contains('expanded')) {
-            btnElement.innerText = "Ver menos";
-        } else {
-            btnElement.innerText = "Ver más";
-        }
-    }
-
-    // Funciones del Visor de Imagen en Pantalla Completa
-    function abrirModalImagen(url) {
-        const modal = document.getElementById('imageModal');
-        const imgFull = document.getElementById('imgModalFull');
-        imgFull.src = url;
-        modal.classList.add('active');
-    }
-
-    function cerrarModalImagen() {
-        document.getElementById('imageModal').classList.remove('active');
-    }
-
-    function abrirModal() { 
-        editId = null; 
-        document.getElementById('in-titulo').value = '';
-        document.getElementById('in-sector').value = '';
-        document.getElementById('in-desc').value = '';
-        document.getElementById('in-file-foto').value = '';
-        document.getElementById('in-file-video').value = '';
-        document.getElementById('in-url-foto-hidden').value = '';
-        document.getElementById('in-url-video-hidden').value = '';
-        document.getElementById('modal-title').innerText = "Registrar Evento Territorial";
-        document.getElementById('modalEvento').classList.add('active'); 
-    }
-    
-    function cerrarModal() { 
-        document.getElementById('modalEvento').classList.remove('active'); 
-    }
-
-    function prepararEdicion(id, titulo, desc, sector, foto, video) {
-        editId = id;
-        document.getElementById('in-titulo').value = titulo || '';
-        document.getElementById('in-desc').value = desc || '';
-        document.getElementById('in-sector').value = sector || '';
-        document.getElementById('in-url-foto-hidden').value = foto || '';
-        document.getElementById('in-url-video-hidden').value = video || '';
-        document.getElementById('in-file-foto').value = '';
-        document.getElementById('in-file-video').value = '';
-        document.getElementById('modal-title').innerText = "Modificar Publicación de Bitácora";
-        document.getElementById('modalEvento').classList.add('active');
-    }
-
-    function convertirBase64(file) {
-        return new Promise((resolve, reject) => {
-            const reader = new FileReader();
-            reader.readAsDataURL(file);
-            reader.onload = () => resolve(reader.result);
-            reader.onerror = error => reject(error);
-        });
-    }
-
-    async function borrarEvento(id) {
-        if (!window.sqlClient) { alert("No hay conexión con la base de datos."); return; }
-        if (!confirm("¿Remover permanentemente esta evidencia de la bitácora pública?")) return;
-
-        try {
-            await window.sqlClient`DELETE FROM bitacora_eventos WHERE id = ${Number(id)}`;
-            cargarBitacora();
-        } catch (err) {
-            alert("No se pudo eliminar el registro: " + err.message);
-        }
-    }
-
-    async function guardarPublicacion() {
-        if (!window.sqlClient) { alert("No hay conexión con la base de datos Neon."); return; }
-
-        const titulo = document.getElementById('in-titulo').value.trim();
-        const sector = document.getElementById('in-sector').value.trim();
-        const descripcion = document.getElementById('in-desc').value.trim();
-        const fileInputFotos = document.getElementById('in-file-foto').files;
-        const fileVideo = document.getElementById('in-file-video').files[0];
-
-        if (!titulo || !descripcion) {
-            alert("Por favor ingrese al menos el Título y la Descripción del evento.");
-            return;
-        }
-
-        try {
-            let fotosUrls = [];
-            const hiddenFotoVal = document.getElementById('in-url-foto-hidden').value;
-
-            // Si hay fotos nuevas seleccionadas, las convertimos todas a Base64
-            if (fileInputFotos && fileInputFotos.length > 0) {
-                for (let i = 0; i < fileInputFotos.length; i++) {
-                    const base64 = await convertirBase64(fileInputFotos[i]);
-                    fotosUrls.push(base64);
-                }
-            } else if (hiddenFotoVal) {
-                // Si estamos editando y no seleccionamos nuevas, mantenemos las anteriores
-                try {
-                    fotosUrls = JSON.parse(hiddenFotoVal);
-                    if (!Array.isArray(fotosUrls)) fotosUrls = [hiddenFotoVal];
-                } catch(e) {
-                    fotosUrls = [hiddenFotoVal];
-                }
-            }
-
-            const url_foto_json = JSON.stringify(fotosUrls);
-
-            let url_video = document.getElementById('in-url-video-hidden').value;
-            if (fileVideo) {
-                url_video = await convertirBase64(fileVideo);
-            }
-
-            const fechaHoy = new Date().toISOString().split('T')[0];
-
-            if (editId) {
-                await window.sqlClient`
-                    UPDATE bitacora_eventos 
-                    SET titulo = ${titulo}, 
-                        sector = ${sector}, 
-                        descripcion = ${descripcion}, 
-                        url_foto = ${url_foto_json}, 
-                        url_video = ${url_video}
-                    WHERE id = ${Number(editId)}
-                `;
-            } else {
-                await window.sqlClient`
-                    INSERT INTO bitacora_eventos (titulo, sector, descripcion, url_foto, url_video, fecha) 
-                    VALUES (${titulo}, ${sector}, ${descripcion}, ${url_foto_json}, ${url_video}, ${fechaHoy})
-                `;
-            }
-            
-            cerrarModal();
-            cargarBitacora();
-        } catch (err) {
-            alert("Error al procesar los archivos o guardar en Neon:\n" + err.message);
-        }
-    }
-</script>
-</body>
-</html>
+}
