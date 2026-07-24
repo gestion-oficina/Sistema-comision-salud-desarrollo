@@ -4,15 +4,10 @@
 <head>
     <meta charset="UTF-8">
     <script>
-        // 1. Verificamos la sesión inmediatamente
         const sesion = sessionStorage.getItem('usuario_logueado');
-        
-        // 2. Si no hay sesión Y no estamos en el login, redirigimos
-        // Nota: Si tu archivo de login no está en la raíz, ajusta la ruta
         if (!sesion && window.location.pathname !== "/login.html") {
             window.location.replace("login.html");
         } else {
-            // 3. Si SÍ hay sesión, cuando el HTML cargue, mostramos el cuerpo
             document.addEventListener("DOMContentLoaded", () => {
                 document.body.style.display = "block";
             });
@@ -21,13 +16,25 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bitácora de Gestión Digital - Comisión de Salud</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
+    <!-- IMPORTACIÓN DE NEON DATABASE -->
+    <script type="module">
+        import { neon } from 'https://cdn.jsdelivr.net/npm/@neondatabase/serverless/+esm';
+        
+        const connectionString = "postgresql://neondb_owner:npg_djCruebcPY94@ep-sparkling-math-avejx7o4-pooler.c-11.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require";
+        window.sqlClient = neon(connectionString, { disableWarningInBrowsers: true });
+        
+        if (typeof window.iniciarApp === 'function') {
+            window.iniciarApp();
+        }
+    </script>
+
     <style>
         :root { 
             --bg-main: #f4f6f9; 
-            --sidebar-bg: #1d3b6a; 
-            --sidebar-active: #0066cc; 
-            --sidebar-text-sub: #4ba3e3; 
+            --sidebar-bg: #003da5; 
+            --sidebar-active: #2563eb; 
+            --sidebar-text-sub: #94a3b8; 
             --menu-text: #ffffff; 
             --text-dark-title: #0f2547; 
             --success-color: #16a34a; 
@@ -41,13 +48,13 @@
         .layout { display:grid; grid-template-columns:280px 1fr; min-height:100vh; }
         
         /* SIDEBAR */
-        .sidebar { background: var(--sidebar-bg); padding:24px 0; display: flex; flex-direction: column; z-index: 1000; }
-        .sidebar-brand { display: flex; flex-direction: column; align-items: center; text-align: center; padding: 0 16px 20px 16px; border-bottom: 1px solid rgba(255, 255, 255, 0.1); margin-bottom: 10px; }
+        .sidebar { background: var(--sidebar-bg); padding:24px 0; display: flex; flex-direction: column; z-index: 1000; border-right: 1px solid rgba(255, 255, 255, 0.1); }
+        .sidebar-brand { display: flex; flex-direction: column; align-items: center; text-align: center; padding: 0 16px 20px 16px; border-bottom: 1px solid rgba(255, 255, 255, 0.08); margin-bottom: 10px; }
         .sidebar-brand h2 { font-size: 11px; color: #ffffff; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; line-height: 1.4; margin-top: 5px; }
-        .menu-category { font-size: 10.5px; font-weight: 700; color: var(--sidebar-text-sub); text-transform: uppercase; letter-spacing: 0.5px; padding: 16px 20px 6px 20px; }
-        .menu { display: block; padding: 8px 36px; color: var(--menu-text); cursor: pointer; font-size: 13.5px; font-weight: 500; text-decoration: none; transition: all 0.2s ease; opacity: 0.9; }
-        .menu:hover { opacity: 1; background: rgba(255, 255, 255, 0.05); }
-        .menu.active-page { background: var(--sidebar-active); color: #ffffff; font-weight: 600; border-radius: 6px; margin: 2px 14px; padding: 10px 20px; opacity: 1; box-shadow: inset 0 1px 0 rgba(255,255,255,0.15); }
+        .menu-category { font-size: 10px; font-weight: 700; color: var(--sidebar-text-sub); text-transform: uppercase; letter-spacing: 0.8px; padding: 16px 20px 6px 20px; }
+        .menu { display: block; padding: 9px 36px; color: var(--menu-text); cursor: pointer; font-size: 13px; font-weight: 500; text-decoration: none; transition: all 0.2s ease; opacity: 0.85; }
+        .menu:hover { opacity: 1; background: rgba(255, 255, 255, 0.08); }
+        .menu.active-page { background: var(--sidebar-active); color: #ffffff; font-weight: 600; border-radius: 8px; margin: 2px 14px; padding: 10px 18px; opacity: 1; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3); }
         
         /* PANEL CENTRAL */
         .main { padding:40px; min-width: 0; }
@@ -56,18 +63,18 @@
         .subtitle { font-size: 13px; color: #64748b; font-weight: 500; margin-bottom: 0; }
         
         /* BOTONES */
-        .btn { padding: 10px 16px; font-size: 13px; font-weight: 600; border-radius: 6px; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: all 0.2s; border: none; }
-        .btn-primary { background: var(--sidebar-active); color: white; }
-        .btn-primary:hover { background: #0052a3; }
+        .btn { padding: 10px 16px; font-size: 13px; font-weight: 600; border-radius: 8px; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: all 0.2s; border: none; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+        .btn-primary { background: var(--sidebar-active); color: white; box-shadow: 0 2px 4px rgba(37, 99, 235, 0.2); }
+        .btn-primary:hover { background: #1d4ed8; }
         .btn-secondary { background: white; border: 1px solid var(--border-color); color: #475569; }
         .btn-secondary:hover { background: #f8fafc; }
         
         .actions-area { display: flex; gap: 8px; margin-top: 15px; border-top: 1px dashed #e2e8f0; padding-top: 12px; }
-        .btn-small { padding: 6px 12px; font-size: 12px; font-weight: 600; border-radius: 4px; border: none; cursor: pointer; }
-        .btn-edit { background: #fef3c7; color: #d97706; }
+        .btn-small { padding: 6px 12px; font-size: 12px; font-weight: 600; border-radius: 6px; border: none; cursor: pointer; }
+        .btn-edit { background: #fef3c7; color: #b45309; }
         .btn-edit:hover { background: #fde68a; }
         .btn-del { background: #fee2e2; color: var(--danger-color); }
-        .btn-del:hover { background: #fca5a5; }
+        .btn-del:hover { background: #fecaca; }
 
         /* GRID DE BITÁCORA */
         .blog-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 24px; }
@@ -89,8 +96,8 @@
         
         .form-group { display: flex; flex-direction: column; gap: 6px; }
         .form-group label { font-size: 11px; font-weight: 700; color: #475569; text-transform: uppercase; letter-spacing: 0.5px; }
-        .form-group input, .form-group textarea { padding: 10px 12px; border: 1px solid var(--border-color); border-radius: 6px; font-size: 13.5px; color: #1e293b; outline: none; width: 100%; }
-        .form-group input:focus, .form-group textarea:focus { border-color: var(--sidebar-active); box-shadow: 0 0 0 3px rgba(0,102,204,0.1); }
+        .form-group input, .form-group textarea { padding: 10px 12px; border: 1px solid var(--border-color); border-radius: 8px; font-size: 13.5px; color: #1e293b; outline: none; width: 100%; }
+        .form-group input:focus, .form-group textarea:focus { border-color: var(--sidebar-active); box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1); }
         
         .modal-footer { padding: 16px 20px; background: #f8fafc; border-top: 1px solid #e2e8f0; display: flex; justify-content: flex-end; gap: 10px; }
 
@@ -152,7 +159,7 @@
             </div>
             
             <div class="blog-grid" id="blog-container">
-                <div style="color: #64748b; font-size: 13px;">Cargando bitácora municipal...</div>
+                <div style="color: #64748b; font-size: 13px;">Cargando bitácora municipal desde Neon...</div>
             </div>
         </div>
     </div>
@@ -193,29 +200,37 @@
     </div>
 
 <script>
-    const supabaseUrl = window.__env__?.NEXT_PUBLIC_SUPABASE_URL 
-                        || (typeof process !== 'undefined' && process.env?.NEXT_PUBLIC_SUPABASE_URL)
-                        || "https://soqgmwzknfgmxefbnfgs.supabase.co";
-                        
-    const supabaseAnonKey = window.__env__?.NEXT_PUBLIC_SUPABASE_ANON_KEY 
-                            || (typeof process !== 'undefined' && process.env?.NEXT_PUBLIC_SUPABASE_ANON_KEY)
-                            || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNvcWdtd3prbmZnbXhlZmJuZmdzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA4MTkyMzcsImV4cCI6MjA5NjM5NTIzN30.xXj_fPHCy7LgZHuUytv3bfjUtC9nNiLPTRmFV9XdUpY";
-
-    const client = supabase.createClient(supabaseUrl, supabaseAnonKey);
     let editId = null;
 
-    document.addEventListener("DOMContentLoaded", () => { cargarBitacora(); });
-    function toggleSidebar() { document.getElementById("sidebarMenu").classList.toggle("active"); }
+    window.iniciarApp = function() {
+        cargarBitacora();
+    };
+
+    document.addEventListener("DOMContentLoaded", () => {
+        if (window.sqlClient) {
+            window.iniciarApp();
+        }
+    });
+
+    function toggleSidebar() { 
+        document.getElementById("sidebarMenu").classList.toggle("active"); 
+    }
 
     async function cargarBitacora() {
         const container = document.getElementById('blog-container');
-        try {
-            const { data, error } = await client
-                .from('bitacora_eventos')
-                .select('*')
-                .order('id', { ascending: false });
 
-            if (error) throw error;
+        if (!window.sqlClient) {
+            await new Promise(resolve => setTimeout(resolve, 800));
+        }
+
+        if (!window.sqlClient) {
+            container.innerHTML = `<div style="color: var(--danger-color); font-size: 13px; padding: 10px;">⚠️ Error crítico: La conexión con Neon no está lista.</div>`;
+            return;
+        }
+
+        try {
+            // Consulta directa a la tabla bitacora_eventos ordenada por ID descendente
+            const data = await window.sqlClient`SELECT * FROM bitacora_eventos ORDER BY id DESC`;
 
             if (!data || data.length === 0) {
                 container.innerHTML = `<div style="color: #64748b; font-size: 13px; padding: 10px;">📝 No hay eventos registrados en la bitácora aún.</div>`;
@@ -236,7 +251,7 @@
                         <div>
                             <div class="fecha">📅 Fecha: ${ev.fecha || 'Reciente'}</div>
                             <div class="actions-area">
-                                <button class="btn-small btn-edit" onclick="prepararEdicion(${ev.id}, '${ev.titulo}', '${ev.descripcion}', '${ev.sector}', '${ev.url_foto}', '${ev.url_video}')">✏️ Editar</button>
+                                <button class="btn-small btn-edit" onclick="prepararEdicion(${ev.id}, '${(ev.titulo || '').replace(/'/g, "\\'")}', '${(ev.descripcion || '').replace(/'/g, "\\'")}', '${(ev.sector || '').replace(/'/g, "\\'")}', '${ev.url_foto || ''}', '${ev.url_video || ''}')">✏️ Editar</button>
                                 <button class="btn-small btn-del" onclick="borrarEvento(${ev.id})">🗑️ Borrar</button>
                             </div>
                         </div>
@@ -245,7 +260,7 @@
             }).join('');
         } catch (err) {
             console.error("Error cargando base de datos:", err);
-            container.innerHTML = `<div style="color: var(--danger-color); font-size: 13px; padding: 10px;">❌ Error de comunicación con Supabase.</div>`;
+            container.innerHTML = `<div style="color: var(--danger-color); font-size: 13px; padding: 10px;">❌ Error de comunicación con Neon: ${err.message}</div>`;
         }
     }
 
@@ -260,7 +275,9 @@
         document.getElementById('modalEvento').classList.add('active'); 
     }
     
-    function cerrarModal() { document.getElementById('modalEvento').classList.remove('active'); }
+    function cerrarModal() { 
+        document.getElementById('modalEvento').classList.remove('active'); 
+    }
 
     function prepararEdicion(id, titulo, desc, sector, foto, video) {
         editId = id;
@@ -274,10 +291,11 @@
     }
 
     async function borrarEvento(id) {
-        if(!confirm("¿Remover permanentemente esta evidencia de la bitácora pública?")) return;
+        if (!window.sqlClient) { alert("No hay conexión con la base de datos."); return; }
+        if (!confirm("¿Remover permanentemente esta evidencia de la bitácora pública?")) return;
+
         try {
-            const { error } = await client.from('bitacora_eventos').delete().eq('id', id);
-            if (error) throw error;
+            await window.sqlClient`DELETE FROM bitacora_eventos WHERE id = ${Number(id)}`;
             cargarBitacora();
         } catch (err) {
             alert("No se pudo eliminar el registro: " + err.message);
@@ -285,40 +303,38 @@
     }
 
     async function guardarPublicacion() {
+        if (!window.sqlClient) { alert("No hay conexión con la base de datos."); return; }
+
         const titulo = document.getElementById('in-titulo').value.trim();
         const sector = document.getElementById('in-sector').value.trim();
         const descripcion = document.getElementById('in-desc').value.trim();
         const url_foto = document.getElementById('in-url-foto').value.trim();
         const url_video = document.getElementById('in-url-video').value.trim();
+        const fechaHoy = new Date().toISOString().split('T')[0];
 
-        if(!titulo || !descripcion) {
+        if (!titulo || !descripcion) {
             alert("Por favor ingrese al menos el Título y la Descripción del evento.");
             return;
         }
 
-        const data = {
-            titulo: titulo,
-            sector: sector,
-            descripcion: descripcion,
-            url_foto: url_foto,
-            url_video: url_video,
-            fecha: new Date().toISOString().split('T')[0]
-        };
-
         try {
-            let error;
-            if(editId) {
-                ({ error } = await client.from('bitacora_eventos').update(data).eq('id', editId));
+            if (editId) {
+                await window.sqlClient`
+                    UPDATE bitacora_eventos 
+                    SET titulo = ${titulo}, sector = ${sector}, descripcion = ${descripcion}, url_foto = ${url_foto}, url_video = ${url_video}
+                    WHERE id = ${Number(editId)}
+                `;
             } else {
-                ({ error } = await client.from('bitacora_eventos').insert([data]));
+                await window.sqlClient`
+                    INSERT INTO bitacora_eventos (titulo, sector, descripcion, url_foto, url_video, fecha) 
+                    VALUES (${titulo}, ${sector}, ${descripcion}, ${url_foto}, ${url_video}, ${fechaHoy})
+                `;
             }
-
-            if (error) throw error;
             
             cerrarModal();
             cargarBitacora();
-        } catch(err) {
-            alert("Error al guardar en Supabase:\n" + err.message);
+        } catch (err) {
+            alert("Error al guardar en Neon:\n" + err.message);
         }
     }
 </script>
