@@ -301,8 +301,7 @@
 
         try {
             await window.sqlClient`DELETE FROM formatos_oficina WHERE id = ${id}`;
-            alert("¡Formato eliminado exitosamente!");
-            cargarFormatos();
+            await cargarFormatos(); // Recarga la tabla inmediatamente para reflejar el cambio
         } catch (err) {
             console.error("Error al eliminar:", err);
             alert("No se pudo eliminar el registro: " + err.message);
@@ -317,10 +316,8 @@
             return;
         }
 
-        // --- CONFIGURACIÓN DE CLOUDINARY ---
         const CLOUD_NAME = 'lke3md8q'; 
         const UPLOAD_PRESET = 'formatos_oficina';
-        // ------------------------------------
 
         const btnGuardar = document.getElementById("btnGuardar");
         const fileInput = document.getElementById("fileInput");
@@ -371,9 +368,8 @@
                 VALUES (${nombre}, ${descripcion}, ${categoria}, ${tipoExt}, ${urlNube}, ${creado_por})
             `;
 
-            alert("¡Formato de oficina subido e indexado exitosamente!");
             cerrarModalFormatos();
-            cargarFormatos();
+            await cargarFormatos();
 
         } catch (err) {
             console.error("Error crítico:", err);
