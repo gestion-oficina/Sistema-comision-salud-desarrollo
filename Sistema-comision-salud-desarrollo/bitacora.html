@@ -341,8 +341,8 @@
                         <div class="card-bottom-content">
                             <div class="fecha">📅 Fecha: ${fechaLimpia}</div>
                             <div class="actions-area">
-                                <button class="btn-small btn-edit" onclick="prepararEdicion('${rawId}', '${safeTitulo}', '${safeDesc}', '${safeSector}', '${safeFoto}')">✏️ Editar</button>
-                                <button class="btn-small btn-del" onclick="borrarEvento('${rawId}')">🗑️ Borrar</button>
+                                <button class="btn-small btn-edit" data-id="${rawId}" data-titulo="${safeTitulo}" data-desc="${safeDesc}" data-sector="${safeSector}" data-foto="${safeFoto}" onclick="ejecutarEdicion(this)">✏️ Editar</button>
+                                <button class="btn-small btn-del" data-id="${rawId}" onclick="ejecutarBorrado(this)">🗑️ Borrar</button>
                             </div>
                         </div>
                     </div>
@@ -352,6 +352,20 @@
             console.error("Error cargando base de datos:", err);
             container.innerHTML = `<div style="color: var(--danger-color); font-size: 13px; padding: 10px;">❌ Error de comunicación con Neon: ${err.message}</div>`;
         }
+    }
+
+    function ejecutarEdicion(button) {
+        const id = button.getAttribute('data-id');
+        const titulo = button.getAttribute('data-titulo');
+        const desc = button.getAttribute('data-desc');
+        const sector = button.getAttribute('data-sector');
+        const foto = button.getAttribute('data-foto');
+        prepararEdicion(id, titulo, desc, sector, foto);
+    }
+
+    function ejecutarBorrado(button) {
+        const id = button.getAttribute('data-id');
+        borrarEvento(id);
     }
 
     function alternarTexto(index) {
