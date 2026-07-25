@@ -69,33 +69,33 @@
         .btn-secondary { background: white; border: 1px solid var(--border-color); color: #475569; }
         .btn-secondary:hover { background: #f8fafc; }
         
-        /* FICHA / TARJETA ORGANIZADA */
-        .blog-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 24px; align-items: stretch; }
-        .evento-card { background: white; border: 1px solid #e2e8f0; border-radius: 12px; padding: 18px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02); display: flex; flex-direction: column; justify-content: space-between; height: 100%; }
+        /* GRILLA Y TARJETAS UNIFORMES */
+        .blog-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; align-items: stretch; }
+        .evento-card { background: white; border: 1px solid #e2e8f0; border-radius: 12px; padding: 16px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02); display: flex; flex-direction: column; justify-content: space-between; height: 100%; }
         
         .card-top-content { display: flex; flex-direction: column; }
         .card-bottom-content { display: flex; flex-direction: column; margin-top: auto; }
 
-        /* GALERÍA DE FOTOS UNIFORME */
-        .galeria-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(75px, 1fr)); gap: 6px; margin-bottom: 12px; }
-        .galeria-grid.single-img { grid-template-columns: 1fr; }
-        .galeria-item { width: 100%; height: 100px; object-fit: cover; border-radius: 6px; background: #0f172a; cursor: pointer; transition: opacity 0.2s; border: 1px solid #e2e8f0; }
-        .galeria-item:hover { opacity: 0.88; }
-        .single-img .galeria-item { height: 160px; object-fit: cover; }
+        /* GALERÍA DE FOTOS ESTRICTA PARA EVITAR DESORDEN */
+        .galeria-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-bottom: 10px; max-height: 140px; overflow: hidden; background: #f8fafc; border-radius: 6px; padding: 4px; }
+        .galeria-grid.single-img { grid-template-columns: 1fr; max-height: 160px; }
+        .galeria-item { width: 100%; height: 120px; object-fit: cover; border-radius: 4px; background: #0f172a; cursor: pointer; transition: opacity 0.2s; border: 1px solid #cbd5e1; }
+        .galeria-item:hover { opacity: 0.85; }
+        .single-img .galeria-item { height: 150px; }
 
-        .evento-card h3 { font-size: 15px; color: var(--text-dark-title); font-weight: 700; margin-bottom: 6px; line-height: 1.3; }
+        .evento-card h3 { font-size: 14.5px; color: var(--text-dark-title); font-weight: 700; margin-bottom: 4px; line-height: 1.3; }
         .evento-card .meta-sector { font-size: 11px; color: var(--sidebar-active); font-weight: 600; margin-bottom: 6px; text-transform: uppercase; }
         
-        /* DESCRIPCIÓN COLAPSADA */
-        .desc-container { font-size: 13px; color: #475569; line-height: 1.4; margin-bottom: 10px; }
+        /* DESCRIPCIÓN */
+        .desc-container { font-size: 12.5px; color: #475569; line-height: 1.4; margin-bottom: 8px; }
         .desc-text { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; text-overflow: ellipsis; }
         .desc-text.expanded { display: block; }
-        .btn-leer-mas { background: none; border: none; color: var(--sidebar-active); font-weight: 600; font-size: 11.5px; cursor: pointer; margin-top: 3px; padding: 0; }
+        .btn-leer-mas { background: none; border: none; color: var(--sidebar-active); font-weight: 600; font-size: 11px; cursor: pointer; margin-top: 2px; padding: 0; }
         
-        .evento-card .fecha { font-size: 11px; color: #94a3b8; font-weight: 500; margin-bottom: 10px; }
+        .evento-card .fecha { font-size: 10.5px; color: #94a3b8; font-weight: 500; margin-bottom: 8px; }
 
-        .actions-area { display: flex; gap: 8px; border-top: 1px dashed #e2e8f0; padding-top: 10px; }
-        .btn-small { padding: 6px 10px; font-size: 12px; font-weight: 600; border-radius: 6px; border: none; cursor: pointer; width: 50%; text-align: center; display: inline-flex; align-items: center; justify-content: center; gap: 4px; }
+        .actions-area { display: flex; gap: 6px; border-top: 1px dashed #e2e8f0; padding-top: 8px; }
+        .btn-small { padding: 5px 8px; font-size: 11.5px; font-weight: 600; border-radius: 6px; border: none; cursor: pointer; width: 50%; text-align: center; display: inline-flex; align-items: center; justify-content: center; gap: 4px; }
         .btn-edit { background: #fef3c7; color: #b45309; }
         .btn-edit:hover { background: #fde68a; }
         .btn-del { background: #fee2e2; color: var(--danger-color); }
@@ -280,10 +280,16 @@
                 const galeriaHTML = `
                     <div class="galeria-grid ${isSingle ? 'single-img' : ''}">
                         ${fotosArray.map(url => `
-                            <img src="${url}" class="galeria-item" alt="Evidencia" onclick="abrirModalImagen('${url}')" title="Clic para ampliar imagen">
+                            <img src="${url}" class="galeria-item" alt="Evidencia" onclick="abrirModalImagen('${url.replace(/'/g, "\\'")}')" title="Clic para ampliar imagen">
                         `).join('')}
                     </div>
                 `;
+
+                // Sanitización estricta de variables para inyección segura en HTML onclick
+                const safeTitulo = (ev.titulo || '').replace(/'/g, "&apos;").replace(/"/g, "&quot;");
+                const safeDesc = (ev.descripcion || '').replace(/'/g, "&apos;").replace(/"/g, "&quot;");
+                const safeSector = (ev.sector || '').replace(/'/g, "&apos;").replace(/"/g, "&quot;");
+                const safeFoto = (ev.url_foto || '').replace(/'/g, "&apos;").replace(/"/g, "&quot;");
                 
                 return `
                     <div class="evento-card">
@@ -299,7 +305,7 @@
                         <div class="card-bottom-content">
                             <div class="fecha">📅 Fecha: ${ev.fecha || 'Reciente'}</div>
                             <div class="actions-area">
-                                <button class="btn-small btn-edit" onclick="prepararEdicion(${ev.id}, '${(ev.titulo || '').replace(/'/g, "\\'")}', '${(ev.descripcion || '').replace(/'/g, "\\'")}', '${(ev.sector || '').replace(/'/g, "\\'")}', '${(ev.url_foto || '').replace(/'/g, "\\'")}')">✏️ Editar</button>
+                                <button class="btn-small btn-edit" onclick="prepararEdicion(${ev.id}, '${safeTitulo}', '${safeDesc}', '${safeSector}', '${safeFoto}')">✏️ Editar</button>
                                 <button class="btn-small btn-del" onclick="borrarEvento(${ev.id})">🗑️ Borrar</button>
                             </div>
                         </div>
@@ -354,10 +360,10 @@
 
     function prepararEdicion(id, titulo, desc, sector, foto) {
         editId = id;
-        document.getElementById('in-titulo').value = titulo || '';
-        document.getElementById('in-desc').value = desc || '';
-        document.getElementById('in-sector').value = sector || '';
-        document.getElementById('in-url-foto-hidden').value = foto || '';
+        document.getElementById('in-titulo').value = titulo.replace(/&apos;/g, "'").replace(/&quot;/g, '"') || '';
+        document.getElementById('in-desc').value = desc.replace(/&apos;/g, "'").replace(/&quot;/g, '"') || '';
+        document.getElementById('in-sector').value = sector.replace(/&apos;/g, "'").replace(/&quot;/g, '"') || '';
+        document.getElementById('in-url-foto-hidden').value = foto.replace(/&apos;/g, "'").replace(/&quot;/g, '"') || '';
         document.getElementById('in-file-foto').value = '';
         document.getElementById('modal-title').innerText = "Modificar Publicación de Bitácora";
         document.getElementById('modalEvento').classList.add('active');
