@@ -550,12 +550,21 @@
                     lineaTitulo = asuntoInforme ? asuntoInforme[1].trim() : lineaTitulo.split('\n')[2] || lineaTitulo.split('\n')[0];
                 }
 
-                // Validar si el usuario actual es el creador o es admin para permitir borrar
+                // Validar permisos de edición y borrado
                 const esCreador = r.creado_por && r.creado_por.toLowerCase() === usuarioActual.toLowerCase();
                 const esAdmin = rolActual === 'admin';
+                
+                const botonEditarHTML = (esCreador || esAdmin)
+                    ? `<button class="btn-success" onclick="abrirEditarRegistro(${r.id})">Editar</button>`
+                    : ``;
+
                 const botonBorrarHTML = (esCreador || esAdmin) 
                     ? `<button class="btn-del" onclick="eliminarRegistro(${r.id})">Borrar</button>` 
-                    : `<span style="font-size:10px; color:#94a3b8; font-style:italic;" title="Solo el creador o admin pueden borrarlo">🔒 Protegido</span>`;
+                    : ``;
+
+                const badgeProtegido = (!esCreador && !esAdmin) 
+                    ? `<span style="font-size:10px; color:#94a3b8; font-style:italic;" title="Solo el creador o admin pueden modificarlo">🔒 Protegido</span>`
+                    : ``;
 
                 return `
                     <tr>
@@ -566,8 +575,9 @@
                         <td>
                             <div class="action-buttons">
                                 <button class="btn-wa" onclick="verDetallesModal(${r.id})">Ver</button>
-                                <button class="btn-success" onclick="abrirEditarRegistro(${r.id})">Editar</button>
+                                ${botonEditarHTML}
                                 ${botonBorrarHTML}
+                                ${badgeProtegido}
                             </div>
                         </td>
                     </tr>
@@ -640,6 +650,17 @@
             
             if (!registro) {
                 alert("No se encontró el registro en la memoria local.");
+                return;
+            }
+
+            // Doble validación de seguridad previa en frontend
+            const usuarioActual = sessionStorage.getItem("usuario_nombre") || "";
+            const rolActual = sessionStorage.getItem("usuario_rol") || "";
+            const esCreador = registro.creado_por && registro.creado_por.toLowerCase() === usuarioActual.toLowerCase();
+            const esAdmin = rolActual === 'admin';
+
+            if (!esCreador && !esAdmin) {
+                alert("Acción no permitida. Solo el usuario que creó este registro o un administrador pueden editarlo.");
                 return;
             }
 
