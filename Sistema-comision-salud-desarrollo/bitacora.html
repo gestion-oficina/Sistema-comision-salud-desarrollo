@@ -203,6 +203,7 @@
                 <button class="modal-close" onclick="cerrarModal()">×</button>
             </div>
             <div class="modal-body">
+                <input type="hidden" id="in-edit-id" value="">
                 <input type="hidden" id="in-url-foto-hidden">
 
                 <div class="form-group">
@@ -242,7 +243,6 @@
     </div>
 
 <script>
-    let editId = null;
     let visorGaleriaActual = [];
     let visorIndiceActual = 0;
 
@@ -431,7 +431,7 @@
     }
 
     function abrirModal() { 
-        editId = null; 
+        document.getElementById('in-edit-id').value = ''; 
         document.getElementById('in-titulo').value = '';
         document.getElementById('in-sector').value = '';
         document.getElementById('in-desc').value = '';
@@ -446,7 +446,7 @@
     }
 
     function prepararEdicion(id, titulo, desc, sector, foto) {
-        editId = id; 
+        document.getElementById('in-edit-id').value = id || ''; 
         document.getElementById('in-titulo').value = titulo.replace(/\\'/g, "'").replace(/&quot;/g, '"') || '';
         document.getElementById('in-desc').value = desc.replace(/\\'/g, "'").replace(/&quot;/g, '"') || '';
         document.getElementById('in-sector').value = sector.replace(/\\'/g, "'").replace(/&quot;/g, '"') || '';
@@ -493,6 +493,7 @@
         const sector = document.getElementById('in-sector').value.trim();
         const descripcion = document.getElementById('in-desc').value.trim();
         const fileInputFotos = document.getElementById('in-file-foto').files;
+        const rawEditId = document.getElementById('in-edit-id').value.trim();
 
         if (!titulo || !descripcion) {
             alert("Por favor ingrese al menos el Título y la Descripción del evento.");
@@ -518,9 +519,10 @@
             }
 
             const url_foto_json = JSON.stringify(fotosUrls);
+            const idNumerico = parseInt(rawEditId, 10);
 
-            if (editId !== null && editId !== "" && editId !== "null" && !isNaN(editId)) {
-                const idNumerico = parseInt(editId, 10);
+            if (!isNaN(idNumerico) && idNumerico > 0) {
+                // Actualizar registro existente usando bigint/integer (UPDATE)
                 await window.sqlClient`
                     UPDATE bitacora_eventos 
                     SET titulo = ${titulo}, 
@@ -530,6 +532,7 @@
                     WHERE id = ${idNumerico}
                 `;
             } else {
+                // Crear nuevo registro (INSERT)
                 const fechaHoy = new Date().toISOString().split('T')[0];
                 await window.sqlClient`
                     INSERT INTO bitacora_eventos (titulo, sector, descripcion, url_foto, fecha) 
