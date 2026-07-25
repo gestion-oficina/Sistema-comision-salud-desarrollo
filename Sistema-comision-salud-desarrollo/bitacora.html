@@ -465,24 +465,39 @@
         });
     }
 
+    // NUEVA FUNCIÓN DE BORRADO DEPURADA
     async function borrarEvento(id) {
-        if (!window.sqlClient) { alert("No hay conexión con la base de datos."); return; }
+        if (!window.sqlClient) { 
+            alert("No hay conexión con la base de datos Neon."); 
+            return; 
+        }
         
-        const idLimpio = String(id || '').trim();
-        const idNumerico = parseInt(idLimpio, 10);
+        // 1. Convertimos lo que llegue a texto para evitar fallos de tipo
+        const idLimpio = String(id).trim();
         
-        if (!idLimpio || isNaN(idNumerico)) {
-            alert("El ID del registro no es un número válido.");
+        // 2. Depuración: Esto te mostrará en pantalla qué está recibiendo realmente
+        if (idLimpio === 'undefined' || idLimpio === 'null' || idLimpio === '') {
+            alert("🚨 ERROR: El ID está llegando vacío o como 'undefined'. Revisa que la columna en tu base de datos Neon se llame exactamente 'id' en minúsculas.");
             return;
         }
 
+        const idNumerico = parseInt(idLimpio, 10);
+        
+        // 3. Verificamos si es un número válido
+        if (isNaN(idNumerico)) {
+            alert("🚨 ERROR: El ID recibido no es un número. Valor recibido: " + idLimpio);
+            return;
+        }
+
+        // 4. Si todo está bien, procedemos a borrar
         if (!confirm("¿Remover permanentemente esta evidencia de la bitácora pública?")) return;
 
         try {
             await window.sqlClient`DELETE FROM bitacora_eventos WHERE id = ${idNumerico}`;
-            cargarBitacora();
+            alert("✅ Evento borrado con éxito.");
+            cargarBitacora(); // Recarga la vista
         } catch (err) {
-            alert("No se pudo eliminar el registro: " + err.message);
+            alert("❌ No se pudo eliminar el registro en Neon: " + err.message);
         }
     }
 
