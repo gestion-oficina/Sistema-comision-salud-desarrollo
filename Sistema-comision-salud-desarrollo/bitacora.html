@@ -399,10 +399,7 @@
     }
 
     async function guardarPublicacion() {
-        if (!window.sqlClient) { 
-            alert("No hay conexión con la base de datos Neon."); 
-            return; 
-        }
+        if (!window.sqlClient) { alert("No hay conexión con la base de datos Neon."); return; }
 
         const titulo = document.getElementById('in-titulo').value.trim();
         const sector = document.getElementById('in-sector').value.trim();
@@ -415,22 +412,18 @@
             return;
         }
 
-        // Validación de tamaño para el video (Límite sugerido: 6 MB para servidores Serverless)
-        if (fileVideo && fileVideo.size > 6 * 1024 * 1024) {
-            alert("⚠️ El video es demasiado pesado (" + (fileVideo.size / (1024 * 1024)).toFixed(1) + " MB).\n\nPara que la plataforma funcione de forma rápida y sin errores en Neon, por favor sube un video corto de menos de 6 MB o comprimido.");
-            return;
-        }
-
         try {
             let fotosUrls = [];
             const hiddenFotoVal = document.getElementById('in-url-foto-hidden').value;
 
+            // Si hay fotos nuevas seleccionadas, las convertimos todas a Base64
             if (fileInputFotos && fileInputFotos.length > 0) {
                 for (let i = 0; i < fileInputFotos.length; i++) {
                     const base64 = await convertirBase64(fileInputFotos[i]);
                     fotosUrls.push(base64);
                 }
             } else if (hiddenFotoVal) {
+                // Si estamos editando y no seleccionamos nuevas, mantenemos las anteriores
                 try {
                     fotosUrls = JSON.parse(hiddenFotoVal);
                     if (!Array.isArray(fotosUrls)) fotosUrls = [hiddenFotoVal];
