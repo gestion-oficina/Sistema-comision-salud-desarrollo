@@ -66,6 +66,7 @@
         .btn { padding: 10px 16px; font-size: 13px; font-weight: 600; border-radius: 8px; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: all 0.2s; border: none; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
         .btn-primary { background: var(--sidebar-active); color: white; box-shadow: 0 2px 4px rgba(37, 99, 235, 0.2); }
         .btn-primary:hover { background: #1d4ed8; }
+        .btn-primary:disabled { background: #94a3b8; cursor: not-allowed; box-shadow: none; }
         .btn-secondary { background: white; border: 1px solid var(--border-color); color: #475569; }
         .btn-secondary:hover { background: #f8fafc; }
         
@@ -226,7 +227,7 @@
             </div>
             <div class="modal-footer">
                 <button class="btn btn-secondary" onclick="cerrarModal()">Cancelar</button>
-                <button class="btn btn-primary" onclick="guardarPublicacion()">Guardar Publicación</button>
+                <button class="btn btn-primary" id="btn-guardar" onclick="guardarPublicacion()">Guardar Publicación</button>
             </div>
         </div>
     </div>
@@ -456,46 +457,56 @@
         document.getElementById('modalEvento').classList.add('active');
     }
 
-    function convertirBase64(file) {
-        return new Promise((resolve, reject) => {
-            const reader = new FileReader();
-            reader.readAsDataURL(file);
-            reader.onload = () => resolve(reader.result);
-            reader.onerror = error => reject(error);
-        });
+    // Sube la imagen a ImgBB usando tu API Key configurada
+    async function subirImagenNube(file) {
+        const API_KEY = '3c49f725c88fe8005a46582f1ab30f52'; 
+
+        const url = `https://api.imgbb.com/1/upload?key=${API_KEY}`;
+        const formData = new FormData();
+        formData.append('image', file);
+
+        try {
+            const response = await fetch(url, {
+                method: 'POST',
+                body: formData
+            });
+            const data = await response.json();
+            
+            if (data.success) {
+                return data.data.url; // Retorna el enlace directo a la foto subida
+            } else {
+                throw new Error("ImgBB rechazó la imagen: " + (data.error ? data.error.message : 'Error desconocido'));
+            }
+        } catch (error) {
+            console.error("Error subiendo a la nube:", error);
+            throw error;
+        }
     }
 
-    // NUEVA FUNCIÓN DE BORRADO DEPURADA
     async function borrarEvento(id) {
         if (!window.sqlClient) { 
             alert("No hay conexión con la base de datos Neon."); 
             return; 
         }
         
-        // 1. Convertimos lo que llegue a texto para evitar fallos de tipo
         const idLimpio = String(id).trim();
-        
-        // 2. Depuración: Esto te mostrará en pantalla qué está recibiendo realmente
         if (idLimpio === 'undefined' || idLimpio === 'null' || idLimpio === '') {
             alert("🚨 ERROR: El ID está llegando vacío o como 'undefined'. Revisa que la columna en tu base de datos Neon se llame exactamente 'id' en minúsculas.");
             return;
         }
 
         const idNumerico = parseInt(idLimpio, 10);
-        
-        // 3. Verificamos si es un número válido
         if (isNaN(idNumerico)) {
             alert("🚨 ERROR: El ID recibido no es un número. Valor recibido: " + idLimpio);
             return;
         }
 
-        // 4. Si todo está bien, procedemos a borrar
         if (!confirm("¿Remover permanentemente esta evidencia de la bitácora pública?")) return;
 
         try {
             await window.sqlClient`DELETE FROM bitacora_eventos WHERE id = ${idNumerico}`;
             alert("✅ Evento borrado con éxito.");
-            cargarBitacora(); // Recarga la vista
+            cargarBitacora();
         } catch (err) {
             alert("❌ No se pudo eliminar el registro en Neon: " + err.message);
         }
@@ -509,20 +520,27 @@
         const descripcion = document.getElementById('in-desc').value.trim();
         const fileInputFotos = document.getElementById('in-file-foto').files;
         const rawEditId = document.getElementById('in-edit-id').value.trim();
+        const btnGuardar = document.getElementById('btn-guardar');
 
         if (!titulo || !descripcion) {
             alert("Por favor ingrese al menos el Título y la Descripción del evento.");
             return;
         }
 
+        // Cambiamos el aspecto del botón mientras trabaja
+        const textoOriginalBoton = btnGuardar.innerText;
+        btnGuardar.innerText = "⏳ Subiendo fotos a la nube...";
+        btnGuardar.disabled = true;
+
         try {
             let fotosUrls = [];
             const hiddenFotoVal = document.getElementById('in-url-foto-hidden').value;
 
+            // PROCESO DE SUBIDA A LA NUBE
             if (fileInputFotos && fileInputFotos.length > 0) {
                 for (let i = 0; i < fileInputFotos.length; i++) {
-                    const base64 = await convertirBase64(fileInputFotos[i]);
-                    fotosUrls.push(base64);
+                    const urlSeguraNube = await subirImagenNube(fileInputFotos[i]);
+                    fotosUrls.push(urlSeguraNube);
                 }
             } else if (hiddenFotoVal) {
                 try {
@@ -555,8 +573,12 @@
             
             cerrarModal();
             cargarBitacora();
+            
         } catch (err) {
-            alert("Error al procesar los archivos o guardar en Neon:\n" + err.message);
+            alert("Error al procesar las fotos o guardar el evento:\n" + err.message);
+        } finally {
+            btnGuardar.innerText = textoOriginalBoton;
+            btnGuardar.disabled = false;
         }
     }
 </script>
