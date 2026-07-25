@@ -325,6 +325,7 @@
                 const safeSector = (ev.sector || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
                 const safeFoto = (ev.url_foto || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
                 const fechaLimpia = formatearFecha(ev.fecha);
+                const rawId = ev.id;
                 
                 return `
                     <div class="evento-card">
@@ -340,8 +341,8 @@
                         <div class="card-bottom-content">
                             <div class="fecha">📅 Fecha: ${fechaLimpia}</div>
                             <div class="actions-area">
-                                <button class="btn-small btn-edit" onclick="prepararEdicion('${ev.id}', '${safeTitulo}', '${safeDesc}', '${safeSector}', '${safeFoto}')">✏️ Editar</button>
-                                <button class="btn-small btn-del" onclick="borrarEvento('${ev.id}')">🗑️ Borrar</button>
+                                <button class="btn-small btn-edit" onclick="prepararEdicion(${rawId}, '${safeTitulo}', '${safeDesc}', '${safeSector}', '${safeFoto}')">✏️ Editar</button>
+                                <button class="btn-small btn-del" onclick="borrarEvento(${rawId})">🗑️ Borrar</button>
                             </div>
                         </div>
                     </div>
@@ -457,6 +458,9 @@
 
         try {
             const idNumerico = parseInt(id, 10);
+            if (isNaN(idNumerico)) {
+                throw new Error("El ID del registro no es un número válido.");
+            }
             await window.sqlClient`DELETE FROM bitacora_eventos WHERE id = ${idNumerico}`;
             cargarBitacora();
         } catch (err) {
@@ -497,7 +501,7 @@
 
             const url_foto_json = JSON.stringify(fotosUrls);
 
-            if (editId !== null && editId !== "" && editId !== "null") {
+            if (editId !== null && editId !== "" && editId !== "null" && !isNaN(editId)) {
                 const idNumerico = parseInt(editId, 10);
                 await window.sqlClient`
                     UPDATE bitacora_eventos 
