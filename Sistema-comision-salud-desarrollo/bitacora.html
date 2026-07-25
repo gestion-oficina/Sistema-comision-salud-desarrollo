@@ -325,7 +325,6 @@
                 const safeSector = (ev.sector || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
                 const safeFoto = (ev.url_foto || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
                 const fechaLimpia = formatearFecha(ev.fecha);
-                const rawId = ev.id;
                 
                 return `
                     <div class="evento-card">
@@ -341,8 +340,8 @@
                         <div class="card-bottom-content">
                             <div class="fecha">📅 Fecha: ${fechaLimpia}</div>
                             <div class="actions-area">
-                                <button class="btn-small btn-edit" data-id="${rawId}" data-titulo="${safeTitulo}" data-desc="${safeDesc}" data-sector="${safeSector}" data-foto="${safeFoto}" onclick="ejecutarEdicion(this)">✏️ Editar</button>
-                                <button class="btn-small btn-del" data-id="${rawId}" onclick="ejecutarBorrado(this)">🗑️ Borrar</button>
+                                <button class="btn-small btn-edit" data-id="${ev.id}" data-titulo="${safeTitulo}" data-desc="${safeDesc}" data-sector="${safeSector}" data-foto="${safeFoto}" onclick="ejecutarEdicion(this)">✏️ Editar</button>
+                                <button class="btn-small btn-del" data-id="${ev.id}" onclick="ejecutarBorrado(this)">🗑️ Borrar</button>
                             </div>
                         </div>
                     </div>
@@ -469,8 +468,10 @@
     async function borrarEvento(id) {
         if (!window.sqlClient) { alert("No hay conexión con la base de datos."); return; }
         
-        const idNumerico = parseInt(id, 10);
-        if (isNaN(idNumerico)) {
+        const idLimpio = String(id || '').trim();
+        const idNumerico = parseInt(idLimpio, 10);
+        
+        if (!idLimpio || isNaN(idNumerico)) {
             alert("El ID del registro no es un número válido.");
             return;
         }
