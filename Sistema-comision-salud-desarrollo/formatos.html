@@ -326,11 +326,11 @@
         if (["xlsx", "xls"].includes(fileExt)) tipoExt = "EXCEL";
         if (["pdf"].includes(fileExt)) tipoExt = "PDF";
 
-        // Proceso de subida a Cloudinary
+        // Proceso de subida a Cloudinary corregido con 'auto'
         const formData = new FormData();
         formData.append('file', file);
         formData.append('upload_preset', UPLOAD_PRESET);
-        const cloudinaryUrl = `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/raw/upload`;
+        const cloudinaryUrl = `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/auto/upload`;
 
         try {
             const uploadResponse = await fetch(cloudinaryUrl, {
@@ -347,7 +347,7 @@
 
             btnGuardar.innerText = "⏳ Guardando registro en Neon...";
 
-            // Inserción en Neon con la URL de Cloudinary
+            // Inserción en Neon con la URL pública de Cloudinary
             await window.sqlClient`
                 INSERT INTO formatos_oficina (nombre, descripcion, categoria, tipo_archivo, url_descarga, creado_por)
                 VALUES (${nombre}, ${descripcion}, ${categoria}, ${tipoExt}, ${urlNube}, ${creado_por})
