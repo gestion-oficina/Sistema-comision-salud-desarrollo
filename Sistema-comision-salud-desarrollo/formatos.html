@@ -151,7 +151,7 @@
                         <th style="padding: 12px 8px;">Área Asignada</th>
                         <th style="padding: 12px 8px;">Extensión</th>
                         <th style="padding: 12px 8px;">Descripción</th>
-                        <th style="padding: 12px 8px; text-align: right;">Acción</th>
+                        <th style="padding: 12px 8px; text-align: right;">Acciones</th>
                     </tr>
                 </thead>
                 <tbody id="tablaFormatos" style="font-size: 13.5px; color: #334155;">
@@ -275,9 +275,14 @@
                             ${f.descripcion || 'Sin descripción'}
                         </td>
                         <td style="padding: 12px 8px; text-align: right;">
-                            <a href="${f.url_descarga}" target="_blank" style="padding: 6px 12px; background: #2563eb; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 12.5px; font-weight: 600; text-decoration: none; display: inline-block;">
-                                📥 Descargar
-                            </a>
+                            <div style="display: flex; justify-content: flex-end; gap: 6px;">
+                                <a href="${f.url_descarga}" target="_blank" style="padding: 6px 12px; background: #2563eb; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 12.5px; font-weight: 600; text-decoration: none; display: inline-block;">
+                                    📥 Descargar
+                                </a>
+                                <button onclick="eliminarFormato(${f.id})" style="padding: 6px 10px; background: #dc2626; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 12.5px; font-weight: 600;" title="Eliminar registro">
+                                    🗑️
+                                </button>
+                            </div>
                         </td>
                     </tr>
                 `;
@@ -286,6 +291,21 @@
         } catch (err) {
             console.error("Error al renderizar:", err);
             tablaFormatos.innerHTML = `<tr><td colspan="5" style="text-align: center; padding: 30px; color: #ef4444; font-weight: 600;">⚠️ Error de enlace con Neon: ${err.message}</td></tr>`;
+        }
+    }
+
+    async function eliminarFormato(id) {
+        if (!confirm("¿Estás seguro de que deseas eliminar este formato de la lista?")) {
+            return;
+        }
+
+        try {
+            await window.sqlClient`DELETE FROM formatos_oficina WHERE id = ${id}`;
+            alert("¡Formato eliminado exitosamente!");
+            cargarFormatos();
+        } catch (err) {
+            console.error("Error al eliminar:", err);
+            alert("No se pudo eliminar el registro: " + err.message);
         }
     }
 
@@ -326,7 +346,6 @@
         if (["xlsx", "xls"].includes(fileExt)) tipoExt = "EXCEL";
         if (["pdf"].includes(fileExt)) tipoExt = "PDF";
 
-        // Proceso de subida a Cloudinary corregido con 'auto'
         const formData = new FormData();
         formData.append('file', file);
         formData.append('upload_preset', UPLOAD_PRESET);
@@ -347,7 +366,6 @@
 
             btnGuardar.innerText = "⏳ Guardando registro en Neon...";
 
-            // Inserción en Neon con la URL pública de Cloudinary
             await window.sqlClient`
                 INSERT INTO formatos_oficina (nombre, descripcion, categoria, tipo_archivo, url_descarga, creado_por)
                 VALUES (${nombre}, ${descripcion}, ${categoria}, ${tipoExt}, ${urlNube}, ${creado_por})
