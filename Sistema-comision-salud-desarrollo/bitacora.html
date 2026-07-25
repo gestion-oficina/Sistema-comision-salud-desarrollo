@@ -69,34 +69,37 @@
         .btn-secondary { background: white; border: 1px solid var(--border-color); color: #475569; }
         .btn-secondary:hover { background: #f8fafc; }
         
-        .actions-area { display: flex; gap: 8px; margin-top: 15px; border-top: 1px dashed #e2e8f0; padding-top: 12px; }
-        .btn-small { padding: 6px 12px; font-size: 12px; font-weight: 600; border-radius: 6px; border: none; cursor: pointer; }
-        .btn-edit { background: #fef3c7; color: #b45309; }
-        .btn-edit:hover { background: #fde68a; }
-        .btn-del { background: #fee2e2; color: var(--danger-color); }
-        .btn-del:hover { background: #fecaca; }
-
-        /* GRID DE BITÁCORA */
-        .blog-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 24px; }
-        .evento-card { background: white; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden; padding: 20px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02); display: flex; flex-direction: column; justify-content: space-between; }
+        /* FICHA / TARJETA ORGANIZADA */
+        .blog-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 24px; align-items: stretch; }
+        .evento-card { background: white; border: 1px solid #e2e8f0; border-radius: 12px; padding: 20px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02); display: flex; flex-direction: column; justify-content: space-between; height: 100%; }
         
-        /* GALERÍA DE MÚLTIPLES IMÁGENES */
+        .card-top-content { display: flex; flex-direction: column; }
+        .card-bottom-content { display: flex; flex-direction: column; margin-top: auto; }
+
+        /* GALERÍA DE FOTOS UNIFORME */
         .galeria-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); gap: 8px; margin-bottom: 14px; }
         .galeria-grid.single-img { grid-template-columns: 1fr; }
         .galeria-item { width: 100%; height: 110px; object-fit: cover; border-radius: 6px; background: #0f172a; cursor: pointer; transition: opacity 0.2s; border: 1px solid #e2e8f0; }
         .galeria-item:hover { opacity: 0.88; }
-        .single-img .galeria-item { height: auto; max-height: 340px; object-fit: contain; }
+        .single-img .galeria-item { height: 180px; object-fit: cover; }
 
-        .evento-card h3 { font-size: 16px; color: var(--text-dark-title); font-weight: 700; margin-bottom: 6px; }
-        .evento-card .meta-sector { font-size: 12px; color: var(--sidebar-active); font-weight: 600; margin-bottom: 10px; text-transform: uppercase; }
+        .evento-card h3 { font-size: 16px; color: var(--text-dark-title); font-weight: 700; margin-bottom: 6px; line-height: 1.3; }
+        .evento-card .meta-sector { font-size: 12px; color: var(--sidebar-active); font-weight: 600; margin-bottom: 8px; text-transform: uppercase; }
         
         /* DESCRIPCIÓN COLAPSADA */
-        .desc-container { font-size: 13px; color: #475569; line-height: 1.5; flex-grow: 1; }
+        .desc-container { font-size: 13px; color: #475569; line-height: 1.5; margin-bottom: 12px; }
         .desc-text { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; text-overflow: ellipsis; }
         .desc-text.expanded { display: block; }
         .btn-leer-mas { background: none; border: none; color: var(--sidebar-active); font-weight: 600; font-size: 12px; cursor: pointer; margin-top: 4px; padding: 0; }
         
-        .evento-card .fecha { font-size: 11px; color: #94a3b8; margin-top: 12px; font-weight: 500; }
+        .evento-card .fecha { font-size: 11px; color: #94a3b8; font-weight: 500; margin-bottom: 10px; }
+
+        .actions-area { display: flex; gap: 8px; border-top: 1px dashed #e2e8f0; padding-top: 12px; }
+        .btn-small { padding: 6px 12px; font-size: 12px; font-weight: 600; border-radius: 6px; border: none; cursor: pointer; width: 50%; text-align: center; display: inline-flex; align-items: center; justify-content: center; gap: 4px;}
+        .btn-edit { background: #fef3c7; color: #b45309; }
+        .btn-edit:hover { background: #fde68a; }
+        .btn-del { background: #fee2e2; color: var(--danger-color); }
+        .btn-del:hover { background: #fecaca; }
 
         /* VENTANA MODAL FORMULARIO */
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(4px); display: none; align-items: center; justify-content: center; z-index: 2000; padding: 16px; }
@@ -284,7 +287,7 @@
                 
                 return `
                     <div class="evento-card">
-                        <div>
+                        <div class="card-top-content">
                             ${galeriaHTML}
                             <div class="meta-sector">📍 ${ev.sector || 'Municipio Plaza'}</div>
                             <h3>${ev.titulo || 'Actividad Especial'}</h3>
@@ -293,7 +296,7 @@
                                 <button class="btn-leer-mas" id="btn-desc-${index}" onclick="alternarTexto(${index})">Ver más</button>
                             </div>
                         </div>
-                        <div>
+                        <div class="card-bottom-content">
                             <div class="fecha">📅 Fecha: ${ev.fecha || 'Reciente'}</div>
                             <div class="actions-area">
                                 <button class="btn-small btn-edit" onclick="prepararEdicion(${ev.id}, '${(ev.titulo || '').replace(/'/g, "\\'")}', '${(ev.descripcion || '').replace(/'/g, "\\'")}', '${(ev.sector || '').replace(/'/g, "\\'")}', '${(ev.url_foto || '').replace(/'/g, "\\'")}')">✏️ Editar</button>
@@ -398,14 +401,12 @@
             let fotosUrls = [];
             const hiddenFotoVal = document.getElementById('in-url-foto-hidden').value;
 
-            // Si hay fotos nuevas seleccionadas, las convertimos todas a Base64
             if (fileInputFotos && fileInputFotos.length > 0) {
                 for (let i = 0; i < fileInputFotos.length; i++) {
                     const base64 = await convertirBase64(fileInputFotos[i]);
                     fotosUrls.push(base64);
                 }
             } else if (hiddenFotoVal) {
-                // Si estamos editando y no seleccionamos nuevas, mantenemos las anteriores
                 try {
                     fotosUrls = JSON.parse(hiddenFotoVal);
                     if (!Array.isArray(fotosUrls)) fotosUrls = [hiddenFotoVal];
