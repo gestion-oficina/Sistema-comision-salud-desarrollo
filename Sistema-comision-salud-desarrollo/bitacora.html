@@ -262,7 +262,6 @@
 
     function formatearFecha(fechaStr) {
         if (!fechaStr) return 'Reciente';
-        // Si viene en formato ISO o fecha de base de datos
         try {
             const d = new Date(fechaStr);
             if (!isNaN(d.getTime())) {
@@ -321,10 +320,10 @@
                     </div>
                 `;
 
-                const safeTitulo = (ev.titulo || '').replace(/'/g, "&apos;").replace(/"/g, "&quot;");
-                const safeDesc = (ev.descripcion || '').replace(/'/g, "&apos;").replace(/"/g, "&quot;");
-                const safeSector = (ev.sector || '').replace(/'/g, "&apos;").replace(/"/g, "&quot;");
-                const safeFoto = (ev.url_foto || '').replace(/'/g, "&apos;").replace(/"/g, "&quot;");
+                const safeTitulo = (ev.titulo || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
+                const safeDesc = (ev.descripcion || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
+                const safeSector = (ev.sector || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
+                const safeFoto = (ev.url_foto || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
                 const fechaLimpia = formatearFecha(ev.fecha);
                 
                 return `
@@ -341,8 +340,8 @@
                         <div class="card-bottom-content">
                             <div class="fecha">📅 Fecha: ${fechaLimpia}</div>
                             <div class="actions-area">
-                                <button class="btn-small btn-edit" onclick="prepararEdicion(${ev.id}, '${safeTitulo}', '${safeDesc}', '${safeSector}', '${safeFoto}')">✏️ Editar</button>
-                                <button class="btn-small btn-del" onclick="borrarEvento(${ev.id})">🗑️ Borrar</button>
+                                <button class="btn-small btn-edit" onclick="prepararEdicion('${ev.id}', '${safeTitulo}', '${safeDesc}', '${safeSector}', '${safeFoto}')">✏️ Editar</button>
+                                <button class="btn-small btn-del" onclick="borrarEvento('${ev.id}')">🗑️ Borrar</button>
                             </div>
                         </div>
                     </div>
@@ -354,7 +353,6 @@
         }
     }
 
-    // Funciones para expandir/colapsar texto
     function alternarTexto(index) {
         const textElement = document.getElementById(`desc-${index}`);
         const btnElement = document.getElementById(`btn-desc-${index}`);
@@ -367,7 +365,6 @@
         }
     }
 
-    // Funciones del Visor de Galería con Flechas
     function abrirModalGaleria(fotosJsonEscaped, indiceInicial) {
         try {
             const cleanJson = fotosJsonEscaped.replace(/&apos;/g, "'").replace(/&quot;/g, '"');
@@ -435,11 +432,11 @@
     }
 
     function prepararEdicion(id, titulo, desc, sector, foto) {
-        editId = id;
-        document.getElementById('in-titulo').value = titulo.replace(/&apos;/g, "'").replace(/&quot;/g, '"') || '';
-        document.getElementById('in-desc').value = desc.replace(/&apos;/g, "'").replace(/&quot;/g, '"') || '';
-        document.getElementById('in-sector').value = sector.replace(/&apos;/g, "'").replace(/&quot;/g, '"') || '';
-        document.getElementById('in-url-foto-hidden').value = foto.replace(/&apos;/g, "'").replace(/&quot;/g, '"') || '';
+        editId = id; 
+        document.getElementById('in-titulo').value = titulo.replace(/\\'/g, "'").replace(/&quot;/g, '"') || '';
+        document.getElementById('in-desc').value = desc.replace(/\\'/g, "'").replace(/&quot;/g, '"') || '';
+        document.getElementById('in-sector').value = sector.replace(/\\'/g, "'").replace(/&quot;/g, '"') || '';
+        document.getElementById('in-url-foto-hidden').value = foto.replace(/\\'/g, "'").replace(/&quot;/g, '"') || '';
         document.getElementById('in-file-foto').value = '';
         document.getElementById('modal-title').innerText = "Modificar Publicación de Bitácora";
         document.getElementById('modalEvento').classList.add('active');
@@ -459,7 +456,8 @@
         if (!confirm("¿Remover permanentemente esta evidencia de la bitácora pública?")) return;
 
         try {
-            await window.sqlClient`DELETE FROM bitacora_eventos WHERE id = ${Number(id)}`;
+            const idNumerico = parseInt(id, 10);
+            await window.sqlClient`DELETE FROM bitacora_eventos WHERE id = ${idNumerico}`;
             cargarBitacora();
         } catch (err) {
             alert("No se pudo eliminar el registro: " + err.message);
@@ -498,18 +496,19 @@
             }
 
             const url_foto_json = JSON.stringify(fotosUrls);
-            const fechaHoy = new Date().toISOString().split('T')[0];
 
-            if (editId) {
+            if (editId !== null && editId !== "" && editId !== "null") {
+                const idNumerico = parseInt(editId, 10);
                 await window.sqlClient`
                     UPDATE bitacora_eventos 
                     SET titulo = ${titulo}, 
                         sector = ${sector}, 
                         descripcion = ${descripcion}, 
                         url_foto = ${url_foto_json}
-                    WHERE id = ${Number(editId)}
+                    WHERE id = ${idNumerico}
                 `;
             } else {
+                const fechaHoy = new Date().toISOString().split('T')[0];
                 await window.sqlClient`
                     INSERT INTO bitacora_eventos (titulo, sector, descripcion, url_foto, fecha) 
                     VALUES (${titulo}, ${sector}, ${descripcion}, ${url_foto_json}, ${fechaHoy})
