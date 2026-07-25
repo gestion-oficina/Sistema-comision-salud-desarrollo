@@ -341,8 +341,8 @@
                         <div class="card-bottom-content">
                             <div class="fecha">📅 Fecha: ${fechaLimpia}</div>
                             <div class="actions-area">
-                                <button class="btn-small btn-edit" onclick="prepararEdicion(${rawId}, '${safeTitulo}', '${safeDesc}', '${safeSector}', '${safeFoto}')">✏️ Editar</button>
-                                <button class="btn-small btn-del" onclick="borrarEvento(${rawId})">🗑️ Borrar</button>
+                                <button class="btn-small btn-edit" onclick="prepararEdicion('${rawId}', '${safeTitulo}', '${safeDesc}', '${safeSector}', '${safeFoto}')">✏️ Editar</button>
+                                <button class="btn-small btn-del" onclick="borrarEvento('${rawId}')">🗑️ Borrar</button>
                             </div>
                         </div>
                     </div>
@@ -454,13 +454,16 @@
 
     async function borrarEvento(id) {
         if (!window.sqlClient) { alert("No hay conexión con la base de datos."); return; }
+        
+        const idNumerico = parseInt(id, 10);
+        if (isNaN(idNumerico)) {
+            alert("El ID del registro no es un número válido.");
+            return;
+        }
+
         if (!confirm("¿Remover permanentemente esta evidencia de la bitácora pública?")) return;
 
         try {
-            const idNumerico = parseInt(id, 10);
-            if (isNaN(idNumerico)) {
-                throw new Error("El ID del registro no es un número válido.");
-            }
             await window.sqlClient`DELETE FROM bitacora_eventos WHERE id = ${idNumerico}`;
             cargarBitacora();
         } catch (err) {
