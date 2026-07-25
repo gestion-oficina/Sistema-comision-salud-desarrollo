@@ -257,6 +257,10 @@
                     <span class="info-value" id="modal-sector">—</span>
                 </div>
                 <div class="info-group">
+                    <span class="info-label">Creado Por</span>
+                    <span class="info-value" id="modal-creador">—</span>
+                </div>
+                <div class="info-group">
                     <span class="info-label">Estado en Sistema</span>
                     <span class="info-value"><span style="background: #e0f2fe; color: #0369a1; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 700;">ACTIVO</span></span>
                 </div>
@@ -470,6 +474,8 @@
             const fromVal = document.getElementById("filter-date-from").value;
             const toVal = document.getElementById("filter-date-to").value;
             const encargadoVal = document.getElementById("filter-encargado").value.toLowerCase();
+            const usuarioActual = sessionStorage.getItem("usuario_nombre") || "";
+            const rolActual = sessionStorage.getItem("usuario_rol") || "";
 
             const datosFiltrados = todosLosRegistros.filter(r => {
                 const campoNombre = (r.nombre || "").toLowerCase();
@@ -544,6 +550,13 @@
                     lineaTitulo = asuntoInforme ? asuntoInforme[1].trim() : lineaTitulo.split('\n')[2] || lineaTitulo.split('\n')[0];
                 }
 
+                // Validar si el usuario actual es el creador o es admin para permitir borrar
+                const esCreador = r.creado_por && r.creado_por.toLowerCase() === usuarioActual.toLowerCase();
+                const esAdmin = rolActual === 'admin';
+                const botonBorrarHTML = (esCreador || esAdmin) 
+                    ? `<button class="btn-del" onclick="eliminarRegistro(${r.id})">Borrar</button>` 
+                    : `<span style="font-size:10px; color:#94a3b8; font-style:italic;" title="Solo el creador o admin pueden borrarlo">🔒 Protegido</span>`;
+
                 return `
                     <tr>
                         <td><code>${numeroDocumento}</code></td>
@@ -554,7 +567,7 @@
                             <div class="action-buttons">
                                 <button class="btn-wa" onclick="verDetallesModal(${r.id})">Ver</button>
                                 <button class="btn-success" onclick="abrirEditarRegistro(${r.id})">Editar</button>
-                                <button class="btn-del" onclick="eliminarRegistro(${r.id})">Borrar</button>
+                                ${botonBorrarHTML}
                             </div>
                         </td>
                     </tr>
@@ -585,6 +598,7 @@
             document.getElementById("modal-id").innerText = identificador;
             document.getElementById("modal-nombre").innerText = registro.nombre || "Sin título";
             document.getElementById("modal-sector").innerText = registro.sector || "No especificado";
+            document.getElementById("modal-creador").innerText = registro.creado_por || "Sistema / Desconocido";
 
             const btnDescargarWordModal = document.getElementById("btnDescargarWordModal");
 
@@ -689,6 +703,7 @@
             const nro = document.getElementById("ofiNumero").value.trim();
             const destino = document.getElementById("ofiDestino").value.trim();
             const asunto = document.getElementById("ofiAsunto").value.trim();
+            const usuarioActual = sessionStorage.getItem("usuario_nombre") || "Desconocido";
 
             const bloqueOficio = `OFICIO Nº: ${nro}\nASUNTO: ${asunto}`;
 
@@ -702,8 +717,8 @@
                     alert("¡Oficio actualizado con éxito!");
                 } else {
                     await window.sqlClient`
-                        INSERT INTO casos_salud (nombre, sector) 
-                        VALUES (${bloqueOficio}, ${destino})
+                        INSERT INTO casos_salud (nombre, sector, creado_por) 
+                        VALUES (${bloqueOficio}, ${destino}, ${usuarioActual})
                     `;
                     alert("¡Oficio Enviado registrado con éxito!");
                 }
@@ -726,6 +741,7 @@
             const metas = document.getElementById("infMetas").value;
             const juridico = document.getElementById("infJuridico").value;
             const conclusiones = document.getElementById("infConclusiones").value;
+            const usuarioActual = sessionStorage.getItem("usuario_nombre") || "Desconocido";
 
             const bloqueInformeEstructurado = `INFORME Nº: ${nro}\nFECHA: ${fecha}\nASUNTO: ${asunto}\n\nI. INTRODUCCIÓN\n${introduccion}\n\nII. DE LOS HECHOS\n${hechos}\n\nIII. METAS ALCANZADAS\n${metas}\n\nIV. ASPECTOS JURÍDICOS\n${juridico || 'No especificados.'}\n\nV. CONCLUSIÓN Y RECOMENDACIONES\n${conclusiones}\n\n--------------------------------------------------\nRESPONSABLE: ${responsable}`;
             const sectorStr = `${actores} (Resp: ${responsable})`;
@@ -740,8 +756,8 @@
                     alert(`¡Informe Nº ${nro} actualizado correctamente!`);
                 } else {
                     await window.sqlClient`
-                        INSERT INTO casos_salud (nombre, sector) 
-                        VALUES (${bloqueInformeEstructurado}, ${sectorStr})
+                        INSERT INTO casos_salud (nombre, sector, creado_por) 
+                        VALUES (${bloqueInformeEstructurado}, ${sectorStr}, ${usuarioActual})
                     `;
                     alert(`¡Informe de Gestión Nº ${nro} guardado con éxito!`);
                 }
