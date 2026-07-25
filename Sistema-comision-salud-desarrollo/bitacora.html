@@ -191,7 +191,6 @@
             </div>
             <div class="modal-body">
                 <input type="hidden" id="in-url-foto-hidden">
-                <input type="hidden" id="in-url-video-hidden">
 
                 <div class="form-group">
                     <label>Título de la Actividad</label>
@@ -208,10 +207,6 @@
                 <div class="form-group">
                     <label>Descripción / Resumen del Despliegue</label>
                     <textarea id="in-desc" rows="4" placeholder="Detalle la cantidad de atendidos, insumos entregados..."></textarea>
-                </div>
-                <div class="form-group">
-                    <label>Video de Resumen (Opcional - Archivo Local)</label>
-                    <input type="file" id="in-file-video" accept="video/*">
                 </div>
             </div>
             <div class="modal-footer">
@@ -256,7 +251,7 @@
         }
 
         try {
-            const data = await window.sqlClient`SELECT * FROM bitacora_eventos ORDER BY id DESC`;
+            const data = await window.sqlClient`SELECT id, titulo, sector, descripcion, url_foto, fecha FROM bitacora_eventos ORDER BY id DESC`;
 
             if (!data || data.length === 0) {
                 container.innerHTML = `<div style="color: #64748b; font-size: 13px; padding: 10px;">📝 No hay eventos registrados en la bitácora aún.</div>`;
@@ -287,13 +282,6 @@
                     </div>
                 `;
                 
-                const videoElement = ev.url_video ? `
-                    <video width="100%" height="180" controls style="border-radius: 8px; margin-top: 10px; background: #000; object-fit: cover;">
-                        <source src="${ev.url_video}" type="video/mp4">
-                        Tu navegador no soporta la reproducción de video.
-                    </video>
-                ` : '';
-                
                 return `
                     <div class="evento-card">
                         <div>
@@ -304,12 +292,11 @@
                                 <div class="desc-text" id="desc-${index}">${ev.descripcion || 'Sin descripción proporcionada.'}</div>
                                 <button class="btn-leer-mas" id="btn-desc-${index}" onclick="alternarTexto(${index})">Ver más</button>
                             </div>
-                            ${videoElement}
                         </div>
                         <div>
                             <div class="fecha">📅 Fecha: ${ev.fecha || 'Reciente'}</div>
                             <div class="actions-area">
-                                <button class="btn-small btn-edit" onclick="prepararEdicion(${ev.id}, '${(ev.titulo || '').replace(/'/g, "\\'")}', '${(ev.descripcion || '').replace(/'/g, "\\'")}', '${(ev.sector || '').replace(/'/g, "\\'")}', '${(ev.url_foto || '').replace(/'/g, "\\'")}', '${ev.url_video || ''}')">✏️ Editar</button>
+                                <button class="btn-small btn-edit" onclick="prepararEdicion(${ev.id}, '${(ev.titulo || '').replace(/'/g, "\\'")}', '${(ev.descripcion || '').replace(/'/g, "\\'")}', '${(ev.sector || '').replace(/'/g, "\\'")}', '${(ev.url_foto || '').replace(/'/g, "\\'")}')">✏️ Editar</button>
                                 <button class="btn-small btn-del" onclick="borrarEvento(${ev.id})">🗑️ Borrar</button>
                             </div>
                         </div>
@@ -353,9 +340,7 @@
         document.getElementById('in-sector').value = '';
         document.getElementById('in-desc').value = '';
         document.getElementById('in-file-foto').value = '';
-        document.getElementById('in-file-video').value = '';
         document.getElementById('in-url-foto-hidden').value = '';
-        document.getElementById('in-url-video-hidden').value = '';
         document.getElementById('modal-title').innerText = "Registrar Evento Territorial";
         document.getElementById('modalEvento').classList.add('active'); 
     }
@@ -364,15 +349,13 @@
         document.getElementById('modalEvento').classList.remove('active'); 
     }
 
-    function prepararEdicion(id, titulo, desc, sector, foto, video) {
+    function prepararEdicion(id, titulo, desc, sector, foto) {
         editId = id;
         document.getElementById('in-titulo').value = titulo || '';
         document.getElementById('in-desc').value = desc || '';
         document.getElementById('in-sector').value = sector || '';
         document.getElementById('in-url-foto-hidden').value = foto || '';
-        document.getElementById('in-url-video-hidden').value = video || '';
         document.getElementById('in-file-foto').value = '';
-        document.getElementById('in-file-video').value = '';
         document.getElementById('modal-title').innerText = "Modificar Publicación de Bitácora";
         document.getElementById('modalEvento').classList.add('active');
     }
@@ -405,7 +388,6 @@
         const sector = document.getElementById('in-sector').value.trim();
         const descripcion = document.getElementById('in-desc').value.trim();
         const fileInputFotos = document.getElementById('in-file-foto').files;
-        const fileVideo = document.getElementById('in-file-video').files[0];
 
         if (!titulo || !descripcion) {
             alert("Por favor ingrese al menos el Título y la Descripción del evento.");
@@ -433,12 +415,6 @@
             }
 
             const url_foto_json = JSON.stringify(fotosUrls);
-
-            let url_video = document.getElementById('in-url-video-hidden').value;
-            if (fileVideo) {
-                url_video = await convertirBase64(fileVideo);
-            }
-
             const fechaHoy = new Date().toISOString().split('T')[0];
 
             if (editId) {
@@ -447,14 +423,13 @@
                     SET titulo = ${titulo}, 
                         sector = ${sector}, 
                         descripcion = ${descripcion}, 
-                        url_foto = ${url_foto_json}, 
-                        url_video = ${url_video}
+                        url_foto = ${url_foto_json}
                     WHERE id = ${Number(editId)}
                 `;
             } else {
                 await window.sqlClient`
-                    INSERT INTO bitacora_eventos (titulo, sector, descripcion, url_foto, url_video, fecha) 
-                    VALUES (${titulo}, ${sector}, ${descripcion}, ${url_foto_json}, ${url_video}, ${fechaHoy})
+                    INSERT INTO bitacora_eventos (titulo, sector, descripcion, url_foto, fecha) 
+                    VALUES (${titulo}, ${sector}, ${descripcion}, ${url_foto_json}, ${fechaHoy})
                 `;
             }
             
