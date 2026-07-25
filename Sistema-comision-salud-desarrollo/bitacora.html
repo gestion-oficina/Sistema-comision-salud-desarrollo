@@ -447,10 +447,10 @@
 
     function prepararEdicion(id, titulo, desc, sector, foto) {
         document.getElementById('in-edit-id').value = id || ''; 
-        document.getElementById('in-titulo').value = titulo.replace(/\\'/g, "'").replace(/&quot;/g, '"') || '';
-        document.getElementById('in-desc').value = desc.replace(/\\'/g, "'").replace(/&quot;/g, '"') || '';
-        document.getElementById('in-sector').value = sector.replace(/\\'/g, "'").replace(/&quot;/g, '"') || '';
-        document.getElementById('in-url-foto-hidden').value = foto.replace(/\\'/g, "'").replace(/&quot;/g, '"') || '';
+        document.getElementById('in-titulo').value = (titulo || '').replace(/\\'/g, "'").replace(/&quot;/g, '"');
+        document.getElementById('in-desc').value = (desc || '').replace(/\\'/g, "'").replace(/&quot;/g, '"');
+        document.getElementById('in-sector').value = (sector || '').replace(/\\'/g, "'").replace(/&quot;/g, '"');
+        document.getElementById('in-url-foto-hidden').value = (foto || '').replace(/\\'/g, "'").replace(/&quot;/g, '"');
         document.getElementById('in-file-foto').value = '';
         document.getElementById('modal-title').innerText = "Modificar Publicación de Bitácora";
         document.getElementById('modalEvento').classList.add('active');
@@ -522,7 +522,6 @@
             const idNumerico = parseInt(rawEditId, 10);
 
             if (!isNaN(idNumerico) && idNumerico > 0) {
-                // Actualizar registro existente usando bigint/integer (UPDATE)
                 await window.sqlClient`
                     UPDATE bitacora_eventos 
                     SET titulo = ${titulo}, 
@@ -532,7 +531,6 @@
                     WHERE id = ${idNumerico}
                 `;
             } else {
-                // Crear nuevo registro (INSERT)
                 const fechaHoy = new Date().toISOString().split('T')[0];
                 await window.sqlClient`
                     INSERT INTO bitacora_eventos (titulo, sector, descripcion, url_foto, fecha) 
