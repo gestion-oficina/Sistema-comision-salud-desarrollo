@@ -150,7 +150,7 @@
     </div>
 
     <script type="module">
-        import { SQLiteCloud } from 'https://esm.sh/@sqlitecloud/drivers';
+        import * as SQLiteCloudModule from 'https://esm.sh/@sqlitecloud/drivers';
 
         window.login = async function() {
             const email = document.getElementById("email").value.trim();
@@ -168,9 +168,11 @@
             status.innerHTML = "Verificando acceso...";
 
             try {
-                // Reemplaza esto con tu cadena de conexión exacta de SQLite Cloud
+                const SQLiteCloudClient = SQLiteCloudModule.SQLiteCloud || SQLiteCloudModule.default || SQLiteCloudModule;
+                
+                // Pega aquí tu cadena exacta de SQLite Cloud
                 const sqlString = "sqlitecloud://cthiej1pdk.g5.sqlite.cloud:8860/auth.sqlitecloud?apikey=Lnmaca...";
-                const db = new SQLiteCloud(sqlString);
+                const db = new SQLiteCloudClient(sqlString);
 
                 const resultados = await db.sql`
                     SELECT id, nombre, rol, coordinacion 
