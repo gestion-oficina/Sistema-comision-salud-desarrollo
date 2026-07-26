@@ -149,10 +149,9 @@
         <p id="status"></p>
     </div>
 
-    <!-- SDK oficial de SQLite Cloud para la conexión web -->
-    <script src="https://unpkg.com/@sqlitecloud/drivers@latest/dist/sqlitecloud.min.js"></script>
+    <script type="module">
+        import { SQLiteCloud } from 'https://esm.sh/@sqlitecloud/drivers';
 
-    <script>
         window.login = async function() {
             const email = document.getElementById("email").value.trim();
             const status = document.getElementById("status");
@@ -169,7 +168,7 @@
             status.innerHTML = "Verificando acceso...";
 
             try {
-                // Cadena de conexión directa obtenida de tu panel de SQLite Cloud
+                // Reemplaza esto con tu cadena de conexión exacta de SQLite Cloud
                 const sqlString = "sqlitecloud://cthiej1pdk.g5.sqlite.cloud:8860/auth.sqlitecloud?apikey=Lnmaca...";
                 const db = new SQLiteCloud(sqlString);
 
