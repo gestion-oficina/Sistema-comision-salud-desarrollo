@@ -12,44 +12,33 @@ export default async function handler(req, res) {
   }
 
 
-  if (req.method !== "POST") {
-    return res.status(405).json({
-      error: "Método no permitido"
-    });
-  }
-
-
   try {
 
     const db = new Database(process.env.SQLITECLOUD_URL);
 
-
     const { query, params = [] } = req.body;
 
 
-    if (!query) {
-      return res.status(400).json({
-        error: "No se recibió ninguna consulta SQL"
-      });
-    }
+    console.log("SQL RECIBIDO:", query);
+    console.log("PARAMETROS:", params);
 
 
-    const resultado = await db.sql(
-      query,
-      params
-    );
+    const resultado = await db.sql(query, ...params);
+
+
+    console.log("RESULTADO:", resultado);
 
 
     return res.status(200).json(resultado);
 
 
-   } catch(error) {
+  } catch(error) {
 
-    console.error("ERROR SQLITE CLOUD:", error);
+    console.error("ERROR SQLITE CLOUD:", error.message);
+
 
     return res.status(500).json({
-      error: error.message,
-      detalle: String(error)
+      error: error.message
     });
 
   }
