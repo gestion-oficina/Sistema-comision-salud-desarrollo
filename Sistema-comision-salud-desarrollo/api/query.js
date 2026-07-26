@@ -43,13 +43,13 @@ export default async function handler(req, res) {
     return res.status(200).json(resultado);
 
 
-  } catch(error) {
+   } catch(error) {
 
     console.error("ERROR SQLITE CLOUD:", error);
 
-
     return res.status(500).json({
-      error: error.message
+      error: error.message,
+      detalle: String(error)
     });
 
   }
