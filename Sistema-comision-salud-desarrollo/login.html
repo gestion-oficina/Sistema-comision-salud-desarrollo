@@ -149,9 +149,10 @@
         <p id="status"></p>
     </div>
 
-    <script type="module">
-        import { neon } from 'https://cdn.jsdelivr.net/npm/@neondatabase/serverless@0.9.0/+esm';
+    <!-- SDK de SQLite Cloud para la conexión web -->
+    <script src="https://unpkg.com/@sqlitecloud/drivers@latest/dist/sqlitecloud.min.js"></script>
 
+    <script>
         window.login = async function() {
             const email = document.getElementById("email").value.trim();
             const status = document.getElementById("status");
@@ -168,13 +169,16 @@
             status.innerHTML = "Verificando acceso...";
 
             try {
-                const connectionString = "postgresql://neondb_owner:npg_djCruebcPY94@ep-sparkling-math-avejx7o4-pooler.c-11.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require";
-                const sql = neon(connectionString);
+                // Conexión a SQLite Cloud (asegúrate de incluir tu cadena de conexión o credenciales del proyecto)
+                const sqlString = "sqlitecloud://...tu_cadena_de_conexion.../sistema_gestion.sqlite";
+                const db = new SQLiteCloud(sqlString);
 
-                const resultados = await sql(
-                    "SELECT id, nombre, rol, coordinacion FROM usuarios_sistema WHERE LOWER(email) = LOWER($1);",
-                    [email]
-                );
+                // Consulta a la tabla usuarios_sistema
+                const resultados = await db.sql`
+                    SELECT id, nombre, rol, coordinacion 
+                    FROM usuarios_sistema 
+                    WHERE LOWER(email) = LOWER(${email});
+                `;
 
                 if (!resultados || resultados.length === 0) {
                     status.classList.remove("info");
