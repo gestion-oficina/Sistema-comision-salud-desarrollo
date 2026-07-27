@@ -22,38 +22,31 @@
 
     <!-- CARGA DE SQLITE CLOUD / SQLITE MEDIANTE MÓDULO O CLIENTE LOCAL -->
     <script type="module">
-        // Simulación o cliente SQLite para entorno web compatible
-        // Mantenemos la estructura de window.sqlClient para que el resto del sistema no requiera cambios.
-        window.sqlClient = {
-            async query(sql, params = []) {
-                // Aquí se conecta a tu backend con SQLite o SQLite Cloud
-                const response = await fetch('/api/query', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ sql, params })
-                });
-                if (!response.ok) throw new Error("Error en la consulta SQLite");
-                return await response.json();
-            }
-        };
-
-        // Adaptador de plantilla para mantener la misma sintaxis de llamadas que usabas con Neon
-        window.sqlClient = function(strings, ...values) {
+        // Cliente robusto compatible con fetch a /api/query o endpoints estándar de SQLite Cloud / Backend
+        window.sqlClient = async function(strings, ...values) {
             let sql = strings[0];
             let params = [];
             for (let i = 0; i < values.length; i++) {
                 params.push(values[i]);
                 sql += '?' + strings[i + 1];
             }
-            return fetch('/api/query', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ sql, params })
-            }).then(async res => {
-                const data = await res.json();
-                if (!res.ok) throw new Error(data.error || "Error en SQLite");
+            
+            try {
+                const response = await fetch('/api/query', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ sql, params })
+                });
+                
+                const data = await response.json();
+                if (!response.ok) {
+                    throw new Error(data.error || data.message || "Error en la consulta SQLite");
+                }
                 return data.rows || data;
-            });
+            } catch (err) {
+                console.error("Error SQL:", err);
+                throw err;
+            }
         };
         
         if (typeof window.iniciarApp === 'function') {
@@ -665,7 +658,7 @@
             actualizarKPIs(listaCasosGlobal);
             filtrarTablaEnVivo();
         } catch (err) {
-            tbody.innerHTML = `<tr><td colspan="12" style="text-align:center; color:#dc2626; padding:30px;">⚠️ Error: ${err.message}</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="12" style="text-align:center; color:#dc2626; padding:30px;">⚠️ Error en consulta: ${err.message}</td></tr>`;
         }
     }
 
