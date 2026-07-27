@@ -653,21 +653,38 @@
     }
 
     async function cargarCasosSociales() {
-        const tbody = document.getElementById("tabla-casos-body");
-        try {
-            const registros = await window.sql`
-                SELECT * FROM casos_salud 
-                WHERE coordinacion = 'Social' AND tipo = ? 
-                ORDER BY id DESC
-            `, [tipoFiltroActual];
-            
-            listaCasosGlobal = Array.isArray(registros) ? registros : [];
-            actualizarKPIs(listaCasosGlobal);
-            filtrarTablaEnVivo();
-        } catch (err) {
-            tbody.innerHTML = `<tr><td colspan="12" style="text-align:center; color:#dc2626; padding:30px;">⚠️ Error: ${err.message}</td></tr>`;
-        }
+    const tbody = document.getElementById("tabla-casos-body");
+
+    try {
+
+        const registros = await window.sql`
+            SELECT * 
+            FROM casos_salud
+            WHERE coordinacion = ${"Social"}
+            AND tipo = ${tipoFiltroActual}
+            ORDER BY id DESC
+        `;
+
+        listaCasosGlobal = Array.isArray(registros) ? registros : [];
+
+        actualizarKPIs(listaCasosGlobal);
+
+        filtrarTablaEnVivo();
+
+    } catch (err) {
+
+        console.error("Error cargando casos sociales:", err);
+
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="12" 
+                style="text-align:center;color:#dc2626;padding:30px;">
+                    ⚠️ Error SQLite: ${err.message}
+                </td>
+            </tr>
+        `;
     }
+}
 
     function actualizarKPIs(datos) {
         document.getElementById("kpi-espera").textContent = datos.filter(c => c.estatus === 'En Espera').length;
@@ -930,35 +947,119 @@
                 ];
                 alert("¡Ficha actualizada con éxito!");
             } else {
-                await window.sql`
-                    INSERT INTO casos_salud (
-                        nombre, cedula, edad, genero, fecha_nacimiento, estado_civil, telefono,
-                        trabaja, direccion_trabajo, sueldo_mensual, ingreso_familiar, promedio_egreso, como_cubre_gastos,
-                        numero_grupo_familiar, detalle_grupo_familiar, transporte, tipo_vivienda, tenencia_vivienda,
-                        caracteristicas_vivienda, sector, sala_autogobierno, ubch, sufre_enfermedad, detalle_enfermedad,
-                        presenta_discapacidad, detalle_discapacidad, servicio_salud_habitual,
-                        tipo_ayuda, prioridad, estatus, institucion_remitida, responsable_comision, 
-                        detalle, url_adjunto, coordinacion, tipo, seguimiento_bitacora, creado_por
-                    ) VALUES (
-                        ?, ?, ?, ?, ?, ?, ?,
-                        ?, ?, ?, ?, ?, ?,
-                        ?, ?, ?, ?, ?,
-                        ?, ?, ?, ?, ?, ?,
-                        ?, ?, ?,
-                        ?, ?, ?, ?, ?,
-                        ?, ?, 'Social', ?, ?, ?
-                    )
-                `, [
-                    nombre, cedula, edad, genero, fecha_nac, estado_civil, telefono,
-                    trabaja, dir_trabajo, sueldo, ingreso, egreso, cubre_gastos,
-                    num_fam, detalle_fam, transporte, tipo_vivienda, tenencia_vivienda,
-                    carac_vivienda, sector, sala_auto, ubch, sufre_enf, detalle_enf,
-                    disc, detalle_disc, servicio_salud, ayuda, prioridad, estatus,
-                    remitido, responsable, detalle, urlFinalArchivo, tipoFiltroActual, 
-                    '[' + new Date().toLocaleDateString() + '] Ficha social integral registrada.', usuarioActual
-                ];
-                alert("¡Ficha registrada con éxito!");
-            }
+                } else {
+
+    await window.sql`
+    INSERT INTO casos_salud (
+
+        nombre,
+        cedula,
+        edad,
+        genero,
+        fecha_nacimiento,
+        estado_civil,
+        telefono,
+
+        trabaja,
+        direccion_trabajo,
+        sueldo_mensual,
+        ingreso_familiar,
+        promedio_egreso,
+        como_cubre_gastos,
+
+        numero_grupo_familiar,
+        detalle_grupo_familiar,
+
+        transporte,
+        tipo_vivienda,
+        tenencia_vivienda,
+        caracteristicas_vivienda,
+
+        sector,
+        sala_autogobierno,
+        ubch,
+
+        sufre_enfermedad,
+        detalle_enfermedad,
+        presenta_discapacidad,
+        detalle_discapacidad,
+        servicio_salud_habitual,
+
+        tipo_ayuda,
+        prioridad,
+        estatus,
+
+        institucion_remitida,
+        responsable_comision,
+
+        detalle,
+        url_adjunto,
+
+        coordinacion,
+        tipo,
+        seguimiento_bitacora,
+        creado_por
+
+    )
+
+    VALUES (
+
+        ${nombre},
+        ${cedula},
+        ${edad},
+        ${genero},
+        ${fecha_nac},
+        ${estado_civil},
+        ${telefono},
+
+        ${trabaja},
+        ${dir_trabajo},
+        ${sueldo},
+        ${ingreso},
+        ${egreso},
+        ${cubre_gastos},
+
+        ${num_fam},
+        ${detalle_fam},
+
+        ${transporte},
+        ${tipo_vivienda},
+        ${tenencia_vivienda},
+        ${carac_vivienda},
+
+        ${sector},
+        ${sala_auto},
+        ${ubch},
+
+        ${sufre_enf},
+        ${detalle_enf},
+        ${disc},
+        ${detalle_disc},
+        ${servicio_salud},
+
+        ${ayuda},
+        ${prioridad},
+        ${estatus},
+
+        ${remitido},
+        ${responsable},
+
+        ${detalle},
+        ${urlFinalArchivo},
+
+        ${"Social"},
+        ${tipoFiltroActual},
+
+        ${"[" + new Date().toLocaleDateString() + "] Ficha social registrada."},
+
+        ${usuarioActual}
+
+    )
+    `;
+
+    alert("¡Ficha registrada con éxito!");
+
+}
 
             cerrarModalFormulario();
             cargarCasosSociales();
@@ -1003,39 +1104,103 @@
     }
 
     async function guardarSeguimientoTratamiento() {
-        const id = document.getElementById("seguimientoCasoId").value;
-        const nuevoTexto = document.getElementById("nuevoSeguimientoTexto").value.trim();
-        if (!nuevoTexto) { alert("Escribe el avance."); return; }
-        const item = listaCasosGlobal.find(c => Number(c.id) === Number(id));
-        if (!item) return;
 
-        const entradaNueva = `[${new Date().toLocaleDateString()}] ${nuevoTexto}`;
-        const bitacoraActualizada = item.seguimiento_bitacora ? (item.seguimiento_bitacora + '\n\n' + entradaNueva) : entradaNueva;
+    const id = document.getElementById("seguimientoCasoId").value;
 
-        try {
-            await window.sql`UPDATE casos_salud SET seguimiento_bitacora = ? WHERE id = ?`, [bitacoraActualizada, Number(id)];
-            alert("¡Avance registrado!");
-            document.getElementById("nuevoSeguimientoTexto").value = "";
-            await cargarCasosSociales();
-            verExpedienteCompleto(id);
-        } catch (err) {
-            alert("Error: " + err.message);
-        }
+    const nuevoTexto =
+        document.getElementById("nuevoSeguimientoTexto")
+        .value.trim();
+
+
+    if (!nuevoTexto) {
+        alert("Escribe el avance.");
+        return;
     }
+
+
+    const item = listaCasosGlobal.find(
+        c => Number(c.id) === Number(id)
+    );
+
+
+    if (!item) return;
+
+
+    const entradaNueva =
+        `[${new Date().toLocaleDateString()}] ${nuevoTexto}`;
+
+
+    const bitacoraActualizada =
+        item.seguimiento_bitacora
+        ? item.seguimiento_bitacora + "\n\n" + entradaNueva
+        : entradaNueva;
+
+
+
+    try {
+
+        await window.sql`
+            UPDATE casos_salud
+            SET seguimiento_bitacora = ${bitacoraActualizada}
+            WHERE id = ${Number(id)}
+        `;
+
+
+        alert("Avance registrado correctamente");
+
+
+        document.getElementById(
+            "nuevoSeguimientoTexto"
+        ).value = "";
+
+
+        await cargarCasosSociales();
+
+
+        verExpedienteCompleto(id);
+
+
+
+    } catch(err){
+
+        alert(
+            "Error guardando avance: " + err.message
+        );
+
+    }
+}
 
     function cerrarModalExpediente() {
         document.getElementById("expedienteModal").classList.remove("open");
     }
 
     async function eliminarCaso(id) {
-        if (!confirm("¿Eliminar esta ficha de la base de datos?")) return;
-        try {
-            await window.sql`DELETE FROM casos_salud WHERE id = ?`, [Number(id)];
-            cargarCasosSociales();
-        } catch (err) {
-            alert("Error: " + err.message);
-        }
+
+    if (!confirm("¿Eliminar esta ficha de la base de datos?")) {
+        return;
     }
+
+    try {
+
+        await window.sql`
+            DELETE FROM casos_salud 
+            WHERE id = ${Number(id)}
+        `;
+
+        alert("Ficha eliminada correctamente");
+
+        cargarCasosSociales();
+
+    } catch (err) {
+
+        console.error(err);
+
+        alert(
+            "Error eliminando registro: " + err.message
+        );
+
+    }
+}
 
     async function logout() {
         sessionStorage.clear();
