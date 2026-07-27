@@ -207,7 +207,7 @@
             <table>
                 <thead id="thead-dinamico"></thead>
                 <tbody id="tbody">
-                    <tr><td colspan="5" style="text-align:center; color:#94a3b8; padding: 20px;">Conectando con la base de datos local SQLite...</td></tr>
+                    <tr><td colspan="5" style="text-align:center; color:#94a3b8; padding: 20px;">Conectando con la base de datos SQLite Cloud...</td></tr>
                 </tbody>
             </table>
         </div>
@@ -357,7 +357,7 @@
         </div>
     </div>
 
-    <!-- SCRIPT DE CONTROL Y CONEXIÓN REST API -->
+    <!-- SCRIPT DE CONTROL CONECTADO A /api/query -->
     <script type="module">
         if (sessionStorage.getItem("usuario_rol") === "admin") {
             const el = document.getElementById("enlaceAuditoria");
@@ -430,8 +430,16 @@
             const thead = document.getElementById("thead-dinamico");
 
             try {
-                let endpoint = filtroActual === 'Oficio' ? '/api/oficios' : '/api/informes';
-                const response = await fetch(endpoint);
+                let sql = filtroActual === 'Oficio' 
+                    ? "SELECT * FROM oficios ORDER BY created_at DESC" 
+                    : "SELECT * FROM informes ORDER BY created_at DESC";
+
+                const response = await fetch("/api/query", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ query: sql })
+                });
+
                 if (!response.ok) throw new Error("Error al obtener los datos del servidor");
                 
                 todosLosRegistros = await response.json();
@@ -656,20 +664,20 @@
             const asunto = document.getElementById("ofiAsunto").value.trim();
             const usuarioActual = sessionStorage.getItem("usuario_nombre") || "Desconocido";
 
-            const data = { numero, destino, asunto, creado_por: usuarioActual };
-
             try {
-                let url = '/api/oficios';
-                let method = 'POST';
+                let sql, params;
                 if (idEnEdicion) {
-                    url = `/api/oficios/${idEnEdicion}`;
-                    method = 'PUT';
+                    sql = "UPDATE oficios SET numero = ?, destino = ?, asunto = ? WHERE id = ?";
+                    params = [numero, destino, asunto, idEnEdicion];
+                } else {
+                    sql = "INSERT INTO oficios (numero, destino, asunto, creado_por, created_at) VALUES (?, ?, ?, ?, datetime('now'))";
+                    params = [numero, destino, asunto, usuarioActual];
                 }
 
-                const response = await fetch(url, {
-                    method: method,
+                const response = await fetch("/api/query", {
+                    method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(data)
+                    body: JSON.stringify({ query: sql, params })
                 });
 
                 if (!response.ok) throw new Error("Error en la respuesta del servidor");
@@ -695,20 +703,20 @@
             const conclusiones = document.getElementById("infConclusiones").value;
             const usuarioActual = sessionStorage.getItem("usuario_nombre") || "Desconocido";
 
-            const data = { numero, fecha, asunto, actores, responsable, introduccion, hechos, metas, juridico, conclusiones, creado_por: usuarioActual };
-
             try {
-                let url = '/api/informes';
-                let method = 'POST';
+                let sql, params;
                 if (idEnEdicion) {
-                    url = `/api/informes/${idEnEdicion}`;
-                    method = 'PUT';
+                    sql = "UPDATE informes SET numero = ?, fecha = ?, asunto = ?, actores = ?, responsable = ?, introduccion = ?, hechos = ?, metas = ?, juridico = ?, conclusiones = ? WHERE id = ?";
+                    params = [numero, fecha, asunto, actores, responsable, introduccion, hechos, metas, juridico, conclusiones, idEnEdicion];
+                } else {
+                    sql = "INSERT INTO informes (numero, fecha, asunto, actores, responsable, introduccion, hechos, metas, juridico, conclusiones, creado_por, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'))";
+                    params = [numero, fecha, asunto, actores, responsable, introduccion, hechos, metas, juridico, conclusiones, usuarioActual];
                 }
 
-                const response = await fetch(url, {
-                    method: method,
+                const response = await fetch("/api/query", {
+                    method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(data)
+                    body: JSON.stringify({ query: sql, params })
                 });
 
                 if (!response.ok) throw new Error("Error en la respuesta del servidor");
@@ -815,10 +823,16 @@
         window.eliminarRegistro = async function(id) {
             if (!confirm("¿Estás seguro de que deseas eliminar este registro?")) return;
 
-            let endpoint = filtroActual === 'Oficio' ? `/api/oficios/${id}` : `/api/informes/${id}`;
+            let sql = filtroActual === 'Oficio' 
+                ? "DELETE FROM oficios WHERE id = ?" 
+                : "DELETE FROM informes WHERE id = ?";
 
             try {
-                const response = await fetch(endpoint, { method: 'DELETE' });
+                const response = await fetch("/api/query", { 
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ query: sql, params: [id] })
+                });
                 if (!response.ok) throw new Error("Error al eliminar el registro");
                 
                 alert("Registro eliminado correctamente");
