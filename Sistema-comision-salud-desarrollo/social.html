@@ -653,8 +653,33 @@
             return;
         }
 
+        // Obtenemos los datos de la sesión del usuario actual para validar permisos
+        const usuarioActual = sessionStorage.getItem("usuario_nombre") || "";
+        const rolActual = sessionStorage.getItem("usuario_rol") || "";
+
         tbody.innerHTML = datos.map(c => {
             let estClass = c.estatus === "En Gestión" ? "status-gestion" : (c.estatus === "Resuelto" ? "status-resuelto" : "status-espera");
+            
+            // Validación de permisos: Solo el creador (campo creado_por) o un rol 'admin' pueden editar/borrar
+            const esCreador = c.creado_por && usuarioActual && (c.creado_por.trim().toLowerCase() === usuarioActual.trim().toLowerCase());
+            const esAdmin = rolActual === "admin";
+
+            let botonesAccionesHTML = "";
+            if (esCreador || esAdmin) {
+                botonesAccionesHTML = `
+                    <button class="btn-expediente" onclick="verExpedienteCompleto(${c.id})">👁️ Historial</button>
+                    <button class="btn-edit" onclick="abrirModalEditar(${c.id})">Editar</button>
+                    <button class="btn-del" onclick="eliminarCaso(${c.id})">Borrar</button>
+                `;
+            } else {
+                botonesAccionesHTML = `
+                    <button class="btn-expediente" onclick="verExpedienteCompleto(${c.id})">👁️ Historial</button>
+                    <span class="text-muted small" title="Protegido: Solo el creador o un administrador pueden modificarlo" style="color: #64748b; font-size: 11px; font-weight: 500; display: inline-flex; align-items: center; gap: 3px; background: #f1f5f9; padding: 4px 8px; border-radius: 4px;">
+                        🔒 Protegido
+                    </span>
+                `;
+            }
+
             return `
                 <tr>
                     <td><b>${c.nombre || 'Sin nombre'}</b></td>
@@ -670,9 +695,7 @@
                     <td><span class="status-badge ${estClass}">${c.estatus || 'En Espera'}</span></td>
                     <td>
                         <div class="action-buttons">
-                            <button class="btn-expediente" onclick="verExpedienteCompleto(${c.id})">👁️ Historial</button>
-                            <button class="btn-edit" onclick="abrirModalEditar(${c.id})">Editar</button>
-                            <button class="btn-del" onclick="eliminarCaso(${c.id})">Borrar</button>
+                            ${botonesAccionesHTML}
                         </div>
                     </td>
                 </tr>
@@ -853,6 +876,7 @@
             const remitido = document.getElementById("ins_remitido").value.trim();
             const responsable = document.getElementById("ins_responsable").value.trim();
             const detalle = document.getElementById("ins_detalle").value.trim();
+            const usuarioActual = sessionStorage.getItem("usuario_nombre") || "Sistema";
 
             if (idEnEdicion) {
                 await window.sqlClient`
@@ -881,7 +905,7 @@
                         caracteristicas_vivienda, sector, sala_autogobierno, ubch, sufre_enfermedad, detalle_enfermedad,
                         presenta_discapacidad, detalle_discapacidad, servicio_salud_habitual,
                         tipo_ayuda, prioridad, estatus, institucion_remitida, responsable_comision, 
-                        detalle, url_adjunto, coordinacion, tipo, seguimiento_bitacora
+                        detalle, url_adjunto, coordinacion, tipo, seguimiento_bitacora, creado_por
                     ) VALUES (
                         ${nombre}, ${cedula}, ${edad}, ${genero}, ${fecha_nac}, ${estado_civil}, ${telefono},
                         ${trabaja}, ${dir_trabajo}, ${sueldo}, ${ingreso}, ${egreso}, ${cubre_gastos},
@@ -890,7 +914,7 @@
                         ${disc}, ${detalle_disc}, ${servicio_salud},
                         ${ayuda}, ${prioridad}, ${estatus}, ${remitido}, ${responsable}, 
                         ${detalle}, ${urlFinalArchivo}, 'Social', ${tipoFiltroActual}, 
-                        ${'[' + new Date().toLocaleDateString() + '] Ficha social integral registrada.'}
+                        ${'[' + new Date().toLocaleDateString() + '] Ficha social integral registrada.'}, ${usuarioActual}
                     )
                 `;
                 alert("¡Ficha registrada con éxito!");
@@ -930,7 +954,7 @@
             <div class="form-group expediente-view-box"><label>Sector / Comuna</label><p>${item.sector || ''} | Comuna: ${item.sala_autogobierno || 'N/A'}</p></div>
             <div class="form-group expediente-view-box"><label>Salud</label><p>Enf: ${item.sufre_enfermedad || 'NO'} | Disc: ${item.presenta_discapacidad || 'NO'}</p></div>
             <div class="form-group expediente-view-box"><label>Tipo Ayuda / Prioridad</label><p>${item.tipo_ayuda || ''} (<span class="prio-badge prio-${item.prioridad}">${item.prioridad || ''}</span>)</p></div>
-            <div class="form-group span-2 expediente-view-box" style="background:#f1f5f9;"><label>Responsable</label><p><b>${item.responsable_comision || ''}</b></p></div>
+            <div class="form-group span-2 expediente-view-box" style="background:#f1f5f9;"><label>Responsable</label><p><b>${item.responsable_comision || ''}</b> (Creado por: ${item.creado_por || 'N/A'})</p></div>
             <div class="form-group span-2 expediente-view-box"><label>📎 Respaldo</label><p>${bloqueAdjunto}</p></div>
             <div class="form-group span-2 expediente-view-box"><label>Diagnóstico</label><p style="font-style:italic;">"${item.detalle || ''}"</p></div>
             <div class="form-group span-2 expediente-view-box" style="background:#fffbeb;"><label>Bitácora</label><div style="font-size:11px;">${historialBitacora}</div></div>
