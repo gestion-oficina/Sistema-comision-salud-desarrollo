@@ -20,9 +20,8 @@
     <!-- LIBRERÍA SHEETJS PARA EXPORTAR A EXCEL REAL (.XLSX) -->
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 
-    <!-- CARGA DE SQLITE CLOUD / SQLITE MEDIANTE MÓDULO O CLIENTE LOCAL -->
+    <!-- CARGA DE SQLITE CLOUD / SQLITE MEDIANTE MÓDULO O CLIENTE LOCAL CORREGIDO -->
     <script type="module">
-        // Cliente robusto compatible con fetch a /api/query o endpoints estándar de SQLite Cloud / Backend
         window.sqlClient = async function(strings, ...values) {
             let sql = strings[0];
             let params = [];
@@ -31,6 +30,8 @@
                 sql += '?' + strings[i + 1];
             }
             
+            sql = sql.trim().replace(/\s+/g, ' ');
+
             try {
                 const response = await fetch('/api/query', {
                     method: 'POST',
@@ -44,7 +45,7 @@
                 }
                 return data.rows || data;
             } catch (err) {
-                console.error("Error SQL:", err);
+                console.error("Error SQL Detallado:", err);
                 throw err;
             }
         };
@@ -649,12 +650,15 @@
         }
 
         try {
+            const coordinacionVal = 'Social';
+            const tipoVal = tipoFiltroActual;
+
             const registros = await window.sqlClient`
                 SELECT * FROM casos_salud 
-                WHERE coordinacion = 'Social' AND tipo = ${tipoFiltroActual} 
+                WHERE coordinacion = ${coordinacionVal} AND tipo = ${tipoVal} 
                 ORDER BY id DESC
             `;
-            listaCasosGlobal = Array.from(registros);
+            listaCasosGlobal = Array.from(registros || []);
             actualizarKPIs(listaCasosGlobal);
             filtrarTablaEnVivo();
         } catch (err) {
