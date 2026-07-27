@@ -31,10 +31,12 @@
                     body: JSON.stringify({ query, params })
                 });
                 const result = await response.json();
-                if (!result.success) {
+                
+                // Si la API devuelve un objeto de error estructurado
+                if (!response.ok || result.error) {
                     throw new Error(result.error || 'Error en la consulta');
                 }
-                return result.data;
+                return result;
             } catch (err) {
                 console.error('Error al conectar con la API:', err);
                 throw err;
