@@ -20,12 +20,41 @@
     <!-- LIBRERÍA SHEETJS PARA EXPORTAR A EXCEL REAL (.XLSX) -->
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 
-    <!-- CARGA DE NEON MEDIANTE MÓDULO ESM ESTÁNDAR -->
+    <!-- CARGA DE SQLITE CLOUD / SQLITE MEDIANTE MÓDULO O CLIENTE LOCAL -->
     <script type="module">
-        import { neon } from 'https://cdn.jsdelivr.net/npm/@neondatabase/serverless/+esm';
-        
-        const connectionString = "postgresql://neondb_owner:npg_djCruebcPY94@ep-sparkling-math-avejx7o4-pooler.c-11.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require";
-        window.sqlClient = neon(connectionString, { disableWarningInBrowsers: true });
+        // Simulación o cliente SQLite para entorno web compatible
+        // Mantenemos la estructura de window.sqlClient para que el resto del sistema no requiera cambios.
+        window.sqlClient = {
+            async query(sql, params = []) {
+                // Aquí se conecta a tu backend con SQLite o SQLite Cloud
+                const response = await fetch('/api/query', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ sql, params })
+                });
+                if (!response.ok) throw new Error("Error en la consulta SQLite");
+                return await response.json();
+            }
+        };
+
+        // Adaptador de plantilla para mantener la misma sintaxis de llamadas que usabas con Neon
+        window.sqlClient = function(strings, ...values) {
+            let sql = strings[0];
+            let params = [];
+            for (let i = 0; i < values.length; i++) {
+                params.push(values[i]);
+                sql += '?' + strings[i + 1];
+            }
+            return fetch('/api/query', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ sql, params })
+            }).then(async res => {
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.error || "Error en SQLite");
+                return data.rows || data;
+            });
+        };
         
         if (typeof window.iniciarApp === 'function') {
             window.iniciarApp();
@@ -285,7 +314,7 @@
                     </tr>
                 </thead>
                 <tbody id="tabla-casos-body">
-                    <tr><td colspan="12" style="color:#94a3b8; text-align:center; padding:30px;">Conectando con la base de datos de Neon...</td></tr>
+                    <tr><td colspan="12" style="color:#94a3b8; text-align:center; padding:30px;">Conectando con la base de datos de SQLite...</td></tr>
                 </tbody>
             </table>
         </div>
@@ -622,7 +651,7 @@
         const tbody = document.getElementById("tabla-casos-body");
         if (!window.sqlClient) await new Promise(resolve => setTimeout(resolve, 800));
         if (!window.sqlClient) {
-            tbody.innerHTML = `<tr><td colspan="12" style="text-align:center; color:#dc2626; padding:30px;">⚠️ Error crítico: Conexión con Neon no disponible.</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="12" style="text-align:center; color:#dc2626; padding:30px;">⚠️ Error crítico: Conexión con SQLite no disponible.</td></tr>`;
             return;
         }
 
@@ -1002,4 +1031,3 @@
 </script>
 </body>
 </html>
-```[cite: 5]
