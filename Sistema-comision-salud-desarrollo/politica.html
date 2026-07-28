@@ -17,75 +17,42 @@
     <title>Coordinación Política - Liderazgos y Comunas</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
-    <!-- Migración a SQLite local (sql.js)[cite: 2] -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.8.0/sql-wasm.js"></script>
+    <!-- Adaptador para SQLite Cloud vía API backend en Vercel -->
     <script>
-        let db = null;
-
-        async function initSQLite() {
-            const SQL = await initSqlJs({
-                locateFile: file => `https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.8.0/${file}`
+        window.sqlClient = async function(strings, ...values) {
+            let query = "";
+            strings.forEach((part, index) => {
+                query += part;
+                if (index < values.length) {
+                    query += "?";
+                }
             });
-            
-            const savedDb = localStorage.getItem('sqlite_db_comision');
-            if (savedDb) {
-                const uInt8Array = new Uint8Array(JSON.parse("[" + savedDb + "]"));
-                db = new SQL.Database(uInt8Array);
-            } else {
-                db = new SQL.Database();
-                db.run(`
-                    CREATE TABLE IF NOT EXISTS casos_salud (
-                        id INTEGER PRIMARY KEY AUTOINCREMENT,
-                        nombre TEXT,
-                        cedula TEXT,
-                        telefono TEXT,
-                        sector TEXT,
-                        responsable TEXT,
-                        email TEXT,
-                        tipo TEXT,
-                        coordinacion TEXT
-                    );
-                `);
-                guardarBaseDatosLocal();
+
+            const response = await fetch("/api/query", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    query,
+                    params: values
+                })
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.error || "Error en SQLite Cloud");
             }
 
-            // Adaptador para mantener compatibilidad total con la estructura de template literals usada previamente
-            window.sqlClient = async function(strings, ...values) {
-                let sql = strings[0];
-                for (let i = 0; i < values.length; i++) {
-                    sql += '?' + strings[i + 1];
-                }
-                
-                const trimmed = sql.trim().toUpperCase();
-                if (trimmed.startsWith('SELECT')) {
-                    const stmt = db.prepare(sql);
-                    stmt.bind(values);
-                    const rows = [];
-                    while (stmt.step()) {
-                        rows.push(stmt.getAsObject());
-                    }
-                    stmt.free();
-                    return rows;
-                } else {
-                    db.run(sql, values);
-                    guardarBaseDatosLocal();
-                    return [];
-                }
-            };
+            return data;
+        };
 
-            if (typeof window.iniciarApp === 'function') {
+        window.addEventListener("DOMContentLoaded", () => {
+            if (typeof window.iniciarApp === "function") {
                 window.iniciarApp();
             }
-        }
-
-        function guardarBaseDatosLocal() {
-            if (db) {
-                const data = db.export();
-                localStorage.setItem('sqlite_db_comision', Array.from(data).toString());
-            }
-        }
-
-        initSQLite();
+        });
     </script>
 
     <style>
@@ -314,7 +281,7 @@
 
         <!-- CONTENEDOR EN GRID CREATIVO DE TARJETAS -->
         <div class="cards-grid" id="cardsGridContainer">
-            <div class="empty-state">Conectando con la base de datos local SQLite...</div>
+            <div class="empty-state">Conectando con SQLite Cloud...</div>
         </div>
 
         <!-- PIE DE PÁGINA INSTITUCIONAL -->
@@ -380,12 +347,6 @@
             cargarDatosPoliticos();
         };
 
-        document.addEventListener("DOMContentLoaded", () => {
-            if (window.sqlClient) {
-                window.iniciarApp();
-            }
-        });
-
         function toggleMobileMenu() {
             const sidebar = document.getElementById("sidebarMenu");
             const btn = document.getElementById("menuToggleBtn");
@@ -396,15 +357,6 @@
         async function cargarDatosPoliticos() {
             const container = document.getElementById("cardsGridContainer");
 
-            if (!window.sqlClient) {
-                await new Promise(resolve => setTimeout(resolve, 800));
-            }
-
-            if (!window.sqlClient) {
-                container.innerHTML = `<div class="empty-state" style="color:var(--danger-color);">⚠️ Error crítico: SQLite no se ha inicializado correctamente.</div>`;
-                return;
-            }
-
             try {
                 const registros = await window.sqlClient`SELECT * FROM casos_salud ORDER BY id DESC`;
                 todosLosRegistros = Array.from(registros);
@@ -412,7 +364,7 @@
                 renderizarDatos();
             } catch (err) {
                 console.error("Error de conexión:", err);
-                container.innerHTML = `<div class="empty-state" style="color:var(--danger-color);">Error en SQLite: ${err.message}</div>`;
+                container.innerHTML = `<div class="empty-state" style="color:var(--danger-color);">Error en SQLite Cloud: ${err.message}</div>`;
             }
         }
 
@@ -672,8 +624,6 @@
         }
 
         async function guardarRegistroModal() {
-            if (!window.sqlClient) { alert("No hay conexión con la base de datos."); return; }
-
             const nombre = document.getElementById("m_nombre")?.value.trim();
             if (!nombre) {
                 alert("Por favor ingresa al menos el nombre.");
@@ -736,7 +686,6 @@
         }
 
         async function eliminarRegistro(id) {
-            if (!window.sqlClient) { alert("No hay conexión con la base de datos."); return; }
             if (!confirm("¿Estás seguro de que deseas eliminar este registro?")) return;
 
             try {
