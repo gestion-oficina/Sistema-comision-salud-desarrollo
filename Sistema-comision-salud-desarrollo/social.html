@@ -599,21 +599,30 @@
         }
     }
 
-    async function cargarCasosSociales() {
-        const tbody = document.getElementById("tabla-casos-body");
-        try {
-            const registros = await consultarBaseDatos(
-                "SELECT * FROM casos_salud WHERE coordinacion = ? AND tipo = ? ORDER BY id DESC",
-                ['Social', tipoFiltroActual]
-            );
-            listaCasosGlobal = Array.from(registros);
-            actualizarKPIs(listaCasosGlobal);
-            filtrarTablaEnVivo();
-        } catch (err) {
-            tbody.innerHTML = `<tr><td colspan="12" style="text-align:center; color:#dc2626; padding:30px;">⚠️ Error: ${err.message}</td></tr>`;
-        }
-    }
+   async function consultarBaseDatos(query, params = []) {
+  try {
+    console.log("SQL:", query);
+    console.log("PARAMS:", params);
 
+    const response = await fetch("/api/query", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ query, params })
+    });
+
+    const data = await response.json();
+
+    console.log("RESPUESTA API:", data);
+
+    return data;
+
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+}
     function actualizarKPIs(datos) {
         document.getElementById("kpi-espera").textContent = datos.filter(c => c.estatus === 'En Espera').length;
         document.getElementById("kpi-gestion").textContent = datos.filter(c => c.estatus === 'En Gestión').length;
