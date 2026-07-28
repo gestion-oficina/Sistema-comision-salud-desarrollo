@@ -623,6 +623,36 @@
     throw error;
   }
 }
+    async function cargarCasosSociales() {
+    const tbody = document.getElementById("tabla-casos-body");
+
+    try {
+
+        const registros = await consultarBaseDatos(
+            "SELECT * FROM casos_salud WHERE coordinacion = ? AND tipo = ? ORDER BY id DESC",
+            ["Social", tipoFiltroActual]
+        );
+
+        console.log("REGISTROS:", registros);
+
+        listaCasosGlobal = Array.isArray(registros) ? registros : [];
+
+        actualizarKPIs(listaCasosGlobal);
+
+        filtrarTablaEnVivo();
+
+    } catch (err) {
+
+        console.error(err);
+
+        tbody.innerHTML =
+        `<tr>
+            <td colspan="12">
+                Error: ${err.message}
+            </td>
+        </tr>`;
+    }
+}
     function actualizarKPIs(datos) {
         document.getElementById("kpi-espera").textContent = datos.filter(c => c.estatus === 'En Espera').length;
         document.getElementById("kpi-gestion").textContent = datos.filter(c => c.estatus === 'En Gestión').length;
