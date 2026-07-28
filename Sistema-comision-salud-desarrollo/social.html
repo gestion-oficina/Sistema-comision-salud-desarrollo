@@ -516,596 +516,122 @@
                 </div>
                 <div class="form-group span-2">
                     <label for="ins_detalle_fam">Detalle de Familiares (Nombre, Parentesco, Edad)</label>
-                    <textarea id="ins_detalle_fam" class="form-control" placeholder="Ej: Juan Pérez (Hijo, 12 años)..."></textarea>
+                    <textarea id="ins_detalle_fam" class="form-control" placeholder="Describa brevemente los miembros del grupo familiar..."></textarea>
                 </div>
             </div>
 
-            <!-- PASO 3: ÁREA FÍSICO-AMBIENTAL Y COMUNIDAD -->
+            <!-- PASO 3: VIVIENDA Y COMUNIDAD -->
             <div class="wizard-step-content" id="wstep-3">
                 <div class="form-group">
                     <label for="ins_transporte">Transporte Habitual</label>
-                    <select id="ins_transporte" class="form-control">
-                        <option value="Vehículo Propio">Vehículo Propio</option>
-                        <option value="Transporte Público">Transporte Público</option>
-                        <option value="Con Amigos">Con Amigos</option>
-                        <option value="Otro">Otro</option>
-                    </select>
+                    <input type="text" id="ins_transporte" class="form-control" placeholder="Ej: Metrobús, carro propio...">
                 </div>
                 <div class="form-group">
                     <label for="ins_tipo_vivienda">Tipo de Vivienda</label>
-                    <select id="ins_tipo_vivienda" class="form-control">
-                        <option value="Casa">Casa</option>
-                        <option value="Apartamento">Apartamento</option>
-                        <option value="Rancho">Rancho</option>
-                        <option value="Habitación">Habitación</option>
-                        <option value="Otro">Otro</option>
-                    </select>
+                    <input type="text" id="ins_tipo_vivienda" class="form-control" placeholder="Ej: Casa, Quinta, Anexo, Rancho...">
                 </div>
                 <div class="form-group">
-                    <label for="ins_tenencia_vivienda">Tenencia de la Vivienda</label>
+                    <label for="ins_tenencia_vivienda">Tenencia de Vivienda</label>
                     <select id="ins_tenencia_vivienda" class="form-control">
                         <option value="Propia">Propia</option>
                         <option value="Alquilada">Alquilada</option>
-                        <option value="Prestada">Prestada / Alojada</option>
-                        <option value="Otra">Otra</option>
+                        <option value="Prestada">Prestada</option>
+                        <option value="Familiar">Familiar</option>
                     </select>
                 </div>
                 <div class="form-group">
-                    <label for="ins_sector">Comunidad / Sector</label>
-                    <input type="text" id="ins_sector" class="form-control" placeholder="Ej: Las Clavellinas" required>
-                </div>
-                <div class="form-group span-2">
-                    <label for="ins_carac_vivienda">Características de la Vivienda (Ambientes)</label>
-                    <input type="text" id="ins_carac_vivienda" class="form-control" placeholder="Ej: 3 dormitorios, 1 baño, sala-cocina">
+                    <label for="ins_sector">Sector / Urbanización / Eje</label>
+                    <input type="text" id="ins_sector" class="form-control" placeholder="Ej: Oropeza Castillo, Ruiz Pineda..." required>
                 </div>
                 <div class="form-group">
-                    <label for="ins_sala_auto">Sala de Autogobierno / Comuna</label>
-                    <input type="text" id="ins_sala_auto" class="form-control" placeholder="Ej: Comuna X">
+                    <label for="ins_sala_autogobierno">Sala de Autogobierno / Comuna</label>
+                    <input type="text" id="ins_sala_autogobierno" class="form-control" placeholder="Nombre de la comuna">
                 </div>
                 <div class="form-group">
                     <label for="ins_ubch">UBCH</label>
-                    <input type="text" id="ins_ubch" class="form-control" placeholder="Nombre de la UBCH">
+                    <input type="text" id="ins_ubch" class="form-control" placeholder="Centro de votación / UBCH">
+                </div>
+                <div class="form-group span-2">
+                    <label for="ins_caracteristicas_vivienda">Características de la Vivienda y Enseres</label>
+                    <textarea id="ins_caracteristicas_vivienda" class="form-control" placeholder="Condiciones de la infraestructura, servicios básicos, enseres con los que cuenta..."></textarea>
                 </div>
             </div>
 
-            <!-- PASO 4: SALUD, REQUERIMIENTO Y CIERRE -->
+            <!-- PASO 4: SALUD, DETALLE Y CIERRE -->
             <div class="wizard-step-content" id="wstep-4">
                 <div class="form-group">
-                    <label for="ins_sufre_enf">¿Sufre alguna enfermedad?</label>
-                    <select id="ins_sufre_enf" class="form-control">
+                    <label for="ins_sufre_enfermedad">¿Sufre alguna enfermedad?</label>
+                    <select id="ins_sufre_enfermedad" class="form-control">
                         <option value="NO">No</option>
                         <option value="SI">Sí</option>
                     </select>
                 </div>
                 <div class="form-group">
-                    <label for="ins_detalle_enf">Especifique Enfermedad</label>
-                    <input type="text" id="ins_detalle_enf" class="form-control" placeholder="Ej: Hipertensión...">
+                    <label for="ins_detalle_enfermedad">Detalle de Enfermedad / Tratamiento</label>
+                    <input type="text" id="ins_detalle_enfermedad" class="form-control" placeholder="Patología crónica, medicamentos requeridos...">
                 </div>
                 <div class="form-group">
-                    <label for="ins_discapacidad">¿Presenta discapacidad?</label>
-                    <select id="ins_discapacidad" class="form-control">
+                    <label for="ins_presenta_discapacidad">¿Presenta discapacidad?</label>
+                    <select id="ins_presenta_discapacidad" class="form-control">
                         <option value="NO">No</option>
                         <option value="SI">Sí</option>
                     </select>
                 </div>
                 <div class="form-group">
-                    <label for="ins_detalle_disc">Especifique Discapacidad</label>
-                    <input type="text" id="ins_detalle_disc" class="form-control" placeholder="Ej: Motora...">
+                    <label for="ins_detalle_discapacidad">Detalle de Discapacidad</label>
+                    <input type="text" id="ins_detalle_discapacidad" class="form-control" placeholder="Tipo de discapacidad, grado...">
                 </div>
-                <div class="form-group span-2">
+                <div class="form-group">
                     <label for="ins_servicio_salud">Servicio de Salud Habitual</label>
-                    <select id="ins_servicio_salud" class="form-control">
-                        <option value="Hospital Público">Hospital Público</option>
-                        <option value="IVSS">Instituto Nacional de los Seguros Sociales (IVSS)</option>
-                        <option value="Clínica Privada">Clínica Privada</option>
-                        <option value="Ambulatorio">Ambulatorio / Consultorio</option>
-                        <option value="Otro">Otro</option>
-                    </select>
+                    <input type="text" id="ins_servicio_salud" class="form-control" placeholder="Ej: CDI Oropeza, Hospital, IVSS...">
                 </div>
                 <div class="form-group">
-                    <label for="ins_ayuda">Tipo de Ayuda Requerida</label>
-                    <select id="ins_ayuda" class="form-control" required>
-                        <option value="Tratamiento Médico">Tratamiento Médico</option>
-                        <option value="Exámenes Médicos">Exámenes / Laboratorio</option>
-                        <option value="Insumos Quirúrgicos">Insumos Quirúrgicos</option>
-                        <option value="Ayuda Técnica">Ayuda Técnica</option>
-                    </select>
+                    <label for="ins_tipo_ayuda">Tipo de Ayuda Solicitada</label>
+                    <input type="text" id="ins_tipo_ayuda" class="form-control" placeholder="Ej: Medicamentos, Exámenes, Insumos..." required>
                 </div>
                 <div class="form-group">
                     <label for="ins_prioridad">Prioridad</label>
                     <select id="ins_prioridad" class="form-control" required>
-                        <option value="Baja">Baja</option>
+                        <option value="Alta">Alta</option>
                         <option value="Media" selected>Media</option>
-                        <option value="Alta">Alta (Urgente)</option>
+                        <option value="Baja">Baja</option>
                     </select>
                 </div>
                 <div class="form-group">
-                    <label for="ins_estatus">Estatus Actual</label>
+                    <label for="ins_estatus">Estatus del Caso</label>
                     <select id="ins_estatus" class="form-control" required>
-                        <option value="En Espera">En Espera</option>
+                        <option value="En Espera" selected>En Espera</option>
                         <option value="En Gestión">En Gestión</option>
                         <option value="Resuelto">Resuelto</option>
                     </select>
                 </div>
                 <div class="form-group">
-                    <label for="ins_remitido">Institución Remitida</label>
-                    <input type="text" id="ins_remitido" class="form-control" placeholder="Ej: Hospital / IVSS">
+                    <label for="ins_institucion_remitida">Institución Remitida</label>
+                    <input type="text" id="ins_institucion_remitida" class="form-control" placeholder="Ej: Alcaldía, Gobernación, IVSS...">
+                </div>
+                <div class="form-group">
+                    <label for="ins_responsable_comision">Responsable de Comisión</label>
+                    <input type="text" id="ins_responsable_comision" class="form-control" placeholder="Nombre del enlace o responsable">
                 </div>
                 <div class="form-group span-2">
-                    <label for="ins_responsable">Responsable de la Comisión</label>
-                    <input type="text" id="ins_responsable" class="form-control" placeholder="Ej: Lcdo. Carlos Gómez..." required>
-                </div>
-                <div class="form-group span-2" style="background: #f8fafc; padding: 10px; border: 1px dashed var(--border-color); border-radius: 6px;">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
-                        <label for="ins_archivo" style="color: var(--sidebar-active); margin:0;">📁 Documento Respaldo</label>
-                        <a href="https://lightweight-pdf-tool.lumi.ing/" target="_blank" style="background: #0f2547; color: white; padding: 3px 8px; border-radius: 4px; font-size: 10.5px; text-decoration: none;">⚙️ Unificar en Lumi</a>
-                    </div>
-                    <input type="file" id="ins_archivo" class="form-control" style="border:none; background:transparent; padding:3px 0;">
-                </div>
-                <div class="form-group span-2">
-                    <label for="ins_detalle">Observaciones / Diagnóstico</label>
-                    <textarea id="ins_detalle" class="form-control" placeholder="Detalles de la solicitud..." required></textarea>
+                    <label for="ins_detalle">Descripción Amplia del Caso</label>
+                    <textarea id="ins_detalle" class="form-control" placeholder="Motivo de la solicitud, situación actual del paciente..." required></textarea>
                 </div>
             </div>
-            
+
             <div class="modal-footer">
-                <button type="button" class="btn-secondary" onclick="cerrarModalFormulario()">Cancelar</button>
                 <div class="wizard-nav-btns">
-                    <button type="button" class="btn-secondary" id="btnAnterior" onclick="moverPaso(-1)" style="display:none;">Anterior</button>
-                    <button type="button" class="btn-submit" id="btnSiguiente" onclick="moverPaso(1)">Siguiente ➔</button>
-                    <button type="submit" class="btn-submit" id="btnGuardarForm" style="display:none; background:var(--success-color);">Sincronizar Ficha</button>
+                    <button type="button" class="btn-secondary" id="btnAnteriorStep" onclick="navegarPasoWizard(-1)" style="display:none;">Anterior</button>
+                </div>
+                <div style="display: flex; gap: 10px;">
+                    <button type="button" class="btn-secondary" onclick="cerrarModalFormulario()">Cancelar</button>
+                    <button type="button" class="btn-primary" id="btnSiguienteStep" onclick="navegarPasoWizard(1)">Siguiente</button>
+                    <button type="submit" class="btn-submit" id="btnGuardarStep" style="display:none;">Guardar Ficha</button>
                 </div>
             </div>
         </form>
     </div>
 </div>
 
-<!-- MODAL VISOR EXPEDIENTE E HISTORIAL -->
-<div class="modal-overlay" id="expedienteModal">
-    <div class="modal-container" style="max-width: 800px;">
-        <div class="print-header-ficha" style="display: none; text-align: center; margin-bottom: 8px; border-bottom: 2px solid #1d3b6a; padding-bottom: 5px;">
-            <h3 style="font-size: 13px; font-weight: 700; color: #1d3b6a; text-transform: uppercase;">REPÚBLICA BOLIVARIANA DE VENEZUELA</h3>
-            <h4 style="font-size: 11px; font-weight: 600; color: #334155; text-transform: uppercase;">CONCEJO MUNICIPAL DEL MUNICIPIO AMBROSIO PLAZA</h4>
-            <h5 style="font-size: 10px; font-weight: 600; color: #0066cc; text-transform: uppercase; margin-top: 2px;">COMISIÓN PERMANENTE DE SALUD Y DESARROLLO SOCIAL INTEGRAL — CONCEJALA LETTY BASTIDAS</h5>
-            <div style="margin-top: 4px; font-size: 12px; font-weight: 700; color: #0f2547;">FICHA SOCIAL INTEGRAL DE CASO</div>
-        </div>
-
-        <div class="modal-header">
-            <h3>🗂️ Expediente Social y Bitácora de Trámites</h3>
-            <span style="cursor:pointer; font-weight:bold; color:#64748b; font-size:22px;" onclick="cerrarModalExpediente()">×</span>
-        </div>
-        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px;" id="cuerpoExpediente"></div>
-        
-        <div style="margin-top: 15px; border-top: 1px solid #e2e8f0; padding-top: 12px;">
-            <input type="hidden" id="seguimientoCasoId">
-            <label style="font-size: 11px; font-weight: 700; color: var(--sidebar-bg); text-transform: uppercase; display: block; margin-bottom: 4px;">✍️ Agregar Nuevo Trámite o Avance</label>
-            <textarea id="nuevoSeguimientoTexto" class="form-control" placeholder="Escribe aquí el avance..." style="margin-bottom: 8px;"></textarea>
-            <button type="button" class="btn-submit" onclick="guardarSeguimientoTratamiento()" style="background: var(--success-color); width: 100%;">➕ Registrar Avance</button>
-        </div>
-
-        <div class="modal-footer" style="margin-top: 12px; display: flex; justify-content: space-between; align-items: center;">
-            <button type="button" class="btn-report" onclick="window.print()">🖨️ Imprimir Ficha Individual</button>
-            <button type="button" class="btn-submit" onclick="cerrarModalExpediente()">Cerrar Ventana</button>
-        </div>
-    </div>
-</div>
-
-<script>
-    if (sessionStorage.getItem("usuario_rol") === "admin") {
-        const el = document.getElementById("enlaceAuditoria");
-        if (el) el.style.display = "block";
-    }
-
-    let tipoFiltroActual = 'Caso Comunitario';
-    let listaCasosGlobal = [];
-    let listaCasosFiltradosActuales = [];
-    let idEnEdicion = null;
-    let pasoActualForm = 1;
-
-    window.iniciarApp = function() {
-        const nombre = sessionStorage.getItem("usuario_nombre");
-        const coord = sessionStorage.getItem("usuario_coordinacion");
-        if (nombre) document.getElementById("usuarioNombre").textContent = nombre;
-        if (coord) document.getElementById("usuarioCoordinacion").textContent = coord.toUpperCase();
-        cargarCasosSociales();
-    };
-
-    function toggleMenu() {
-        document.getElementById("sidebarMenu").classList.toggle("open");
-    }
-
-    function cambiarPasoFormulario(paso) {
-        pasoActualForm = paso;
-        for (let i = 1; i <= 4; i++) {
-            document.getElementById(`wtab-${i}`).classList.toggle("active-step", i === paso);
-            document.getElementById(`wstep-${i}`).classList.toggle("active-content", i === paso);
-        }
-        document.getElementById("btnAnterior").style.display = paso === 1 ? "none" : "block";
-        document.getElementById("btnSiguiente").style.display = paso === 4 ? "none" : "block";
-        document.getElementById("btnGuardarForm").style.display = paso === 4 ? "block" : "none";
-    }
-
-    function moverPaso(dir) {
-        let nuevoPaso = pasoActualForm + dir;
-        if (nuevoPaso >= 1 && nuevoPaso <= 4) {
-            cambiarPasoFormulario(nuevoPaso);
-        }
-    }
-
-    async function cargarCasosSociales() {
-        const tbody = document.getElementById("tabla-casos-body");
-        try {
-            const registros = await window.sqlTag`
-                SELECT * FROM casos_salud 
-                WHERE coordinacion = 'Social' AND tipo = ${tipoFiltroActual} 
-                ORDER BY id DESC
-            `;
-            listaCasosGlobal = Array.from(registros);
-            actualizarKPIs(listaCasosGlobal);
-            filtrarTablaEnVivo();
-        } catch (err) {
-            tbody.innerHTML = `<tr><td colspan="12" style="text-align:center; color:#dc2626; padding:30px;">⚠️ Error: ${err.message}</td></tr>`;
-        }
-    }
-
-    function actualizarKPIs(datos) {
-        document.getElementById("kpi-espera").textContent = datos.filter(c => c.estatus === 'En Espera').length;
-        document.getElementById("kpi-gestion").textContent = datos.filter(c => c.estatus === 'En Gestión').length;
-        document.getElementById("kpi-resuelto").textContent = datos.filter(c => c.estatus === 'Resuelto').length;
-    }
-
-    function renderizarTabla(datos) {
-        const tbody = document.getElementById("tabla-casos-body");
-        if (datos.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="12" style="text-align:center; color:#94a3b8; padding:30px;">No se encontraron fichas registradas.</td></tr>`;
-            return;
-        }
-
-        const usuarioActual = sessionStorage.getItem("usuario_nombre") || "";
-        const rolActual = sessionStorage.getItem("usuario_rol") || "";
-
-        tbody.innerHTML = datos.map(c => {
-            let estClass = c.estatus === "En Gestión" ? "status-gestion" : (c.estatus === "Resuelto" ? "status-resuelto" : "status-espera");
-            
-            const esCreador = c.creado_por && usuarioActual && (c.creado_por.trim().toLowerCase() === usuarioActual.trim().toLowerCase());
-            const esAdmin = rolActual === "admin";
-
-            let botonesAccionesHTML = "";
-            if (esCreador || esAdmin) {
-                botonesAccionesHTML = `
-                    <button class="btn-expediente" onclick="verExpedienteCompleto(${c.id})">👁️ Historial</button>
-                    <button class="btn-edit" onclick="abrirModalEditar(${c.id})">Editar</button>
-                    <button class="btn-del" onclick="eliminarCaso(${c.id})">Borrar</button>
-                `;
-            } else {
-                botonesAccionesHTML = `
-                    <button class="btn-expediente" onclick="verExpedienteCompleto(${c.id})">👁️ Historial</button>
-                    <span class="text-muted small" title="Protegido: Solo el creador o un administrador pueden modificarlo" style="color: #64748b; font-size: 11px; font-weight: 500; display: inline-flex; align-items: center; gap: 3px; background: #f1f5f9; padding: 4px 8px; border-radius: 4px;">
-                        🔒 Protegido
-                    </span>
-                `;
-            }
-
-            return `
-                <tr>
-                    <td><b>${c.nombre || 'Sin nombre'}</b></td>
-                    <td><code style="background:#f1f5f9; padding:2px 5px; border-radius:4px;">${c.cedula || 'N/A'}</code></td>
-                    <td>${c.edad || '?' } años (${c.genero === 'Femenino' ? 'F' : 'M'})</td>
-                    <td>${c.telefono || 'N/A'}</td>
-                    <td>${c.sector || ''}</td>
-                    <td><span style="font-weight:600; color:#0284c7;">${c.tipo_ayuda || 'General'}</span></td>
-                    <td><span style="font-weight:600; color:#1e293b; background:#f1f5f9; padding:3px 6px; border-radius:4px;">👤 ${c.responsable_comision || 'No asignado'}</span></td>
-                    <td style="color:#475569; max-width:160px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" title="${c.detalle || ''}">${c.detalle || ''}</td>
-                    <td><span class="prio-badge prio-${c.prioridad}">${c.prioridad || 'Media'}</span></td>
-                    <td><span style="font-size:11.5px; color:#334155;">${c.institucion_remitida || 'Ninguna'}</span></td>
-                    <td><span class="status-badge ${estClass}">${c.estatus || 'En Espera'}</span></td>
-                    <td>
-                        <div class="action-buttons">
-                            ${botonesAccionesHTML}
-                        </div>
-                    </td>
-                </tr>
-            `;
-        }).join("");
-    }
-
-    function filtrarTablaEnVivo() {
-        const textoBusqueda = document.getElementById("inputBuscador").value.toLowerCase();
-        const prioFiltro = document.getElementById("filtroPrioridad").value;
-        const estFiltro = document.getElementById("filtroEstatus").value;
-
-        listaCasosFiltradosActuales = listaCasosGlobal.filter(c => {
-            const nombre = (c.nombre || "").toLowerCase();
-            const cedula = (c.cedula || "").toLowerCase();
-            return (nombre.includes(textoBusqueda) || cedula.includes(textoBusqueda)) &&
-                   (prioFiltro === "" || c.prioridad === prioFiltro) &&
-                   (estFiltro === "" || c.estatus === estFiltro);
-        });
-        renderizarTabla(listaCasosFiltradosActuales);
-    }
-
-    function cambiarFiltroSocial(nuevoTipo) {
-        tipoFiltroActual = nuevoTipo;
-        document.getElementById("tab-comunitarios").classList.toggle("active", nuevoTipo === 'Caso Comunitario');
-        document.getElementById("tab-personal").classList.toggle("active", nuevoTipo === 'Personal Concejo');
-        document.getElementById("inputBuscador").value = "";
-        document.getElementById("printTituloReporte").innerText = `REPORTE GENERAL DE CASOS SOCIALES — ${tipoFiltroActual.toUpperCase()}`;
-        cargarCasosSociales();
-    }
-
-    function imprimirListadoGeneral() {
-        document.body.classList.add("printing-general");
-        window.print();
-        document.body.classList.remove("printing-general");
-    }
-
-    function exportarAExcelReal() {
-        if (listaCasosFiltradosActuales.length === 0) { alert("No hay datos para exportar."); return; }
-        let datosParaExcel = listaCasosFiltradosActuales.map(c => ({
-            "Beneficiario": c.nombre || "", "Cédula": c.cedula || "", "Edad": c.edad || "",
-            "Género": c.genero || "", "Teléfono": c.telefono || "", "Sector": c.sector || "",
-            "Tipo Ayuda": c.tipo_ayuda || "", "Responsable": c.responsable_comision || "",
-            "Diagnóstico": c.detalle || "", "Prioridad": c.prioridad || "", "Estatus": c.estatus || ""
-        }));
-        let worksheet = XLSX.utils.json_to_sheet(datosParaExcel);
-        let workbook = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(workbook, worksheet, "Casos Sociales");
-        XLSX.writeFile(workbook, `Reporte_Casos_Sociales_${tipoFiltroActual.replace(/\s+/g, '_')}.xlsx`);
-    }
-
-    function abrirModalFormulario() {
-        idEnEdicion = null;
-        document.getElementById("socialForm").reset();
-        document.getElementById("casoId").value = "";
-        document.getElementById("ins_url_existente").value = "";
-        document.getElementById("modalTitulo").innerText = `Registrar Ficha Social Integral`;
-        cambiarPasoFormulario(1);
-        document.getElementById("formularioModal").classList.add("open");
-    }
-
-    function abrirModalEditar(id) {
-        const item = listaCasosGlobal.find(c => Number(c.id) === Number(id));
-        if (!item) return;
-
-        idEnEdicion = item.id;
-        document.getElementById("casoId").value = item.id;
-        document.getElementById("ins_nombre").value = item.nombre || "";
-        document.getElementById("ins_cedula").value = item.cedula || "";
-        document.getElementById("ins_edad").value = item.edad || "";
-        document.getElementById("ins_genero").value = item.genero || "Femenino";
-        document.getElementById("ins_fecha_nacimiento").value = item.fecha_nacimiento || "";
-        document.getElementById("ins_estado_civil").value = item.estado_civil || "Soltero/a";
-        document.getElementById("ins_telefono").value = item.telefono || "";
-        
-        document.getElementById("ins_trabaja").value = item.trabaja || "SI";
-        document.getElementById("ins_dir_trabajo").value = item.direccion_trabajo || "";
-        document.getElementById("ins_sueldo").value = item.sueldo_mensual || "";
-        document.getElementById("ins_ingreso_fam").value = item.ingreso_familiar || "";
-        document.getElementById("ins_egreso").value = item.promedio_egreso || "";
-        document.getElementById("ins_cubre_gastos").value = item.como_cubre_gastos || "";
-        document.getElementById("ins_num_fam").value = item.numero_grupo_familiar || "2 Personas";
-        document.getElementById("ins_detalle_fam").value = item.detalle_grupo_familiar || "";
-        
-        document.getElementById("ins_transporte").value = item.transporte || "Vehículo Propio";
-        document.getElementById("ins_tipo_vivienda").value = item.tipo_vivienda || "Casa";
-        document.getElementById("ins_tenencia_vivienda").value = item.tenencia_vivienda || "Propia";
-        document.getElementById("ins_carac_vivienda").value = item.caracteristicas_vivienda || "";
-        document.getElementById("ins_sector").value = item.sector || "";
-        document.getElementById("ins_sala_auto").value = item.sala_autogobierno || "";
-        document.getElementById("ins_ubch").value = item.ubch || "";
-        
-        document.getElementById("ins_sufre_enf").value = item.sufre_enfermedad || "NO";
-        document.getElementById("ins_detalle_enf").value = item.detalle_enfermedad || "";
-        document.getElementById("ins_discapacidad").value = item.presenta_discapacidad || "NO";
-        document.getElementById("ins_detalle_disc").value = item.detalle_discapacidad || "";
-        document.getElementById("ins_servicio_salud").value = item.servicio_salud_habitual || "Hospital Público";
-        
-        document.getElementById("ins_ayuda").value = item.tipo_ayuda || "Tratamiento Médico";
-        document.getElementById("ins_prioridad").value = item.prioridad || "Media";
-        document.getElementById("ins_estatus").value = item.estatus || "En Espera";
-        document.getElementById("ins_remitido").value = item.institucion_remitida || "";
-        document.getElementById("ins_responsable").value = item.responsable_comision || "";
-        document.getElementById("ins_detalle").value = item.detalle || "";
-        document.getElementById("ins_url_existente").value = item.url_adjunto || "";
-        
-        cambiarPasoFormulario(1);
-        document.getElementById("modalTitulo").innerText = "Modificar Ficha Social Integral";
-        document.getElementById("formularioModal").classList.add("open");
-    }
-
-    function cerrarModalFormulario() {
-        idEnEdicion = null;
-        document.getElementById("formularioModal").classList.remove("open");
-    }
-
-    function convertirArchivoABase64(archivo) {
-        return new Promise((resolve, reject) => {
-            const reader = new FileReader();
-            reader.readAsDataURL(archivo);
-            reader.onload = () => resolve(reader.result);
-            reader.onerror = error => reject(error);
-        });
-    }
-
-    async function procesarFormulario(e) {
-        e.preventDefault();
-
-        const btnGuardar = document.getElementById("btnGuardarForm");
-        const archivoInput = document.getElementById("ins_archivo");
-        let urlFinalArchivo = document.getElementById("ins_url_existente").value;
-
-        btnGuardar.innerText = "Sincronizando...";
-        btnGuardar.disabled = true;
-
-        try {
-            if (archivoInput.files.length > 0) {
-                urlFinalArchivo = await convertirArchivoABase64(archivoInput.files[0]);
-            }
-
-            const nombre = document.getElementById("ins_nombre").value.trim();
-            const cedula = document.getElementById("ins_cedula").value.trim();
-            const edad = parseInt(document.getElementById("ins_edad").value) || 0;
-            const genero = document.getElementById("ins_genero").value;
-            const fecha_nac = document.getElementById("ins_fecha_nacimiento").value || null;
-            const estado_civil = document.getElementById("ins_estado_civil").value;
-            const telefono = document.getElementById("ins_telefono").value.trim();
-            
-            const trabaja = document.getElementById("ins_trabaja").value;
-            const dir_trabajo = document.getElementById("ins_dir_trabajo").value.trim();
-            const sueldo = parseFloat(document.getElementById("ins_sueldo").value) || 0;
-            const ingreso = parseFloat(document.getElementById("ins_ingreso_fam").value) || 0;
-            const egreso = parseFloat(document.getElementById("ins_egreso").value) || 0;
-            const cubre_gastos = document.getElementById("ins_cubre_gastos").value.trim();
-            
-            const num_fam = document.getElementById("ins_num_fam").value;
-            const detalle_fam = document.getElementById("ins_detalle_fam").value.trim();
-            
-            const transporte = document.getElementById("ins_transporte").value;
-            const tipo_vivienda = document.getElementById("ins_tipo_vivienda").value;
-            const tenencia_vivienda = document.getElementById("ins_tenencia_vivienda").value;
-            const carac_vivienda = document.getElementById("ins_carac_vivienda").value.trim();
-            
-            const sector = document.getElementById("ins_sector").value.trim();
-            const sala_auto = document.getElementById("ins_sala_auto").value.trim();
-            const ubch = document.getElementById("ins_ubch").value.trim();
-            
-            const sufre_enf = document.getElementById("ins_sufre_enf").value;
-            const detalle_enf = document.getElementById("ins_detalle_enf").value.trim();
-            const disc = document.getElementById("ins_discapacidad").value;
-            const detalle_disc = document.getElementById("ins_detalle_disc").value.trim();
-            const servicio_salud = document.getElementById("ins_servicio_salud").value;
-            
-            const ayuda = document.getElementById("ins_ayuda").value;
-            const prioridad = document.getElementById("ins_prioridad").value;
-            const estatus = document.getElementById("ins_estatus").value;
-            const remitido = document.getElementById("ins_remitido").value.trim();
-            const responsable = document.getElementById("ins_responsable").value.trim();
-            const detalle = document.getElementById("ins_detalle").value.trim();
-            const usuarioActual = sessionStorage.getItem("usuario_nombre") || "Sistema";
-
-            if (idEnEdicion) {
-                await window.sqlTag`
-                    UPDATE casos_salud 
-                    SET nombre = ${nombre}, cedula = ${cedula}, edad = ${edad}, genero = ${genero}, 
-                        fecha_nacimiento = ${fecha_nac}, estado_civil = ${estado_civil}, telefono = ${telefono},
-                        trabaja = ${trabaja}, direccion_trabajo = ${dir_trabajo}, sueldo_mensual = ${sueldo},
-                        ingreso_familiar = ${ingreso}, promedio_egreso = ${egreso}, como_cubre_gastos = ${cubre_gastos},
-                        numero_grupo_familiar = ${num_fam}, detalle_grupo_familiar = ${detalle_fam},
-                        transporte = ${transporte}, tipo_vivienda = ${tipo_vivienda}, tenencia_vivienda = ${tenencia_vivienda},
-                        caracteristicas_vivienda = ${carac_vivienda}, sector = ${sector}, sala_autogobierno = ${sala_auto},
-                        ubch = ${ubch}, sufre_enfermedad = ${sufre_enf}, detalle_enfermedad = ${detalle_enf},
-                        presenta_discapacidad = ${disc}, detalle_discapacidad = ${detalle_disc}, servicio_salud_habitual = ${servicio_salud},
-                        tipo_ayuda = ${ayuda}, prioridad = ${prioridad}, estatus = ${estatus}, 
-                        institucion_remitida = ${remitido}, responsable_comision = ${responsable}, 
-                        detalle = ${detalle}, url_adjunto = ${urlFinalArchivo}
-                    WHERE id = ${idEnEdicion}
-                `;
-                alert("¡Ficha actualizada con éxito!");
-            } else {
-                await window.sqlTag`
-                    INSERT INTO casos_salud (
-                        nombre, cedula, edad, genero, fecha_nacimiento, estado_civil, telefono,
-                        trabaja, direccion_trabajo, sueldo_mensual, ingreso_familiar, promedio_egreso, como_cubre_gastos,
-                        numero_grupo_familiar, detalle_grupo_familiar, transporte, tipo_vivienda, tenencia_vivienda,
-                        caracteristicas_vivienda, sector, sala_autogobierno, ubch, sufre_enfermedad, detalle_enfermedad,
-                        presenta_discapacidad, detalle_discapacidad, servicio_salud_habitual,
-                        tipo_ayuda, prioridad, estatus, institucion_remitida, responsable_comision, 
-                        detalle, url_adjunto, coordinacion, tipo, seguimiento_bitacora, creado_por
-                    ) VALUES (
-                        ${nombre}, ${cedula}, ${edad}, ${genero}, ${fecha_nac}, ${estado_civil}, ${telefono},
-                        ${trabaja}, ${dir_trabajo}, ${sueldo}, ${ingreso}, ${egreso}, ${cubre_gastos},
-                        ${num_fam}, ${detalle_fam}, ${transporte}, ${tipo_vivienda}, ${tenencia_vivienda},
-                        ${carac_vivienda}, ${sector}, ${sala_auto}, ${ubch}, ${sufre_enf}, ${detalle_enf},
-                        ${disc}, ${detalle_disc}, ${servicio_salud},
-                        ${ayuda}, ${prioridad}, ${estatus}, ${remitido}, ${responsable}, 
-                        ${detalle}, ${urlFinalArchivo}, 'Social', ${tipoFiltroActual}, 
-                        ${'[' + new Date().toLocaleDateString() + '] Ficha social integral registrada.'}, ${usuarioActual}
-                    )
-                `;
-                alert("¡Ficha registrada con éxito!");
-            }
-
-            cerrarModalFormulario();
-            cargarCasosSociales();
-        } catch (err) {
-            alert("Error al sincronizar: " + err.message);
-        } finally {
-            btnGuardar.innerText = "Sincronizar Ficha";
-            btnGuardar.disabled = false;
-        }
-    }
-
-    function verExpedienteCompleto(id) {
-        const item = listaCasosGlobal.find(c => Number(c.id) === Number(id));
-        if (!item) return;
-
-        document.getElementById("seguimientoCasoId").value = item.id;
-        document.getElementById("nuevoSeguimientoTexto").value = "";
-
-        let bloqueAdjunto = item.url_adjunto 
-            ? `<a href="${item.url_adjunto}" target="_blank" download="Documento_Respaldo_Social" style="color:#16a34a; font-weight:700; text-decoration:underline;">📥 Ver Documento Adjunto</a>`
-            : '<span style="color:#64748b; font-style:italic;">Ningún documento.</span>';
-
-        let historialBitacora = item.seguimiento_bitacora ? item.seguimiento_bitacora.replace(/\n/g, '<br>') : 'Sin avances.';
-
-        document.getElementById("cuerpoExpediente").innerHTML = `
-            <div class="form-group span-2 expediente-view-box"><label>Nombre y Apellido</label><p>${item.nombre || ''}</p></div>
-            <div class="form-group expediente-view-box"><label>Cédula</label><p>${item.cedula || ''}</p></div>
-            <div class="form-group expediente-view-box"><label>Edad / Sexo</label><p>${item.edad || '?'} años (${item.genero || ''})</p></div>
-            <div class="form-group expediente-view-box"><label>Estado Civil / Teléfono</label><p>${item.estado_civil || 'N/A'} — ${item.telefono || ''}</p></div>
-            <div class="form-group expediente-view-box"><label>Trabaja / Ingresos</label><p>Trabaja: ${item.trabaja || 'SI'} | Ingreso: $${item.ingreso_familiar || 0}</p></div>
-            <div class="form-group span-2 expediente-view-box"><label>Grupo Familiar</label><p>${item.numero_grupo_familiar || ''} — ${item.detalle_grupo_familiar || 'Sin detalle'}</p></div>
-            <div class="form-group expediente-view-box"><label>Vivienda y Transporte</label><p>${item.tipo_vivienda || ''} (${item.tenencia_vivienda || ''}) / Transp: ${item.transporte || ''}</p></div>
-            <div class="form-group expediente-view-box"><label>Sector / Comuna</label><p>${item.sector || ''} | Comuna: ${item.sala_autogobierno || 'N/A'}</p></div>
-            <div class="form-group expediente-view-box"><label>Salud</label><p>Enf: ${item.sufre_enfermedad || 'NO'} | Disc: ${item.presenta_discapacidad || 'NO'}</p></div>
-            <div class="form-group expediente-view-box"><label>Tipo Ayuda / Prioridad</label><p>${item.tipo_ayuda || ''} (<span class="prio-badge prio-${item.prioridad}">${item.prioridad || ''}</span>)</p></div>
-            <div class="form-group span-2 expediente-view-box" style="background:#f1f5f9;"><label>Responsable</label><p><b>${item.responsable_comision || ''}</b> (Creado por: ${item.creado_por || 'N/A'})</p></div>
-            <div class="form-group span-2 expediente-view-box"><label>📎 Respaldo</label><p>${bloqueAdjunto}</p></div>
-            <div class="form-group span-2 expediente-view-box"><label>Diagnóstico</label><p style="font-style:italic;">"${item.detalle || ''}"</p></div>
-            <div class="form-group span-2 expediente-view-box" style="background:#fffbeb;"><label>Bitácora</label><div style="font-size:11px;">${historialBitacora}</div></div>
-        `;
-        document.getElementById("expedienteModal").classList.add("open");
-    }
-
-    async function guardarSeguimientoTratamiento() {
-        const id = document.getElementById("seguimientoCasoId").value;
-        const nuevoTexto = document.getElementById("nuevoSeguimientoTexto").value.trim();
-        if (!nuevoTexto) { alert("Escribe el avance."); return; }
-        const item = listaCasosGlobal.find(c => Number(c.id) === Number(id));
-        if (!item) return;
-
-        const entradaNueva = `[${new Date().toLocaleDateString()}] ${nuevoTexto}`;
-        const bitacoraActualizada = item.seguimiento_bitacora ? (item.seguimiento_bitacora + '\n\n' + entradaNueva) : entradaNueva;
-
-        try {
-            await window.sqlTag`UPDATE casos_salud SET seguimiento_bitacora = ${bitacoraActualizada} WHERE id = ${Number(id)}`;
-            alert("¡Avance registrado!");
-            document.getElementById("nuevoSeguimientoTexto").value = "";
-            await cargarCasosSociales();
-            verExpedienteCompleto(id);
-        } catch (err) {
-            alert("Error: " + err.message);
-        }
-    }
-
-    function cerrarModalExpediente() {
-        document.getElementById("expedienteModal").classList.remove("open");
-    }
-
-    async function eliminarCaso(id) {
-        if (!confirm("¿Eliminar esta ficha de la base de datos?")) return;
-        try {
-            await window.sqlTag`DELETE FROM casos_salud WHERE id = ${Number(id)}`;
-            cargarCasosSociales();
-        } catch (err) {
-            alert("Error: " + err.message);
-        }
-    }
-
-    async function logout() {
-        sessionStorage.clear();
-        window.location.href = "login.html";
-    }
-</script>
 </body>
 </html>
