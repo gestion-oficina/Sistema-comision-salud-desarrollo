@@ -20,135 +20,8 @@
     <!-- LIBRERÍA SHEETJS PARA EXPORTAR A EXCEL REAL (.XLSX) -->
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 
-    <!-- CARGA DE SQL.JS (SQLite para el Navegador) -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.8.0/sql-wasm.js"></script>
-
-    <!-- CONFIGURACIÓN DE SQLITE LOCAL (WASM) -->
-    <script>
-        window.sqlClient = {
-            db: null,
-            async init() {
-                const SQL = await initSqlJs({
-                    locateFile: file => `https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.8.0/${file}`
-                });
-                
-                const savedDb = localStorage.getItem('sqlite_casos_sociales');
-                if (savedDb) {
-                    const uInt8Array = Uint8Array.from(JSON.parse(savedDb));
-                    this.db = new SQL.Database(uInt8Array);
-                } else {
-                    this.db = new SQL.Database();
-                    this.crearTablas();
-                }
-            },
-            crearTablas() {
-                this.db.run(`
-                    CREATE TABLE IF NOT EXISTS casos_salud (
-                        id INTEGER PRIMARY KEY AUTOINCREMENT,
-                        nombre TEXT,
-                        cedula TEXT,
-                        edad INTEGER,
-                        genero TEXT,
-                        fecha_nacimiento TEXT,
-                        estado_civil TEXT,
-                        telefono TEXT,
-                        trabaja TEXT,
-                        direccion_trabajo TEXT,
-                        sueldo_mensual REAL,
-                        ingreso_familiar REAL,
-                        promedio_egreso REAL,
-                        como_cubre_gastos TEXT,
-                        numero_grupo_familiar TEXT,
-                        detalle_grupo_familiar TEXT,
-                        transporte TEXT,
-                        tipo_vivienda TEXT,
-                        tenencia_vivienda TEXT,
-                        caracteristicas_vivienda TEXT,
-                        sector TEXT,
-                        sala_autogobierno TEXT,
-                        ubch TEXT,
-                        sufre_enfermedad TEXT,
-                        detalle_enfermedad TEXT,
-                        presenta_discapacidad TEXT,
-                        detalle_discapacidad TEXT,
-                        servicio_salud_habitual TEXT,
-                        tipo_ayuda TEXT,
-                        prioridad TEXT,
-                        estatus TEXT,
-                        institucion_remitida TEXT,
-                        responsable_comision TEXT,
-                        detalle TEXT,
-                        url_adjunto TEXT,
-                        coordinacion TEXT,
-                        tipo TEXT,
-                        seguimiento_bitacora TEXT,
-                        creado_por TEXT
-                    );
-                `);
-                this.guardarPersistencia();
-            },
-            guardarPersistencia() {
-                const data = this.db.export();
-                const arr = Array.from(data);
-                localStorage.setItem('sqlite_casos_sociales', JSON.stringify(arr));
-            },
-            async query(strings, ...values) {
-                let sql = strings[0];
-                for (let i = 0; i < values.length; i++) {
-                    sql += ' ? ' + strings[i + 1];
-                }
-                
-                if (sql.trim().toUpperCase().startsWith("SELECT")) {
-                    const stmt = this.db.prepare(sql);
-                    stmt.bind(values);
-                    const resultados = [];
-                    while (stmt.step()) {
-                        resultados.push(stmt.getAsObject());
-                    }
-                    stmt.free();
-                    return resultados;
-                } else {
-                    this.db.run(sql, values);
-                    this.guardarPersistencia();
-                    return [];
-                }
-            }
-        };
-
-        window.sqlTag = async function(strings, ...values) {
-            let sql = "";
-            let params = [];
-            for (let i = 0; i < strings.length; i++) {
-                sql += strings[i];
-                if (i < values.length) {
-                    sql += "?";
-                    params.push(values[i]);
-                }
-            }
-            
-            if (sql.trim().toUpperCase().startsWith("SELECT")) {
-                const stmt = window.sqlClient.db.prepare(sql);
-                stmt.bind(params);
-                const res = [];
-                while (stmt.step()) {
-                    res.push(stmt.getAsObject());
-                }
-                stmt.free();
-                return res;
-            } else {
-                window.sqlClient.db.run(sql, params);
-                window.sqlClient.guardarPersistencia();
-                return [];
-            }
-        };
-
-        document.addEventListener("DOMContentLoaded", async () => {
-            await window.sqlClient.init();
-            if (typeof window.iniciarApp === 'function') {
-                window.iniciarApp();
-            }
-        });
-    </script>
+    <!-- ARCHIVO DE CONEXIÓN CENTRALIZADO -->
+    <script src="js/conexion.js"></script>
 
     <style>
         :root { 
@@ -402,7 +275,7 @@
                     </tr>
                 </thead>
                 <tbody id="tabla-casos-body">
-                    <tr><td colspan="12" style="color:#94a3b8; text-align:center; padding:30px;">Conectando con la base de datos SQLite local...</td></tr>
+                    <tr><td colspan="12" style="color:#94a3b8; text-align:center; padding:30px;">Conectando con la base de datos centralizada...</td></tr>
                 </tbody>
             </table>
         </div>
@@ -696,13 +569,13 @@
     let idEnEdicion = null;
     let pasoActualForm = 1;
 
-    window.iniciarApp = function() {
+    document.addEventListener("DOMContentLoaded", async () => {
         const nombre = sessionStorage.getItem("usuario_nombre");
         const coord = sessionStorage.getItem("usuario_coordinacion");
         if (nombre) document.getElementById("usuarioNombre").textContent = nombre;
         if (coord) document.getElementById("usuarioCoordinacion").textContent = coord.toUpperCase();
-        cargarCasosSociales();
-    };
+        await cargarCasosSociales();
+    });
 
     function toggleMenu() {
         document.getElementById("sidebarMenu").classList.toggle("open");
@@ -729,11 +602,10 @@
     async function cargarCasosSociales() {
         const tbody = document.getElementById("tabla-casos-body");
         try {
-            const registros = await window.sqlTag`
-                SELECT * FROM casos_salud 
-                WHERE coordinacion = 'Social' AND tipo = ${tipoFiltroActual} 
-                ORDER BY id DESC
-            `;
+            const registros = await consultarBaseDatos(
+                "SELECT * FROM casos_salud WHERE coordinacion = ? AND tipo = ? ORDER BY id DESC",
+                ['Social', tipoFiltroActual]
+            );
             listaCasosGlobal = Array.from(registros);
             actualizarKPIs(listaCasosGlobal);
             filtrarTablaEnVivo();
@@ -978,26 +850,34 @@
             const usuarioActual = sessionStorage.getItem("usuario_nombre") || "Sistema";
 
             if (idEnEdicion) {
-                await window.sqlTag`
-                    UPDATE casos_salud 
-                    SET nombre = ${nombre}, cedula = ${cedula}, edad = ${edad}, genero = ${genero}, 
-                        fecha_nacimiento = ${fecha_nac}, estado_civil = ${estado_civil}, telefono = ${telefono},
-                        trabaja = ${trabaja}, direccion_trabajo = ${dir_trabajo}, sueldo_mensual = ${sueldo},
-                        ingreso_familiar = ${ingreso}, promedio_egreso = ${egreso}, como_cubre_gastos = ${cubre_gastos},
-                        numero_grupo_familiar = ${num_fam}, detalle_grupo_familiar = ${detalle_fam},
-                        transporte = ${transporte}, tipo_vivienda = ${tipo_vivienda}, tenencia_vivienda = ${tenencia_vivienda},
-                        caracteristicas_vivienda = ${carac_vivienda}, sector = ${sector}, sala_autogobierno = ${sala_auto},
-                        ubch = ${ubch}, sufre_enfermedad = ${sufre_enf}, detalle_enfermedad = ${detalle_enf},
-                        presenta_discapacidad = ${disc}, detalle_discapacidad = ${detalle_disc}, servicio_salud_habitual = ${servicio_salud},
-                        tipo_ayuda = ${ayuda}, prioridad = ${prioridad}, estatus = ${estatus}, 
-                        institucion_remitida = ${remitido}, responsable_comision = ${responsable}, 
-                        detalle = ${detalle}, url_adjunto = ${urlFinalArchivo}
-                    WHERE id = ${idEnEdicion}
-                `;
+                await consultarBaseDatos(
+                    `UPDATE casos_salud 
+                    SET nombre = ?, cedula = ?, edad = ?, genero = ?, 
+                        fecha_nacimiento = ?, estado_civil = ?, telefono = ?,
+                        trabaja = ?, direccion_trabajo = ?, sueldo_mensual = ?,
+                        ingreso_familiar = ?, promedio_egreso = ?, como_cubre_gastos = ?,
+                        numero_grupo_familiar = ?, detalle_grupo_familiar = ?,
+                        transporte = ?, tipo_vivienda = ?, tenencia_vivienda = ?,
+                        caracteristicas_vivienda = ?, sector = ?, sala_autogobierno = ?,
+                        ubch = ?, sufre_enfermedad = ?, detalle_enfermedad = ?,
+                        presenta_discapacidad = ?, detalle_discapacidad = ?, servicio_salud_habitual = ?,
+                        tipo_ayuda = ?, prioridad = ?, estatus = ?, 
+                        institucion_remitida = ?, responsable_comision = ?, 
+                        detalle = ?, url_adjunto = ?
+                    WHERE id = ?`,
+                    [
+                        nombre, cedula, edad, genero, fecha_nac, estado_civil, telefono,
+                        trabaja, dir_trabajo, sueldo, ingreso, egreso, cubre_gastos,
+                        num_fam, detalle_fam, transporte, tipo_vivienda, tenencia_vivienda,
+                        carac_vivienda, sector, sala_auto, ubch, sufre_enf, detalle_enf,
+                        disc, detalle_disc, servicio_salud, ayuda, prioridad, estatus,
+                        remitido, responsable, detalle, urlFinalArchivo, idEnEdicion
+                    ]
+                );
                 alert("¡Ficha actualizada con éxito!");
             } else {
-                await window.sqlTag`
-                    INSERT INTO casos_salud (
+                await consultarBaseDatos(
+                    `INSERT INTO casos_salud (
                         nombre, cedula, edad, genero, fecha_nacimiento, estado_civil, telefono,
                         trabaja, direccion_trabajo, sueldo_mensual, ingreso_familiar, promedio_egreso, como_cubre_gastos,
                         numero_grupo_familiar, detalle_grupo_familiar, transporte, tipo_vivienda, tenencia_vivienda,
@@ -1005,17 +885,17 @@
                         presenta_discapacidad, detalle_discapacidad, servicio_salud_habitual,
                         tipo_ayuda, prioridad, estatus, institucion_remitida, responsable_comision, 
                         detalle, url_adjunto, coordinacion, tipo, seguimiento_bitacora, creado_por
-                    ) VALUES (
-                        ${nombre}, ${cedula}, ${edad}, ${genero}, ${fecha_nac}, ${estado_civil}, ${telefono},
-                        ${trabaja}, ${dir_trabajo}, ${sueldo}, ${ingreso}, ${egreso}, ${cubre_gastos},
-                        ${num_fam}, ${detalle_fam}, ${transporte}, ${tipo_vivienda}, ${tenencia_vivienda},
-                        ${carac_vivienda}, ${sector}, ${sala_auto}, ${ubch}, ${sufre_enf}, ${detalle_enf},
-                        ${disc}, ${detalle_disc}, ${servicio_salud},
-                        ${ayuda}, ${prioridad}, ${estatus}, ${remitido}, ${responsable}, 
-                        ${detalle}, ${urlFinalArchivo}, 'Social', ${tipoFiltroActual}, 
-                        ${'[' + new Date().toLocaleDateString() + '] Ficha social integral registrada.'}, ${usuarioActual}
-                    )
-                `;
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+                    [
+                        nombre, cedula, edad, genero, fecha_nac, estado_civil, telefono,
+                        trabaja, dir_trabajo, sueldo, ingreso, egreso, cubre_gastos,
+                        num_fam, detalle_fam, transporte, tipo_vivienda, tenencia_vivienda,
+                        carac_vivienda, sector, sala_auto, ubch, sufre_enf, detalle_enf,
+                        disc, detalle_disc, servicio_salud, ayuda, prioridad, estatus,
+                        remitido, responsable, detalle, urlFinalArchivo, 'Social', tipoFiltroActual, 
+                        '[' + new Date().toLocaleDateString() + '] Ficha social integral registrada.', usuarioActual
+                    ]
+                );
                 alert("¡Ficha registrada con éxito!");
             }
 
@@ -1072,7 +952,10 @@
         const bitacoraActualizada = item.seguimiento_bitacora ? (item.seguimiento_bitacora + '\n\n' + entradaNueva) : entradaNueva;
 
         try {
-            await window.sqlTag`UPDATE casos_salud SET seguimiento_bitacora = ${bitacoraActualizada} WHERE id = ${Number(id)}`;
+            await consultarBaseDatos(
+                "UPDATE casos_salud SET seguimiento_bitacora = ? WHERE id = ?",
+                [bitacoraActualizada, Number(id)]
+            );
             alert("¡Avance registrado!");
             document.getElementById("nuevoSeguimientoTexto").value = "";
             await cargarCasosSociales();
@@ -1089,7 +972,10 @@
     async function eliminarCaso(id) {
         if (!confirm("¿Eliminar esta ficha de la base de datos?")) return;
         try {
-            await window.sqlTag`DELETE FROM casos_salud WHERE id = ${Number(id)}`;
+            await consultarBaseDatos(
+                "DELETE FROM casos_salud WHERE id = ?",
+                [Number(id)]
+            );
             cargarCasosSociales();
         } catch (err) {
             alert("Error: " + err.message);
