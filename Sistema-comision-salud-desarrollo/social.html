@@ -23,7 +23,7 @@
     <!-- CARGA DE SQL.JS (SQLite para el Navegador) -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.8.0/sql-wasm.js"></script>
 
-    <!-- CONFIGURACIÓN DE SQLITE LOCAL (WASM) -->
+    <!-- CONFIGURACIÓN DE SQLITE LOCAL (WASM) & MIGRACIÓN DE TABLAS -->
     <script>
         window.sqlClient = {
             db: null,
@@ -32,7 +32,6 @@
                     locateFile: file => `https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.8.0/${file}`
                 });
                 
-                // Cargar base de datos guardada en localStorage si existe, o crear una nueva
                 const savedDb = localStorage.getItem('sqlite_casos_sociales');
                 if (savedDb) {
                     const uInt8Array = Uint8Array.from(JSON.parse(savedDb));
@@ -93,14 +92,12 @@
                 const arr = Array.from(data);
                 localStorage.setItem('sqlite_casos_sociales', JSON.stringify(arr));
             },
-            // Emulador de etiquetas similar a tagged templates de Neon para mantener idéntica la lógica
             async query(strings, ...values) {
                 let sql = strings[0];
                 for (let i = 0; i < values.length; i++) {
                     sql += ' ? ' + strings[i + 1];
                 }
                 
-                // Manejo de sentencias SELECT
                 if (sql.trim().toUpperCase().startsWith("SELECT")) {
                     const stmt = this.db.prepare(sql);
                     stmt.bind(values);
@@ -111,7 +108,6 @@
                     stmt.free();
                     return resultados;
                 } else {
-                    // Manejo de INSERT, UPDATE, DELETE
                     this.db.run(sql, values);
                     this.guardarPersistencia();
                     return [];
@@ -119,7 +115,6 @@
             }
         };
 
-        // Función tag para permitir la misma sintaxis sqlClient`...` que usabas con Neon
         window.sqlTag = async function(strings, ...values) {
             let sql = "";
             let params = [];
@@ -1109,7 +1104,7 @@
 
     async function logout() {
         sessionStorage.clear();
-        window.location.href = "index.html";
+        window.location.href = "login.html";
     }
 </script>
 </body>
