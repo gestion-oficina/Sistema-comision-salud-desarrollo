@@ -507,7 +507,7 @@
                         <label for="ins_archivo" style="color: var(--sidebar-active); margin:0;">📁 Imágenes / Documentos Respaldo (Selección Múltiple)</label>
                         <a href="https://lightweight-pdf-tool.lumi.ing/" target="_blank" style="background: #0f2547; color: white; padding: 3px 8px; border-radius: 4px; font-size: 10.5px; text-decoration: none;">⚙️ Unificar en Lumi</a>
                     </div>
-                    <!-- Agregado el atributo 'multiple' para permitir selección múltiple -->
+                    <!-- Atributo 'multiple' habilitado -->
                     <input type="file" id="ins_archivo" class="form-control" accept="image/*" multiple style="border:none; background:transparent; padding:3px 0;">
                 </div>
                 <div class="form-group span-2">
@@ -800,7 +800,7 @@
         document.getElementById("formularioModal").classList.remove("open");
     }
 
-    // FUNCIÓN PARA SUBIR MÚLTIPLES IMÁGENES A IMGBB CON TU API KEY
+    // FUNCIÓN PARA SUBIR MÚLTIPLES IMÁGENES A IMGBB CON API KEY
     async function subirMultiplesImagenesImgbb(files) {
         const apiKey = "3c49f725c88fe8005a46582f1ab30f52";
         let urls = [];
@@ -821,7 +821,7 @@
                 throw new Error(data.error?.message || `Error al subir la imagen #${i + 1}`);
             }
         }
-        return urls.join(", "); // Retorna las URLs separadas por coma
+        return urls.join(", ");
     }
 
     async function procesarFormulario(e) {
@@ -831,113 +831,131 @@
         const archivoInput = document.getElementById("ins_archivo");
         let urlFinalArchivo = document.getElementById("ins_url_existente").value;
 
-        btnGuardar.innerText = "Subiendo imágenes a Imgbb...";
+        btnGuardar.innerText = "Subiendo imágenes...";
         btnGuardar.disabled = true;
 
         try {
             if (archivoInput.files.length > 0) {
-                // Sube todas las imágenes seleccionadas secuencialmente a la nube de Imgbb
                 const nuevasUrls = await subirMultiplesImagenesImgbb(archivoInput.files);
                 urlFinalArchivo = urlFinalArchivo ? (urlFinalArchivo + ", " + nuevasUrls) : nuevasUrls;
             }
 
-            btnGuardar.innerText = "Sincronizando...";
+            btnGuardar.innerText = "Sincronizando con base de datos...";
 
-            const nombre = document.getElementById("ins_nombre").value.trim();
-            const cedula = document.getElementById("ins_cedula").value.trim();
-            const edad = parseInt(document.getElementById("ins_edad").value) || 0;
-            const genero = document.getElementById("ins_genero").value;
-            const fecha_nac = document.getElementById("ins_fecha_nacimiento").value || null;
-            const estado_civil = document.getElementById("ins_estado_civil").value;
-            const telefono = document.getElementById("ins_telefono").value.trim();
-            
-            const trabaja = document.getElementById("ins_trabaja").value;
-            const dir_trabajo = document.getElementById("ins_dir_trabajo").value.trim();
-            const sueldo = parseFloat(document.getElementById("ins_sueldo").value) || 0;
-            const ingreso = parseFloat(document.getElementById("ins_ingreso_fam").value) || 0;
-            const egreso = parseFloat(document.getElementById("ins_egreso").value) || 0;
-            const cubre_gastos = document.getElementById("ins_cubre_gastos").value.trim();
-            
-            const num_fam = document.getElementById("ins_num_fam").value;
-            const detalle_fam = document.getElementById("ins_detalle_fam").value.trim();
-            
-            const transporte = document.getElementById("ins_transporte").value;
-            const tipo_vivienda = document.getElementById("ins_tipo_vivienda").value;
-            const tenencia_vivienda = document.getElementById("ins_tenencia_vivienda").value;
-            const carac_vivienda = document.getElementById("ins_carac_vivienda").value.trim();
-            
-            const sector = document.getElementById("ins_sector").value.trim();
-            const sala_auto = document.getElementById("ins_sala_auto").value.trim();
-            const ubch = document.getElementById("ins_ubch").value.trim();
-            
-            const sufre_enf = document.getElementById("ins_sufre_enf").value;
-            const detalle_enf = document.getElementById("ins_detalle_enf").value.trim();
-            const disc = document.getElementById("ins_discapacidad").value;
-            const detalle_disc = document.getElementById("ins_detalle_disc").value.trim();
-            const servicio_salud = document.getElementById("ins_servicio_salud").value;
-            
-            const ayuda = document.getElementById("ins_ayuda").value;
-            const prioridad = document.getElementById("ins_prioridad").value;
-            const estatus = document.getElementById("ins_estatus").value;
-            const remitido = document.getElementById("ins_remitido").value.trim();
-            const responsable = document.getElementById("ins_responsable").value.trim();
-            const detalle = document.getElementById("ins_detalle").value.trim();
-            const usuarioActual = sessionStorage.getItem("usuario_nombre") || "Sistema";
+            const datosFormulario = {
+                id: document.getElementById("casoId").value || null,
+                nombre: document.getElementById("ins_nombre").value.trim(),
+                cedula: document.getElementById("ins_cedula").value.trim(),
+                edad: parseInt(document.getElementById("ins_edad").value) || 0,
+                genero: document.getElementById("ins_genero").value,
+                fecha_nacimiento: document.getElementById("ins_fecha_nacimiento").value || null,
+                estado_civil: document.getElementById("ins_estado_civil").value,
+                telefono: document.getElementById("ins_telefono").value.trim(),
+                trabaja: document.getElementById("ins_trabaja").value,
+                direccion_trabajo: document.getElementById("ins_dir_trabajo").value.trim(),
+                sueldo_mensual: parseFloat(document.getElementById("ins_sueldo").value) || 0,
+                ingreso_familiar: parseFloat(document.getElementById("ins_ingreso_fam").value) || 0,
+                promedio_egreso: parseFloat(document.getElementById("ins_egreso").value) || 0,
+                como_cubre_gastos: document.getElementById("ins_cubre_gastos").value.trim(),
+                numero_grupo_familiar: document.getElementById("ins_num_fam").value,
+                detalle_grupo_familiar: document.getElementById("ins_detalle_fam").value.trim(),
+                transporte: document.getElementById("ins_transporte").value,
+                tipo_vivienda: document.getElementById("ins_tipo_vivienda").value,
+                tenencia_vivienda: document.getElementById("ins_tenencia_vivienda").value,
+                caracteristicas_vivienda: document.getElementById("ins_carac_vivienda").value.trim(),
+                sector: document.getElementById("ins_sector").value.trim(),
+                sala_autogobierno: document.getElementById("ins_sala_auto").value.trim(),
+                ubch: document.getElementById("ins_ubch").value.trim(),
+                sufre_enfermedad: document.getElementById("ins_sufre_enf").value,
+                detalle_enfermedad: document.getElementById("ins_detalle_enf").value.trim(),
+                presenta_discapacidad: document.getElementById("ins_discapacidad").value,
+                detalle_discapacidad: document.getElementById("ins_detalle_disc").value.trim(),
+                servicio_salud_habitual: document.getElementById("ins_servicio_salud").value,
+                tipo_ayuda: document.getElementById("ins_ayuda").value,
+                prioridad: document.getElementById("ins_prioridad").value,
+                estatus: document.getElementById("ins_estatus").value,
+                institucion_remitida: document.getElementById("ins_remitido").value.trim(),
+                responsable_comision: document.getElementById("ins_responsable").value.trim(),
+                detalle: document.getElementById("ins_detalle").value.trim(),
+                url_adjunto: urlFinalArchivo,
+                coordinacion: 'Social',
+                tipo: tipoFiltroActual,
+                creado_por: sessionStorage.getItem("usuario_nombre") || "Sistema"
+            };
 
-            if (idEnEdicion) {
-                await consultarBaseDatos(
-                    `UPDATE casos_salud 
-                    SET nombre = ?, cedula = ?, edad = ?, genero = ?, 
-                        fecha_nacimiento = ?, estado_civil = ?, telefono = ?,
-                        trabaja = ?, direccion_trabajo = ?, sueldo_mensual = ?,
-                        ingreso_familiar = ?, promedio_egreso = ?, como_cubre_gastos = ?,
-                        numero_grupo_familiar = ?, detalle_grupo_familiar = ?,
-                        transporte = ?, tipo_vivienda = ?, tenencia_vivienda = ?,
-                        caracteristicas_vivienda = ?, sector = ?, sala_autogobierno = ?,
-                        ubch = ?, sufre_enfermedad = ?, detalle_enfermedad = ?,
-                        presenta_discapacidad = ?, detalle_discapacidad = ?, servicio_salud_habitual = ?,
-                        tipo_ayuda = ?, prioridad = ?, estatus = ?, 
-                        institucion_remitida = ?, responsable_comision = ?, 
-                        detalle = ?, url_adjunto = ?
-                    WHERE id = ?`,
-                    [
-                        nombre, cedula, edad, genero, fecha_nac, estado_civil, telefono,
-                        trabaja, dir_trabajo, sueldo, ingreso, egreso, cubre_gastos,
-                        num_fam, detalle_fam, transporte, tipo_vivienda, tenencia_vivienda,
-                        carac_vivienda, sector, sala_auto, ubch, sufre_enf, detalle_enf,
-                        disc, detalle_disc, servicio_salud, ayuda, prioridad, estatus,
-                        remitido, responsable, detalle, urlFinalArchivo, idEnEdicion
-                    ]
-                );
-                alert("¡Ficha actualizada con éxito!");
+            let query = "";
+            let params = [];
+
+            if (datosFormulario.id) {
+                query = `UPDATE casos_salud 
+                         SET nombre = ?, cedula = ?, edad = ?, genero = ?, 
+                             fecha_nacimiento = ?, estado_civil = ?, telefono = ?,
+                             trabaja = ?, direccion_trabajo = ?, sueldo_mensual = ?,
+                             ingreso_familiar = ?, promedio_egreso = ?, como_cubre_gastos = ?,
+                             numero_grupo_familiar = ?, detalle_grupo_familiar = ?,
+                             transporte = ?, tipo_vivienda = ?, tenencia_vivienda = ?,
+                             caracteristicas_vivienda = ?, sector = ?, sala_autogobierno = ?,
+                             ubch = ?, sufre_enfermedad = ?, detalle_enfermedad = ?,
+                             presenta_discapacidad = ?, detalle_discapacidad = ?, servicio_salud_habitual = ?,
+                             tipo_ayuda = ?, prioridad = ?, estatus = ?, 
+                             institucion_remitida = ?, responsable_comision = ?, 
+                             detalle = ?, url_adjunto = ?
+                         WHERE id = ?`;
+                params = [
+                    datosFormulario.nombre, datosFormulario.cedula, datosFormulario.edad, datosFormulario.genero,
+                    datosFormulario.fecha_nacimiento, datosFormulario.estado_civil, datosFormulario.telefono,
+                    datosFormulario.trabaja, datosFormulario.direccion_trabajo, datosFormulario.sueldo_mensual,
+                    datosFormulario.ingreso_familiar, datosFormulario.promedio_egreso, datosFormulario.como_cubre_gastos,
+                    datosFormulario.numero_grupo_familiar, datosFormulario.detalle_grupo_familiar,
+                    datosFormulario.transporte, datosFormulario.tipo_vivienda, datosFormulario.tenencia_vivienda,
+                    datosFormulario.caracteristicas_vivienda, datosFormulario.sector, datosFormulario.sala_autogobierno,
+                    datosFormulario.ubch, datosFormulario.sufre_enfermedad, datosFormulario.detalle_enfermedad,
+                    datosFormulario.presenta_discapacidad, datosFormulario.detalle_discapacidad, datosFormulario.servicio_salud_habitual,
+                    datosFormulario.tipo_ayuda, datosFormulario.prioridad, datosFormulario.estatus,
+                    datosFormulario.institucion_remitida, datosFormulario.responsable_comision,
+                    datosFormulario.detalle, datosFormulario.url_adjunto, Number(datosFormulario.id)
+                ];
             } else {
-                await consultarBaseDatos(
-                    `INSERT INTO casos_salud (
-                        nombre, cedula, edad, genero, fecha_nacimiento, estado_civil, telefono,
-                        trabaja, direccion_trabajo, sueldo_mensual, ingreso_familiar, promedio_egreso, como_cubre_gastos,
-                        numero_grupo_familiar, detalle_grupo_familiar, transporte, tipo_vivienda, tenencia_vivienda,
-                        caracteristicas_vivienda, sector, sala_autogobierno, ubch, sufre_enfermedad, detalle_enfermedad,
-                        presenta_discapacidad, detalle_discapacidad, servicio_salud_habitual,
-                        tipo_ayuda, prioridad, estatus, institucion_remitida, responsable_comision, 
-                        detalle, url_adjunto, coordinacion, tipo, seguimiento_bitacora, creado_por
-                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-                    [
-                        nombre, cedula, edad, genero, fecha_nac, estado_civil, telefono,
-                        trabaja, dir_trabajo, sueldo, ingreso, egreso, cubre_gastos,
-                        num_fam, detalle_fam, transporte, tipo_vivienda, tenencia_vivienda,
-                        carac_vivienda, sector, sala_auto, ubch, sufre_enf, detalle_enf,
-                        disc, detalle_disc, servicio_salud, ayuda, prioridad, estatus,
-                        remitido, responsable, detalle, urlFinalArchivo, 'Social', tipoFiltroActual, 
-                        '[' + new Date().toLocaleDateString() + '] Ficha social integral registrada.', usuarioActual
-                    ]
-                );
-                alert("¡Ficha registrada con éxito!");
+                const bitacoraInicial = '[' + new Date().toLocaleDateString() + '] Ficha social integral registrada.';
+                query = `INSERT INTO casos_salud (
+                            nombre, cedula, edad, genero, fecha_nacimiento, estado_civil, telefono,
+                            trabaja, direccion_trabajo, sueldo_mensual, ingreso_familiar, promedio_egreso, como_cubre_gastos,
+                            numero_grupo_familiar, detalle_grupo_familiar, transporte, tipo_vivienda, tenencia_vivienda,
+                            caracteristicas_vivienda, sector, sala_autogobierno, ubch, sufre_enfermedad, detalle_enfermedad,
+                            presenta_discapacidad, detalle_discapacidad, servicio_salud_habitual,
+                            tipo_ayuda, prioridad, estatus, institucion_remitida, responsable_comision, 
+                            detalle, url_adjunto, coordinacion, tipo, seguimiento_bitacora, creado_por
+                         ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+                params = [
+                    datosFormulario.nombre, datosFormulario.cedula, datosFormulario.edad, datosFormulario.genero,
+                    datosFormulario.fecha_nacimiento, datosFormulario.estado_civil, datosFormulario.telefono,
+                    datosFormulario.trabaja, datosFormulario.direccion_trabajo, datosFormulario.sueldo_mensual,
+                    datosFormulario.ingreso_familiar, datosFormulario.promedio_egreso, datosFormulario.como_cubre_gastos,
+                    datosFormulario.numero_grupo_familiar, datosFormulario.detalle_grupo_familiar,
+                    datosFormulario.transporte, datosFormulario.tipo_vivienda, datosFormulario.tenencia_vivienda,
+                    datosFormulario.caracteristicas_vivienda, datosFormulario.sector, datosFormulario.sala_autogobierno,
+                    datosFormulario.ubch, datosFormulario.sufre_enfermedad, datosFormulario.detalle_enfermedad,
+                    datosFormulario.presenta_discapacidad, datosFormulario.detalle_discapacidad, datosFormulario.servicio_salud_habitual,
+                    datosFormulario.tipo_ayuda, datosFormulario.prioridad, datosFormulario.estatus,
+                    datosFormulario.institucion_remitida, datosFormulario.responsable_comision,
+                    datosFormulario.detalle, datosFormulario.url_adjunto, datosFormulario.coordinacion,
+                    datosFormulario.tipo, bitacoraInicial, datosFormulario.creado_por
+                ];
             }
 
+            const resultado = await consultarBaseDatos(query, params);
+            
+            if (resultado && resultado.error) {
+                throw new Error(resultado.error);
+            }
+
+            alert(datosFormulario.id ? "¡Ficha actualizada con éxito!" : "¡Ficha registrada con éxito!");
             cerrarModalFormulario();
-            cargarCasosSociales();
+            await cargarCasosSociales();
+
         } catch (err) {
-            alert("Error al sincronizar: " + err.message);
+            console.error("Error en sincronización:", err);
+            alert("No se pudo sincronizar el registro: " + err.message);
         } finally {
             btnGuardar.innerText = "Sincronizar Ficha";
             btnGuardar.disabled = false;
