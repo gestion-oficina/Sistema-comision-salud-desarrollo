@@ -504,10 +504,10 @@
                 </div>
                 <div class="form-group span-2" style="background: #f8fafc; padding: 10px; border: 1px dashed var(--border-color); border-radius: 6px;">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
-                        <label for="ins_archivo" style="color: var(--sidebar-active); margin:0;">📁 Imágenes de Respaldo (Múltiples)</label>
-                        <span style="font-size: 10px; color: #64748b;">Sube varias fotos a ImgBB</span>
+                        <label for="ins_archivo" style="color: var(--sidebar-active); margin:0;">📁 Imagen / Documento Respaldo (Imgbb)</label>
+                        <a href="https://lightweight-pdf-tool.lumi.ing/" target="_blank" style="background: #0f2547; color: white; padding: 3px 8px; border-radius: 4px; font-size: 10.5px; text-decoration: none;">⚙️ Unificar en Lumi</a>
                     </div>
-                    <input type="file" id="ins_archivo" class="form-control" accept="image/*" multiple style="border:none; background:transparent; padding:3px 0;">
+                    <input type="file" id="ins_archivo" class="form-control" accept="image/*" style="border:none; background:transparent; padding:3px 0;">
                 </div>
                 <div class="form-group span-2">
                     <label for="ins_detalle">Observaciones / Diagnóstico</label>
@@ -568,7 +568,6 @@
     let listaCasosFiltradosActuales = [];
     let idEnEdicion = null;
     let pasoActualForm = 1;
-    const IMGBB_API_KEY = "TU_API_KEY_DE_IMGBB"; // Reemplaza con tu llave de ImgBB
 
     document.addEventListener("DOMContentLoaded", async () => {
         const nombre = sessionStorage.getItem("usuario_nombre");
@@ -810,24 +809,22 @@
         document.getElementById("formularioModal").classList.remove("open");
     }
 
-    async function subirImagenAImgBB(archivo) {
+    // FUNCIÓN PARA SUBIR IMAGEN A IMGBB VIA API
+    async function subirImagenAImgbb(archivo) {
+        const apiKey = "AQUÍ_TU_API_KEY_DE_IMGBB"; // Reemplaza con tu llave de Imgbb
         const formData = new FormData();
         formData.append("image", archivo);
 
-        try {
-            const response = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, {
-                method: "POST",
-                body: formData
-            });
-            const data = await response.json();
-            if (data && data.success) {
-                return data.data.url;
-            } else {
-                throw new Error(data.error?.message || "Error al subir la imagen a ImgBB");
-            }
-        } catch (error) {
-            console.error("Fallo la subida a ImgBB:", error);
-            throw error;
+        const response = await fetch(`https://api.imgbb.com/1/upload?key=${apiKey}`, {
+            method: "POST",
+            body: formData
+        });
+
+        const data = await response.json();
+        if (data && data.success) {
+            return data.data.url; // Retorna el enlace directo de la imagen en la nube
+        } else {
+            throw new Error(data.error?.message || "No se pudo subir la imagen a Imgbb.");
         }
     }
 
@@ -836,21 +833,18 @@
 
         const btnGuardar = document.getElementById("btnGuardarForm");
         const archivoInput = document.getElementById("ins_archivo");
-        let urlsExistentes = document.getElementById("ins_url_existente").value;
-        let listaUrls = urlsExistentes ? urlsExistentes.split(",") : [];
+        let urlFinalArchivo = document.getElementById("ins_url_existente").value;
 
-        btnGuardar.innerText = "Subiendo imágenes a ImgBB...";
+        btnGuardar.innerText = "Subiendo imagen a Imgbb...";
         btnGuardar.disabled = true;
 
         try {
             if (archivoInput.files.length > 0) {
-                for (let i = 0; i < archivoInput.files.length; i++) {
-                    const urlImg = await subirImagenAImgBB(archivoInput.files[i]);
-                    listaUrls.push(urlImg);
-                }
+                // Sube la imagen directamente a la nube de Imgbb
+                urlFinalArchivo = await subirImagenAImgbb(archivoInput.files[0]);
             }
 
-            const urlFinalArchivo = listaUrls.join(",");
+            btnGuardar.innerText = "Sincronizando...";
 
             const nombre = document.getElementById("ins_nombre").value.trim();
             const cedula = document.getElementById("ins_cedula").value.trim();
@@ -918,7 +912,7 @@
                         remitido, responsable, detalle, urlFinalArchivo, idEnEdicion
                     ]
                 );
-                alert("¡Ficha e imágenes actualizadas con éxito!");
+                alert("¡Ficha actualizada con éxito!");
             } else {
                 await consultarBaseDatos(
                     `INSERT INTO casos_salud (
@@ -937,16 +931,16 @@
                         carac_vivienda, sector, sala_auto, ubch, sufre_enf, detalle_enf,
                         disc, detalle_disc, servicio_salud, ayuda, prioridad, estatus,
                         remitido, responsable, detalle, urlFinalArchivo, 'Social', tipoFiltroActual, 
-                        '[' + new Date().toLocaleDateString() + '] Ficha social integral registrada con múltiples respaldos.', usuarioActual
+                        '[' + new Date().toLocaleDateString() + '] Ficha social integral registrada.', usuarioActual
                     ]
                 );
-                alert("¡Ficha y sus imágenes registradas con éxito!");
+                alert("¡Ficha registrada con éxito!");
             }
 
             cerrarModalFormulario();
             cargarCasosSociales();
         } catch (err) {
-            alert("Error al sincronizar o subir a ImgBB: " + err.message);
+            alert("Error al sincronizar: " + err.message);
         } finally {
             btnGuardar.innerText = "Sincronizar Ficha";
             btnGuardar.disabled = false;
@@ -960,13 +954,9 @@
         document.getElementById("seguimientoCasoId").value = item.id;
         document.getElementById("nuevoSeguimientoTexto").value = "";
 
-        let bloqueAdjunto = '<span style="color:#64748b; font-style:italic;">Ningún documento adjunto.</span>';
-        if (item.url_adjunto) {
-            let urlsArray = item.url_adjunto.split(",");
-            bloqueAdjunto = urlsArray.map((url, index) => 
-                `<a href="${url.trim()}" target="_blank" style="color:#0284c7; font-weight:700; text-decoration:underline; display:inline-block; margin-right:10px; margin-bottom:5px;">📥 Ver Imagen ${index + 1}</a>`
-            ).join("");
-        }
+        let bloqueAdjunto = item.url_adjunto 
+            ? `<a href="${item.url_adjunto}" target="_blank" style="color:#16a34a; font-weight:700; text-decoration:underline;">📥 Ver Imagen / Documento Adjunto en Imgbb</a>`
+            : '<span style="color:#64748b; font-style:italic;">Ningún documento.</span>';
 
         let historialBitacora = item.seguimiento_bitacora ? item.seguimiento_bitacora.replace(/\n/g, '<br>') : 'Sin avances.';
 
@@ -982,7 +972,7 @@
             <div class="form-group expediente-view-box"><label>Salud</label><p>Enf: ${item.sufre_enfermedad || 'NO'} | Disc: ${item.presenta_discapacidad || 'NO'}</p></div>
             <div class="form-group expediente-view-box"><label>Tipo Ayuda / Prioridad</label><p>${item.tipo_ayuda || ''} (<span class="prio-badge prio-${item.prioridad}">${item.prioridad || ''}</span>)</p></div>
             <div class="form-group span-2 expediente-view-box" style="background:#f1f5f9;"><label>Responsable</label><p><b>${item.responsable_comision || ''}</b> (Creado por: ${item.creado_por || 'N/A'})</p></div>
-            <div class="form-group span-2 expediente-view-box"><label>📎 Respaldo</label><p>${bloqueAdjunto}</p></div>
+            <div class="form-group span-2 expediente-view-box"><label>📎 Respaldo (Imgbb)</label><p>${bloqueAdjunto}</p></div>
             <div class="form-group span-2 expediente-view-box"><label>Diagnóstico</label><p style="font-style:italic;">"${item.detalle || ''}"</p></div>
             <div class="form-group span-2 expediente-view-box" style="background:#fffbeb;"><label>Bitácora</label><div style="font-size:11px;">${historialBitacora}</div></div>
         `;
