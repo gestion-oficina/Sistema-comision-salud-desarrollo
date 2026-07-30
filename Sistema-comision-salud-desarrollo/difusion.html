@@ -17,21 +17,48 @@
     <title>Gestión de Difusión - Liderazgos y Comunas</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
-    <script type="module">
-        import { neon } from 'https://cdn.jsdelivr.net/npm/@neondatabase/serverless/+esm';
-        
-        const connectionString = "postgresql://neondb_owner:npg_djCruebcPY94@ep-sparkling-math-avejx7o4-pooler.c-11.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require";
-        window.sqlClient = neon(connectionString, { disableWarningInBrowsers: true });
-        
-        if (typeof window.iniciarApp === 'function') {
-            window.iniciarApp();
-        }
+    <!-- Adaptador para SQLite Cloud vía API backend en Vercel -->
+    <script>
+        window.sqlClient = async function(strings, ...values) {
+            let query = "";
+            strings.forEach((part, index) => {
+                query += part;
+                if (index < values.length) {
+                    query += "?";
+                }
+            });
+
+            const response = await fetch("/api/query", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    query,
+                    params: values
+                })
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.error || "Error en SQLite Cloud");
+            }
+
+            return data;
+        };
+
+        window.addEventListener("DOMContentLoaded", () => {
+            if (typeof window.iniciarApp === "function") {
+                window.iniciarApp();
+            }
+        });
     </script>
 
     <style>
         :root { 
             --bg-main: #f8fafc; 
-            --sidebar-bg: #1d3b6a; 
+            --sidebar-bg: #003da5; 
             --sidebar-active: #2563eb; 
             --sidebar-text-sub: #94a3b8; 
             --menu-text: #ffffff; 
@@ -64,12 +91,12 @@
             justify-content: center;
         }
 
-        .sidebar { background: var(--sidebar-bg); padding:24px 0; display: flex; flex-direction: column; transition: transform 0.3s ease; border-right: 1px solid #1e293b; }
+        .sidebar { background: var(--sidebar-bg); padding:24px 0; display: flex; flex-direction: column; transition: transform 0.3s ease; border-right: 1px solid rgba(255, 255, 255, 0.1); }
         .sidebar-brand { display: flex; flex-direction: column; align-items: center; text-align: center; padding: 0 16px 20px 16px; border-bottom: 1px solid rgba(255, 255, 255, 0.08); margin-bottom: 10px; }
         .sidebar-brand h2 { font-size: 11px; color: #ffffff; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; line-height: 1.4; margin-top: 5px; }
         .menu-category { font-size: 10px; font-weight: 700; color: var(--sidebar-text-sub); text-transform: uppercase; letter-spacing: 0.8px; padding: 16px 20px 6px 20px; }
         .menu { display: block; padding: 9px 36px; color: var(--menu-text); cursor: pointer; font-size: 13px; font-weight: 500; text-decoration: none; transition: all 0.2s ease; opacity: 0.85; }
-        .menu:hover { opacity: 1; background: rgba(255, 255, 255, 0.04); }
+        .menu:hover { opacity: 1; background: rgba(255, 255, 255, 0.08); }
         .menu.active-page { background: var(--sidebar-active); color: #ffffff; font-weight: 600; border-radius: 8px; margin: 2px 14px; padding: 10px 18px; opacity: 1; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3); }
         
         .main { padding:36px 40px; overflow-x: hidden; display: flex; flex-direction: column; min-height: 100vh; }
@@ -235,7 +262,7 @@
                     </tr>
                 </thead>
                 <tbody id="tablaDifusionBody">
-                    <tr><td colspan="5" class="empty-state">Conectando con la base de datos...</td></tr>
+                    <tr><td colspan="5" class="empty-state">Conectando con SQLite Cloud...</td></tr>
                 </tbody>
             </table>
         </div>
@@ -269,12 +296,6 @@
             cargarDatosDifusion();
         };
 
-        document.addEventListener("DOMContentLoaded", () => {
-            if (window.sqlClient) {
-                window.iniciarApp();
-            }
-        });
-
         function toggleMobileMenu() {
             const sidebar = document.getElementById("sidebarMenu");
             const btn = document.getElementById("menuToggleBtn");
@@ -283,15 +304,6 @@
         }
 
         async function cargarDatosDifusion() {
-            if (!window.sqlClient) {
-                await new Promise(resolve => setTimeout(resolve, 800));
-            }
-
-            if (!window.sqlClient) {
-                document.getElementById("tablaDifusionBody").innerHTML = `<tr><td colspan="5" class="empty-state" style="color:var(--danger-color);">⚠️ Error de conexión con Neon.</td></tr>`;
-                return;
-            }
-
             try {
                 const registros = await window.sqlClient`SELECT * FROM casos_salud ORDER BY id DESC`;
                 todosLosRegistros = Array.from(registros);
