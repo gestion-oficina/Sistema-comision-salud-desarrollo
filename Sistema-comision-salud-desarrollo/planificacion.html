@@ -398,7 +398,6 @@ document.addEventListener("DOMContentLoaded", () => {
     if (coord) document.getElementById("usuarioCoordinacion").textContent = coord.toUpperCase();
 });
 
-// 3. FUNCIÓN consultarBaseDatos()
 async function consultarBaseDatos(sql, params = []) {
     const respuesta = await fetch("/api/query", {
         method: "POST",
@@ -454,7 +453,6 @@ function cerrarModal() {
     document.getElementById("modalActividad").style.display = "none";
 }
 
-// 4. REEMPLAZAR cargarAgendaOficina()
 async function cargarAgendaOficina() {
     try {
         const resultado = await consultarBaseDatos(
@@ -727,128 +725,68 @@ function abrirEditar(index) {
     document.getElementById("modalActividad").style.display = "flex";
 }
 
-// 5. REEMPLAZAR guardarActividad()
-async function guardarActividad(event){
-
+async function guardarActividad(event) {
     event.preventDefault();
 
-    const indexInput=document.getElementById("actividadIndice").value;
+    const indexInput = document.getElementById("actividadIndice").value;
+    const titulo = document.getElementById("titulo").value.trim();
+    const fecha = document.getElementById("fecha").value;
+    const hora = document.getElementById("hora").value.trim();
+    const tipo = document.getElementById("tipo").value;
+    const estatus = document.getElementById("estatus").value;
+    const lugar = document.getElementById("lugar").value.trim();
+    const descripcion = document.getElementById("descripcion").value.trim();
 
-    const titulo=document.getElementById("titulo").value;
-    const fecha=document.getElementById("fecha").value;
-    const hora=document.getElementById("hora").value;
-    const tipo=document.getElementById("tipo").value;
-    const estatus=document.getElementById("estatus").value;
-    const lugar=document.getElementById("lugar").value;
-    const descripcion=document.getElementById("descripcion").value;
-
-    try{
-
-        if(indexInput!=""){
-
-            const item=listaEventosGlobal[indexInput];
-
-            await consultarBaseDatos(
-
-            `UPDATE agenda_oficina
-            SET
-            titulo=?,
-            fecha=?,
-            hora=?,
-            tipo=?,
-            estatus=?,
-            lugar=?,
-            descripcion=?
-            WHERE id=?`,
-
-            [
-                titulo,
-                fecha,
-                hora,
-                tipo,
-                estatus,
-                lugar,
-                descripcion,
-                item.id
-            ]);
-
-            alert("Actividad actualizada.");
-
-        }else{
+    try {
+        if (indexInput !== "") {
+            const item = listaEventosGlobal[indexInput];
+            if (!item || item.id === undefined) {
+                throw new Error("No se pudo identificar el ID del registro a actualizar.");
+            }
 
             await consultarBaseDatos(
+                `UPDATE agenda_oficina
+                 SET titulo = ?, fecha = ?, hora = ?, tipo = ?, estatus = ?, lugar = ?, descripcion = ?
+                 WHERE id = ?`,
+                [titulo, fecha, hora, tipo, estatus, lugar, descripcion, item.id]
+            );
 
-            `INSERT INTO agenda_oficina
-            (
-            titulo,
-            fecha,
-            hora,
-            tipo,
-            estatus,
-            lugar,
-            descripcion
-            )
+            alert("Actividad actualizada correctamente.");
+        } else {
+            await consultarBaseDatos(
+                `INSERT INTO agenda_oficina (titulo, fecha, hora, tipo, estatus, lugar, descripcion)
+                 VALUES (?, ?, ?, ?, ?, ?, ?)`,
+                [titulo, fecha, hora, tipo, estatus, lugar, descripcion]
+            );
 
-            VALUES
-
-            (?,?,?,?,?,?,?)`,
-
-            [
-                titulo,
-                fecha,
-                hora,
-                tipo,
-                estatus,
-                lugar,
-                descripcion
-            ]);
-
-            alert("Actividad registrada.");
-
+            alert("Actividad registrada correctamente.");
         }
 
         cerrarModal();
-
         cargarAgendaOficina();
-
-    }catch(error){
-
-        console.error(error);
-
-        alert(error.message);
-
+    } catch (error) {
+        console.error("Error al guardar:", error);
+        alert("Ocurrió un error al guardar: " + error.message);
     }
-
 }
 
-// 6. REEMPLAZAR eliminarActividad()
-async function eliminarActividad(index){
+async function eliminarActividad(index) {
+    const item = listaEventosGlobal[index];
+    if (!item) return;
 
-    const item=listaEventosGlobal[index];
+    if (!confirm("¿Desea eliminar esta actividad?")) return;
 
-    if(!confirm("¿Desea eliminar esta actividad?")) return;
-
-    try{
-
+    try {
         await consultarBaseDatos(
-
-        `DELETE FROM agenda_oficina
-        WHERE id=?`,
-
-        [item.id]
-
+            `DELETE FROM agenda_oficina WHERE id = ?`,
+            [item.id]
         );
 
         cargarAgendaOficina();
-
-    }catch(error){
-
+    } catch (error) {
         console.error(error);
-
-        alert(error.message);
-
+        alert("Error al eliminar: " + error.message);
     }
-
 }
 
 async function logout() {
