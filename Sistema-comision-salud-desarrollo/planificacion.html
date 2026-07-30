@@ -22,16 +22,85 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
-<!-- CARGA DE NEON MEDIANTE MÓDULO ESM ESTÁNDAR -->
-<script type="module">
-    import { neon } from 'https://cdn.jsdelivr.net/npm/@neondatabase/serverless/+esm';
-    
-    const connectionString = "postgresql://neondb_owner:npg_djCruebcPY94@ep-sparkling-math-avejx7o4-pooler.c-11.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require";
-    window.sqlClient = neon(connectionString, { disableWarningInBrowsers: true });
-    
-    if (typeof window.iniciarAgendaApp === 'function') {
-        window.iniciarAgendaApp();
+<!-- CARGA DE SQL.JS (SQLite para el Navegador) -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.8.0/sql-wasm.js"></script>
+
+<script>
+    let db = null;
+    let SQL = null;
+
+    async function inicializarBaseDatosSQLite() {
+        try {
+            SQL = await initSqlJs({
+                locateFile: file => `https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.8.0/${file}`
+            });
+
+            const datosGuardados = localStorage.getItem('sqlite_agenda_oficina_db');
+            if (datosGuardados) {
+                const uInt8Array = new Uint8Array(JSON.parse(datosGuardados));
+                db = new SQL.Database(uInt8Array);
+            } else {
+                db = new SQL.Database();
+                db.run(`
+                    CREATE TABLE IF NOT EXISTS agenda_oficina (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        titulo TEXT,
+                        fecha TEXT,
+                        hora TEXT,
+                        tipo TEXT,
+                        estatus TEXT,
+                        lugar TEXT,
+                        descripcion TEXT
+                    );
+                `);
+                guardarBaseDatosEnLocalStorage();
+            }
+
+            window.sqlClient = {
+                exec: function(sqlQuery, params = []) {
+                    try {
+                        let stmt = db.prepare(sqlQuery);
+                        stmt.bind(params);
+                        let results = [];
+                        while (stmt.step()) {
+                            results.push(stmt.getAsObject());
+                        }
+                        stmt.free();
+                        return results;
+                    } catch (err) {
+                        console.error("Error ejecutando SQL:", err);
+                        throw err;
+                    }
+                },
+                run: function(sqlQuery, params = []) {
+                    try {
+                        db.run(sqlQuery, params);
+                        guardarBaseDatosEnLocalStorage();
+                    } catch (err) {
+                        console.error("Error ejecutando SQL RUN:", err);
+                        throw err;
+                    }
+                }
+            };
+
+            if (typeof window.iniciarAgendaApp === 'function') {
+                window.iniciarAgendaApp();
+            }
+        } catch (err) {
+            console.error("Error al inicializar SQLite WebAssembly:", err);
+        }
     }
+
+    function guardarBaseDatosEnLocalStorage() {
+        if (db) {
+            const binaryArray = db.export();
+            localStorage.setItem('sqlite_agenda_oficina_db', JSON.stringify(Array.from(binaryArray)));
+        }
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+        inicializarBaseDatosSQLite();
+    });
 </script>
 
 <style>
@@ -266,7 +335,6 @@ body{ background: var(--bg-main); color:#334155; }
                     <button class="filter-chip" id="chip-suspendido" onclick="filtrarAgenda('Suspendido')">Suspendidos</button>
                 </div>
 
-                <!-- NUEVO: FILTRO POR RANGO DE FECHAS -->
                 <div class="date-filter-box flex items-center gap-2 bg-white px-3 py-1.5 rounded-lg border border-slate-300 text-xs">
                     <span class="text-slate-500 font-bold"><i class="fa-solid fa-filter"></i> Desde:</span>
                     <input type="date" id="filtroFechaDesde" onchange="manejarBusqueda()" class="outline-none bg-transparent font-medium">
@@ -397,10 +465,6 @@ document.addEventListener("DOMContentLoaded", () => {
         if(aud) aud.style.display = "block";
     }
 
-    if (window.sqlClient) {
-        window.iniciarAgendaApp();
-    }
-    
     const nombre = sessionStorage.getItem("usuario_nombre");
     const coord = sessionStorage.getItem("usuario_coordinacion");
     if (nombre) document.getElementById("usuarioNombre").textContent = nombre;
@@ -445,27 +509,20 @@ function cerrarModal() {
 
 async function cargarAgendaOficina() {
     const contenedor = document.getElementById("lista-actividades");
-    if (!window.sqlClient) await new Promise(resolve => setTimeout(resolve, 800));
-    if (!window.sqlClient) {
-        contenedor.innerHTML = `<p style="text-align:center; padding:30px; color:#dc2626;">Error: Conexión con Neon no disponible.</p>`;
-        return;
+    while (!window.sqlClient) {
+        await new Promise(resolve => setTimeout(resolve, 200));
     }
 
     try {
-        await window.sqlClient`
-            CREATE TABLE IF NOT EXISTS agenda_oficina (
-                id SERIAL PRIMARY KEY,
-                titulo TEXT,
-                fecha TEXT,
-                hora TEXT,
-                tipo TEXT,
-                estatus TEXT,
-                lugar TEXT,
-                descripcion TEXT
-            )
-        `;
-        const eventos = await window.sqlClient`SELECT * FROM agenda_oficina ORDER BY id DESC`;
-        listaEventosGlobal = Array.from(eventos || []);
+        const eventos = window.sqlClient.exec("SELECT * FROM agenda_oficina ORDER BY id DESC");
+        listaEventosGlobal = eventos.length > 0 ? eventos[0].values.map(row => {
+            let obj = {};
+            eventos[0].columns.forEach((col, idx) => {
+                obj[col] = row[idx];
+            });
+            return obj;
+        }) : [];
+
         actualizarEstadisticas();
         renderizarAgenda(listaEventosGlobal);
     } catch (err) {
@@ -745,42 +802,38 @@ async function guardarActividad(event) {
             const itemOriginal = listaEventosGlobal[indexNum];
 
             if (itemOriginal && itemOriginal.id !== undefined && itemOriginal.id !== null) {
-                await window.sqlClient`
-                    UPDATE agenda_oficina 
-                    SET titulo = ${titulo}, fecha = ${fecha}, hora = ${hora}, tipo = ${tipo}, 
-                        estatus = ${estatus}, lugar = ${lugar}, descripcion = ${descripcion}
-                    WHERE id = ${Number(itemOriginal.id)}
-                `;
+                window.sqlClient.run(
+                    `UPDATE agenda_oficina SET titulo = ?, fecha = ?, hora = ?, tipo = ?, estatus = ?, lugar = ?, descripcion = ? WHERE id = ?`,
+                    [titulo, fecha, hora, tipo, estatus, lugar, descripcion, Number(itemOriginal.id)]
+                );
             } else {
-                await window.sqlClient`
-                    UPDATE agenda_oficina 
-                    SET titulo = ${titulo}, fecha = ${fecha}, hora = ${hora}, tipo = ${tipo}, 
-                        estatus = ${estatus}, lugar = ${lugar}, descripcion = ${descripcion}
-                    WHERE titulo = ${itemOriginal.titulo} AND lugar = ${itemOriginal.lugar}
-                `;
+                window.sqlClient.run(
+                    `UPDATE agenda_oficina SET titulo = ?, fecha = ?, hora = ?, tipo = ?, estatus = ?, lugar = ?, descripcion = ? WHERE titulo = ? AND lugar = ?`,
+                    [titulo, fecha, hora, tipo, estatus, lugar, descripcion, itemOriginal.titulo, itemOriginal.lugar]
+                );
             }
             alert("Actividad actualizada con éxito.");
         } else {
-            await window.sqlClient`
-                INSERT INTO agenda_oficina (titulo, fecha, hora, tipo, estatus, lugar, descripcion)
-                VALUES (${titulo}, ${fecha}, ${hora}, ${tipo}, ${estatus}, ${lugar}, ${descripcion})
-            `;
+            window.sqlClient.run(
+                `INSERT INTO agenda_oficina (titulo, fecha, hora, tipo, estatus, lugar, descripcion) VALUES (?, ?, ?, ?, ?, ?, ?)`,
+                [titulo, fecha, hora, tipo, estatus, lugar, descripcion]
+            );
             
             if (estatus === 'Completado') {
                 try {
-                    await window.sqlClient`
+                    window.sqlClient.run(`
                         CREATE TABLE IF NOT EXISTS bitacora_eventos (
-                            id SERIAL PRIMARY KEY,
+                            id INTEGER PRIMARY KEY AUTOINCREMENT,
                             titulo TEXT,
                             fecha TEXT,
                             descripcion TEXT,
                             lugar TEXT
                         )
-                    `;
-                    await window.sqlClient`
-                        INSERT INTO bitacora_eventos (titulo, fecha, descripcion, lugar)
-                        VALUES (${titulo}, ${fecha}, ${descripcion}, ${lugar})
-                    `;
+                    `);
+                    window.sqlClient.run(
+                        `INSERT INTO bitacora_eventos (titulo, fecha, descripcion, lugar) VALUES (?, ?, ?, ?)`,
+                        [titulo, fecha, descripcion, lugar]
+                    );
                 } catch (bErr) {
                     console.error("Aviso: No se pudo registrar en bitácora automáticamente", bErr);
                 }
@@ -806,9 +859,9 @@ async function eliminarActividad(index) {
     if (!confirm("¿Está seguro de eliminar esta actividad de la planificación?")) return;
     try {
         if (item.id !== null && item.id !== undefined && !isNaN(Number(item.id))) {
-            await window.sqlClient`DELETE FROM agenda_oficina WHERE id = ${Number(item.id)}`;
+            window.sqlClient.run(`DELETE FROM agenda_oficina WHERE id = ?`, [Number(item.id)]);
         } else {
-            await window.sqlClient`DELETE FROM agenda_oficina WHERE titulo = ${item.titulo}`;
+            window.sqlClient.run(`DELETE FROM agenda_oficina WHERE titulo = ?`, [item.titulo]);
         }
         cargarAgendaOficina();
     } catch (err) {
