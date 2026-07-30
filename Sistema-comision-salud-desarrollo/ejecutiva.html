@@ -753,54 +753,91 @@
 
             const parrafosHTML = `
                 <h2 style="font-family: 'Arial', sans-serif; font-size: 12pt; font-weight: bold; color: #000000; text-align: center; margin-top: 18pt; margin-bottom: 12pt; text-transform: uppercase;">I. INTRODUCCIÓN</h2>
-                <p style="font-family: 'Arial', sans-serif; font-size: 11pt; line-height: 1.25; color: #000000; margin: 0 0 10pt 0; text-align: justify;">${registro.introduccion || ''}</p>
+                <p style="font-family: 'Arial', sans-serif; font-size: 12pt; line-height: 1.25; color: #000000; margin: 0 0 10pt 0; text-align: justify;">${registro.introduccion || ''}</p>
                 
                 <h2 style="font-family: 'Arial', sans-serif; font-size: 12pt; font-weight: bold; color: #000000; text-align: center; margin-top: 18pt; margin-bottom: 12pt; text-transform: uppercase;">II. DE LOS HECHOS</h2>
-                <p style="font-family: 'Arial', sans-serif; font-size: 11pt; line-height: 1.25; color: #000000; margin: 0 0 10pt 0; text-align: justify;">${registro.hechos || ''}</p>
+                <p style="font-family: 'Arial', sans-serif; font-size: 12pt; line-height: 1.25; color: #000000; margin: 0 0 10pt 0; text-align: justify;">${registro.hechos || ''}</p>
                 
                 <h2 style="font-family: 'Arial', sans-serif; font-size: 12pt; font-weight: bold; color: #000000; text-align: center; margin-top: 18pt; margin-bottom: 12pt; text-transform: uppercase;">III. METAS ALCANZADAS</h2>
-                <p style="font-family: 'Arial', sans-serif; font-size: 11pt; line-height: 1.25; color: #000000; margin: 0 0 10pt 0; text-align: justify;">${registro.metas || ''}</p>
+                <p style="font-family: 'Arial', sans-serif; font-size: 12pt; line-height: 1.25; color: #000000; margin: 0 0 10pt 0; text-align: justify;">${registro.metas || ''}</p>
                 
                 <h2 style="font-family: 'Arial', sans-serif; font-size: 12pt; font-weight: bold; color: #000000; text-align: center; margin-top: 18pt; margin-bottom: 12pt; text-transform: uppercase;">IV. ASPECTOS JURÍDICOS</h2>
-                <p style="font-family: 'Arial', sans-serif; font-size: 11pt; line-height: 1.25; color: #000000; margin: 0 0 10pt 0; text-align: justify;">${registro.juridico || 'No especificados.'}</p>
+                <p style="font-family: 'Arial', sans-serif; font-size: 12pt; line-height: 1.25; color: #000000; margin: 0 0 10pt 0; text-align: justify;">${registro.juridico || 'No especificados.'}</p>
                 
                 <h2 style="font-family: 'Arial', sans-serif; font-size: 12pt; font-weight: bold; color: #000000; text-align: center; margin-top: 18pt; margin-bottom: 12pt; text-transform: uppercase;">V. CONCLUSIÓN Y RECOMENDACIONES</h2>
-                <p style="font-family: 'Arial', sans-serif; font-size: 11pt; line-height: 1.25; color: #000000; margin: 0 0 10pt 0; text-align: justify;">${registro.conclusiones || ''}</p>
+                <p style="font-family: 'Arial', sans-serif; font-size: 12pt; line-height: 1.25; color: #000000; margin: 0 0 10pt 0; text-align: justify;">${registro.conclusiones || ''}</p>
             `;
 
             const plantillaWordHTML = `
             <html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
             <head><meta charset="UTF-8"><title>Informe de Gestión</title></head>
-            <body>
-                <table border="0" cellspacing="0" cellpadding="0" style="width: 100%; border-collapse: collapse; margin-bottom: 5pt;">
+            <body style="font-family: 'Arial', sans-serif; font-size: 12pt;">
+                <table border="0" cellspacing="0" cellpadding="0" style="width: 100%; border-collapse: collapse; margin-bottom: 5pt; font-family: 'Arial', sans-serif;">
                     <tr>
                          <td style="width: 14%; text-align: left; vertical-align: middle;"><img src="https://6tq1hvhd6i4nm9rm.public.blob.vercel-storage.com/logo-concejo.jpg" width="75" height="75" style="display:block;"></td>
                         <td style="width: 70%; text-align: center; vertical-align: middle;">
-                            <p style="font-size: 12pt; margin: 0;">República Bolivariana de Venezuela</p>
-                            <p style="font-size: 12pt; margin: 0;">Estado Bolivariano de Miranda</p>
-                            <p style="font-size: 12pt; margin: 0;">Concejo del Municipio "Ambrosio Plaza"</p>
-                            <p style="font-size: 12pt; font-weight: bold; margin: 2pt 0 0 0;">Comisión Permanente de Salud y Desarrollo Social Integral</p>
+                            <p style="font-family: 'Arial', sans-serif; font-size: 12pt; margin: 0;">República Bolivariana de Venezuela</p>
+                            <p style="font-family: 'Arial', sans-serif; font-size: 12pt; margin: 0;">Estado Bolivariano de Miranda</p>
+                            <p style="font-family: 'Arial', sans-serif; font-size: 12pt; margin: 0;">Concejo del Municipio "Ambrosio Plaza"</p>
+                            <p style="font-family: 'Arial', sans-serif; font-size: 12pt; font-weight: bold; margin: 2pt 0 0 0;">Comisión Permanente de Salud y Desarrollo Social Integral</p>
                         </td>
                          <td style="width: 14%; text-align: right; vertical-align: middle;"><img src="https://6tq1hvhd6i4nm9rm.public.blob.vercel-storage.com/Logo-comision.png" width="100" height="100" style="display:block; margin-left: auto;"></td>
                     </tr>
                 </table>
                 <div style="border-top: 4.5pt solid #ff6666; margin-bottom: 20pt; width: 100%;"></div>
-                <table border="0" cellspacing="0" cellpadding="0" style="width: 100%; border-collapse: collapse; margin-bottom: 12pt;">
+                <table border="0" cellspacing="0" cellpadding="0" style="width: 100%; border-collapse: collapse; margin-bottom: 12pt; font-family: 'Arial', sans-serif; font-size: 12pt;">
                     <tr>
-                        <td style="width: 50%;"><p style="font-size: 12pt; margin: 0;"><b>INFORME:</b> ${nroInforme}</p></td>
-                        <td style="width: 50%; text-align: right;"><p style="font-size: 12pt; margin: 0;"><b>FECHA:</b> ${fechaInforme}</p></td>
+                        <td style="width: 50%;"><p style="font-family: 'Arial', sans-serif; font-size: 12pt; margin: 0;"><b>INFORME:</b> ${nroInforme}</p></td>
+                        <td style="width: 50%; text-align: right;"><p style="font-family: 'Arial', sans-serif; font-size: 12pt; margin: 0;"><b>FECHA:</b> ${fechaInforme}</p></td>
                     </tr>
                 </table>
-                <table border="0" cellspacing="0" cellpadding="0" style="width: 100%; border-collapse: collapse; margin-bottom: 15pt;">
-                    <tr><td><p style="font-size: 11pt; margin: 0;"><b>ASUNTO:</b> ${asuntoInforme}</p></td></tr>
-                    <tr><td><p style="font-size: 11pt; margin: 0;"><b>ACTORES VINCULADOS:</b> ${actoresVinculados}</p></td></tr>
+                <table border="0" cellspacing="0" cellpadding="0" style="width: 100%; border-collapse: collapse; margin-bottom: 15pt; font-family: 'Arial', sans-serif; font-size: 12pt;">
+                    <tr><td><p style="font-family: 'Arial', sans-serif; font-size: 12pt; margin: 0;"><b>ASUNTO:</b> ${asuntoInforme}</p></td></tr>
+                    <tr><td><p style="font-family: 'Arial', sans-serif; font-size: 12pt; margin: 0;"><b>ACTORES VINCULADOS:</b> ${actoresVinculados}</p></td></tr>
                 </table>
                 <div style="border-top: 0.75pt solid #000000; margin-bottom: 15pt; width: 100%;"></div>
-                <div style="margin-bottom: 35pt;">${parrafosHTML}</div>
-                <div style="margin-top: 40pt;">
-                    <p style="font-size: 11pt; margin-bottom: 35pt;">Por la Comisión Permanente de Salud y Desarrollo Social Integral</p>
-                    <p style="font-size: 10.5pt; font-weight: bold; margin: 0;">Concejala Abg. Letty Bastidas</p>
-                    <p style="font-size: 9.5pt; font-style: italic; margin: 0;">Presidente de la Comisión</p>
+                <div style="margin-bottom: 35pt; font-family: 'Arial', sans-serif; font-size: 12pt;">${parrafosHTML}</div>
+                <div style="margin-top: 40pt; font-family: 'Arial', sans-serif;">
+                    <p style="font-family: 'Arial', sans-serif; font-size: 12pt; margin-bottom: 35pt; text-align: center;">Por la comisión permanente.</p>
+                    
+                    <table border="0" cellspacing="0" cellpadding="0" style="width: 100%; border-collapse: collapse; margin-bottom: 20pt; font-family: 'Arial', sans-serif;">
+                        <tr>
+                            <td style="text-align: center;">
+                                <p style="font-family: 'Arial', sans-serif; font-size: 12pt; font-weight: bold; margin: 0;">Concejala Abg. Letty Bastidas</p>
+                                <p style="font-family: 'Arial', sans-serif; font-size: 11pt; font-style: italic; margin: 0;">Presidente de la Comisión Permanente de Salud<br>y Desarrollo Social Integral</p>
+                            </td>
+                        </tr>
+                    </table>
+
+                    <table border="0" cellspacing="0" cellpadding="0" style="width: 100%; border-collapse: collapse; font-family: 'Arial', sans-serif;">
+                        <tr>
+                            <td style="width: 50%; text-align: center; vertical-align: top;">
+                                <p style="font-family: 'Arial', sans-serif; font-size: 12pt; font-weight: bold; margin: 0;">Concejala Mgs. Mirlys Hidalgo</p>
+                                <p style="font-family: 'Arial', sans-serif; font-size: 11pt; font-style: italic; margin: 0;">Vicepresidente de la Comisión<br>Permanente</p>
+                            </td>
+                            <td style="width: 50%; text-align: center; vertical-align: top;">
+                                <p style="font-family: 'Arial', sans-serif; font-size: 12pt; font-weight: bold; margin: 0;">Concejala Lic. Zulmy Orozco</p>
+                                <p style="font-family: 'Arial', sans-serif; font-size: 11pt; font-style: italic; margin: 0;">Vocal de la Comisión Permanente</p>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+
+                <!-- PIE DE PAGINA WORD -->
+                <div style="mso-element:footer; font-family: 'Arial', sans-serif;">
+                    <div style="border-top: 1pt solid #cbd5e1; padding-top: 8pt; text-align: center; font-family: 'Arial', sans-serif;">
+                        <table style="width: 100%; border-collapse: collapse; margin-bottom: 4pt;">
+                            <tr>
+                                <td style="background-color: #ffde00; height: 3px; width: 33%;"></td>
+                                <td style="background-color: #003da5; height: 3px; width: 34%;"></td>
+                                <td style="background-color: #d12421; height: 3px; width: 33%;"></td>
+                            </tr>
+                        </table>
+                        <p style="font-family: 'Arial', sans-serif; font-size: 10pt; font-style: italic; color: #475569; margin: 0 0 4pt 0;">Salud para Todos y Todas</p>
+                        <p style="font-family: 'Arial', sans-serif; font-size: 8.5pt; color: #64748b; margin: 0; line-height: 1.3;">
+                            Dirección: Calle Bolívar con Monagas, diagonal al Hospitalito Francisco Rafael García. Guarenas, Estado Bolivariano de Miranda. Nro. Telefónico: 0426-3147191 Correo Electrónico: <a href="mailto:Comisiondesaludgestion2025@gmail.com" style="color: #0066cc; text-decoration: underline;">Comisiondesaludgestion2025@gmail.com</a>
+                        </p>
+                    </div>
                 </div>
             </body>
             </html>`;
