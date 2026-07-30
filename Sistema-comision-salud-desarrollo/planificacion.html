@@ -257,7 +257,7 @@ body{ background: var(--bg-main); color:#334155; }
                     <button class="filter-chip" id="chip-suspendido" onclick="filtrarAgenda('Suspendido')">Suspendidos</button>
                 </div>
 
-                <!-- NUEVO: FILTRO POR RANGO DE FECHAS -->
+                <!-- FILTRO POR RANGO DE FECHAS -->
                 <div class="date-filter-box flex items-center gap-2 bg-white px-3 py-1.5 rounded-lg border border-slate-300 text-xs">
                     <span class="text-slate-500 font-bold"><i class="fa-solid fa-filter"></i> Desde:</span>
                     <input type="date" id="filtroFechaDesde" onchange="manejarBusqueda()" class="outline-none bg-transparent font-medium">
@@ -410,10 +410,6 @@ async function consultarBaseDatos(sql, params = []) {
         })
     });
 
-    if (!respuesta.ok) {
-        throw new Error("Error de conexión con el servidor");
-    }
-
     return await respuesta.json();
 }
 
@@ -461,7 +457,7 @@ async function cargarAgendaOficina() {
              ORDER BY id DESC`
         );
 
-        listaEventosGlobal = resultado.resultado || [];
+        listaEventosGlobal = resultado.resultado || resultado;
         actualizarEstadisticas();
         renderizarAgenda(listaEventosGlobal);
     } catch (error) {
@@ -744,20 +740,25 @@ async function guardarActividad(event) {
                 throw new Error("No se pudo identificar el ID del registro a actualizar.");
             }
 
-            await consultarBaseDatos(
-                `UPDATE agenda_oficina
-                 SET titulo = ?, fecha = ?, hora = ?, tipo = ?, estatus = ?, lugar = ?, descripcion = ?
-                 WHERE id = ?`,
-                [titulo, fecha, hora, tipo, estatus, lugar, descripcion, item.id]
-            );
+            await consultarBaseDatos(`UPDATE agenda_oficina
+SET titulo=?,
+descripcion=?,
+fecha=?,
+hora=?,
+tipo=?,
+estatus=?,
+lugar=?
+WHERE id=?`,
+[titulo, descripcion, fecha, hora, tipo, estatus, lugar, item.id
+]);
 
             alert("Actividad actualizada correctamente.");
         } else {
-            await consultarBaseDatos(
-                `INSERT INTO agenda_oficina (titulo, fecha, hora, tipo, estatus, lugar, descripcion)
-                 VALUES (?, ?, ?, ?, ?, ?, ?)`,
-                [titulo, fecha, hora, tipo, estatus, lugar, descripcion]
-            );
+            await consultarBaseDatos(`INSERT INTO agenda_oficina
+(titulo, descripcion, fecha, hora, tipo, estatus, lugar)
+VALUES (?, ?, ?, ?, ?, ?, ?)`,
+[titulo, descripcion, fecha, hora, tipo, estatus, lugar
+]);
 
             alert("Actividad registrada correctamente.");
         }
@@ -777,10 +778,9 @@ async function eliminarActividad(index) {
     if (!confirm("¿Desea eliminar esta actividad?")) return;
 
     try {
-        await consultarBaseDatos(
-            `DELETE FROM agenda_oficina WHERE id = ?`,
-            [item.id]
-        );
+        await consultarBaseDatos(`DELETE FROM agenda_oficina
+WHERE id=?`,
+[item.id]);
 
         cargarAgendaOficina();
     } catch (error) {
