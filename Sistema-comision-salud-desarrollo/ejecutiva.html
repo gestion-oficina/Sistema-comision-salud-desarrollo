@@ -359,6 +359,35 @@
 
     <!-- SCRIPT DE CONTROL CONECTADO A /api/query -->
     <script type="module">
+        async function consultarBaseDatos(query, params = []) {
+            try {
+                console.log("SQL:", query);
+                console.log("PARAMS:", params);
+
+                const response = await fetch("/api/query", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({ query, params })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Error ${response.status}`);
+                }
+
+                const data = await response.json();
+
+                console.log("RESPUESTA:", data);
+
+                return data;
+
+            } catch (error) {
+                console.error(error);
+                throw error;
+            }
+        }
+
         if (sessionStorage.getItem("usuario_rol") === "admin") {
             const el = document.getElementById("enlaceAuditoria");
             if (el) el.style.display = "block";
@@ -434,15 +463,7 @@
                     ? "SELECT * FROM oficios ORDER BY created_at DESC" 
                     : "SELECT * FROM informes ORDER BY created_at DESC";
 
-                const response = await fetch("/api/query", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ query: sql })
-                });
-
-                if (!response.ok) throw new Error("Error al obtener los datos del servidor");
-                
-                todosLosRegistros = await response.json();
+                todosLosRegistros = await consultarBaseDatos(sql);
                 
                 if (filtroActual === 'Oficio') {
                     thead.innerHTML = `<tr><th style="width: 120px;">Nro Oficio</th><th>Asunto / Clasificación</th><th>Sector / Ente Destino</th><th>Estado</th><th style="width: 180px;">Acciones</th></tr>`;
@@ -674,13 +695,7 @@
                     params = [numero, destino, asunto, usuarioActual];
                 }
 
-                const response = await fetch("/api/query", {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ query: sql, params })
-                });
-
-                if (!response.ok) throw new Error("Error en la respuesta del servidor");
+                await consultarBaseDatos(sql, params);
 
                 alert(idEnEdicion ? "¡Oficio actualizado con éxito!" : "¡Oficio Enviado registrado con éxito!");
                 cerrarFormOficio();
@@ -713,13 +728,7 @@
                     params = [numero, fecha, asunto, actores, responsable, introduccion, hechos, metas, juridico, conclusiones, usuarioActual];
                 }
 
-                const response = await fetch("/api/query", {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ query: sql, params })
-                });
-
-                if (!response.ok) throw new Error("Error en la respuesta del servidor");
+                await consultarBaseDatos(sql, params);
 
                 alert(idEnEdicion ? `¡Informe Nº ${numero} actualizado correctamente!` : `¡Informe de Gestión Nº ${numero} guardado con éxito!`);
                 cerrarFormInforme();
@@ -828,12 +837,7 @@
                 : "DELETE FROM informes WHERE id = ?";
 
             try {
-                const response = await fetch("/api/query", { 
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ query: sql, params: [id] })
-                });
-                if (!response.ok) throw new Error("Error al eliminar el registro");
+                await consultarBaseDatos(sql, [id]);
                 
                 alert("Registro eliminado correctamente");
                 loadData();
