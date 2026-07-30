@@ -22,56 +22,8 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
-<!-- SDK DE SQLITE CLOUD DESDE CDN -->
-<script type="module">
-    import { Database } from "https://cdn.jsdelivr.net/npm/@sqlitecloud/drivers/+esm";
-
-    // Reemplaza esta cadena con tu Connection String real de SQLite Cloud
-    // Formato: sqlitecloud://su-host.sqlite.cloud:8860?apikey=SU_API_KEY
-    const connectionString = "sqlitecloud://TU_HOST_AQUI.sqlite.cloud:8860?apikey=TU_API_KEY_AQUI";
-    
-    let cloudDb = null;
-
-    async function inicializarSQLiteCloud() {
-        try {
-            cloudDb = new Database(connectionString);
-            
-            // Seleccionamos la base de datos que se ve en tu captura
-            await cloudDb.sql`USE DATABASE sistema_gestion.sqlite;`;
-
-            // Exponemos un cliente compatible para que la app funcione sin alterar la lógica
-            window.sqlClient = {
-                exec: async function(sqlQuery) {
-                    // Si es una consulta SELECT u otra operación
-                    const result = await cloudDb.sql`${sqlQuery}`;
-                    
-                    // Si el resultado es un SELECT, adaptamos la respuesta al formato que espera la app (columns y values)
-                    if (Array.isArray(result) && result.length > 0 && typeof result[0] === 'object') {
-                        const columns = Object.keys(result[0]);
-                        const values = result.map(row => columns.map(col => row[col]));
-                        return [{ columns, values }];
-                    }
-                    return [];
-                },
-                runAsync: async function(query, params = []) {
-                    // Para sentencias INSERT, UPDATE, DELETE con parámetros seguros
-                    return await cloudDb.sql(query, ...params);
-                }
-            };
-
-            if (typeof window.iniciarAgendaApp === 'function') {
-                window.iniciarAgendaApp();
-            }
-        } catch (err) {
-            console.error("Error al conectar con SQLite Cloud:", err);
-            document.getElementById("lista-actividades").innerHTML = `<p style="text-align:center; padding:30px; color:#dc2626;">Error de conexión con SQLite Cloud: ${err.message}</p>`;
-        }
-    }
-
-    window.addEventListener('DOMContentLoaded', () => {
-        inicializarSQLiteCloud();
-    });
-</script>
+<!-- 2. INCLUIR ARCHIVO JS DE CONEXIÓN -->
+<script src="js/conexion.js"></script>
 
 <style>
 :root {
@@ -436,7 +388,7 @@ document.addEventListener("DOMContentLoaded", () => {
         if(aud) aud.style.display = "block";
     }
 
-    if (window.sqlClient) {
+    if (typeof consultarBaseDatos === 'function') {
         window.iniciarAgendaApp();
     }
     
@@ -445,6 +397,26 @@ document.addEventListener("DOMContentLoaded", () => {
     if (nombre) document.getElementById("usuarioNombre").textContent = nombre;
     if (coord) document.getElementById("usuarioCoordinacion").textContent = coord.toUpperCase();
 });
+
+// 3. FUNCIÓN consultarBaseDatos()
+async function consultarBaseDatos(sql, params = []) {
+    const respuesta = await fetch("/api/query", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            query: sql,
+            params: params
+        })
+    });
+
+    if (!respuesta.ok) {
+        throw new Error("Error de conexión con el servidor");
+    }
+
+    return await respuesta.json();
+}
 
 function toggleMenu() {
     document.getElementById("sidebarMenu").classList.toggle("open");
@@ -482,33 +454,24 @@ function cerrarModal() {
     document.getElementById("modalActividad").style.display = "none";
 }
 
+// 4. REEMPLAZAR cargarAgendaOficina()
 async function cargarAgendaOficina() {
-    const contenedor = document.getElementById("lista-actividades");
-    if (!window.sqlClient) await new Promise(resolve => setTimeout(resolve, 1000));
-    if (!window.sqlClient) {
-        contenedor.innerHTML = `<p style="text-align:center; padding:30px; color:#dc2626;">Error: Conexión con SQLite Cloud no disponible.</p>`;
-        return;
-    }
-
     try {
-        const res = await window.sqlClient.exec("USE DATABASE sistema_gestion.sqlite; SELECT * FROM agenda_oficina ORDER BY id DESC;");
-        listaEventosGlobal = [];
-        if (res && res.length > 0) {
-            const columns = res[0].columns;
-            const values = res[0].values;
-            listaEventosGlobal = values.map(row => {
-                let obj = {};
-                columns.forEach((col, index) => {
-                    obj[col] = row[index];
-                });
-                return obj;
-            });
-        }
+        const resultado = await consultarBaseDatos(
+            `SELECT *
+             FROM agenda_oficina
+             ORDER BY id DESC`
+        );
+
+        listaEventosGlobal = resultado.resultado || [];
         actualizarEstadisticas();
         renderizarAgenda(listaEventosGlobal);
-    } catch (err) {
-        console.error("Error cargando agenda:", err);
-        contenedor.innerHTML = `<p style="text-align:center; padding:30px; color:#dc2626;">Error al cargar la base de datos: ${err.message}</p>`;
+    } catch (error) {
+        console.error(error);
+        document.getElementById("lista-actividades").innerHTML =
+        `<p style="padding:30px;text-align:center;color:red;">
+            Error al cargar la agenda
+        </p>`;
     }
 }
 
@@ -764,58 +727,128 @@ function abrirEditar(index) {
     document.getElementById("modalActividad").style.display = "flex";
 }
 
-async function guardarActividad(event) {
+// 5. REEMPLAZAR guardarActividad()
+async function guardarActividad(event){
+
     event.preventDefault();
-    if (!window.sqlClient) return;
 
-    const indexInput = document.getElementById("actividadIndice").value;
-    const titulo = document.getElementById("titulo").value.trim();
-    const fecha = document.getElementById("fecha").value;
-    const hora = document.getElementById("hora").value.trim();
-    const tipo = document.getElementById("tipo").value;
-    const estatus = document.getElementById("estatus").value;
-    const lugar = document.getElementById("lugar").value.trim();
-    const descripcion = document.getElementById("descripcion").value.trim();
+    const indexInput=document.getElementById("actividadIndice").value;
 
-    try {
-        if (indexInput !== "") {
-            const indexNum = Number(indexInput);
-            const itemOriginal = listaEventosGlobal[indexNum];
-            const idReg = itemOriginal.id;
+    const titulo=document.getElementById("titulo").value;
+    const fecha=document.getElementById("fecha").value;
+    const hora=document.getElementById("hora").value;
+    const tipo=document.getElementById("tipo").value;
+    const estatus=document.getElementById("estatus").value;
+    const lugar=document.getElementById("lugar").value;
+    const descripcion=document.getElementById("descripcion").value;
 
-            const queryUpdate = `USE DATABASE sistema_gestion.sqlite; UPDATE agenda_oficina SET titulo = '${titulo}', fecha = '${fecha}', hora = '${hora}', tipo = '${tipo}', estatus = '${estatus}', lugar = '${lugar}', descripcion = '${descripcion}' WHERE id = ${idReg};`;
-            await window.sqlClient.exec(queryUpdate);
-            alert("Actividad actualizada con éxito en SQLite Cloud.");
-        } else {
-            const queryInsert = `USE DATABASE sistema_gestion.sqlite; INSERT INTO agenda_oficina (titulo, fecha, hora, tipo, estatus, lugar, descripcion) VALUES ('${titulo}', '${fecha}', '${hora}', '${tipo}', '${estatus}', '${lugar}', '${descripcion}');`;
-            await window.sqlClient.exec(queryInsert);
-            alert("Actividad agendada con éxito en SQLite Cloud.");
+    try{
+
+        if(indexInput!=""){
+
+            const item=listaEventosGlobal[indexInput];
+
+            await consultarBaseDatos(
+
+            `UPDATE agenda_oficina
+            SET
+            titulo=?,
+            fecha=?,
+            hora=?,
+            tipo=?,
+            estatus=?,
+            lugar=?,
+            descripcion=?
+            WHERE id=?`,
+
+            [
+                titulo,
+                fecha,
+                hora,
+                tipo,
+                estatus,
+                lugar,
+                descripcion,
+                item.id
+            ]);
+
+            alert("Actividad actualizada.");
+
+        }else{
+
+            await consultarBaseDatos(
+
+            `INSERT INTO agenda_oficina
+            (
+            titulo,
+            fecha,
+            hora,
+            tipo,
+            estatus,
+            lugar,
+            descripcion
+            )
+
+            VALUES
+
+            (?,?,?,?,?,?,?)`,
+
+            [
+                titulo,
+                fecha,
+                hora,
+                tipo,
+                estatus,
+                lugar,
+                descripcion
+            ]);
+
+            alert("Actividad registrada.");
+
         }
+
         cerrarModal();
+
         cargarAgendaOficina();
-    } catch (err) {
-        console.error("Error al guardar:", err);
-        alert("Error al intentar procesar la solicitud en la nube: " + err.message);
+
+    }catch(error){
+
+        console.error(error);
+
+        alert(error.message);
+
     }
+
 }
 
-async function eliminarActividad(index) {
-    const item = listaEventosGlobal[index];
-    if (!item) {
-        alert("Error: No se pudo identificar el registro a eliminar.");
-        return;
-    }
-    
-    if (!confirm("¿Está seguro de eliminar esta actividad de SQLite Cloud?")) return;
-    try {
-        const idReg = item.id;
-        const queryDelete = `USE DATABASE sistema_gestion.sqlite; DELETE FROM agenda_oficina WHERE id = ${idReg};`;
-        await window.sqlClient.exec(queryDelete);
+// 6. REEMPLAZAR eliminarActividad()
+async function eliminarActividad(index){
+
+    const item=listaEventosGlobal[index];
+
+    if(!confirm("¿Desea eliminar esta actividad?")) return;
+
+    try{
+
+        await consultarBaseDatos(
+
+        `DELETE FROM agenda_oficina
+        WHERE id=?`,
+
+        [item.id]
+
+        );
+
         cargarAgendaOficina();
-    } catch (err) {
-        console.error("Error al eliminar:", err);
-        alert("No se pudo eliminar el registro en la nube.");
+
+    }catch(error){
+
+        console.error(error);
+
+        alert(error.message);
+
     }
+
 }
 
 async function logout() {
