@@ -323,21 +323,6 @@
         let todosLosRegistros = [];
         let idRegistroEditando = null;
 
-        const sectoresPlaza = [
-            "Las Clavelinas",
-            "Ruiz Pineda",
-            "Menca de Leoni",
-            "Trapichito",
-            "Valle Verde",
-            "Zulia",
-            "Sector Las Mandarinas",
-            "Oropeza Castillo",
-            "Pueblo Arriba",
-            "El Tamarindo",
-            "Nueva Casarapa",
-            "Otro Sector"
-        ];
-
         window.iniciarApp = function() {
             const nombre = sessionStorage.getItem("usuario_nombre");
             const coord = sessionStorage.getItem("usuario_coordinacion");
@@ -478,8 +463,6 @@
 
             btnGuardar.innerText = "Guardar Registro";
 
-            const opcionesSectores = sectoresPlaza.map(s => `<option value="${s}">${s}</option>`).join("");
-
             if (filtroActual === 'liderazgos') {
                 title.innerText = "Registrar Líder Territorial / UBCh";
                 body.innerHTML = `
@@ -497,10 +480,7 @@
                     </div>
                     <div class="form-group">
                         <label>Sector / Comunidad</label>
-                        <select id="m_sector">
-                            <option value="">Seleccione un sector...</option>
-                            ${opcionesSectores}
-                        </select>
+                        <input type="text" id="m_sector" placeholder="Ej. Ingrese el sector manualmente">
                     </div>
                 `;
             } else {
@@ -512,10 +492,7 @@
                     </div>
                     <div class="form-group">
                         <label>Eje / Sector</label>
-                        <select id="m_sector">
-                            <option value="">Seleccione un sector...</option>
-                            ${opcionesSectores}
-                        </select>
+                        <input type="text" id="m_sector" placeholder="Ej. Ingrese el sector manualmente">
                     </div>
                     <div class="form-group">
                         <label>Nombre del Responsable</label>
@@ -555,10 +532,6 @@
 
             btnGuardar.innerText = "Guardar Cambios";
 
-            const opcionesSectores = sectoresPlaza.map(s => `
-                <option value="${s}" ${registro.sector === s ? 'selected' : ''}>${s}</option>
-            `).join("");
-
             if (registro.tipo !== 'Comuna') {
                 title.innerText = "Editar Líder Territorial / UBCh";
                 body.innerHTML = `
@@ -576,10 +549,7 @@
                     </div>
                     <div class="form-group">
                         <label>Sector / Comunidad</label>
-                        <select id="m_sector">
-                            <option value="">Seleccione un sector...</option>
-                            ${opcionesSectores}
-                        </select>
+                        <input type="text" id="m_sector" value="${registro.sector || ''}" placeholder="Ingrese el sector manualmente">
                     </div>
                 `;
             } else {
@@ -591,10 +561,7 @@
                     </div>
                     <div class="form-group">
                         <label>Eje / Sector</label>
-                        <select id="m_sector">
-                            <option value="">Seleccione un sector...</option>
-                            ${opcionesSectores}
-                        </select>
+                        <input type="text" id="m_sector" value="${registro.sector || ''}" placeholder="Ingrese el sector manualmente">
                     </div>
                     <div class="form-group">
                         <label>Nombre del Responsable</label>
@@ -638,7 +605,7 @@
                             nombre: nombre,
                             cedula: document.getElementById("m_cedula")?.value.trim() || null,
                             telefono: document.getElementById("m_telefono")?.value.trim() || null,
-                            sector: document.getElementById("m_sector")?.value || null,
+                            sector: document.getElementById("m_sector")?.value.trim() || null,
                             responsable: null,
                             email: null,
                             tipo: 'Liderazgo',
@@ -647,7 +614,7 @@
                     } else {
                         nuevoRegistro = {
                             nombre: nombre,
-                            sector: document.getElementById("m_sector")?.value || null,
+                            sector: document.getElementById("m_sector")?.value.trim() || null,
                             responsable: document.getElementById("m_responsable")?.value.trim() || null,
                             cedula: document.getElementById("m_cedula")?.value.trim() || null,
                             telefono: document.getElementById("m_telefono")?.value.trim() || null,
@@ -663,7 +630,7 @@
                     `;
                 } else {
                     const vNombre = nombre;
-                    const vSector = document.getElementById("m_sector")?.value || null;
+                    const vSector = document.getElementById("m_sector")?.value.trim() || null;
                     const vResponsable = document.getElementById("m_responsable")?.value.trim() || null;
                     const vCedula = document.getElementById("m_cedula")?.value.trim() || null;
                     const vTelefono = document.getElementById("m_telefono")?.value.trim() || null;
