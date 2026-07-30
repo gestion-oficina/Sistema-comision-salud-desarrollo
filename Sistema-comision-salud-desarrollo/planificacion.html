@@ -515,13 +515,18 @@ async function cargarAgendaOficina() {
 
     try {
         const eventos = window.sqlClient.exec("SELECT * FROM agenda_oficina ORDER BY id DESC");
-        listaEventosGlobal = eventos.length > 0 ? eventos[0].values.map(row => {
-            let obj = {};
-            eventos[0].columns.forEach((col, idx) => {
-                obj[col] = row[idx];
+        
+        if (!eventos || eventos.length === 0 || !eventos[0].values) {
+            listaEventosGlobal = [];
+        } else {
+            listaEventosGlobal = eventos[0].values.map(row => {
+                let obj = {};
+                eventos[0].columns.forEach((col, idx) => {
+                    obj[col] = row[idx];
+                });
+                return obj;
             });
-            return obj;
-        }) : [];
+        }
 
         actualizarEstadisticas();
         renderizarAgenda(listaEventosGlobal);
