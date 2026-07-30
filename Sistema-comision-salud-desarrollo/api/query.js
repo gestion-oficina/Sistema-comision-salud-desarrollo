@@ -1,46 +1,798 @@
-import { Database } from "@sqlitecloud/drivers";
+<!DOCTYPE html>
+<html lang="es">
 
-export default async function handler(req, res) {
+<head>
+<meta charset="UTF-8">
+<script>
+    const sesion = sessionStorage.getItem('usuario_logueado');
+    if (!sesion && window.location.pathname !== "/login.html") {
+        window.location.replace("login.html");
+    } else {
+        document.addEventListener("DOMContentLoaded", () => {
+            document.body.style.display = "block";
+        });
+    }
+</script>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Planificación Semanal - Comisión de Salud</title>
 
-  res.setHeader("Access-Control-Allow-Origin", "*");
-  res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
-  res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+<!-- Tailwind CSS -->
+<script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+<!-- FontAwesome -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
+<!-- 2. INCLUIR ARCHIVO JS DE CONEXIÓN -->
+<script src="js/conexion.js"></script>
 
-  if (req.method === "OPTIONS") {
-    return res.status(200).end();
-  }
+<style>
+:root {
+    --bg-main: #f4f6f9;
+    --sidebar-bg: #1d3b6a;
+    --sidebar-active: #0066cc;
+    --sidebar-text-sub: #4ba3e3;
+    --menu-text: #ffffff;
+    --text-dark-title: #0f2547;
+    --border-color: #cbd5e1;
+    --success-color: #16a34a;
+    --warning-color: #eab308;
+    --danger-color: #dc2626;
+}
 
+*{ margin:0; padding:0; box-sizing:border-box; font-family: 'Inter', sans-serif; }
+body{ background: var(--bg-main); color:#334155; }
 
-  try {
+.layout{ display: block; position: relative; min-height: 100vh; }
 
-    const db = new Database(process.env.SQLITECLOUD_URL);
+.mobile-header { display: none; background: var(--sidebar-bg); color: white; padding: 15px 20px; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 3000; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+.btn-menu-toggle { background: none; border: none; color: white; font-size: 24px; cursor: pointer; }
 
-    const { query, params = [] } = req.body;
+/* BARRA LATERAL FIJA */
+.sidebar{ background: var(--sidebar-bg); padding:24px 0; display: flex; flex-direction: column; position: fixed; top: 0; left: 0; width: 280px; height: 100vh; z-index: 1000; overflow-y: auto; transition: transform 0.3s ease; }
+.sidebar-brand { display: flex; flex-direction: column; align-items: center; text-align: center; padding: 0 16px 20px 16px; border-bottom: 1px solid rgba(255, 255, 255, 0.1); margin-bottom: 10px; }
+.sidebar-brand h2 { font-size: 11px; color: #ffffff; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; line-height: 1.4; margin-top: 5px; }
+.menu-category { font-size: 10.5px; font-weight: 700; color: var(--sidebar-text-sub); text-transform: uppercase; letter-spacing: 0.5px; padding: 16px 20px 6px 20px; }
+.menu{ display: block; padding: 8px 36px; color: var(--menu-text); cursor: pointer; font-size: 13.5px; font-weight: 500; text-decoration: none; transition: all 0.2s ease; opacity: 0.9; }
+.menu:hover{ opacity: 1; background: rgba(255, 255, 255, 0.05); }
+.menu.active-page { background: var(--sidebar-active); color: #ffffff; font-weight: 600; border-radius: 6px; margin: 2px 14px; padding: 10px 20px; opacity: 1; }
 
+/* CONTENIDO PRINCIPAL */
+.main{ margin-left: 280px; padding:40px; overflow-x: hidden; display: flex; flex-direction: column; min-height: 100vh; }
 
-    console.log("SQL RECIBIDO:", query);
-    console.log("PARAMETROS:", params);
+.institutional-header { display: none; text-align: center; margin-bottom: 25px; border-bottom: 2px solid #0f2547; padding-bottom: 15px; }
+.institutional-header h1 { font-size: 12.5px; font-weight: 700; color: #0f2547; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 3px; }
+.institutional-header h2 { font-size: 11px; font-weight: 600; color: #334155; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 3px; }
+.institutional-header p { font-size: 10.5px; font-weight: 600; color: #0066cc; text-transform: uppercase; letter-spacing: 0.5px; }
 
+.institutional-footer { margin-top: auto; padding-top: 30px; text-align: center; border-top: 1px solid #cbd5e1; font-size: 10.5px; color: #64748b; font-weight: 500; text-transform: uppercase; letter-spacing: 0.3px; }
 
-    const resultado = await db.sql(query, ...params);
+.main h2.page-title{ font-size: 26px; color: var(--text-dark-title); font-weight: 700; margin-bottom: 6px; }
+.subtitle-concejala { font-size: 13px; color: #64748b; margin-bottom: 24px; font-weight: 500; }
 
+/* ESTADÍSTICAS RÁPIDAS CON COLORES */
+.stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; margin-bottom: 20px; }
+.stat-card { background: white; padding: 14px 16px; border-radius: 10px; border: 1px solid #e2e8f0; box-shadow: 0 2px 4px rgba(0,0,0,0.01); display: flex; flex-direction: column; border-left: 4px solid #cbd5e1; }
+.stat-card.total { border-left-color: #1d3b6a; }
+.stat-card.programados { border-left-color: #0369a1; }
+.stat-card.completados { border-left-color: #16a34a; }
+.stat-card.suspendidos { border-left-color: #dc2626; }
 
-    console.log("RESULTADO:", resultado);
+.stat-card span:first-child { font-size: 10.5px; font-weight: 700; text-transform: uppercase; color: #64748b; }
+.stat-card span:last-child { font-size: 22px; font-weight: 700; color: var(--text-dark-title); margin-top: 4px; }
 
+.agenda-container { background: white; border: 1px solid #e2e8f0; border-radius: 12px; padding: 24px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.01); }
+.agenda-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #f1f5f9; padding-bottom: 16px; margin-bottom: 20px; gap: 10px; flex-wrap: wrap; }
+.agenda-header h3 { font-size: 16px; font-weight: 700; color: var(--text-dark-title); }
 
-    return res.status(200).json(resultado);
+.agenda-header-actions { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
 
+.toolbar-agenda { display: flex; justify-content: space-between; align-items: center; gap: 15px; flex-wrap: wrap; margin-bottom: 20px; background: #f8fafc; padding: 14px 18px; border-radius: 10px; border: 1px solid #e2e8f0; }
+.filters-group { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+.filter-chip { padding: 6px 12px; border-radius: 20px; font-size: 11.5px; font-weight: 600; border: 1px solid #cbd5e1; background: white; color: #475569; cursor: pointer; transition: all 0.2s; }
+.filter-chip.active { background: var(--sidebar-bg); color: white; border-color: var(--sidebar-bg); }
 
-  } catch(error) {
+.search-box { position: relative; min-width: 220px; }
+.search-box input { width: 100%; padding: 7px 12px 7px 32px; border: 1px solid #cbd5e1; border-radius: 20px; font-size: 12px; outline: none; background: white; }
+.search-box input:focus { border-color: var(--sidebar-active); }
+.search-box::before { content: "🔍"; position: absolute; left: 10px; top: 50%; transform: translateY(-50%); font-size: 11px; }
 
-    console.error("ERROR SQLITE CLOUD:", error.message);
+.btn-action-toolbar { background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; padding: 9px 14px; border-radius: 6px; font-size: 12.5px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: background 0.2s; }
+.btn-action-toolbar:hover { background: #e2e8f0; }
 
+.btn-add { background: var(--sidebar-active); color: white; border: none; padding: 9px 16px; border-radius: 6px; font-size: 12.5px; font-weight: 600; cursor: pointer; transition: opacity 0.2s; white-space: nowrap; display: inline-flex; align-items: center; gap: 6px; }
+.btn-add:hover { opacity: 0.95; }
 
-    return res.status(500).json({
-      error: error.message
+/* TARJETAS DE ACTIVIDAD */
+.grid-actividades { display: grid; grid-template-columns: 1fr; gap: 15px; }
+.card-actividad { background: white; padding: 20px; border-radius: 10px; border: 1px solid #e2e8f0; border-left: 5px solid var(--sidebar-active); box-shadow: 0 2px 4px rgba(0,0,0,0.02); display: flex; justify-content: space-between; align-items: flex-start; gap: 15px; transition: transform 0.2s; }
+.card-actividad:hover { transform: translateY(-2px); box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+
+.card-content { flex-grow: 1; }
+.card-title-row { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; flex-wrap: wrap; }
+.card-title-row h4 { color: var(--text-dark-title); font-size: 15px; font-weight: 700; }
+
+.tipo-badge { font-size: 10.5px; font-weight: 700; text-transform: uppercase; background: #f1f5f9; color: #475569; padding: 2px 8px; border-radius: 4px; }
+.card-meta { font-size: 12px; color: #64748b; font-weight: 500; margin-bottom: 8px; display: flex; gap: 15px; flex-wrap: wrap; }
+.card-desc { font-size: 13px; color: #334155; line-height: 1.4; background: #f8fafc; padding: 8px 12px; border-radius: 6px; border: 1px solid #f1f5f9; margin-top: 8px; }
+
+.card-actions-side { display: flex; flex-direction: column; align-items: flex-end; gap: 10px; }
+.badge-status { padding: 4px 10px; border-radius: 4px; font-size: 10.5px; font-weight: 700; text-transform: uppercase; display: inline-block; text-align: center; }
+.status-programado { background: #e0f2fe; color: #0369a1; }
+.status-completado { background: #dcfce7; color: #14532d; }
+.status-suspendido { background: #fee2e2; color: #b91c1c; }
+
+.action-btns-row { display: flex; gap: 6px; }
+.btn-icon-action { background: #f1f5f9; border: 1px solid #cbd5e1; color: #475569; padding: 5px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; cursor: pointer; }
+.btn-icon-action:hover { background: #e2e8f0; }
+.btn-icon-danger { background: #fee2e2; border: 1px solid #fecaca; color: #b91c1c; }
+.btn-icon-danger:hover { background: #fecaca; }
+
+/* VENTANA MODAL */
+.modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 37, 71, 0.5); backdrop-filter: blur(2px); z-index: 4000; justify-content: center; align-items: center; padding: 15px; }
+.modal-content { background: white; padding: 24px; border-radius: 12px; width: 100%; max-width: 500px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.15); position: relative; max-height: 90vh; overflow-y: auto; }
+.modal-title { font-size: 18px; font-weight: 700; color: var(--text-dark-title); margin-bottom: 20px; }
+.close-modal { position: absolute; top: 20px; right: 20px; background: none; border: none; font-size: 24px; cursor: pointer; color: #94a3b8; }
+.form-group { margin-bottom: 14px; }
+.form-group label { display: block; font-size: 11px; font-weight: 700; color: #475569; margin-bottom: 4px; text-transform: uppercase; }
+.form-group input, .form-group textarea, .form-group select { width: 100%; padding: 9px 12px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 13px; color: #334155; outline: none; }
+.form-group input:focus, .form-group textarea:focus, .form-group select:focus { border-color: var(--sidebar-active); box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.12); }
+.modal-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px; border-top: 1px solid #e2e8f0; padding-top: 14px; }
+.btn-cancel { background: #e2e8f0; color: #475569; border: none; padding: 9px 16px; border-radius: 6px; font-size: 12.5px; font-weight: 600; cursor: pointer; }
+.btn-save { background: var(--success-color); color: white; border: none; padding: 9px 16px; border-radius: 6px; font-size: 12.5px; font-weight: 600; cursor: pointer; }
+
+/* ESTILOS PARA IMPRESIÓN */
+@media print {
+    .sidebar, .mobile-header, .toolbar-agenda, .agenda-header-actions, .action-btns-row, .btn-add, .search-box, #selectorVistasContainer, .date-filter-box { display: none !important; }
+    .main { margin-left: 0 !important; padding: 0 !important; }
+    .institutional-header { display: block !important; }
+    .agenda-container { border: none !important; box-shadow: none !important; padding: 0 !important; }
+    body { background: white !important; color: black !important; }
+    .card-actividad { break-inside: avoid; border: 1px solid #cbd5e1 !important; box-shadow: none !important; }
+}
+
+@media (max-width: 768px) {
+    .mobile-header { display: flex; }
+    .sidebar { position: fixed; top: 58px; left: 0; width: 280px; height: calc(100vh - 58px); z-index: 2500; transform: translateX(-100%); box-shadow: 4px 0 10px rgba(0,0,0,0.1); overflow-y: auto; }
+    .sidebar.open { transform: translateX(0); }
+    .main { margin-left: 0 !important; padding: 20px 15px; }
+    .agenda-header { flex-direction: column; align-items: stretch; }
+    .agenda-header-actions { width: 100%; justify-content: space-between; flex-wrap: wrap; }
+    .btn-add { flex-grow: 1; justify-content: center; }
+    .card-actividad { flex-direction: column; align-items: stretch; }
+    .card-actions-side { flex-direction: row; justify-content: space-between; align-items: center; border-top: 1px dashed #e2e8f0; padding-top: 10px; margin-top: 6px; }
+}
+</style>
+</head>
+
+<body style="display: none;">
+
+<div class="mobile-header">
+    <span style="font-size: 13px; font-weight: 700; letter-spacing: 0.5px;">COMISIÓN DE SALUD</span>
+    <button class="btn-menu-toggle" onclick="toggleMenu()">☰</button>
+</div>
+
+<div class="layout">
+   <div class="sidebar" id="sidebarMenu">
+        <div class="sidebar-brand">
+            <h2>COMISIÓN PERMANENTE DE SALUD<br>Y DESARROLLO SOCIAL INTEGRAL</h2>
+        </div>
+        
+        <a class="menu" href="dashboard.html">Principal</a>
+        
+        <div class="menu-category">Coor. Ejecutiva</div>
+        <a class="menu" href="ejecutiva.html">Oficios e Informes</a>
+        <a class="menu active-page" href="planificacion.html">Planificación Semanal</a>
+        
+        <div class="menu-category">Coor. Política</div>
+        <a class="menu" href="politica.html">Liderazgos y Comunas</a>
+        
+        <div class="menu-category">Coor. Social</div>
+        <a class="menu" href="social.html">Casos Sociales</a>
+        <a class="menu" href="red_salud.html">Red de Salud (CPT/CDI)</a>
+        
+        <div class="menu-category">Gestión Digital</div>
+        <a class="menu" href="bitacora.html">Bitácora de Eventos</a>
+        <a class="menu" href="reportes.html">📄 Reportes e Informes</a>
+        <a class="menu" href="formatos.html">📁 Formatos de Oficina</a>
+
+        <div id="enlaceAuditoria" style="display: none;">
+            <a href="auditoria.html" class="menu">🛡️ Panel de Auditoría</a>
+        </div>
+
+        <div style="margin-top: auto; padding: 24px 20px; border-top: 1px solid rgba(255,255,255,0.1);">
+            <div id="usuarioNombre" style="font-size:13px; color:#ffffff; font-weight:600; margin-bottom: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">Cargando...</div>
+            <div id="usuarioCoordinacion" style="font-size:10.5px; color:var(--sidebar-text-sub); font-weight: 500; margin-bottom: 16px; text-transform: uppercase; letter-spacing: 0.3px;">Cargando...</div>
+            <a class="menu" onclick="logout()" style="cursor:pointer; font-size:12px; color:#f87171; padding: 8px 0; display: block; border-top: 1px solid rgba(255,255,255,0.05);">Cerrar sesión</a>
+        </div>
+    </div>
+
+    <div class="main">
+        <div class="institutional-header">
+            <h1>República Bolivariana de Venezuela</h1>
+            <h2>Concejo Municipal del Municipio Ambrosio Plaza</h2>
+            <p>Comisión Permanente de Salud y Desarrollo Social Integral &mdash; Concejala Letty Bastidas</p>
+        </div>
+
+        <h2 class="page-title">Planificación Semanal</h2>
+        <div class="subtitle-concejala">Control de Compromisos y Agenda de Trabajo Institucional</div>
+        
+        <!-- ESTADÍSTICAS RÁPIDAS CON COLORES -->
+        <div class="stats-grid">
+            <div class="stat-card total">
+                <span>Total Agenda</span>
+                <span id="stat-total">0</span>
+            </div>
+            <div class="stat-card programados">
+                <span>Programados</span>
+                <span id="stat-programados" style="color: #0369a1;">0</span>
+            </div>
+            <div class="stat-card completados">
+                <span>Completados</span>
+                <span id="stat-completados" style="color: #14532d;">0</span>
+            </div>
+            <div class="stat-card suspendidos">
+                <span>Suspendidos</span>
+                <span id="stat-suspendidos" style="color: #b91c1c;">0</span>
+            </div>
+        </div>
+
+        <div class="agenda-container">
+            <div class="agenda-header">
+                <h3>Cronograma de Actividades e Inspecciones</h3>
+                <div class="agenda-header-actions">
+                    <button class="btn-action-toolbar" onclick="exportarExcel()" style="background-color: #059669; color: white; border: none;">
+                        <i class="fa-solid fa-file-excel"></i> Descargar Excel
+                    </button>
+                    <button class="btn-action-toolbar" onclick="window.print()">🖨️ Imprimir / PDF</button>
+                    <button class="btn-add" onclick="abrirModal()">➕ Agregar Actividad</button>
+                </div>
+            </div>
+
+            <!-- FILTROS, BUSCADOR, RANGO DE FECHAS Y SELECTOR DE VISTA -->
+            <div class="toolbar-agenda">
+                <div class="filters-group">
+                    <button class="filter-chip active" id="chip-todos" onclick="filtrarAgenda('Todos')">Todas</button>
+                    <button class="filter-chip" id="chip-programado" onclick="filtrarAgenda('Programado')">Programados</button>
+                    <button class="filter-chip" id="chip-completado" onclick="filtrarAgenda('Completado')">Completados</button>
+                    <button class="filter-chip" id="chip-suspendido" onclick="filtrarAgenda('Suspendido')">Suspendidos</button>
+                </div>
+
+                <!-- NUEVO: FILTRO POR RANGO DE FECHAS -->
+                <div class="date-filter-box flex items-center gap-2 bg-white px-3 py-1.5 rounded-lg border border-slate-300 text-xs">
+                    <span class="text-slate-500 font-bold"><i class="fa-solid fa-filter"></i> Desde:</span>
+                    <input type="date" id="filtroFechaDesde" onchange="manejarBusqueda()" class="outline-none bg-transparent font-medium">
+                    <span class="text-slate-500 font-bold">Hasta:</span>
+                    <input type="date" id="filtroFechaHasta" onchange="manejarBusqueda()" class="outline-none bg-transparent font-medium">
+                    <button onclick="limpiarFiltroFechas()" class="text-rose-600 hover:text-rose-800 ml-1 font-bold" title="Limpiar fechas">×</button>
+                </div>
+
+                <div class="flex items-center gap-3">
+                    <div id="selectorVistasContainer" class="flex bg-white p-1 rounded-xl shadow-sm border border-slate-300">
+                        <button onclick="cambiarVista('lista')" id="btnVistaLista" class="px-4 py-2 rounded-lg text-xs font-bold transition bg-[#1d3b6a] text-white shadow-sm flex items-center gap-2">
+                            <i class="fa-solid fa-table-cells-large text-[12px]"></i> Tarjetas
+                        </button>
+                        <button onclick="cambiarVista('calendario')" id="btnVistaCalendario" class="px-4 py-2 rounded-lg text-xs font-bold transition text-slate-600 hover:text-slate-900 flex items-center gap-2">
+                            <i class="fa-solid fa-calendar-days text-[12px]"></i> Calendario
+                        </button>
+                    </div>
+
+                    <div class="search-box">
+                        <input type="text" id="inputBuscador" placeholder="Buscar por título, lugar..." oninput="manejarBusqueda()">
+                    </div>
+                </div>
+            </div>
+
+            <!-- VISTA DE LISTA / TARJETAS -->
+            <div id="lista-actividades" class="grid-actividades">
+                <p style="text-align:center; padding:30px; color:#94a3b8;">Cargando agenda de trabajo...</p>
+            </div>
+
+            <!-- VISTA DE CALENDARIO MENSUAL -->
+            <div id="contenedorCalendario" class="hidden bg-white rounded-xl shadow-sm border border-gray-100 p-4 mt-4">
+                <div class="flex justify-between items-center mb-4">
+                    <button onclick="mesAnterior()" class="p-2 hover:bg-gray-100 rounded-lg text-gray-600 transition"><i class="fa-solid fa-chevron-left"></i></button>
+                    <h3 id="tituloMesAno" class="text-base font-bold text-gray-800 capitalize"></h3>
+                    <button onclick="mesSiguiente()" class="p-2 hover:bg-gray-100 rounded-lg text-gray-600 transition"><i class="fa-solid fa-chevron-right"></i></button>
+                </div>
+                <div class="grid grid-cols-7 gap-1 text-center font-semibold text-xs text-gray-400 mb-2">
+                    <div>Lun</div><div>Mar</div><div>Mié</div><div>Jue</div><div>Vie</div><div>Sáb</div><div>Dom</div>
+                </div>
+                <div id="gridCalendario" class="grid grid-cols-7 gap-1"></div>
+            </div>
+
+        </div>
+
+        <div class="institutional-footer">
+            Sistema de Gestión de la Comisión Permanente de Salud y Desarrollo Social Integral &mdash; Municipio Ambrosio Plaza | Despacho Concejala Letty Bastidas
+        </div>
+    </div>
+</div>
+
+<!-- MODAL CREAR / EDITAR -->
+<div class="modal" id="modalActividad">
+    <div class="modal-content">
+        <button class="close-modal" onclick="cerrarModal()">×</button>
+        <div class="modal-title" id="modalTituloLabel">Nuevo Compromiso Institucional</div>
+        
+        <form id="formAgenda" onsubmit="guardarActividad(event)">
+            <input type="hidden" id="actividadIndice">
+            
+            <div class="form-group">
+                <label>Título de la Actividad</label>
+                <input type="text" id="titulo" placeholder="Ej: Entrega de insumos médicos" required>
+            </div>
+            
+            <div class="form-group" style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                <div>
+                    <label>Fecha</label>
+                    <input type="date" id="fecha" required>
+                </div>
+                <div>
+                    <label>Hora</label>
+                    <input type="text" id="hora" placeholder="Ej: 10:00 AM" required>
+                </div>
+            </div>
+
+            <div class="form-group" style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                <div>
+                    <label>Tipo de Evento</label>
+                    <select id="tipo">
+                        <option value="Operativo social">Operativo social</option>
+                        <option value="Entrega">Entrega</option>
+                        <option value="Inspección">Inspección</option>
+                        <option value="Reunión">Reunión</option>
+                    </select>
+                </div>
+                <div>
+                    <label>Estatus</label>
+                    <select id="estatus">
+                        <option value="Programado">Programado</option>
+                        <option value="Completado">Completado</option>
+                        <option value="Suspendido">Suspendido</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Lugar</label>
+                <input type="text" id="lugar" placeholder="Ej: Comuna La Guairita" required>
+            </div>
+
+            <div class="form-group">
+                <label>Descripción detallada</label>
+                <textarea id="descripcion" rows="3" placeholder="Escribe los detalles aquí..." required></textarea>
+            </div>
+
+            <div class="modal-actions">
+                <button type="button" class="btn-cancel" onclick="cerrarModal()">Cancelar</button>
+                <button type="submit" class="btn-save">Guardar Actividad</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+let listaEventosGlobal = [];
+let filtroSeleccionado = 'Todos';
+let textoBusquedaGlobal = '';
+let vistaActual = 'lista';
+let fechaCalendario = new Date();
+
+window.iniciarAgendaApp = function() {
+    cargarAgendaOficina();
+};
+
+document.addEventListener("DOMContentLoaded", () => {
+    if (sessionStorage.getItem("usuario_rol") === "admin") {
+        const aud = document.getElementById("enlaceAuditoria");
+        if(aud) aud.style.display = "block";
+    }
+
+    if (typeof consultarBaseDatos === 'function') {
+        window.iniciarAgendaApp();
+    }
+    
+    const nombre = sessionStorage.getItem("usuario_nombre");
+    const coord = sessionStorage.getItem("usuario_coordinacion");
+    if (nombre) document.getElementById("usuarioNombre").textContent = nombre;
+    if (coord) document.getElementById("usuarioCoordinacion").textContent = coord.toUpperCase();
+});
+
+async function consultarBaseDatos(sql, params = []) {
+    const respuesta = await fetch("/api/query", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            query: sql,
+            params: params
+        })
     });
 
-  }
+    if (!respuesta.ok) {
+        throw new Error("Error de conexión con el servidor");
+    }
 
+    return await respuesta.json();
 }
+
+function toggleMenu() {
+    document.getElementById("sidebarMenu").classList.toggle("open");
+}
+
+function cambiarVista(vista) {
+    vistaActual = vista;
+    const btnLista = document.getElementById('btnVistaLista');
+    const btnCal = document.getElementById('btnVistaCalendario');
+    const contLista = document.getElementById('lista-actividades');
+    const contCal = document.getElementById('contenedorCalendario');
+
+    if (vista === 'lista') {
+        btnLista.className = "px-4 py-2 rounded-lg text-xs font-bold transition bg-[#1d3b6a] text-white shadow-sm flex items-center gap-2";
+        btnCal.className = "px-4 py-2 rounded-lg text-xs font-bold transition text-slate-600 hover:text-slate-900 flex items-center gap-2";
+        contLista.style.display = "grid";
+        contCal.style.display = "none";
+    } else {
+        btnCal.className = "px-4 py-2 rounded-lg text-xs font-bold transition bg-[#1d3b6a] text-white shadow-sm flex items-center gap-2";
+        btnLista.className = "px-4 py-2 rounded-lg text-xs font-bold transition text-slate-600 hover:text-slate-900 flex items-center gap-2";
+        contCal.style.display = "block";
+        contLista.style.display = "none";
+        renderizarCalendario();
+    }
+}
+
+function abrirModal() {
+    document.getElementById("actividadIndice").value = "";
+    document.getElementById("modalTituloLabel").textContent = "Nuevo Compromiso Institucional";
+    document.getElementById("formAgenda").reset();
+    document.getElementById("modalActividad").style.display = "flex";
+}
+
+function cerrarModal() {
+    document.getElementById("modalActividad").style.display = "none";
+}
+
+async function cargarAgendaOficina() {
+    try {
+        const resultado = await consultarBaseDatos(
+            `SELECT *
+             FROM agenda_oficina
+             ORDER BY id DESC`
+        );
+        console.log("RESPUESTA AGENDA:", resultado);
+        listaEventosGlobal = resultado.resultado || resultado || [];
+        actualizarEstadisticas();
+        renderizarAgenda(listaEventosGlobal);
+    } catch (error) {
+        console.error(error);
+        document.getElementById("lista-actividades").innerHTML =
+        `<p style="padding:30px;text-align:center;color:red;">
+            Error al cargar la agenda
+        </p>`;
+    }
+}
+
+function actualizarEstadisticas() {
+    const total = listaEventosGlobal.length;
+    const programados = listaEventosGlobal.filter(e => e.estatus === 'Programado').length;
+    const completados = listaEventosGlobal.filter(e => e.estatus === 'Completado').length;
+    const suspendidos = listaEventosGlobal.filter(e => e.estatus === 'Suspendido').length;
+
+    document.getElementById("stat-total").textContent = total;
+    document.getElementById("stat-programados").textContent = programados;
+    document.getElementById("stat-completados").textContent = completados;
+    document.getElementById("stat-suspendidos").textContent = suspendidos;
+}
+
+function limpiarFiltroFechas() {
+    document.getElementById("filtroFechaDesde").value = '';
+    document.getElementById("filtroFechaHasta").value = '';
+    manejarBusqueda();
+}
+
+function renderizarAgenda(eventos) {
+    const contenedor = document.getElementById("lista-actividades");
+    let filtrados = eventos;
+    
+    if (filtroSeleccionado !== 'Todos') {
+        filtrados = filtrados.filter(e => e.estatus === filtroSeleccionado);
+    }
+
+    const fechaDesde = document.getElementById("filtroFechaDesde").value;
+    const fechaHasta = document.getElementById("filtroFechaHasta").value;
+
+    if (fechaDesde) {
+        filtrados = filtrados.filter(e => e.fecha >= fechaDesde);
+    }
+    if (fechaHasta) {
+        filtrados = filtrados.filter(e => e.fecha <= fechaHasta);
+    }
+
+    if (textoBusquedaGlobal.trim() !== '') {
+        const query = textoBusquedaGlobal.toLowerCase();
+        filtrados = filtrados.filter(e => 
+            (e.titulo && e.titulo.toLowerCase().includes(query)) ||
+            (e.lugar && e.lugar.toLowerCase().includes(query)) ||
+            (e.descripcion && e.descripcion.toLowerCase().includes(query)) ||
+            (e.tipo && e.tipo.toLowerCase().includes(query))
+        );
+    }
+
+    if (filtrados.length === 0) {
+        contenedor.innerHTML = `<p style="text-align:center; padding:30px; color:#94a3b8;">No se encontraron actividades registradas con los filtros seleccionados.</p>`;
+        return;
+    }
+
+    const hoyStr = new Date().toISOString().split('T')[0];
+
+    contenedor.innerHTML = filtrados.map((e) => {
+        const indexGlobal = listaEventosGlobal.findIndex(item => item === e);
+        let estatusClase = 'status-programado';
+        if(e.estatus === 'Completado') estatusClase = 'status-completado';
+        if(e.estatus === 'Suspendido') estatusClase = 'status-suspendido';
+
+        let badgeAlerta = '';
+        if (e.estatus !== 'Completado' && e.estatus !== 'Suspendido') {
+            if (e.fecha === hoyStr) {
+                badgeAlerta = `<span class="bg-amber-100 text-amber-700 text-xs px-2 py-0.5 rounded-md font-bold flex items-center gap-1"><i class="fa-solid fa-triangle-exclamation"></i> Para Hoy</span>`;
+            } else if (e.fecha < hoyStr) {
+                badgeAlerta = `<span class="bg-red-100 text-red-700 text-xs px-2 py-0.5 rounded-md font-bold flex items-center gap-1"><i class="fa-solid fa-circle-exclamation"></i> Vencida</span>`;
+            }
+        }
+
+        return `
+            <div class="card-actividad">
+                <div class="card-content">
+                    <div class="card-title-row">
+                        <h4>${e.titulo || 'Sin título'}</h4>
+                        <span class="tipo-badge">${e.tipo || 'General'}</span>
+                        ${badgeAlerta}
+                    </div>
+                    <div class="card-meta">
+                        <span>📅 ${e.fecha || '--'}</span>
+                        <span>⏰ ${e.hora || '--'}</span>
+                        <span>📍 ${e.lugar || 'No especificado'}</span>
+                    </div>
+                    ${e.descripcion ? `<div class="card-desc">${e.descripcion}</div>` : ''}
+                </div>
+                <div class="card-actions-side">
+                    <span class="badge-status ${estatusClase}">${e.estatus || 'Programado'}</span>
+                    <div class="action-btns-row">
+                        <button class="btn-icon-action" onclick="abrirEditar(${indexGlobal})">Editar</button>
+                        <button class="btn-icon-action btn-icon-danger" onclick="eliminarActividad(${indexGlobal})">Borrar</button>
+                    </div>
+                </div>
+            </div>
+        `;
+    }).join("");
+
+    if (vistaActual === 'calendario') {
+        renderizarCalendario();
+    }
+}
+
+function renderizarCalendario() {
+    const grid = document.getElementById('gridCalendario');
+    const tituloMes = document.getElementById('tituloMesAno');
+    if (!grid || !tituloMes) return;
+    grid.innerHTML = '';
+
+    const año = fechaCalendario.getFullYear();
+    const mes = fechaCalendario.getMonth();
+
+    const nombresMeses = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
+    tituloMes.innerText = `${nombresMeses[mes]} ${año}`;
+
+    const primerDiaDelMes = new Date(año, mes, 1);
+    let diaInicioSemana = primerDiaDelMes.getDay() - 1;
+    if (diaInicioSemana === -1) diaInicioSemana = 6;
+
+    const ultimoDia = new Date(año, mes + 1, 0).getDate();
+
+    for (let i = 0; i < diaInicioSemana; i++) {
+        const celdaVacia = document.createElement('div');
+        celdaVacia.className = "h-24 bg-gray-50/50 rounded-lg border border-transparent";
+        grid.appendChild(celdaVacia);
+    }
+
+    for (let dia = 1; dia <= ultimoDia; dia++) {
+        const fechaStr = `${año}-${String(mes + 1).padStart(2, '0')}-${String(dia).padStart(2, '0')}`;
+        const celda = document.createElement('div');
+        celda.className = "h-24 bg-white rounded-lg border border-gray-100 p-1.5 flex flex-col overflow-y-auto";
+        
+        const eventosDia = listaEventosGlobal.filter(a => a.fecha === fechaStr);
+        
+        celda.innerHTML = `<span class="text-xs font-bold text-gray-600 mb-1">${dia}</span>`;
+        
+        eventosDia.forEach(ev => {
+            const badgeEv = document.createElement('div');
+            badgeEv.className = "text-[10px] bg-blue-50 text-blue-700 px-1.5 py-0.5 rounded truncate mb-0.5 font-medium border border-blue-100";
+            badgeEv.innerText = `${ev.hora} - ${ev.titulo}`;
+            badgeEv.title = ev.titulo;
+            celda.appendChild(badgeEv);
+        });
+
+        grid.appendChild(celda);
+    }
+}
+
+function mesAnterior() {
+    fechaCalendario.setMonth(fechaCalendario.getMonth() - 1);
+    renderizarCalendario();
+}
+
+function mesSiguiente() {
+    fechaCalendario.setMonth(fechaCalendario.getMonth() + 1);
+    renderizarCalendario();
+}
+
+function exportarExcel() {
+    if (listaEventosGlobal.length === 0) {
+        alert("No hay actividades para exportar.");
+        return;
+    }
+
+    let xmlContent = `<?xml version="1.0" encoding="UTF-8"?>
+<?mso-application progid="Excel.Sheet"?>
+<Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet"
+ xmlns:o="urn:schemas-microsoft-com:office:office"
+ xmlns:x="urn:schemas-microsoft-com:office:excel"
+ xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet"
+ xmlns:html="http://www.w3.org/TR/REC-html40">
+ <Worksheet ss:Name="Planificacion">
+  <Table>
+   <Row>
+    <Cell><Data ss:Type="String">ID</Data></Cell>
+    <Cell><Data ss:Type="String">Título</Data></Cell>
+    <Cell><Data ss:Type="String">Fecha</Data></Cell>
+    <Cell><Data ss:Type="String">Hora</Data></Cell>
+    <Cell><Data ss:Type="String">Tipo</Data></Cell>
+    <Cell><Data ss:Type="String">Estatus</Data></Cell>
+    <Cell><Data ss:Type="String">Lugar</Data></Cell>
+    <Cell><Data ss:Type="String">Descripción</Data></Cell>
+   </Row>`;
+
+    listaEventosGlobal.forEach(row => {
+        const titulo = (row.titulo || "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+        const fecha = row.fecha || "";
+        const hora = row.hora || "";
+        const tipo = (row.tipo || "").replace(/&/g, "&amp;");
+        const estatus = row.estatus || "";
+        const lugar = (row.lugar || "").replace(/&/g, "&amp;");
+        const descripcion = (row.descripcion || "").replace(/&/g, "&amp;").replace(/[\r\n]+/g, " ");
+
+        xmlContent += `
+   <Row>
+    <Cell><Data ss:Type="Number">${row.id || 0}</Data></Cell>
+    <Cell><Data ss:Type="String">${titulo}</Data></Cell>
+    <Cell><Data ss:Type="String">${fecha}</Data></Cell>
+    <Cell><Data ss:Type="String">${hora}</Data></Cell>
+    <Cell><Data ss:Type="String">${tipo}</Data></Cell>
+    <Cell><Data ss:Type="String">${estatus}</Data></Cell>
+    <Cell><Data ss:Type="String">${lugar}</Data></Cell>
+    <Cell><Data ss:Type="String">${descripcion}</Data></Cell>
+   </Row>`;
+    });
+
+    xmlContent += `
+  </Table>
+ </Worksheet>
+</Workbook>`;
+
+    const blob = new Blob([xmlContent], { type: 'application/vnd.ms-excel' });
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "planificacion_comision_salud.xls";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    window.URL.revokeObjectURL(url);
+}
+
+function filtrarAgenda(estatus) {
+    filtroSeleccionado = estatus;
+    ['todos', 'programado', 'completado', 'suspendido'].forEach(id => {
+        const btn = document.getElementById(`chip-${id}`);
+        if(btn) btn.classList.toggle('active', id === estatus.toLowerCase() || (id === 'todos' && estatus === 'Todos'));
+    });
+    renderizarAgenda(listaEventosGlobal);
+}
+
+function manejarBusqueda() {
+    textoBusquedaGlobal = document.getElementById("inputBuscador").value;
+    renderizarAgenda(listaEventosGlobal);
+}
+
+function abrirEditar(index) {
+    const item = listaEventosGlobal[index];
+    if (!item) {
+        alert("No se encontró el registro para editar.");
+        return;
+    }
+
+    document.getElementById("actividadIndice").value = index;
+    document.getElementById("modalTituloLabel").textContent = "Modificar Compromiso";
+    document.getElementById("titulo").value = item.titulo || "";
+    document.getElementById("fecha").value = item.fecha || "";
+    document.getElementById("hora").value = item.hora || "";
+    document.getElementById("tipo").value = item.tipo || "Operativo social";
+    document.getElementById("estatus").value = item.estatus || "Programado";
+    document.getElementById("lugar").value = item.lugar || "";
+    document.getElementById("descripcion").value = item.descripcion || "";
+
+    document.getElementById("modalActividad").style.display = "flex";
+}
+
+async function guardarActividad(event) {
+    event.preventDefault();
+
+    const indexInput = document.getElementById("actividadIndice").value;
+    const titulo = document.getElementById("titulo").value.trim();
+    const fecha = document.getElementById("fecha").value;
+    const hora = document.getElementById("hora").value.trim();
+    const tipo = document.getElementById("tipo").value;
+    const estatus = document.getElementById("estatus").value;
+    const lugar = document.getElementById("lugar").value.trim();
+    const descripcion = document.getElementById("descripcion").value.trim();
+
+    try {
+        if (indexInput !== "") {
+            const item = listaEventosGlobal[indexInput];
+            if (!item || item.id === undefined) {
+                throw new Error("No se pudo identificar el ID del registro a actualizar.");
+            }
+
+            await consultarBaseDatos(
+                `UPDATE agenda_oficina
+                 SET titulo = ?, fecha = ?, hora = ?, tipo = ?, estatus = ?, lugar = ?, descripcion = ?
+                 WHERE id = ?`,
+                [titulo, fecha, hora, tipo, estatus, lugar, descripcion, item.id]
+            );
+
+            alert("Actividad actualizada correctamente.");
+        } else {
+            await consultarBaseDatos(
+                `INSERT INTO agenda_oficina (titulo, fecha, hora, tipo, estatus, lugar, descripcion)
+                 VALUES (?, ?, ?, ?, ?, ?, ?)`,
+                [titulo, fecha, hora, tipo, estatus, lugar, descripcion]
+            );
+
+            alert("Actividad registrada correctamente.");
+        }
+
+        cerrarModal();
+        cargarAgendaOficina();
+    } catch (error) {
+        console.error("Error al guardar:", error);
+        alert("Ocurrió un error al guardar: " + error.message);
+    }
+}
+
+async function eliminarActividad(index) {
+    const item = listaEventosGlobal[index];
+    if (!item) return;
+
+    if (!confirm("¿Desea eliminar esta actividad?")) return;
+
+    try {
+        await consultarBaseDatos(
+            `DELETE FROM agenda_oficina WHERE id = ?`,
+            [item.id]
+        );
+
+        cargarAgendaOficina();
+    } catch (error) {
+        console.error(error);
+        alert("Error al eliminar: " + error.message);
+    }
+}
+
+async function logout() {
+    sessionStorage.clear();
+    window.location.href = "index.html";
+}
+</script>
+</body>
+</html>
