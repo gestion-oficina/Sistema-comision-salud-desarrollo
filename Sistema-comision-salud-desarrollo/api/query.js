@@ -456,12 +456,14 @@ function cerrarModal() {
 async function cargarAgendaOficina() {
     try {
         const resultado = await consultarBaseDatos(
-            `SELECT *
+            `SELECT id, titulo, descripcion, fecha, hora, tipo, estatus, lugar
              FROM agenda_oficina
              ORDER BY id DESC`
         );
-        console.log("RESPUESTA AGENDA:", resultado);
-        listaEventosGlobal = resultado.resultado || resultado || [];
+        console.log("RESPUESTA PLANIFICACION:", resultado);
+        listaEventosGlobal = Array.isArray(resultado)
+            ? resultado
+            : (resultado.resultado || resultado.rows || []);
         actualizarEstadisticas();
         renderizarAgenda(listaEventosGlobal);
     } catch (error) {
