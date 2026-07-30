@@ -21,11 +21,15 @@
     <script>
         window.sqlClient = {
             async query(sqlText, params = []) {
+                if (!sqlText || typeof sqlText !== 'string' || sqlText.trim() === '') {
+                    console.error("🚨 SQL inválido detectado en el cliente:", sqlText);
+                    throw new Error("Invalid sql: La consulta está vacía");
+                }
                 try {
                     const response = await fetch('/api/query', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ sql: sqlText, params: params })
+                        body: JSON.stringify({ sql: sqlText.trim(), params: params })
                     });
                     const result = await response.json();
                     if (!response.ok) throw new Error(result.error || 'Error en la consulta SQL');
@@ -462,7 +466,6 @@
         document.getElementById('modalEvento').classList.add('active');
     }
 
-    // Sube la imagen a ImgBB usando tu API Key configurada
     async function subirImagenNube(file) {
         const API_KEY = '3c49f725c88fe8005a46582f1ab30f52'; 
 
@@ -478,7 +481,7 @@
             const data = await response.json();
             
             if (data.success) {
-                return data.data.url; // Retorna el enlace directo a la foto subida
+                return data.data.url;
             } else {
                 throw new Error("ImgBB rechazó la imagen: " + (data.error ? data.error.message : 'Error desconocido'));
             }
@@ -532,7 +535,6 @@
             return;
         }
 
-        // Cambiamos el aspecto del botón mientras trabaja
         const textoOriginalBoton = btnGuardar.innerText;
         btnGuardar.innerText = "⏳ Subiendo fotos a la nube...";
         btnGuardar.disabled = true;
@@ -541,7 +543,6 @@
             let fotosUrls = [];
             const hiddenFotoVal = document.getElementById('in-url-foto-hidden').value;
 
-            // PROCESO DE SUBIDA A LA NUBE
             if (fileInputFotos && fileInputFotos.length > 0) {
                 for (let i = 0; i < fileInputFotos.length; i++) {
                     const urlSeguraNube = await subirImagenNube(fileInputFotos[i]);
