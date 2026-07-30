@@ -17,16 +17,25 @@
     <title>Bitácora de Gestión Digital - Comisión de Salud</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
-    <!-- IMPORTACIÓN DE NEON DATABASE -->
-    <script type="module">
-        import { neon } from 'https://cdn.jsdelivr.net/npm/@neondatabase/serverless/+esm';
-        
-        const connectionString = "postgresql://neondb_owner:npg_djCruebcPY94@ep-sparkling-math-avejx7o4-pooler.c-11.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require";
-        window.sqlClient = neon(connectionString, { disableWarningInBrowsers: true });
-        
-        if (typeof window.iniciarApp === 'function') {
-            window.iniciarApp();
-        }
+    <!-- MOTOR CENTRAL DE CONEXIÓN SQLITE (CLIENTE LOCAL/BACKEND) -->
+    <script>
+        window.sqlClient = {
+            async query(sqlText, params = []) {
+                try {
+                    const response = await fetch('/api/query', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ sql: sqlText, params: params })
+                    });
+                    const result = await response.json();
+                    if (!response.ok) throw new Error(result.error || 'Error en la consulta SQL');
+                    return result.data || [];
+                } catch (err) {
+                    console.error("Error SQL:", err);
+                    throw err;
+                }
+            }
+        };
     </script>
 
     <style>
@@ -191,7 +200,7 @@
             </div>
             
             <div class="blog-grid" id="blog-container">
-                <div style="color: #64748b; font-size: 13px;">Cargando bitácora municipal desde Neon...</div>
+                <div style="color: #64748b; font-size: 13px;">Cargando bitácora municipal desde SQLite...</div>
             </div>
         </div>
     </div>
@@ -279,16 +288,12 @@
         const container = document.getElementById('blog-container');
 
         if (!window.sqlClient) {
-            await new Promise(resolve => setTimeout(resolve, 800));
-        }
-
-        if (!window.sqlClient) {
-            container.innerHTML = `<div style="color: var(--danger-color); font-size: 13px; padding: 10px;">⚠️ Error crítico: La conexión con Neon no está lista.</div>`;
+            container.innerHTML = `<div style="color: var(--danger-color); font-size: 13px; padding: 10px;">⚠️ Error crítico: La conexión local con SQLite no está lista.</div>`;
             return;
         }
 
         try {
-            const data = await window.sqlClient`SELECT id, titulo, sector, descripcion, url_foto, fecha FROM bitacora_eventos ORDER BY id DESC`;
+            const data = await window.sqlClient.query('SELECT id, titulo, sector, descripcion, url_foto, fecha FROM bitacora_eventos ORDER BY id DESC');
 
             if (!data || data.length === 0) {
                 container.innerHTML = `<div style="color: #64748b; font-size: 13px; padding: 10px;">📝 No hay eventos registrados en la bitácora aún.</div>`;
@@ -350,7 +355,7 @@
             }).join('');
         } catch (err) {
             console.error("Error cargando base de datos:", err);
-            container.innerHTML = `<div style="color: var(--danger-color); font-size: 13px; padding: 10px;">❌ Error de comunicación con Neon: ${err.message}</div>`;
+            container.innerHTML = `<div style="color: var(--danger-color); font-size: 13px; padding: 10px;">❌ Error de comunicación con SQLite: ${err.message}</div>`;
         }
     }
 
@@ -485,13 +490,13 @@
 
     async function borrarEvento(id) {
         if (!window.sqlClient) { 
-            alert("No hay conexión con la base de datos Neon."); 
+            alert("No hay conexión con la base de datos SQLite."); 
             return; 
         }
         
         const idLimpio = String(id).trim();
         if (idLimpio === 'undefined' || idLimpio === 'null' || idLimpio === '') {
-            alert("🚨 ERROR: El ID está llegando vacío o como 'undefined'. Revisa que la columna en tu base de datos Neon se llame exactamente 'id' en minúsculas.");
+            alert("🚨 ERROR: El ID está llegando vacío o como 'undefined'. Revisa que la columna en tu base de datos se llame exactamente 'id' en minúsculas.");
             return;
         }
 
@@ -504,16 +509,16 @@
         if (!confirm("¿Remover permanentemente esta evidencia de la bitácora pública?")) return;
 
         try {
-            await window.sqlClient`DELETE FROM bitacora_eventos WHERE id = ${idNumerico}`;
+            await window.sqlClient.query('DELETE FROM bitacora_eventos WHERE id = ?', [idNumerico]);
             alert("✅ Evento borrado con éxito.");
             cargarBitacora();
         } catch (err) {
-            alert("❌ No se pudo eliminar el registro en Neon: " + err.message);
+            alert("❌ No se pudo eliminar el registro en SQLite: " + err.message);
         }
     }
 
     async function guardarPublicacion() {
-        if (!window.sqlClient) { alert("No hay conexión con la base de datos Neon."); return; }
+        if (!window.sqlClient) { alert("No hay conexión con la base de datos SQLite."); return; }
 
         const titulo = document.getElementById('in-titulo').value.trim();
         const sector = document.getElementById('in-sector').value.trim();
@@ -555,20 +560,16 @@
             const idNumerico = parseInt(rawEditId, 10);
 
             if (!isNaN(idNumerico) && idNumerico > 0) {
-                await window.sqlClient`
-                    UPDATE bitacora_eventos 
-                    SET titulo = ${titulo}, 
-                        sector = ${sector}, 
-                        descripcion = ${descripcion}, 
-                        url_foto = ${url_foto_json}
-                    WHERE id = ${idNumerico}
-                `;
+                await window.sqlClient.query(
+                    'UPDATE bitacora_eventos SET titulo = ?, sector = ?, descripcion = ?, url_foto = ? WHERE id = ?',
+                    [titulo, sector, descripcion, url_foto_json, idNumerico]
+                );
             } else {
                 const fechaHoy = new Date().toISOString().split('T')[0];
-                await window.sqlClient`
-                    INSERT INTO bitacora_eventos (titulo, sector, descripcion, url_foto, fecha) 
-                    VALUES (${titulo}, ${sector}, ${descripcion}, ${url_foto_json}, ${fechaHoy})
-                `;
+                await window.sqlClient.query(
+                    'INSERT INTO bitacora_eventos (titulo, sector, descripcion, url_foto, fecha) VALUES (?, ?, ?, ?, ?)',
+                    [titulo, sector, descripcion, url_foto_json, fechaHoy]
+                );
             }
             
             cerrarModal();
