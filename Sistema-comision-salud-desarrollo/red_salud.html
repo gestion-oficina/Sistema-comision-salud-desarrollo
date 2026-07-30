@@ -11,6 +11,7 @@
             document.addEventListener("DOMContentLoaded", () => {
                 document.body.style.display = "block";
                 
+                // Mostrar datos del usuario en el sidebar
                 const nombreUsuario = sessionStorage.getItem('usuario_nombre') || 'Willie Aponte';
                 const rolUsuario = sessionStorage.getItem('usuario_rol') || 'ADMIN';
                 
@@ -30,42 +31,11 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 
-    <!-- Adaptador para SQLite Cloud vía API backend en Vercel -->
-    <script>
-        window.sqlClient = async function(strings, ...values) {
-            let query = "";
-            strings.forEach((part, index) => {
-                query += part;
-                if (index < values.length) {
-                    query += "?";
-                }
-            });
-
-            const response = await fetch("/api/query", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({
-                    query,
-                    params: values
-                })
-            });
-
-            const data = await response.json();
-
-            if (!response.ok) {
-                throw new Error(data.error || "Error en SQLite Cloud");
-            }
-
-            return data;
-        };
-
-        window.addEventListener("DOMContentLoaded", () => {
-            if (typeof window.iniciarApp === "function") {
-                window.iniciarApp();
-            }
-        });
+    <!-- Conexión ESM con Neon PostgreSQL -->
+    <script type="module">
+        import { neon } from 'https://cdn.jsdelivr.net/npm/@neondatabase/serverless/+esm';
+        const connectionString = "postgresql://neondb_owner:npg_djCruebcPY94@ep-sparkling-math-avejx7o4-pooler.c-11.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require";
+        window.sql = neon(connectionString, { disableWarningInBrowsers: true });
     </script>
 
     <style>
@@ -217,7 +187,7 @@
 <body style="display: none;">
 
     <div class="layout">
-        <!-- SIDEBAR UNIFICADO -->
+        <!-- SIDEBAR RESTAURADO IDENTICO AL ORIGINAL -->
         <div class="sidebar">
             <div>
                 <div class="sidebar-brand">
@@ -259,7 +229,7 @@
                 <a class="menu" href="formatos.html">
                     <span class="menu-icon">📁</span> Formatos de Oficina
                 </a>
-                <a class="menu" href="auditoria.html" id="enlaceAuditoria" style="display: none;">
+                <a class="menu" href="auditoria.html" id="enlaceAuditoria">
                     <span class="menu-icon">🛡️</span> Panel de Auditoría
                 </a>
             </div>
@@ -411,21 +381,16 @@
     </div>
 
 <script>
-    if (sessionStorage.getItem("usuario_rol") === "admin") {
-        const el = document.getElementById("enlaceAuditoria");
-        if (el) el.style.display = "flex";
-    }
-
     let centrosCache = [];
     let filtroTipoActual = "TODOS";
     let map = null;
     let markersLayer = null;
     let chartInstance = null;
 
-    window.iniciarApp = function() {
+    document.addEventListener("DOMContentLoaded", () => { 
         inicializarMapa();
-        obtenerRedSalud();
-    };
+        obtenerRedSalud(); 
+    });
 
     function cerrarSesion() {
         sessionStorage.clear();
@@ -469,7 +434,7 @@
         if (!confirm("¿Remover permanentemente este centro/reporte de la base de datos municipal?")) return;
         try {
             const idNum = Number(id);
-            await window.sqlClient`DELETE FROM casos_salud WHERE id = ${idNum}`;
+            await window.sql`DELETE FROM casos_salud WHERE id = ${idNum}`;
             obtenerRedSalud();
         } catch (err) {
             console.error("Error al borrar:", err);
@@ -482,8 +447,8 @@
     async function obtenerRedSalud() {
         const contenedor = document.getElementById("contenedor-ejes");
         try {
-            const data = await window.sqlClient`SELECT * FROM casos_salud`;
-            centrosCache = (Array.from(data) || []).filter(c => c.coordinacion === "Ejecutiva" && c.tipo !== "Autoridad");
+            const data = await window.sql`SELECT * FROM casos_salud`;
+            centrosCache = (data || []).filter(c => (c.coordinacion === "Ejecutiva" || c.coordinacion === "Social" || c.tipo === "Caso Comunitario" || c.tipo === "Comuna") && c.tipo !== "Autoridad");
 
             if (centrosCache.length === 0) {
                 contenedor.innerHTML = `<div style="color: #64748b; font-size: 13px; padding: 10px;">⚠️ No se encontraron centros registrados aún.</div>`;
@@ -668,13 +633,13 @@
         try {
             if (idOriginal) {
                 const idNum = Number(idOriginal);
-                await window.sqlClient`
+                await window.sql`
                     UPDATE casos_salud 
                     SET nombre = ${nombre}, tipo = ${tipo}, sector = ${sector}, ubicacion = ${ubicacion}, detalle = ${detalle}, estatus = ${estatus}, lat = ${lat}, lng = ${lng} 
                     WHERE id = ${idNum}
                 `;
             } else {
-                await window.sqlClient`
+                await window.sql`
                     INSERT INTO casos_salud (nombre, tipo, sector, ubicacion, detalle, coordinacion, estatus, lat, lng) 
                     VALUES (${nombre}, ${tipo}, ${sector}, ${ubicacion}, ${detalle}, 'Ejecutiva', ${estatus}, ${lat}, ${lng})
                 `;
