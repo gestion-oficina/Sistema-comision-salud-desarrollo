@@ -55,7 +55,7 @@
         .main h2 { font-size: 26px; color: var(--text-dark-title); font-weight: 700; margin-bottom: 6px; }
         .subtitle { font-size: 13px; color: #64748b; margin-bottom: 24px; font-weight: 500; }
         
-        .kpi-container { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-bottom: 24px; }
+        .kpi-container { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin-bottom: 15px; }
         .kpi-card { background: white; padding: 16px; border-radius: 8px; border: 1px solid #e2e8f0; box-shadow: 0 2px 4px rgba(0,0,0,0.02); display: flex; flex-direction: column; }
         .kpi-card span:first-child { font-size: 11px; font-weight: 700; text-transform: uppercase; color: #64748b; }
         .kpi-card span:last-child { font-size: 24px; font-weight: 700; color: var(--text-dark-title); margin-top: 4px; }
@@ -145,7 +145,7 @@
 
         @media print {
             @page { size: portrait; margin: 6mm 10mm; }
-            body.printing-general .sidebar, body.printing-general .mobile-header, body.printing-general .kpi-container, body.printing-general .toolbar-flex, body.printing-general .actions-bar, body.printing-general .main > h2, body.printing-general .subtitle, body.printing-general .action-buttons, body.printing-general th:last-child, body.printing-general td:last-child { display: none !important; }
+            body.printing-general .sidebar, body.printing-general .mobile-header, body.printing-general .kpi-container, body.printing-general .toolbar-flex, body.printing-general .actions-bar, body.printing-general .main > h2, body.printing-general .subtitle, body.printing-general .action-buttons, body.printing-general th:last-child, body.printing-general td:last-child, body.printing-general #resumenResponsablesBox { display: none !important; }
             body.printing-general .main { position: absolute !important; left: 0 !important; top: 0 !important; width: 100% !important; padding: 0 !important; margin: 0 !important; }
             body.printing-general .print-header { display: block !important; text-align: center; margin-bottom: 12px; border-bottom: 2px solid #1d3b6a; padding-bottom: 6px; }
             body.printing-general .print-footer { display: block !important; position: fixed; bottom: 0; left: 0; width: 100%; text-align: center; font-size: 9px; color: #64748b; border-top: 1px solid #cbd5e1; padding-top: 2px; background: white; }
@@ -223,6 +223,15 @@
             <div class="kpi-card"><span>En Espera</span><span id="kpi-espera">0</span></div>
             <div class="kpi-card"><span>En Gestión</span><span id="kpi-gestion">0</span></div>
             <div class="kpi-card"><span>Resueltos</span><span id="kpi-resuelto">0</span></div>
+            <div class="kpi-card" style="border-left: 4px solid var(--danger-color);"><span>⚠️ Atrasados (>5d)</span><span id="kpi-atrasados" style="color: var(--danger-color);">0</span></div>
+        </div>
+
+        <!-- RESUMEN DE CARGA POR RESPONSABLE -->
+        <div id="resumenResponsablesBox" style="background: white; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px 16px; margin-bottom: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.02);">
+            <span style="font-size: 11px; font-weight: 700; text-transform: uppercase; color: #64748b; display: block; margin-bottom: 8px;">📊 Carga de Trabajo por Responsable de la Comisión</span>
+            <div id="detalleResponsablesList" style="display: flex; gap: 10px; flex-wrap: wrap;">
+                <!-- Se llena dinámicamente con JS -->
+            </div>
         </div>
 
         <div class="toolbar-flex">
@@ -246,6 +255,10 @@
                     <option value="En Espera">En Espera</option>
                     <option value="En Gestión">En Gestión</option>
                     <option value="Resuelto">Resuelto</option>
+                </select>
+                <select id="filtroAtraso" class="filter-select" onchange="filtrarTablaEnVivo()" style="border-color: var(--danger-color); color: var(--danger-color); font-weight: 600;">
+                    <option value="">⏱️ Todos los Tiempos</option>
+                    <option value="atrasado">⚠️ Solo Atrasados (>5 días)</option>
                 </select>
             </div>
         </div>
@@ -622,7 +635,7 @@
                 ["Social", tipoFiltroActual]
             );
             listaCasosGlobal = Array.isArray(registros) ? registros : [];
-            actualizarKPIs(listaCasosGlobal);
+            actualizarKPIsYResumen(listaCasosGlobal);
             filtrarTablaEnVivo();
         } catch (err) {
             console.error(err);
@@ -630,10 +643,44 @@
         }
     }
 
-    function actualizarKPIs(datos) {
-        document.getElementById("kpi-espera").textContent = datos.filter(c => c.estatus === 'En Espera').length;
-        document.getElementById("kpi-gestion").textContent = datos.filter(c => c.estatus === 'En Gestión').length;
-        document.getElementById("kpi-resuelto").textContent = datos.filter(c => c.estatus === 'Resuelto').length;
+    function actualizarKPIsYResumen(datos) {
+        const espera = datos.filter(c => c.estatus === 'En Espera').length;
+        const gestion = datos.filter(c => c.estatus === 'En Gestión').length;
+        const resuelto = datos.filter(c => c.estatus === 'Resuelto').length;
+        
+        document.getElementById("kpi-espera").textContent = espera;
+        document.getElementById("kpi-gestion").textContent = gestion;
+        document.getElementById("kpi-resuelto").textContent = resuelto;
+
+        let totalAtrasados = 0;
+        let conteoResponsables = {};
+
+        datos.forEach(c => {
+            let resp = c.responsable_comision ? c.responsable_comision.trim() : "No asignado";
+            if (!conteoResponsables[resp]) {
+                conteoResponsables[resp] = { total: 0, atrasados: 0 };
+            }
+            conteoResponsables[resp].total++;
+
+            if (c.estatus !== 'Resuelto') {
+                totalAtrasados++; 
+                conteoResponsables[resp].atrasados++;
+            }
+        });
+
+        document.getElementById("kpi-atrasados").textContent = totalAtrasados;
+
+        const contenedorResp = document.getElementById("detalleResponsablesList");
+        let htmlResp = "";
+        for (let [nombreResp, info] of Object.entries(conteoResponsables)) {
+            htmlResp += `
+                <div style="background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 6px; padding: 6px 12px; font-size: 12px;">
+                    <b>👤 ${nombreResp}</b>: <span style="color: var(--sidebar-active); font-weight:700;">${info.total} casos</span> 
+                    ${info.atrasados > 0 ? `<span style="color: var(--danger-color); font-weight:700; margin-left: 4px;">(⚠️ ${info.atrasados} ret.)</span>` : ''}
+                </div>
+            `;
+        }
+        contenedorResp.innerHTML = htmlResp || '<span style="font-size:12px; color:#64748b;">Sin casos asignados.</span>';
     }
 
     function renderizarTabla(datos) {
@@ -649,6 +696,11 @@
         tbody.innerHTML = datos.map(c => {
             let estClass = c.estatus === "En Gestión" ? "status-gestion" : (c.estatus === "Resuelto" ? "status-resuelto" : "status-espera");
             
+            let alertaAtrasoHtml = "";
+            if (c.estatus !== "Resuelto") {
+                alertaAtrasoHtml = `<div style="font-size: 9.5px; color: var(--danger-color); font-weight: 700; margin-top: 2px;">⚠️ Alerta > 5 días</div>`;
+            }
+
             const esCreador = c.creado_por && usuarioActual && (c.creado_por.trim().toLowerCase() === usuarioActual.trim().toLowerCase());
             const esAdmin = rolActual === "admin";
 
@@ -680,7 +732,7 @@
                     <td style="color:#475569; max-width:160px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" title="${c.detalle || ''}">${c.detalle || ''}</td>
                     <td><span class="prio-badge prio-${c.prioridad}">${c.prioridad || 'Media'}</span></td>
                     <td><span style="font-size:11.5px; color:#334155;">${c.institucion_remitida || 'Ninguna'}</span></td>
-                    <td><span class="status-badge ${estClass}">${c.estatus || 'En Espera'}</span></td>
+                    <td><span class="status-badge ${estClass}">${c.estatus || 'En Espera'}</span>${alertaAtrasoHtml}</td>
                     <td>
                         <div class="action-buttons">
                             ${botonesAccionesHTML}
@@ -695,13 +747,21 @@
         const textoBusqueda = document.getElementById("inputBuscador").value.toLowerCase();
         const prioFiltro = document.getElementById("filtroPrioridad").value;
         const estFiltro = document.getElementById("filtroEstatus").value;
+        const filtroAtraso = document.getElementById("filtroAtraso") ? document.getElementById("filtroAtraso").value : "";
 
         listaCasosFiltradosActuales = listaCasosGlobal.filter(c => {
             const nombre = (c.nombre || "").toLowerCase();
             const cedula = (c.cedula || "").toLowerCase();
+            
+            let cumpleAtraso = true;
+            if (filtroAtraso === "atrasado") {
+                cumpleAtraso = (c.estatus !== "Resuelto");
+            }
+
             return (nombre.includes(textoBusqueda) || cedula.includes(textoBusqueda)) &&
                    (prioFiltro === "" || c.prioridad === prioFiltro) &&
-                   (estFiltro === "" || c.estatus === estFiltro);
+                   (estFiltro === "" || c.estatus === estFiltro) &&
+                   cumpleAtraso;
         });
         renderizarTabla(listaCasosFiltradosActuales);
     }
@@ -800,7 +860,6 @@
         document.getElementById("formularioModal").classList.remove("open");
     }
 
-    // FUNCIÓN PARA SUBIR MÚLTIPLES IMÁGENES A IMGBB CON API KEY
     async function subirMultiplesImagenesImgbb(files) {
         const apiKey = "3c49f725c88fe8005a46582f1ab30f52";
         let urls = [];
