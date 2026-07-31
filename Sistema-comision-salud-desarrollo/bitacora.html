@@ -17,27 +17,26 @@
     <title>Bitácora de Gestión Digital - Comisión de Salud</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
-    <!-- MOTOR CENTRAL DE CONEXIÓN SQLITE (CLIENTE LOCAL/BACKEND) -->
+    <!-- MOTOR CENTRAL DE CONEXIÓN SQLITE -->
     <script>
         window.sqlClient = {
             async query(sqlText, params = []) {
-                if (!sqlText || typeof sqlText !== 'string' || sqlText.trim() === '') {
-                    console.error("🚨 SQL inválido detectado en el cliente:", sqlText);
-                    throw new Error("Invalid sql: La consulta está vacía");
+                const respuesta = await fetch("/api/query", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        query: sqlText,
+                        params: params
+                    })
+                });
+
+                if (!respuesta.ok) {
+                    throw new Error("Error de conexión con el servidor");
                 }
-                try {
-                    const response = await fetch('/api/query', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ sql: sqlText.trim(), params: params })
-                    });
-                    const result = await response.json();
-                    if (!response.ok) throw new Error(result.error || 'Error en la consulta SQL');
-                    return result.data || [];
-                } catch (err) {
-                    console.error("Error SQL:", err);
-                    throw err;
-                }
+
+                return await respuesta.json();
             }
         };
     </script>
@@ -90,7 +89,7 @@
         .card-top-content { display: flex; flex-direction: column; }
         .card-bottom-content { display: flex; flex-direction: column; margin-top: auto; }
 
-        /* GALERÍA DE FOTOS ESTRICTA Y LIMPIA */
+        /* GALERÍA DE FOTOS */
         .galeria-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-bottom: 10px; max-height: 140px; overflow: hidden; background: #0f172a; border-radius: 6px; padding: 4px; }
         .galeria-grid.single-img { grid-template-columns: 1fr; max-height: 180px; }
         .galeria-item { width: 100%; height: 120px; object-fit: cover; object-position: center; border-radius: 4px; background: #1e293b; cursor: pointer; transition: opacity 0.2s; border: 1px solid rgba(255,255,255,0.1); }
@@ -144,7 +143,7 @@
         .image-counter { position: absolute; bottom: -35px; left: 50%; transform: translateX(-50%); color: #cbd5e1; font-size: 13px; font-weight: 600; }
         .close-visor { position: absolute; top: -45px; right: 0; background: transparent; border: none; color: white; font-size: 28px; cursor: pointer; }
 
-        /* HEADER MOVIL */
+        /* HEADER MÓVIL */
         .mobile-header { display: none; background: var(--sidebar-bg); color: white; padding: 14px 20px; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 1100; }
         .mobile-toggle { background: transparent; border: none; color: white; font-size: 22px; cursor: pointer; }
 
@@ -297,7 +296,18 @@
         }
 
         try {
-            const data = await window.sqlClient.query('SELECT id, titulo, sector, descripcion, url_foto, fecha FROM bitacora_eventos ORDER BY id DESC');
+            const resultado = await window.sqlClient.query(
+                `SELECT
+                    id,
+                    titulo,
+                    sector,
+                    descripcion,
+                    url_foto,
+                    fecha
+                 FROM bitacora_eventos
+                 ORDER BY id DESC`
+            );
+            const data = resultado.resultado || [];
 
             if (!data || data.length === 0) {
                 container.innerHTML = `<div style="color: #64748b; font-size: 13px; padding: 10px;">📝 No hay eventos registrados en la bitácora aún.</div>`;
@@ -512,7 +522,7 @@
         if (!confirm("¿Remover permanentemente esta evidencia de la bitácora pública?")) return;
 
         try {
-            await window.sqlClient.query('DELETE FROM bitacora_eventos WHERE id = ?', [idNumerico]);
+            await window.sqlClient.query('DELETE FROM bitacora_eventos WHERE id=?', [idNumerico]);
             alert("✅ Evento borrado con éxito.");
             cargarBitacora();
         } catch (err) {
