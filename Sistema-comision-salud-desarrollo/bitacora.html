@@ -311,6 +311,8 @@
 
             console.log("Cantidad de registros:", data.length);
 
+            container.innerHTML = "<h1 style='color:red'>LLEGARON " + data.length + " REGISTROS</h1>"; return;
+
             if (!data || data.length === 0) {
                 container.innerHTML = `<div style="color: #64748b; font-size: 13px; padding: 10px;">📝 No hay eventos registrados en la bitácora aún.</div>`;
                 return;
