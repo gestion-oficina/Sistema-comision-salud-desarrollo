@@ -308,6 +308,7 @@
                  ORDER BY id DESC`
             );
             console.log("RESULTADO SQLITE:", resultado);
+            console.log("PRIMER REGISTRO:", resultado[0]);
             const data = resultado.resultado || [];
 
             if (!data || data.length === 0) {
