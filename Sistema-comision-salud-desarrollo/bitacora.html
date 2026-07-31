@@ -296,7 +296,7 @@
         }
 
         try {
-            const resultado = await window.sqlClient.query(
+            const data = await window.sqlClient.query(
                 `SELECT
                     id,
                     titulo,
@@ -307,9 +307,9 @@
                  FROM bitacora_eventos
                  ORDER BY id DESC`
             );
-            console.log("RESULTADO SQLITE:", resultado);
-            console.log("PRIMER REGISTRO:", resultado[0]);
-            const data = resultado.resultado || [];
+            console.log("DATOS:", data);
+
+            console.log("Cantidad de registros:", data.length);
 
             if (!data || data.length === 0) {
                 container.innerHTML = `<div style="color: #64748b; font-size: 13px; padding: 10px;">📝 No hay eventos registrados en la bitácora aún.</div>`;
