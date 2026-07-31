@@ -20,21 +20,23 @@
     <!-- MOTOR CENTRAL DE CONEXIÓN SQLITE -->
     <script>
         window.sqlClient = {
-            async query(sql, params=[]) {
-                const r = await fetch("/api/query",{
-                    method:"POST",
-                    headers:{
-                        "Content-Type":"application/json"
+            async query(sqlText, params = []) {
+                const respuesta = await fetch("/api/query", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
                     },
-                    body:JSON.stringify({
-                        query:sql,
-                        params
+                    body: JSON.stringify({
+                        query: sqlText,
+                        params: params
                     })
                 });
-                if(!r.ok){
-                    throw new Error("Error conectando con SQLite");
+
+                if (!respuesta.ok) {
+                    throw new Error("Error de conexión con el servidor");
                 }
-                return await r.json();
+
+                return await respuesta.json();
             }
         };
     </script>
@@ -87,25 +89,12 @@
         .card-top-content { display: flex; flex-direction: column; }
         .card-bottom-content { display: flex; flex-direction: column; margin-top: auto; }
 
-        /* GALERÍA DE FOTOS V2 */
-        .galeria-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-            gap: 6px;
-            margin-bottom: 12px;
-        }
-        .galeria-grid img {
-            width: 100%;
-            height: 140px;
-            object-fit: cover;
-            cursor: pointer;
-            border-radius: 8px;
-            transition: .25s;
-            border: 1px solid rgba(0,0,0,0.05);
-        }
-        .galeria-grid img:hover {
-            transform: scale(1.03);
-        }
+        /* GALERÍA DE FOTOS */
+        .galeria-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-bottom: 10px; max-height: 140px; overflow: hidden; background: #0f172a; border-radius: 6px; padding: 4px; }
+        .galeria-grid.single-img { grid-template-columns: 1fr; max-height: 180px; }
+        .galeria-item { width: 100%; height: 120px; object-fit: cover; object-position: center; border-radius: 4px; background: #1e293b; cursor: pointer; transition: opacity 0.2s; border: 1px solid rgba(255,255,255,0.1); }
+        .galeria-item:hover { opacity: 0.85; }
+        .single-img .galeria-item { height: 170px; object-fit: contain; background: #0f172a; }
 
         .evento-card h3 { font-size: 14.5px; color: var(--text-dark-title); font-weight: 700; margin-bottom: 4px; line-height: 1.3; }
         .evento-card .meta-sector { font-size: 11px; color: var(--sidebar-active); font-weight: 600; margin-bottom: 6px; text-transform: uppercase; }
@@ -113,11 +102,10 @@
         /* DESCRIPCIÓN */
         .desc-container { font-size: 12.5px; color: #475569; line-height: 1.4; margin-bottom: 8px; }
         .desc-text { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; text-overflow: ellipsis; }
-        .desc-text.expanded { display: block; -webkit-line-clamp: unset; }
+        .desc-text.expanded { display: block; }
         .btn-leer-mas { background: none; border: none; color: var(--sidebar-active); font-weight: 600; font-size: 11px; cursor: pointer; margin-top: 2px; padding: 0; }
         
         .evento-card .fecha { font-size: 10.5px; color: #94a3b8; font-weight: 500; margin-bottom: 8px; }
-        .evento-card .fotos-count { font-size: 11px; color: #64748b; font-weight: 600; margin-bottom: 8px; display: flex; align-items: center; gap: 4px; }
 
         .actions-area { display: flex; gap: 6px; border-top: 1px dashed #e2e8f0; padding-top: 8px; }
         .btn-small { padding: 5px 8px; font-size: 11.5px; font-weight: 600; border-radius: 6px; border: none; cursor: pointer; width: 50%; text-align: center; display: inline-flex; align-items: center; justify-content: center; gap: 4px; }
@@ -142,11 +130,11 @@
         
         .modal-footer { padding: 16px 20px; background: #f8fafc; border-top: 1px solid #e2e8f0; display: flex; justify-content: flex-end; gap: 10px; }
 
-        /* MODAL VISOR PROFESIONAL */
-        .image-modal { position: fixed; inset: 0; background: rgba(0,0,0,0.9); backdrop-filter: blur(6px); display: none; justify-content: center; align-items: center; z-index: 3000; padding: 20px; }
-        .image-modal.active { display: flex; }
+        /* MODAL VISOR DE IMAGEN CON FLECHAS */
+        .image-modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.9); backdrop-filter: blur(6px); display: none; align-items: center; justify-content: center; z-index: 3000; padding: 20px; }
+        .image-modal-overlay.active { display: flex; }
         .image-modal-container { position: relative; max-width: 90vw; max-height: 90vh; display: flex; align-items: center; justify-content: center; }
-        .image-modal img { max-width: 90vw; max-height: 90vh; border-radius: 10px; object-fit: contain; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        .image-modal-content { max-width: 85vw; max-height: 85vh; object-fit: contain; border-radius: 8px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
         
         .nav-arrow { position: absolute; top: 50%; transform: translateY(-50%); background: rgba(255, 255, 255, 0.2); color: white; border: none; font-size: 24px; width: 45px; height: 45px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background 0.2s; z-index: 3010; }
         .nav-arrow:hover { background: rgba(255, 255, 255, 0.4); }
@@ -154,10 +142,6 @@
         .nav-arrow.next { right: -60px; }
         .image-counter { position: absolute; bottom: -35px; left: 50%; transform: translateX(-50%); color: #cbd5e1; font-size: 13px; font-weight: 600; }
         .close-visor { position: absolute; top: -45px; right: 0; background: transparent; border: none; color: white; font-size: 28px; cursor: pointer; }
-
-        /* ESTADOS DE CARGA Y ERROR */
-        .sin-registros { padding: 30px; text-align: center; color: #64748b; font-size: 13px; grid-column: 1 / -1; background: white; border-radius: 12px; border: 1px solid #e2e8f0; }
-        .error { padding: 30px; text-align: center; color: var(--danger-color); font-size: 13px; grid-column: 1 / -1; background: #fee2e2; border-radius: 12px; }
 
         /* HEADER MÓVIL */
         .mobile-header { display: none; background: var(--sidebar-bg); color: white; padding: 14px 20px; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 1100; }
@@ -215,10 +199,12 @@
                     <h2>Bitácora de Eventos y Gestión Pública</h2>
                     <div class="subtitle">Evidencias, despliegues territoriales y jornadas de salud social — Guarenas</div>
                 </div>
-                <button class="btn btn-primary" onclick="abrirModal()">➕ Nueva publicación</button>
+                <button class="btn btn-primary" onclick="abrirModal()">➕ Nueva Publicación / Evento</button>
             </div>
             
-            <div id="blog-container" class="blog-grid"></div>
+            <div class="blog-grid" id="blog-container">
+                <div style="color: #64748b; font-size: 13px;">Cargando bitácora municipal desde SQLite...</div>
+            </div>
         </div>
     </div>
 
@@ -226,59 +212,62 @@
     <div class="modal-overlay" id="modalEvento">
         <div class="modal-content">
             <div class="modal-header">
-                <h3 id="modal-title">Nueva publicación</h3>
+                <h3 id="modal-title">Registrar Evento Territorial</h3>
                 <button class="modal-close" onclick="cerrarModal()">×</button>
             </div>
             <div class="modal-body">
                 <input type="hidden" id="in-edit-id" value="">
-                <input type="hidden" id="in-url-foto-hidden" value="">
+                <input type="hidden" id="in-url-foto-hidden">
 
                 <div class="form-group">
-                    <label>Título</label>
+                    <label>Título de la Actividad</label>
                     <input type="text" id="in-titulo" placeholder="Ej: Jornada Médica Integral en las Clavellinas">
                 </div>
                 <div class="form-group">
-                    <label>Sector</label>
+                    <label>Sector / Comunidad</label>
                     <input type="text" id="in-sector" placeholder="Ej: Comuna La Guairita">
                 </div>
                 <div class="form-group">
-                    <label>Fotos</label>
+                    <label>Fotos de Evidencia (Puedes seleccionar varias)</label>
                     <input type="file" id="in-file-foto" accept="image/*" multiple>
                     <small style="color: #64748b; font-size: 11px; margin-top: 2px;">Si editas y seleccionas nuevas fotos, reemplazarán a las anteriores.</small>
                 </div>
                 <div class="form-group">
-                    <label>Descripción</label>
+                    <label>Descripción / Resumen del Despliegue</label>
                     <textarea id="in-desc" rows="4" placeholder="Detalle la cantidad de atendidos, insumos entregados..."></textarea>
                 </div>
             </div>
             <div class="modal-footer">
                 <button class="btn btn-secondary" onclick="cerrarModal()">Cancelar</button>
-                <button class="btn btn-primary" id="btn-guardar" onclick="guardarPublicacion()">Guardar</button>
+                <button class="btn btn-primary" id="btn-guardar" onclick="guardarPublicacion()">Guardar Publicación</button>
             </div>
         </div>
     </div>
 
-    <!-- MODAL VISOR PROFESIONAL -->
-    <div class="image-modal" id="imageModal" onclick="cerrarGaleria()">
+    <!-- MODAL VISOR DE IMAGEN CON FLECHAS -->
+    <div class="image-modal-overlay" id="imageModal" onclick="cerrarModalImagen(event)">
         <div class="image-modal-container" onclick="event.stopPropagation()">
-            <button class="close-visor" onclick="cerrarGaleria()">×</button>
-            <button class="nav-arrow prev" onclick="anteriorFoto()">&#10094;</button>
-            <img id="imgModalFull" alt="Vista Ampliada">
-            <button class="nav-arrow next" onclick="siguienteFoto()">&#10095;</button>
+            <button class="close-visor" onclick="cerrarModalImagenForzado()">×</button>
+            <button class="nav-arrow prev" id="btnPrev" onclick="cambiarFoto(-1)">&#10094;</button>
+            <img class="image-modal-content" id="imgModalFull" alt="Vista Ampliada">
+            <button class="nav-arrow next" id="btnNext" onclick="cambiarFoto(1)">&#10095;</button>
             <div class="image-counter" id="imgCounter">1 / 1</div>
         </div>
     </div>
 
 <script>
-    let visorGaleria = [];
-    let visorIndice = 0;
-    let publicaciones = [];
+    let visorGaleriaActual = [];
+    let visorIndiceActual = 0;
 
-    document.addEventListener("DOMContentLoaded", iniciarBitacora);
+    window.iniciarApp = function() {
+        cargarBitacora();
+    };
 
-    async function iniciarBitacora(){
-        await cargarBitacora();
-    }
+    document.addEventListener("DOMContentLoaded", () => {
+        if (window.sqlClient) {
+            window.iniciarApp();
+        }
+    });
 
     function toggleSidebar() { 
         document.getElementById("sidebarMenu").classList.toggle("active"); 
@@ -299,336 +288,312 @@
     }
 
     async function cargarBitacora() {
-        const contenedor = document.getElementById("blog-container");
+        const container = document.getElementById('blog-container');
 
-        contenedor.innerHTML = `
-            <div style="padding:30px;text-align:center;grid-column:1/-1;color:#64748b;font-size:13px;">
-                Cargando publicaciones...
-            </div>
-        `;
+        if (!window.sqlClient) {
+            container.innerHTML = `<div style="color: var(--danger-color); font-size: 13px; padding: 10px;">⚠️ Error crítico: La conexión local con SQLite no está lista.</div>`;
+            return;
+        }
 
         try {
-            const respuesta = await window.sqlClient.query(`
-                SELECT
+            const resultado = await window.sqlClient.query(
+                `SELECT
                     id,
                     titulo,
                     sector,
                     descripcion,
-                    fecha,
-                    url_foto
-                FROM bitacora_eventos
-                ORDER BY fecha DESC, id DESC
-            `);
+                    url_foto,
+                    fecha
+                 FROM bitacora_eventos
+                 ORDER BY id DESC`
+            );
+            const data = resultado.resultado || [];
 
-            publicaciones = respuesta.resultado || [];
-
-            if(publicaciones.length === 0){
-                contenedor.innerHTML=`
-                    <div class="sin-registros">
-                        No existen publicaciones.
-                    </div>
-                `;
+            if (!data || data.length === 0) {
+                container.innerHTML = `<div style="color: #64748b; font-size: 13px; padding: 10px;">📝 No hay eventos registrados en la bitácora aún.</div>`;
                 return;
             }
 
-            renderizarBitacora();
+            container.innerHTML = data.map((ev, index) => {
+                let fotosArray = [];
+                try {
+                    if (ev.url_foto) {
+                        fotosArray = JSON.parse(ev.url_foto);
+                        if (!Array.isArray(fotosArray)) fotosArray = [ev.url_foto];
+                    }
+                } catch(e) {
+                    fotosArray = ev.url_foto ? [ev.url_foto] : [];
+                }
 
-        } catch(error) {
-            console.error(error);
-            contenedor.innerHTML=`
-                <div class="error">
-                    Error cargando la bitácora
-                </div>
-            `;
+                if (fotosArray.length === 0) {
+                    fotosArray = ['https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=500'];
+                }
+
+                const isSingle = fotosArray.length === 1;
+                const fotosJsonEscaped = JSON.stringify(fotosArray).replace(/'/g, "&apos;").replace(/"/g, "&quot;");
+
+                const galeriaHTML = `
+                    <div class="galeria-grid ${isSingle ? 'single-img' : ''}">
+                        ${fotosArray.map((url, imgIdx) => `
+                            <img src="${url}" class="galeria-item" alt="Evidencia" onclick="abrirModalGaleria('${fotosJsonEscaped}', ${imgIdx})" title="Clic para ampliar imagen">
+                        `).join('')}
+                    </div>
+                `;
+
+                const safeTitulo = (ev.titulo || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
+                const safeDesc = (ev.descripcion || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
+                const safeSector = (ev.sector || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
+                const safeFoto = (ev.url_foto || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
+                const fechaLimpia = formatearFecha(ev.fecha);
+                
+                return `
+                    <div class="evento-card">
+                        <div class="card-top-content">
+                            ${galeriaHTML}
+                            <div class="meta-sector">📍 ${ev.sector || 'Municipio Plaza'}</div>
+                            <h3>${ev.titulo || 'Actividad Especial'}</h3>
+                            <div class="desc-container">
+                                <div class="desc-text" id="desc-${index}">${ev.descripcion || 'Sin descripción proporcionada.'}</div>
+                                <button class="btn-leer-mas" id="btn-desc-${index}" onclick="alternarTexto(${index})">Ver más</button>
+                            </div>
+                        </div>
+                        <div class="card-bottom-content">
+                            <div class="fecha">📅 Fecha: ${fechaLimpia}</div>
+                            <div class="actions-area">
+                                <button class="btn-small btn-edit" data-id="${ev.id}" data-titulo="${safeTitulo}" data-desc="${safeDesc}" data-sector="${safeSector}" data-foto="${safeFoto}" onclick="ejecutarEdicion(this)">✏️ Editar</button>
+                                <button class="btn-small btn-del" data-id="${ev.id}" onclick="ejecutarBorrado(this)">🗑️ Borrar</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        } catch (err) {
+            console.error("Error cargando base de datos:", err);
+            container.innerHTML = `<div style="color: var(--danger-color); font-size: 13px; padding: 10px;">❌ Error de comunicación con SQLite: ${err.message}</div>`;
         }
     }
 
-    function renderizarBitacora(){
-        const contenedor = document.getElementById("blog-container");
-        contenedor.innerHTML = publicaciones.map(evento => crearTarjeta(evento)).join("");
+    function ejecutarEdicion(button) {
+        const id = button.getAttribute('data-id');
+        const titulo = button.getAttribute('data-titulo');
+        const desc = button.getAttribute('data-desc');
+        const sector = button.getAttribute('data-sector');
+        const foto = button.getAttribute('data-foto');
+        prepararEdicion(id, titulo, desc, sector, foto);
     }
 
-    function crearTarjeta(evento){
-        let fotos = [];
+    function ejecutarBorrado(button) {
+        const id = button.getAttribute('data-id');
+        borrarEvento(id);
+    }
+
+    function alternarTexto(index) {
+        const textElement = document.getElementById(`desc-${index}`);
+        const btnElement = document.getElementById(`btn-desc-${index}`);
+        
+        textElement.classList.toggle('expanded');
+        if (textElement.classList.contains('expanded')) {
+            btnElement.innerText = "Ver menos";
+        } else {
+            btnElement.innerText = "Ver más";
+        }
+    }
+
+    function abrirModalGaleria(fotosJsonEscaped, indiceInicial) {
         try {
-            if (evento.url_foto) {
-                fotos = JSON.parse(evento.url_foto);
-                if (!Array.isArray(fotos)) fotos = [evento.url_foto];
-            }
+            const cleanJson = fotosJsonEscaped.replace(/&apos;/g, "'").replace(/&quot;/g, '"');
+            visorGaleriaActual = JSON.parse(cleanJson);
         } catch(e) {
-            fotos = evento.url_foto ? [evento.url_foto] : [];
+            visorGaleriaActual = [];
         }
 
-        const descId = `desc-${evento.id}`;
-        const fechaLimpia = formatearFecha(evento.fecha);
-        const cantidadFotosStr = fotos.length > 0 ? `<div class="fotos-count">📷 ${fotos.length} fotografía${fotos.length > 1 ? 's' : ''}</div>` : '';
-
-        return `
-            <div class="evento-card">
-                <div class="card-top-content">
-                    ${crearGaleria(fotos)}
-                    <div class="meta-sector">📍 ${evento.sector || 'Municipio Plaza'}</div>
-                    <h3>${evento.titulo || 'Actividad Especial'}</h3>
-                    <div class="desc-container">
-                        <div class="desc-text" id="${descId}">${evento.descripcion || 'Sin descripción proporcionada.'}</div>
-                        <button class="btn-leer-mas" onclick="verMas('${descId}')">Ver más</button>
-                    </div>
-                </div>
-                <div class="card-bottom-content">
-                    <div class="fecha">📅 ${fechaLimpia}</div>
-                    ${cantidadFotosStr}
-                    <div class="actions-area">
-                        <button class="btn-small btn-edit" onclick="editarPublicacion(${evento.id})">✏️ Editar</button>
-                        <button class="btn-small btn-del" onclick="eliminarPublicacion(${evento.id})">🗑️ Eliminar</button>
-                    </div>
-                </div>
-            </div>
-        `;
+        visorIndiceActual = indiceInicial;
+        actualizarVisorImagen();
+        document.getElementById('imageModal').classList.add('active');
     }
 
-    function crearGaleria(fotos){
-        if(!fotos || fotos.length === 0){
-            return "";
+    function actualizarVisorImagen() {
+        const imgFull = document.getElementById('imgModalFull');
+        const counter = document.getElementById('imgCounter');
+        const btnPrev = document.getElementById('btnPrev');
+        const btnNext = document.getElementById('btnNext');
+
+        if (visorGaleriaActual.length > 0) {
+            imgFull.src = visorGaleriaActual[visorIndiceActual];
+            counter.innerText = `${visorIndiceActual + 1} / ${visorGaleriaActual.length}`;
+
+            if (visorGaleriaActual.length > 1) {
+                btnPrev.style.display = "flex";
+                btnNext.style.display = "flex";
+            } else {
+                btnPrev.style.display = "none";
+                btnNext.style.display = "none";
+            }
         }
-
-        return `
-            <div class="galeria-grid">
-                ${fotos.map((foto, indice) => `
-                    <img
-                        src="${foto}"
-                        onclick='abrirGaleria(${JSON.stringify(fotos)}, ${indice})'
-                    >
-                `).join("")}
-            </div>
-        `;
     }
 
-    function abrirGaleria(fotos, indice){
-        visorGaleria = fotos;
-        visorIndice = indice;
-
-        actualizarVisor();
-
-        document
-            .getElementById("imageModal")
-            .classList.add("active");
-    }
-
-    function actualizarVisor(){
-        document.getElementById("imgModalFull").src =
-            visorGaleria[visorIndice];
-
-        document.getElementById("imgCounter").innerHTML =
-            (visorIndice + 1) + " / " + visorGaleria.length;
-    }
-
-    function siguienteFoto(){
-        visorIndice++;
-
-        if(visorIndice >= visorGaleria.length){
-            visorIndice = 0;
+    function cambiarFoto(direccion) {
+        visorIndiceActual += direccion;
+        if (visorIndiceActual < 0) {
+            visorIndiceActual = visorGaleriaActual.length - 1;
+        } else if (visorIndiceActual >= visorGaleriaActual.length) {
+            visorIndiceActual = 0;
         }
-
-        actualizarVisor();
+        actualizarVisorImagen();
     }
 
-    function anteriorFoto(){
-        visorIndice--;
+    function cerrarModalImagen(event) {
+        document.getElementById('imageModal').classList.remove('active');
+    }
 
-        if(visorIndice < 0){
-            visorIndice = visorGaleria.length - 1;
+    function cerrarModalImagenForzado() {
+        document.getElementById('imageModal').classList.remove('active');
+    }
+
+    function abrirModal() { 
+        document.getElementById('in-edit-id').value = ''; 
+        document.getElementById('in-titulo').value = '';
+        document.getElementById('in-sector').value = '';
+        document.getElementById('in-desc').value = '';
+        document.getElementById('in-file-foto').value = '';
+        document.getElementById('in-url-foto-hidden').value = '';
+        document.getElementById('modal-title').innerText = "Registrar Evento Territorial";
+        document.getElementById('modalEvento').classList.add('active'); 
+    }
+    
+    function cerrarModal() { 
+        document.getElementById('modalEvento').classList.remove('active'); 
+    }
+
+    function prepararEdicion(id, titulo, desc, sector, foto) {
+        document.getElementById('in-edit-id').value = id || ''; 
+        document.getElementById('in-titulo').value = (titulo || '').replace(/\\'/g, "'").replace(/&quot;/g, '"');
+        document.getElementById('in-desc').value = (desc || '').replace(/\\'/g, "'").replace(/&quot;/g, '"');
+        document.getElementById('in-sector').value = (sector || '').replace(/\\'/g, "'").replace(/&quot;/g, '"');
+        document.getElementById('in-url-foto-hidden').value = (foto || '').replace(/\\'/g, "'").replace(/&quot;/g, '"');
+        document.getElementById('in-file-foto').value = '';
+        document.getElementById('modal-title').innerText = "Modificar Publicación de Bitácora";
+        document.getElementById('modalEvento').classList.add('active');
+    }
+
+    async function subirImagenNube(file) {
+        const API_KEY = '3c49f725c88fe8005a46582f1ab30f52'; 
+
+        const url = `https://api.imgbb.com/1/upload?key=${API_KEY}`;
+        const formData = new FormData();
+        formData.append('image', file);
+
+        try {
+            const response = await fetch(url, {
+                method: 'POST',
+                body: formData
+            });
+            const data = await response.json();
+            
+            if (data.success) {
+                return data.data.url;
+            } else {
+                throw new Error("ImgBB rechazó la imagen: " + (data.error ? data.error.message : 'Error desconocido'));
+            }
+        } catch (error) {
+            console.error("Error subiendo a la nube:", error);
+            throw error;
         }
-
-        actualizarVisor();
     }
 
-    function cerrarGaleria(){
-        document
-            .getElementById("imageModal")
-            .classList.remove("active");
-    }
-
-    function verMas(id){
-        const texto = document.getElementById(id);
-        texto.classList.toggle("expanded");
-    }
-
-    function abrirModal(){
-        document.getElementById("in-edit-id").value = "";
-        document.getElementById("in-titulo").value = "";
-        document.getElementById("in-sector").value = "";
-        document.getElementById("in-desc").value = "";
-        document.getElementById("in-url-foto-hidden").value = "";
-        document.getElementById("in-file-foto").value = "";
-        document.getElementById("modal-title").innerHTML = "Nueva publicación";
-        document.getElementById("modalEvento").classList.add("active");
-    }
-
-    function cerrarModal(){
-        document.getElementById("modalEvento").classList.remove("active");
-    }
-
-    function editarPublicacion(id){
-        const evento = publicaciones.find(e => e.id == id);
-        if(!evento) return;
-
-        document.getElementById("in-edit-id").value = evento.id;
-        document.getElementById("in-titulo").value = evento.titulo || "";
-        document.getElementById("in-sector").value = evento.sector || "";
-        document.getElementById("in-desc").value = evento.descripcion || "";
-        document.getElementById("in-url-foto-hidden").value = evento.url_foto || "";
-        document.getElementById("in-file-foto").value = "";
-        document.getElementById("modal-title").innerHTML = "Editar publicación";
-        document.getElementById("modalEvento").classList.add("active");
-    }
-
-    async function guardarPublicacion(){
-        const id = document.getElementById("in-edit-id").value;
-        const titulo = document.getElementById("in-titulo").value.trim();
-        const sector = document.getElementById("in-sector").value.trim();
-        const descripcion = document.getElementById("in-desc").value.trim();
-        const btnGuardar = document.getElementById("btn-guardar");
-
-        if(titulo === "" || descripcion === ""){
-            alert("Debe completar el título y la descripción");
+    async function borrarEvento(id) {
+        if (!window.sqlClient) { 
+            alert("No hay conexión con la base de datos SQLite."); 
+            return; 
+        }
+        
+        const idLimpio = String(id).trim();
+        if (idLimpio === 'undefined' || idLimpio === 'null' || idLimpio === '') {
+            alert("🚨 ERROR: El ID está llegando vacío o como 'undefined'. Revisa que la columna en tu base de datos se llame exactamente 'id' en minúsculas.");
             return;
         }
 
-        const textoOriginal = btnGuardar.innerText;
-        btnGuardar.innerText = "⏳ Procesando...";
+        const idNumerico = parseInt(idLimpio, 10);
+        if (isNaN(idNumerico)) {
+            alert("🚨 ERROR: El ID recibido no es un número. Valor recibido: " + idLimpio);
+            return;
+        }
+
+        if (!confirm("¿Remover permanentemente esta evidencia de la bitácora pública?")) return;
+
+        try {
+            await window.sqlClient.query('DELETE FROM bitacora_eventos WHERE id=?', [idNumerico]);
+            alert("✅ Evento borrado con éxito.");
+            cargarBitacora();
+        } catch (err) {
+            alert("❌ No se pudo eliminar el registro en SQLite: " + err.message);
+        }
+    }
+
+    async function guardarPublicacion() {
+        if (!window.sqlClient) { alert("No hay conexión con la base de datos SQLite."); return; }
+
+        const titulo = document.getElementById('in-titulo').value.trim();
+        const sector = document.getElementById('in-sector').value.trim();
+        const descripcion = document.getElementById('in-desc').value.trim();
+        const fileInputFotos = document.getElementById('in-file-foto').files;
+        const rawEditId = document.getElementById('in-edit-id').value.trim();
+        const btnGuardar = document.getElementById('btn-guardar');
+
+        if (!titulo || !descripcion) {
+            alert("Por favor ingrese al menos el Título y la Descripción del evento.");
+            return;
+        }
+
+        const textoOriginalBoton = btnGuardar.innerText;
+        btnGuardar.innerText = "⏳ Subiendo fotos a la nube...";
         btnGuardar.disabled = true;
 
         try {
-            let fotos = await obtenerFotos();
+            let fotosUrls = [];
+            const hiddenFotoVal = document.getElementById('in-url-foto-hidden').value;
 
-            if(id === ""){
-                await insertarPublicacion(titulo, sector, descripcion, fotos);
-            } else {
-                await actualizarPublicacion(id, titulo, sector, descripcion, fotos);
-            }
-
-            cerrarModal();
-            cargarBitacora();
-        } catch(err) {
-            alert("Error al guardar la publicación:\n" + err.message);
-        } finally {
-            btnGuardar.innerText = textoOriginal;
-            btnGuardar.disabled = false;
-        }
-    }
-
-    async function obtenerFotos(){
-        const input = document.getElementById("in-file-foto");
-        const oculto = document.getElementById("in-url-foto-hidden").value;
-        let fotos = [];
-
-        if(input.files.length > 0){
-            fotos = await subirMultiplesImagenes(input.files);
-        } else {
-            if(oculto){
-                try{
-                    fotos = JSON.parse(oculto);
-                    if(!Array.isArray(fotos)) fotos = [oculto];
-                } catch {
-                    fotos = [oculto];
+            if (fileInputFotos && fileInputFotos.length > 0) {
+                for (let i = 0; i < fileInputFotos.length; i++) {
+                    const urlSeguraNube = await subirImagenNube(fileInputFotos[i]);
+                    fotosUrls.push(urlSeguraNube);
+                }
+            } else if (hiddenFotoVal) {
+                try {
+                    fotosUrls = JSON.parse(hiddenFotoVal);
+                    if (!Array.isArray(fotosUrls)) fotosUrls = [hiddenFotoVal];
+                } catch(e) {
+                    fotosUrls = [hiddenFotoVal];
                 }
             }
-        }
-        return fotos;
-    }
 
-    async function subirMultiplesImagenes(files){
-        let urls = [];
-        for(const archivo of files){
-            const url = await subirImagen(archivo);
-            urls.push(url);
-        }
-        return urls;
-    }
+            const url_foto_json = JSON.stringify(fotosUrls);
+            const idNumerico = parseInt(rawEditId, 10);
 
-    async function subirImagen(file){
-        const API_KEY = "3c49f725c88fe8005a46582f1ab30f52";
-        const form = new FormData();
-        form.append("image", file);
-
-        const respuesta = await fetch(
-            `https://api.imgbb.com/1/upload?key=${API_KEY}`,
-            {
-                method: "POST",
-                body: form
+            if (!isNaN(idNumerico) && idNumerico > 0) {
+                await window.sqlClient.query(
+                    'UPDATE bitacora_eventos SET titulo = ?, sector = ?, descripcion = ?, url_foto = ? WHERE id = ?',
+                    [titulo, sector, descripcion, url_foto_json, idNumerico]
+                );
+            } else {
+                const fechaHoy = new Date().toISOString().split('T')[0];
+                await window.sqlClient.query(
+                    'INSERT INTO bitacora_eventos (titulo, sector, descripcion, url_foto, fecha) VALUES (?, ?, ?, ?, ?)',
+                    [titulo, sector, descripcion, url_foto_json, fechaHoy]
+                );
             }
-        );
-
-        const json = await respuesta.json();
-        if(!json.success){
-            throw new Error("No fue posible subir la imagen a ImgBB");
-        }
-        return json.data.url;
-    }
-
-    async function insertarPublicacion(titulo, sector, descripcion, fotos){
-        await window.sqlClient.query(
-            `
-            INSERT INTO bitacora_eventos
-            (
-                titulo,
-                sector,
-                descripcion,
-                fecha,
-                url_foto
-            )
-            VALUES
-            (
-                ?,
-                ?,
-                ?,
-                DATE('now'),
-                ?
-            )
-            `,
-            [
-                titulo,
-                sector,
-                descripcion,
-                JSON.stringify(fotos)
-            ]
-        );
-    }
-
-    async function actualizarPublicacion(id, titulo, sector, descripcion, fotos){
-        await window.sqlClient.query(
-            `
-            UPDATE bitacora_eventos
-            SET
-            titulo = ?,
-            sector = ?,
-            descripcion = ?,
-            url_foto = ?
-            WHERE id = ?
-            `,
-            [
-                titulo,
-                sector,
-                descripcion,
-                JSON.stringify(fotos),
-                id
-            ]
-        );
-    }
-
-    async function eliminarPublicacion(id){
-        if(!confirm("¿Eliminar esta publicación?")) return;
-
-        try {
-            await window.sqlClient.query(
-                "DELETE FROM bitacora_eventos WHERE id = ?",
-                [id]
-            );
+            
+            cerrarModal();
             cargarBitacora();
-        } catch(err) {
-            alert("No se pudo eliminar el registro: " + err.message);
+            
+        } catch (err) {
+            alert("Error al procesar las fotos o guardar el evento:\n" + err.message);
+        } finally {
+            btnGuardar.innerText = textoOriginalBoton;
+            btnGuardar.disabled = false;
         }
     }
 </script>
 </body>
 </html>
+```[cite: 2]
