@@ -307,6 +307,7 @@
                  FROM bitacora_eventos
                  ORDER BY id DESC`
             );
+            console.log("RESULTADO SQLITE:", resultado);
             const data = resultado.resultado || [];
 
             if (!data || data.length === 0) {
