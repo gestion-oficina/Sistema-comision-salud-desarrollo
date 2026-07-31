@@ -60,7 +60,8 @@
         .layout { display:grid; grid-template-columns:280px 1fr; min-height:100vh; }
         
         /* SIDEBAR */
-        .sidebar { background: var(--sidebar-bg); padding:24px 0; display: flex; flex-direction: column; z-index: 1000; border-right: 1px solid rgba(255, 255, 255, 0.1); }
+        .sidebar { background: var(--sidebar-bg); padding:24px 0; display: flex; flex-direction: column; z-index: 1000; border-right: 1px solid rgba(255, 255, 255, 0.1); justify-content: space-between; }
+        .sidebar-top { display: flex; flex-direction: column; }
         .sidebar-brand { display: flex; flex-direction: column; align-items: center; text-align: center; padding: 0 16px 20px 16px; border-bottom: 1px solid rgba(255, 255, 255, 0.08); margin-bottom: 10px; }
         .sidebar-brand h2 { font-size: 11px; color: #ffffff; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; line-height: 1.4; margin-top: 5px; }
         .menu-category { font-size: 10px; font-weight: 700; color: var(--sidebar-text-sub); text-transform: uppercase; letter-spacing: 0.8px; padding: 16px 20px 6px 20px; }
@@ -68,6 +69,11 @@
         .menu:hover { opacity: 1; background: rgba(255, 255, 255, 0.08); }
         .menu.active-page { background: var(--sidebar-active); color: #ffffff; font-weight: 600; border-radius: 8px; margin: 2px 14px; padding: 10px 18px; opacity: 1; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3); }
         
+        /* BOTÓN CERRAR SESIÓN ABAJO */
+        .sidebar-footer { padding: 20px 14px; border-top: 1px solid rgba(255, 255, 255, 0.08); margin-top: auto; }
+        .btn-logout { width: 100%; background: rgba(220, 38, 38, 0.2); color: #fca5a5; border: 1px solid rgba(220, 38, 38, 0.4); padding: 10px; border-radius: 8px; font-size: 12.5px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: all 0.2s; text-decoration: none; }
+        .btn-logout:hover { background: var(--danger-color); color: white; }
+
         /* PANEL CENTRAL */
         .main { padding:40px; min-width: 0; }
         .main h2 { font-size: 26px; color: var(--text-dark-title); font-weight: 700; margin-bottom: 6px; }
@@ -172,25 +178,34 @@
 
     <div class="layout">
         <div class="sidebar" id="sidebarMenu">
-            <div class="sidebar-brand">
-                <h2>COMISIÓN PERMANENTE DE SALUD<br>Y DESARROLLO SOCIAL INTEGRAL</h2>
+            <div class="sidebar-top">
+                <div class="sidebar-brand">
+                    <h2>COMISIÓN PERMANENTE DE SALUD<br>Y DESARROLLO SOCIAL INTEGRAL</h2>
+                </div>
+                <a class="menu" href="dashboard.html">Principal</a>
+                
+                <div class="menu-category">Coor. Ejecutiva</div>
+                <a class="menu" href="ejecutiva.html">Oficios e Informes</a>
+                <a class="menu" href="red_salud.html">Red de Salud (CPT/CDI)</a>
+                <a class="menu" href="planificacion.html">Planificación Semanal</a>
+                
+                <div class="menu-category">Coor. Política</div>
+                <a class="menu" href="politica.html">Liderazgos y Comunas</a>
+                
+                <div class="menu-category">Coor. Social</div>
+                <a class="menu" href="social.html">Casos Sociales</a>
+                
+                <div class="menu-category">Gestión Digital</div>
+                <a class="menu active-page" href="bitacora.html">Bitácora de Eventos</a>
+                <a class="menu" href="reportes.html">📄 Reportes e Informes</a>
             </div>
-            <a class="menu" href="dashboard.html">Principal</a>
-            
-            <div class="menu-category">Coor. Ejecutiva</div>
-            <a class="menu" href="ejecutiva.html">Oficios e Informes</a>
-            <a class="menu" href="red_salud.html">Red de Salud (CPT/CDI)</a>
-            <a class="menu" href="planificacion.html">Planificación Semanal</a>
-            
-            <div class="menu-category">Coor. Política</div>
-            <a class="menu" href="politica.html">Liderazgos y Comunas</a>
-            
-            <div class="menu-category">Coor. Social</div>
-            <a class="menu" href="social.html">Casos Sociales</a>
-            
-            <div class="menu-category">Gestión Digital</div>
-            <a class="menu active-page" href="bitacora.html">Bitácora de Eventos</a>
-            <a class="menu" href="reportes.html">📄 Reportes e Informes</a>
+
+            <!-- CIERRE DE SESIÓN UBICADO ABAJO EN EL MENÚ -->
+            <div class="sidebar-footer">
+                <a href="#" class="btn-logout" onclick="cerrarSesion(event)">
+                    🚪 Cerrar Sesión
+                </a>
+            </div>
         </div>
 
         <div class="main">
@@ -271,6 +286,14 @@
 
     function toggleSidebar() { 
         document.getElementById("sidebarMenu").classList.toggle("active"); 
+    }
+
+    function cerrarSesion(e) {
+        e.preventDefault();
+        if (confirm("¿Estás seguro de que deseas cerrar sesión?")) {
+            sessionStorage.removeItem('usuario_logueado');
+            window.location.replace("login.html");
+        }
     }
 
     function formatearFecha(fechaStr) {
@@ -546,7 +569,7 @@
         }
 
         const textoOriginalBoton = btnGuardar.innerText;
-        btnGuardar.innerText = "⏳ Subiendo fotos a la nube...";
+        btnGuardar.innerText = "⏳ Subiendo fotos...";
         btnGuardar.disabled = true;
 
         try {
