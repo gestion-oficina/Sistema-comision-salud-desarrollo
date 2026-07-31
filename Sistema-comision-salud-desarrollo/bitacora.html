@@ -386,6 +386,73 @@
         `;
     }
 
+    function crearGaleria(fotos){
+        if(!fotos || fotos.length === 0){
+            return "";
+        }
+
+        return `
+            <div class="galeria-grid">
+                ${fotos.map((foto, indice) => `
+                    <img
+                        src="${foto}"
+                        onclick='abrirGaleria(${JSON.stringify(fotos)}, ${indice})'
+                    >
+                `).join("")}
+            </div>
+        `;
+    }
+
+    function abrirGaleria(fotos, indice){
+        visorGaleria = fotos;
+        visorIndice = indice;
+
+        actualizarVisor();
+
+        document
+            .getElementById("imageModal")
+            .classList.add("active");
+    }
+
+    function actualizarVisor(){
+        document.getElementById("imgModalFull").src =
+            visorGaleria[visorIndice];
+
+        document.getElementById("imgCounter").innerHTML =
+            (visorIndice + 1) + " / " + visorGaleria.length;
+    }
+
+    function siguienteFoto(){
+        visorIndice++;
+
+        if(visorIndice >= visorGaleria.length){
+            visorIndice = 0;
+        }
+
+        actualizarVisor();
+    }
+
+    function anteriorFoto(){
+        visorIndice--;
+
+        if(visorIndice < 0){
+            visorIndice = visorGaleria.length - 1;
+        }
+
+        actualizarVisor();
+    }
+
+    function cerrarGaleria(){
+        document
+            .getElementById("imageModal")
+            .classList.remove("active");
+    }
+
+    function verMas(id){
+        const texto = document.getElementById(id);
+        texto.classList.toggle("expanded");
+    }
+
     function abrirModal(){
         document.getElementById("in-edit-id").value = "";
         document.getElementById("in-titulo").value = "";
@@ -561,70 +628,6 @@
         } catch(err) {
             alert("No se pudo eliminar el registro: " + err.message);
         }
-    }
-
-    function crearGaleria(fotos){
-        if(!fotos || fotos.length === 0){
-            return "";
-        }
-
-        const fotosEscaped = JSON.stringify(fotos).replace(/'/g, "&apos;").replace(/"/g, "&quot;");
-
-        return `
-            <div class="galeria-grid">
-                ${fotos.map((foto, index) => `
-                    <img src="${foto}" onclick="abrirGaleriaDesdeCard('${fotosEscaped}', ${index})" alt="Evidencia">
-                `).join("")}
-            </div>
-        `;
-    }
-
-    function abrirGaleriaDesdeCard(fotosJsonEscaped, indice){
-        try {
-            const cleanJson = fotosJsonEscaped.replace(/&apos;/g, "'").replace(/&quot;/g, '"');
-            visorGaleria = JSON.parse(cleanJson);
-        } catch(e) {
-            visorGaleria = [];
-        }
-        abrirGaleria(indice);
-    }
-
-    function abrirGaleria(indice){
-        visorIndice = indice;
-        actualizarGaleria();
-        document.getElementById("imageModal").classList.add("active");
-    }
-
-    function cerrarGaleria(){
-        document.getElementById("imageModal").classList.remove("active");
-    }
-
-    function siguienteFoto(){
-        if(visorGaleria.length === 0) return;
-        visorIndice++;
-        if(visorIndice >= visorGaleria.length){
-            visorIndice = 0;
-        }
-        actualizarGaleria();
-    }
-
-    function anteriorFoto(){
-        if(visorGaleria.length === 0) return;
-        visorIndice--;
-        if(visorIndice < 0){
-            visorIndice = visorGaleria.length - 1;
-        }
-        actualizarGaleria();
-    }
-
-    function actualizarGaleria(){
-        if(visorGaleria.length === 0) return;
-        document.getElementById("imgModalFull").src = visorGaleria[visorIndice];
-        document.getElementById("imgCounter").innerHTML = `${visorIndice + 1} / ${visorGaleria.length}`;
-    }
-
-    function verMas(id){
-        document.getElementById(id).classList.toggle("expanded");
     }
 </script>
 </body>
