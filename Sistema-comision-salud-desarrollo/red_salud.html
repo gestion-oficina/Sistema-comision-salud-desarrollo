@@ -31,13 +31,6 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 
-    <!-- Conexión ESM con Neon PostgreSQL -->
-    <script type="module">
-        import { neon } from 'https://cdn.jsdelivr.net/npm/@neondatabase/serverless/+esm';
-        const connectionString = "postgresql://neondb_owner:npg_djCruebcPY94@ep-sparkling-math-avejx7o4-pooler.c-11.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require";
-        window.sql = neon(connectionString, { disableWarningInBrowsers: true });
-    </script>
-
     <style>
         :root { 
             --bg-main: #f8fafc; 
@@ -434,7 +427,10 @@
         if (!confirm("¿Remover permanentemente este centro/reporte de la base de datos municipal?")) return;
         try {
             const idNum = Number(id);
-            await window.sql`DELETE FROM casos_salud WHERE id = ${idNum}`;
+            await window.sql({
+                sql: 'DELETE FROM casos_salud WHERE id = ?',
+                args: [idNum]
+            });
             obtenerRedSalud();
         } catch (err) {
             console.error("Error al borrar:", err);
@@ -447,7 +443,7 @@
     async function obtenerRedSalud() {
         const contenedor = document.getElementById("contenedor-ejes");
         try {
-            const data = await window.sql`SELECT * FROM casos_salud`;
+            const data = await window.sql({ sql: 'SELECT * FROM casos_salud' });
             centrosCache = (data || []).filter(c => (c.coordinacion === "Ejecutiva" || c.coordinacion === "Social" || c.tipo === "Caso Comunitario" || c.tipo === "Comuna") && c.tipo !== "Autoridad");
 
             if (centrosCache.length === 0) {
@@ -633,16 +629,15 @@
         try {
             if (idOriginal) {
                 const idNum = Number(idOriginal);
-                await window.sql`
-                    UPDATE casos_salud 
-                    SET nombre = ${nombre}, tipo = ${tipo}, sector = ${sector}, ubicacion = ${ubicacion}, detalle = ${detalle}, estatus = ${estatus}, lat = ${lat}, lng = ${lng} 
-                    WHERE id = ${idNum}
-                `;
+                await window.sql({
+                    sql: 'UPDATE casos_salud SET nombre = ?, tipo = ?, sector = ?, ubicacion = ?, detalle = ?, estatus = ?, lat = ?, lng = ? WHERE id = ?',
+                    args: [nombre, tipo, sector, ubicacion, detalle, estatus, lat, lng, idNum]
+                });
             } else {
-                await window.sql`
-                    INSERT INTO casos_salud (nombre, tipo, sector, ubicacion, detalle, coordinacion, estatus, lat, lng) 
-                    VALUES (${nombre}, ${tipo}, ${sector}, ${ubicacion}, ${detalle}, 'Ejecutiva', ${estatus}, ${lat}, ${lng})
-                `;
+                await window.sql({
+                    sql: 'INSERT INTO casos_salud (nombre, tipo, sector, ubicacion, detalle, coordinacion, estatus, lat, lng) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
+                    args: [nombre, tipo, sector, ubicacion, detalle, 'Ejecutiva', estatus, lat, lng]
+                });
             }
             
             cerrarModal();
