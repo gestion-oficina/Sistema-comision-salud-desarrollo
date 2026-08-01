@@ -27,7 +27,7 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 
-    <!-- ARCHIVO DE CONEXIÓN CENTRALIZADO (LOCAL SQLITE) -->
+    <!-- ARCHIVO DE CONEXIÓN CENTRALIZADO -->
     <script src="js/conexion.js"></script>
 
     <style>
@@ -52,7 +52,7 @@
         .mobile-header { display: none; background: var(--sidebar-bg); color: white; padding: 15px 20px; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 3000; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
         .btn-menu-toggle { background: none; border: none; color: white; font-size: 24px; cursor: pointer; }
 
-        /* SIDEBAR UNIFICADO IDÉNTICO A SOCIAL */
+        /* SIDEBAR UNIFICADO EXACTO AL DE SOCIAL */
         .sidebar { background: var(--sidebar-bg); padding:24px 0; display: flex; flex-direction: column; transition: transform 0.3s ease; min-height: 100vh; z-index: 1000; }
         .sidebar-brand { display: flex; flex-direction: column; align-items: center; text-align: center; padding: 0 16px 20px 16px; border-bottom: 1px solid rgba(255, 255, 255, 0.1); margin-bottom: 10px; }
         .sidebar-brand h2 { font-size: 11px; color: #ffffff; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; line-height: 1.4; margin-top: 5px; }
@@ -180,7 +180,7 @@
     </div>
 
     <div class="layout">
-        <!-- SIDEBAR UNIFICADO IDÉNTICO A SOCIAL -->
+        <!-- SIDEBAR IDÉNTICO AL DE SOCIAL -->
         <div class="sidebar" id="sidebarMenu">
             <div>
                 <div class="sidebar-brand">
@@ -425,12 +425,12 @@
         if (centro) {
             abrirModal(centro.id, centro.nombre || '', centro.tipo || 'CDI', centro.sector || '', centro.ubicacion || '', centro.detalle || '', centro.estatus || 'Operativo', centro.lat || '', centro.lng || '');
         } else {
-            alert("Error al ubicar datos locales.");
+            alert("Error al ubicar datos.");
         }
     };
 
     window.eliminarCentro = async function(id) {
-        if (!confirm("¿Remover permanentemente este centro/reporte de la base de datos municipal?")) return;
+        if (!confirm("¿Remover permanentemente este centro/reporte de la base de datos?")) return;
         try {
             const idNum = Number(id);
             await consultarBaseDatos("DELETE FROM casos_salud WHERE id = ?", [idNum]);
