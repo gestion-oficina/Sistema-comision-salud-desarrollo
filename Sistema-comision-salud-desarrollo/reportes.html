@@ -13,7 +13,7 @@
         }
     </script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Reportes y Buscador Avanzado - Comisión de Salud</title>
+    <title>Reporte Integral del Sistema - Comisión de Salud</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
@@ -45,7 +45,6 @@
         .menu-category { font-size: 10.5px; font-weight: 700; color: var(--sidebar-text-sub); text-transform: uppercase; letter-spacing: 0.5px; padding: 16px 20px 6px 20px; }
         .menu{ display: block; padding: 8px 36px; color: var(--menu-text); cursor: pointer; font-size: 13.5px; font-weight: 500; text-decoration: none; transition: all 0.2s ease; opacity: 0.9; }
         .menu:hover{ opacity: 1; background: rgba(255, 255, 255, 0.05); }
-        .menu.active-page { background: var(--sidebar-active); color: #ffffff; font-weight: 600; border-radius: 6px; margin: 2px 14px; padding: 10px 20px; opacity: 1; box-shadow: inset 0 1px 0 rgba(255,255,255,0.15); }
 
         .mobile-header { display: none; background: var(--sidebar-bg); color: white; padding: 14px 20px; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 1000; }
         .menu-toggle { background: transparent; border: none; color: white; font-size: 24px; cursor: pointer; }
@@ -65,7 +64,7 @@
         .no-print-zone h2 { font-size: 18px; color: var(--text-dark-title); font-weight: 700; }
         .no-print-zone p { font-size: 12.5px; color: #64748b; margin-top: 2px; }
         
-        .filter-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)) 150px; gap: 12px; align-items: end; }
+        .filter-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)) 150px; gap: 12px; align-items: end; }
         .filter-group { display: flex; flex-direction: column; gap: 6px; }
         .filter-group label { font-size: 11.5px; font-weight: 700; color: #475569; text-transform: uppercase; letter-spacing: 0.3px; }
         .filter-group input, .filter-group select {
@@ -126,13 +125,13 @@
         .report-title h1 { font-size: 20px; font-weight: 700; letter-spacing: 0.5px; }
         .report-title p { font-size: 12px; color: #64748b; margin-top: 4px; font-weight: 500; }
         
-        .section-heading { font-size: 13.5px; font-weight: 700; color: var(--text-dark-title); margin-top: 24px; margin-bottom: 12px; border-left: 3px solid var(--sidebar-active); padding-left: 8px; text-transform: uppercase; letter-spacing: 0.3px; }
+        .section-heading { font-size: 13.5px; font-weight: 700; color: var(--text-dark-title); margin-top: 28px; margin-bottom: 12px; border-left: 3px solid var(--sidebar-active); padding-left: 8px; text-transform: uppercase; letter-spacing: 0.3px; }
 
-        .report-table { width: 100%; border-collapse: collapse; margin-bottom: 20px; font-size: 12.5px; }
+        .report-table { width: 100%; border-collapse: collapse; margin-bottom: 20px; font-size: 12px; }
         .report-table th { background: #f8fafc; color: var(--text-dark-title); font-weight: 700; text-align: left; padding: 10px 12px; border: 1px solid #cbd5e1; }
-        .report-table td { padding: 10px 12px; border: 1px solid #cbd5e1; color: #334155; }
+        .report-table td { padding: 9px 12px; border: 1px solid #cbd5e1; color: #334155; }
         
-        .badge { padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; display: inline-block; }
+        .badge { padding: 4px 8px; border-radius: 4px; font-size: 10.5px; font-weight: 600; display: inline-block; }
         .badge-resuelto { background: #dcfce7; color: #166534; }
         .badge-gestion { background: #fef9c3; color: #854d0e; }
         .badge-espera { background: #fee2e2; color: #991b1b; }
@@ -186,7 +185,7 @@
         
         <div class="menu-category">Gestión Digital</div>
         <a class="menu" href="bitacora.html">Bitácora de Eventos</a>
-        <a class="menu" href="reportes.html" style="background: var(--sidebar-active); font-weight: 600; border-radius: 6px; margin: 2px 14px; padding: 10px 20px;">📄 Reportes e Informes</a>
+        <a class="menu" href="reportes.html" style="background: var(--sidebar-active); font-weight: 600; border-radius: 6px; margin: 2px 14px; padding: 10px 20px;">📄 Reporte Integral</a>
         
         <div style="margin-top: auto; padding: 24px 20px; border-top: 1px solid rgba(255,255,255,0.1);">
             <div id="usuarioNombre" style="font-size:13px; color:#ffffff; font-weight:600; margin-bottom: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">Cargando...</div>
@@ -196,12 +195,12 @@
     </div>
 
     <div class="main">
-        <!-- ZONA DE FILTRADO Y BÚSQUEDA AVANZADA (NO SE IMPRIME) -->
+        <!-- ZONA DE FILTRADO Y SELECCIÓN DE MÓDULO (NO SE IMPRIME) -->
         <div class="no-print-zone">
             <div class="header-actions">
                 <div>
-                    <h2>Buscador Avanzado y Motor de Reportes</h2>
-                    <p>Filtra por sector, estatus o término libre para consultar cualquier registro de la base SQLite.</p>
+                    <h2>Módulo de Reporte Integral del Sistema</h2>
+                    <p>Consolida y filtra la información global: Casos Sociales, Oficios, Planificación Semanal, Red de Salud y Bitácora.</p>
                 </div>
                 <div style="display: flex; gap: 10px;">
                     <button class="btn-action btn-secondary" onclick="limpiarFiltros()">🔄 Restablecer</button>
@@ -211,26 +210,27 @@
             
             <div class="filter-grid">
                 <div class="filter-group">
-                    <label>Buscar por Texto (Nombre / Cédula / Teléfono)</label>
-                    <input type="text" id="filtroTexto" placeholder="Ej. Juan, 4483993..." oninput="aplicarFiltrosEnVivo()">
-                </div>
-                <div class="filter-group">
-                    <label>Filtrar por Sector / Comunidad</label>
-                    <select id="filtroSector" onchange="aplicarFiltrosEnVivo()">
-                        <option value="">Todos los sectores</option>
+                    <label>Seleccionar Módulo a Reportar</label>
+                    <select id="filtroModulo" onchange="cambiarModuloReporte()">
+                        <option value="social">1. Casos Sociales (Beneficiarios)</option>
+                        <option value="oficios">2. Oficios e Informes (Ejecutiva)</option>
+                        <option value="planificacion">3. Planificación Semanal (Actividades)</option>
+                        <option value="red_salud">4. Red de Salud (CPT / CDI Operativos)</option>
+                        <option value="bitacora">5. Bitácora de Eventos (Monitoreo)</option>
                     </select>
                 </div>
                 <div class="filter-group">
-                    <label>Filtrar por Estatus</label>
-                    <select id="filtroEstatus" onchange="aplicarFiltrosEnVivo()">
-                        <option value="">Todos los estatus</option>
-                        <option value="Resuelto">Resuelto</option>
-                        <option value="En Gestión">En Gestión</option>
-                        <option value="En Espera">En Espera</option>
+                    <label>Búsqueda General por Texto</label>
+                    <input type="text" id="filtroTexto" placeholder="Filtrar por nombre, cédula, código..." oninput="aplicarFiltrosEnVivo()">
+                </div>
+                <div class="filter-group">
+                    <label>Filtrar por Creador / Usuario</label>
+                    <select id="filtroCreador" onchange="aplicarFiltrosEnVivo()">
+                        <option value="">Todos los usuarios</option>
                     </select>
                 </div>
                 <div>
-                    <button class="btn-action" style="width: 100%;" onclick="aplicarFiltrosEnVivo()">🔍 Filtrar Datos</button>
+                    <button class="btn-action" style="width: 100%;" onclick="aplicarFiltrosEnVivo()">🔍 Actualizar Vista</button>
                 </div>
             </div>
         </div>
@@ -244,50 +244,50 @@
                     COMISIÓN PERMANENTE DE SALUD Y DESARROLLO SOCIAL INTEGRAL
                 </div>
                 <div class="report-meta">
-                    <b>Código:</b> CPS-2026-ADV<br>
+                    <b>Código Doc:</b> <span id="meta-codigo">CPS-2026-SOC</span><br>
                     <b>Fecha Emisión:</b> <span id="fecha-reporte">--/--/----</span>
                 </div>
             </div>
 
             <div class="report-title">
-                <h1>REPORTE CONSOLIDADO DE REGISTROS SISTEMÁTICOS</h1>
-                <p id="subtitulo-filtros">Mostrando la totalidad de expedientes activos en el sistema local SQLite</p>
+                <h1 id="titulo-reporte-principal">REPORTE CONSOLIDADO: CASOS SOCIALES</h1>
+                <p id="subtitulo-filtros">Mostrando registros correspondientes al módulo social en la base SQLite</p>
             </div>
 
-            <div class="section-heading">I. Resumen de Indicadores Filtrados</div>
+            <div class="section-heading">I. Resumen de Indicadores del Módulo</div>
             <table class="report-table" style="margin-bottom: 24px;">
                 <thead>
                     <tr>
-                        <th>Total Registros en Vista</th>
-                        <th>Casos Solventados</th>
-                        <th>Casos Activos / Pendientes</th>
+                        <th id="th-stat-1">Total Registros</th>
+                        <th id="th-stat-2">Completados / Solventados</th>
+                        <th id="th-stat-3">En Gestión / Pendientes</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr>
-                        <td id="stat-total" style="font-weight: 700; font-size: 14px;">0</td>
-                        <td id="stat-resueltos" style="font-weight: 700; color: #166534; font-size: 14px;">0</td>
-                        <td id="stat-activos" style="font-weight: 700; color: #b45309; font-size: 14px;">0</td>
+                        <td id="stat-1" style="font-weight: 700; font-size: 14px;">0</td>
+                        <td id="stat-2" style="font-weight: 700; color: #166534; font-size: 14px;">0</td>
+                        <td id="stat-3" style="font-weight: 700; color: #b45309; font-size: 14px;">0</td>
                     </tr>
                 </tbody>
             </table>
 
-            <div class="section-heading">II. Detalle Detallado de Expedientes</div>
+            <div class="section-heading" id="heading-tabla-detalle">II. Detalle de Registros del Módulo</div>
             <table class="report-table">
                 <thead>
-                    <tr>
+                    <tr id="table-headers-dynamic">
                         <th>ID</th>
                         <th>Nombre y Apellido</th>
                         <th>Cédula</th>
                         <th>Teléfono</th>
                         <th>Sector / Comunidad</th>
                         <th>Tipo / Subtipo</th>
-                        <th>Estatus</th>
+                        <th>Estatus / Creador</th>
                     </tr>
                 </thead>
                 <tbody id="tabla-cuerpo-reporte">
                     <tr>
-                        <td colspan="7" style="text-align:center; color:#64748b; padding: 24px;">Cargando registros desde la base de datos local SQLite...</td>
+                        <td colspan="7" style="text-align:center; color:#64748b; padding: 24px;">Cargando registros desde SQLite...</td>
                     </tr>
                 </tbody>
             </table>
@@ -300,7 +300,7 @@
                 </div>
                 <div class="signature-box">
                     <br><br>
-                    <b>Coordinación Ejecutiva</b><br>
+                    <b id="firma-responsable">Coordinación Social</b><br>
                     Firma, Control y Sello Oficina
                 </div>
             </div>
@@ -310,6 +310,7 @@
 
 <script>
 let registrosGlobales = [];
+let moduloActual = "social";
 
 document.addEventListener("DOMContentLoaded", () => {
     const nombre = sessionStorage.getItem("usuario_nombre");
@@ -318,7 +319,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (coord) document.getElementById("usuarioCoordinacion").textContent = coord.toUpperCase();
 
     document.getElementById("fecha-reporte").innerText = new Date().toLocaleDateString('es-VE');
-    cargarDatosCompletosSQLite();
+    cargarDatosModulo(moduloActual);
 });
 
 function toggleMobileMenu() {
@@ -339,97 +340,113 @@ async function consultarBaseDatos(query, params = []) {
     }
 }
 
-async function cargarDatosCompletosSQLite() {
+async function cambiarModuloReporte() {
+    moduloActual = document.getElementById("filtroModulo").value;
+    document.getElementById("filtroTexto").value = "";
+    document.getElementById("filtroCreador").value = "";
+    await cargarDatosModulo(moduloActual);
+}
+
+async function cargarDatosModulo(modulo) {
+    const tbody = document.getElementById("tabla-cuerpo-reporte");
+    tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; color:#64748b; padding: 24px;">Cargando datos del módulo...</td></tr>`;
+
     try {
-        registrosGlobales = await consultarBaseDatos("SELECT id, nombre, cedula, telefono, sector, tipo, subtipo, estatus FROM casos_salud ORDER BY id DESC");
-        
+        let query = "";
+        if (modulo === "social") {
+            document.getElementById("meta-codigo").innerText = "CPS-2026-SOC";
+            document.getElementById("titulo-reporte-principal").innerText = "REPORTE CONSOLIDADO: CASOS SOCIALES";
+            document.getElementById("firma-responsable").innerText = "Coordinación Social";
+            query = "SELECT id, nombre, cedula, telefono, sector, tipo, subtipo, estatus, creado_por FROM casos_salud WHERE tipo = 'Caso Comunitario' OR tipo = 'Social' OR tipo LIKE '%Social%' ORDER BY id DESC";
+        } else if (modulo === "oficios") {
+            document.getElementById("meta-codigo").innerText = "CPS-2026-OFI";
+            document.getElementById("titulo-reporte-principal").innerText = "REPORTE DE OFICIOS E INFORMES INSTITUCIONALES";
+            document.getElementById("firma-responsable").innerText = "Coordinación Ejecutiva";
+            query = "SELECT id, numero_oficio AS cedula, dirigido_a AS nombre, asunto AS sector, tipo, subtipo, estatus, creado_por, fecha AS telefono FROM oficios ORDER BY id DESC";
+        } else if (modulo === "planificacion") {
+            document.getElementById("meta-codigo").innerText = "CPS-2026-PLN";
+            document.getElementById("titulo-reporte-principal").innerText = "REPORTE DE PLANIFICACIÓN SEMANAL DE ACTIVIDADES";
+            document.getElementById("firma-responsable").innerText = "Coordinación Ejecutiva";
+            query = "SELECT id, actividad AS nombre, dia AS sector, lugar AS subtipo, hora AS telefono, estatus, creado_por, '' AS cedula, '' AS tipo FROM planificacion ORDER BY id DESC";
+        } else if (modulo === "red_salud") {
+            document.getElementById("meta-codigo").innerText = "CPS-2026-RED";
+            document.getElementById("titulo-reporte-principal").innerText = "REPORTE OPERATIVO DE CENTROS DE SALUD (CPT / CDI)";
+            document.getElementById("firma-responsable").innerText = "Coordinación de Salud";
+            query = "SELECT id, nombre_centro AS nombre, parroquia AS sector, medico_jefe AS subtipo, telefono, estatus, creado_por, '' AS cedula, tipo FROM red_salud ORDER BY id DESC";
+        } else if (modulo === "bitacora") {
+            document.getElementById("meta-codigo").innerText = "CPS-2026-BIT";
+            document.getElementById("titulo-reporte-principal").innerText = "REPORTE DE BITÁCORA DE EVENTOS Y MONITOREO";
+            document.getElementById("firma-responsable").innerText = "Gestión Digital";
+            query = "SELECT id, titulo AS nombre, descripcion AS sector, categoria AS subtipo, fecha AS telefono, estatus, creado_por, '' AS cedula, '' AS tipo FROM bitacora ORDER BY id DESC";
+        }
+
+        registrosGlobales = await consultarBaseDatos(query);
         if (!registrosGlobales || !Array.isArray(registrosGlobales)) {
             registrosGlobales = [];
         }
 
-        poblarSelectorSectores(registrosGlobales);
-        renderizarTabla(registrosGlobales);
+        poblarCreadores(registrosGlobales);
+        renderizarTablaSegunModulo(registrosGlobales, modulo);
 
     } catch (err) {
-        console.error("Error al cargar registros:", err);
-        document.getElementById("tabla-cuerpo-reporte").innerHTML = `<tr><td colspan="7" style="text-align:center; color:var(--danger-color); font-weight:600;">Error de comunicación con el servidor SQLite.</td></tr>`;
+        console.error("Error al cargar datos del módulo:", err);
+        tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; color:var(--danger-color); font-weight:600;">Error al conectar con la base de datos SQLite para este módulo. Verifique que la tabla exista.</td></tr>`;
     }
 }
 
-function poblarSelectorSectores(datos) {
-    const selectSector = document.getElementById("filtroSector");
-    const sectoresUnicos = [...new Set(datos.map(item => item.sector).filter(s => s && s !== "NULL" && s.trim() !== ""))].sort();
+function poblarCreadores(datos) {
+    const selectCreador = document.getElementById("filtroCreador");
+    const creadoresUnicos = [...new Set(datos.map(item => item.creado_por || item.usuario).filter(c => c && c.trim() !== ""))].sort();
     
-    selectSector.innerHTML = '<option value="">Todos los sectores</option>';
-    sectoresUnicos.forEach(sector => {
+    selectCreador.innerHTML = '<option value="">Todos los usuarios</option>';
+    creadoresUnicos.forEach(creador => {
         const option = document.createElement("option");
-        option.value = sector;
-        option.textContent = sector;
-        selectSector.appendChild(option);
+        option.value = creador;
+        option.textContent = creador;
+        selectCreador.appendChild(option);
     });
 }
 
 function aplicarFiltrosEnVivo() {
     const texto = document.getElementById("filtroTexto").value.toLowerCase().trim();
-    const sectorFiltro = document.getElementById("filtroSector").value;
-    const estatusFiltro = document.getElementById("filtroEstatus").value;
+    const creadorFiltro = document.getElementById("filtroCreador").value;
 
     const filtrados = registrosGlobales.filter(item => {
-        const matchTexto = !texto || 
-            (item.nombre && item.nombre.toLowerCase().includes(texto)) || 
-            (item.cedula && item.cedula.toLowerCase().includes(texto)) || 
-            (item.telefono && item.telefono.toLowerCase().includes(texto));
-        
-        const matchSector = !sectorFiltro || item.sector === sectorFiltro;
-        const matchEstatus = !estatusFiltro || item.estatus === estatusFiltro;
-
-        return matchTexto && matchSector && matchEstatus;
+        const matchTexto = !texto || Object.values(item).some(val => val && String(val).toLowerCase().includes(texto));
+        const creadorVal = item.creado_por || item.usuario || "";
+        const matchCreador = !creadorFiltro || creadorVal === creadorFiltro;
+        return matchTexto && matchCreador;
     });
 
-    let descSub = "Mostrando registros filtrados del sistema local SQLite";
-    let filtrosActivosTxt = [];
-    if (texto) filtrosActivosTxt.text = `Texto: "${texto}"`;
-    if (sectorFiltro) filtrosActivosTxt.push(`Sector: ${sectorFiltro}`);
-    if (estatusFiltro) filtrosActivosTxt.push(`Estatus: ${estatusFiltro}`);
-    
-    if (filtrosActivosTxt.length > 0) {
-        document.getElementById("subtitulo-filtros").innerText = `Filtros aplicados — ${filtrosActivosTxt.join(' | ')}`;
-    } else {
-        document.getElementById("subtitulo-filtros").innerText = "Mostrando la totalidad de expedientes activos en el sistema local SQLite";
-    }
-
-    renderizarTabla(filtrados);
+    renderizarTablaSegunModulo(filtrados, moduloActual);
 }
 
 function limpiarFiltros() {
     document.getElementById("filtroTexto").value = "";
-    document.getElementById("filtroSector").value = "";
-    document.getElementById("filtroEstatus").value = "";
-    document.getElementById("subtitulo-filtros").innerText = "Mostrando la totalidad de expedientes activos en el sistema local SQLite";
-    renderizarTabla(registrosGlobales);
+    document.getElementById("filtroCreador").value = "";
+    document.getElementById("subtitulo-filtros").innerText = "Mostrando la totalidad de registros del módulo actual en SQLite";
+    renderizarTablaSegunModulo(registrosGlobales, moduloActual);
 }
 
-function renderizarTabla(datos) {
+function renderizarTablaSegunModulo(datos, modulo) {
     const tbody = document.getElementById("tabla-cuerpo-reporte");
+    const headersTr = document.getElementById("table-headers-dynamic");
     
-    document.getElementById("stat-total").innerText = datos.length;
-    const resueltosCount = datos.filter(d => d.estatus === "Resuelto").length;
+    document.getElementById("stat-1").innerText = datos.length;
+    const resueltosCount = datos.filter(d => d.estatus === "Resuelto" || d.estatus === "Completado" || d.estatus === "Operativo").length;
     const activosCount = datos.length - resueltosCount;
     
-    document.getElementById("stat-resueltos").innerText = resueltosCount;
-    document.getElementById("stat-activos").innerText = activosCount;
+    document.getElementById("stat-2").innerText = resueltosCount;
+    document.getElementById("stat-3").innerText = activosCount;
 
     if (datos.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; color:#94a3b8; padding: 24px;">No se encontraron registros que coincidan con los filtros seleccionados.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; color:#94a3b8; padding: 24px;">No se encontraron registros en este módulo con los filtros aplicados.</td></tr>`;
         return;
     }
 
-    tbody.innerHTML = datos.map(item => {
-        let badgeClass = "badge-gestion";
-        if (item.estatus === "Resuelto") badgeClass = "badge-resuelto";
-        if (item.estatus === "En Espera") badgeClass = "badge-espera";
-
-        return `
+    if (modulo === "social") {
+        headersTr.innerHTML = `<th>ID</th><th>Nombre y Apellido</th><th>Cédula</th><th>Teléfono</th><th>Sector / Comunidad</th><th>Tipo / Subtipo</th><th>Estatus / Creador</th>`;
+        tbody.innerHTML = datos.map(item => `
             <tr>
                 <td><b>#${item.id}</b></td>
                 <td><b>${item.nombre || 'N/D'}</b></td>
@@ -437,10 +454,62 @@ function renderizarTabla(datos) {
                 <td>${item.telefono || 'N/D'}</td>
                 <td>${item.sector || 'N/D'}</td>
                 <td>${item.tipo || 'N/D'} ${item.subtipo ? '— ' + item.subtipo : ''}</td>
-                <td><span class="badge ${badgeClass}">${item.estatus || 'Pendiente'}</span></td>
+                <td><span class="badge ${item.estatus === 'Resuelto' ? 'badge-resuelto' : 'badge-gestion'}">${item.estatus || 'Pendiente'}</span><br><small style="color:#64748b;">Por: ${item.creado_por || 'Sistema'}</small></td>
             </tr>
-        `;
-    }).join("");
+        `).join("");
+    } else if (modulo === "oficios") {
+        headersTr.innerHTML = `<th>ID</th><th>N° Oficio</th><th>Dirigido a</th><th>Asunto / Sector</th><th>Tipo / Subtipo</th><th>Fecha</th><th>Estatus / Creador</th>`;
+        tbody.innerHTML = datos.map(item => `
+            <tr>
+                <td><b>#${item.id}</b></td>
+                <td><b>${item.cedula || 'N/D'}</b></td>
+                <td>${item.nombre || 'N/D'}</td>
+                <td>${item.sector || 'N/D'}</td>
+                <td>${item.tipo || 'N/D'} ${item.subtipo ? '— ' + item.subtipo : ''}</td>
+                <td>${item.telefono || 'N/D'}</td>
+                <td><span class="badge ${item.estatus === 'Emitido' || item.estatus === 'Entregado' ? 'badge-resuelto' : 'badge-gestion'}">${item.estatus || 'En Trámite'}</span><br><small style="color:#64748b;">Por: ${item.creado_por || 'Sistema'}</small></td>
+            </tr>
+        `).join("");
+    } else if (modulo === "planificacion") {
+        headersTr.innerHTML = `<th>ID</th><th>Actividad Programada</th><th>Día / Semana</th><th>Lugar</th><th>Hora</th><th>Estatus</th><th>Responsable / Creador</th>`;
+        tbody.innerHTML = datos.map(item => `
+            <tr>
+                <td><b>#${item.id}</b></td>
+                <td><b>${item.nombre || 'N/D'}</b></td>
+                <td>${item.sector || 'N/D'}</td>
+                <td>${item.subtipo || 'N/D'}</td>
+                <td>${item.telefono || 'N/D'}</td>
+                <td><span class="badge ${item.estatus === 'Completada' ? 'badge-resuelto' : 'badge-gestion'}">${item.estatus || 'Programada'}</span></td>
+                <td>${item.creado_por || 'Comisión'}</td>
+            </tr>
+        `).join("");
+    } else if (modulo === "red_salud") {
+        headersTr.innerHTML = `<th>ID</th><th>Centro de Salud (CPT/CDI)</th><th>Parroquia / Sector</th><th>Médico Jefe / Responsable</th><th>Teléfono</th><th>Condición</th><th>Creador / Registro</th>`;
+        tbody.innerHTML = datos.map(item => `
+            <tr>
+                <td><b>#${item.id}</b></td>
+                <td><b>${item.nombre || 'N/D'}</b></td>
+                <td>${item.sector || 'N/D'}</td>
+                <td>${item.subtipo || 'N/D'}</td>
+                <td>${item.telefono || 'N/D'}</td>
+                <td><span class="badge ${item.estatus === 'Operativo' ? 'badge-resuelto' : 'badge-espera'}">${item.estatus || 'Operativo'}</span></td>
+                <td>${item.creado_por || 'Sistema'}</td>
+            </tr>
+        `).join("");
+    } else if (modulo === "bitacora") {
+        headersTr.innerHTML = `<th>ID</th><th>Título del Evento</th><th>Descripción</th><th>Categoría</th><th>Fecha / Hora</th><th>Estatus</th><th>Registrado Por</th>`;
+        tbody.innerHTML = datos.map(item => `
+            <tr>
+                <td><b>#${item.id}</b></td>
+                <td><b>${item.nombre || 'N/D'}</b></td>
+                <td>${item.sector || 'N/D'}</td>
+                <td>${item.subtipo || 'N/D'}</td>
+                <td>${item.telefono || 'N/D'}</td>
+                <td><span class="badge badge-resuelto">${item.estatus || 'Registrado'}</span></td>
+                <td>${item.creado_por || 'Sistema'}</td>
+            </tr>
+        `).join("");
+    }
 }
 
 function ejecutarImpresion() {
