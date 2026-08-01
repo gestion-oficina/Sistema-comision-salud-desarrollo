@@ -19,3 +19,24 @@ async function consultarBaseDatos(query, params = []) {
     throw error;
   }
 }
+// --- SISTEMA DE CIERRE POR INACTIVIDAD (5 MINUTOS) ---
+let temporizadorInactividad;
+const tiempoLimiteInactividad = 5 * 60 * 1000; // 5 minutos
+
+function reiniciarTemporizadorInactividad() {
+    clearTimeout(temporizadorInactividad);
+    temporizadorInactividad = setTimeout(ejecutarCierrePorInactividad, tiempoLimiteInactividad);
+}
+
+function ejecutarCierrePorInactividad() {
+    sessionStorage.clear();
+    window.location.replace("index.html");
+}
+
+// Monitorear actividad del usuario en cualquier página
+['mousemove', 'mousedown', 'keypress', 'scroll', 'touchstart'].forEach(evento => {
+    window.addEventListener(evento, reiniciarTemporizadorInactividad, true);
+});
+
+// Iniciar al cargar
+reiniciarTemporizadorInactividad();
