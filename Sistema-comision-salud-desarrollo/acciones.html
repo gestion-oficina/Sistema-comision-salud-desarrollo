@@ -68,9 +68,15 @@
         .menu{ display: block; padding: 8px 36px; color: var(--menu-text); cursor: pointer; font-size: 13.5px; font-weight: 500; text-decoration: none; transition: all 0.2s ease; opacity: 0.9; }
         .menu:hover{ opacity: 1; background: rgba(255, 255, 255, 0.05); }
 
-        /* CIERRE DE SESIÓN ABAJO EN EL MENÚ */
-        .sidebar-footer { padding: 20px 14px; border-top: 1px solid rgba(255, 255, 255, 0.1); margin-top: auto; }
-        .btn-logout { width: 100%; background: rgba(220, 38, 38, 0.2); color: #fca5a5; border: 1px solid rgba(220, 38, 38, 0.4); padding: 10px; border-radius: 8px; font-size: 12.5px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: all 0.2s; text-decoration: none; }
+        /* CIERRE DE SESIÓN Y PERFIL ABAJO EN EL MENÚ */
+        .sidebar-footer { padding: 16px 14px; border-top: 1px solid rgba(255, 255, 255, 0.1); margin-top: auto; }
+        .user-info-box { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; padding: 0 6px; }
+        .user-avatar { width: 32px; height: 32px; border-radius: 50%; background: var(--sidebar-active); color: white; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 13px; flex-shrink: 0; }
+        .user-details { overflow: hidden; }
+        .user-name { font-size: 12px; font-weight: 600; color: white; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .user-role { font-size: 10px; color: var(--sidebar-text-sub); }
+
+        .btn-logout { width: 100%; background: rgba(220, 38, 38, 0.2); color: #fca5a5; border: 1px solid rgba(220, 38, 38, 0.4); padding: 9px; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: all 0.2s; text-decoration: none; }
         .btn-logout:hover { background: var(--danger-color); color: white; }
 
         .mobile-header { display: none; background: var(--sidebar-bg); color: white; padding: 14px 20px; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 1100; }
@@ -112,7 +118,7 @@
         /* FILTROS EN TIEMPO REAL */
         .filter-container {
             display: grid;
-            grid-template-columns: 1fr 220px 140px;
+            grid-template-columns: 1fr 220px 180px 140px;
             gap: 12px;
             margin-bottom: 24px;
             align-items: end;
@@ -257,6 +263,13 @@
         </div>
 
         <div class="sidebar-footer">
+            <div class="user-info-box">
+                <div class="user-avatar" id="userAvatar">W</div>
+                <div class="user-details">
+                    <div class="user-name" id="userNameLabel">Usuario</div>
+                    <div class="user-role">Concejala / Sistema</div>
+                </div>
+            </div>
             <a href="#" class="btn-logout" onclick="cerrarSesion(event)">🚪 Cerrar Sesión</a>
         </div>
     </div>
@@ -303,6 +316,15 @@
                         <option value="Asesoría Ciudadana">Asesoría Ciudadana</option>
                         <option value="Sesión de Cámara">Sesión de Cámara</option>
                         <option value="Medios y Prensa">Medios y Prensa</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label>Filtrar por Estatus</label>
+                    <select id="filtroEstatus" onchange="aplicarFiltros()">
+                        <option value="">Todos los estatus</option>
+                        <option value="Completado">Completado</option>
+                        <option value="En Proceso">En Proceso</option>
+                        <option value="Pendiente">Pendiente</option>
                     </select>
                 </div>
                 <div>
@@ -418,6 +440,12 @@ let visorGaleriaActual = [];
 let visorIndiceActual = 0;
 
 document.addEventListener("DOMContentLoaded", () => {
+    const nombreUsuario = sessionStorage.getItem("usuario_nombre") || sessionStorage.getItem("usuario_logueado") || "Usuario";
+    if (document.getElementById("userNameLabel")) {
+        document.getElementById("userNameLabel").innerText = nombreUsuario;
+        document.getElementById("userAvatar").innerText = nombreUsuario.charAt(0).toUpperCase();
+    }
+
     if (window.sqlClient) {
         cargarAcciones();
     }
@@ -431,6 +459,7 @@ function cerrarSesion(e) {
     e.preventDefault();
     if (confirm("¿Estás seguro de que deseas cerrar sesión?")) {
         sessionStorage.removeItem('usuario_logueado');
+        sessionStorage.removeItem('usuario_nombre');
         window.location.replace("login.html");
     }
 }
@@ -451,7 +480,6 @@ function cerrarModalAccion() {
 async function cargarAcciones() {
     const tbody = document.getElementById("tablaAccionesCuerpo");
     try {
-        // Asegurar la tabla incluyendo la columna 'foto' (que guardará el JSON de URLs de ImgBB)
         await window.sqlClient.query(`
             CREATE TABLE IF NOT EXISTS acciones_concejala (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -535,11 +563,13 @@ function renderizarTabla(datos) {
 function aplicarFiltros() {
     const texto = document.getElementById("filtroTexto").value.toLowerCase().trim();
     const categoria = document.getElementById("filtroCategoria").value;
+    const estatus = document.getElementById("filtroEstatus").value;
 
     const filtrados = listaAccionesGlobales.filter(item => {
         const matchTexto = !texto || Object.values(item).some(val => val && String(val).toLowerCase().includes(texto));
         const matchCat = !categoria || item.categoria === categoria;
-        return matchTexto && matchCat;
+        const matchEstatus = !estatus || item.estatus === estatus;
+        return matchTexto && matchCat && matchEstatus;
     });
 
     renderizarTabla(filtrados);
@@ -548,6 +578,7 @@ function aplicarFiltros() {
 function limpiarFiltros() {
     document.getElementById("filtroTexto").value = "";
     document.getElementById("filtroCategoria").value = "";
+    document.getElementById("filtroEstatus").value = "";
     renderizarTabla(listaAccionesGlobales);
 }
 
@@ -593,7 +624,7 @@ async function guardarAccion(event) {
     const lugar = document.getElementById("accLugar").value.trim();
     const involucrados = document.getElementById("accInvolucrados").value.trim();
     const acuerdos = document.getElementById("accAcuerdos").value.trim();
-    const creado_por = sessionStorage.getItem("usuario_nombre") || "Concejalía";
+    const creado_por = sessionStorage.getItem("usuario_nombre") || sessionStorage.getItem("usuario_logueado") || "Willie Aponte";
     const fileInput = document.getElementById("accFotoFile").files;
     const hiddenFotoVal = document.getElementById("accFotoHidden").value;
 
@@ -720,7 +751,7 @@ function cerrarModalImagen(event) {
 }
 
 function cerrarModalImagenForzado() {
-    document.getElementById('imageModal').classList.remove('active');
+    document.getElementById('imageModal'].classList.remove('active');
 }
 </script>
 </body>
