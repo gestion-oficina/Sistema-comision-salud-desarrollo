@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-     <script>
+    <script>
         const sesion = sessionStorage.getItem('usuario_logueado');
         if (!sesion && window.location.pathname !== "/login.html") {
             window.location.replace("login.html");
@@ -13,11 +13,12 @@
         }
     </script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Reporte Ejecutivo Multidisciplinario - SQLite Cloud</title>
+    <title>Reportes Institucionales - Comisión de Salud</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <!-- SDK de SQLite Cloud -->
-    <script src="https://unpkg.com/@sqlitecloud/drivers"></script>
+    
+    <!-- ARCHIVO DE CONEXIÓN CENTRALIZADO -->
+    <script src="js/conexion.js"></script>
     
     <style>
         :root {
@@ -102,16 +103,16 @@
         .report-meta { text-align: right; font-size: 11px; color: #475569; line-height: 1.4; }
         
         .report-title { text-align: center; margin-bottom: 36px; color: var(--text-dark-title); }
-        .report-title h1 { font-size: 21px; font-weight: 700; letter-spacing: 0.5px; }
+        .report-title h1 { font-size: 22px; font-weight: 700; letter-spacing: 0.5px; }
         .report-title p { font-size: 12px; color: #64748b; margin-top: 6px; font-weight: 500; }
         
-        .section-heading { font-size: 13.5px; font-weight: 700; color: var(--text-dark-title); margin-top: 28px; margin-bottom: 12px; border-left: 3px solid var(--sidebar-active); padding-left: 8px; text-transform: uppercase; letter-spacing: 0.3px; }
+        .section-heading { font-size: 14px; font-weight: 700; color: var(--text-dark-title); margin-top: 28px; margin-bottom: 12px; border-left: 3px solid var(--sidebar-active); padding-left: 8px; text-transform: uppercase; letter-spacing: 0.3px; }
 
         .report-table { width: 100%; border-collapse: collapse; margin-bottom: 20px; font-size: 13px; }
         .report-table th { background: #f8fafc; color: var(--text-dark-title); font-weight: 700; text-align: left; padding: 12px; border: 1px solid #cbd5e1; }
         .report-table td { padding: 12px; border: 1px solid #cbd5e1; color: #334155; }
         
-        .signature-section { margin-top: 70px; display: flex; justify-content: space-between; text-align: center; font-size: 12px; }
+        .signature-section { margin-top: 80px; display: flex; justify-content: space-between; text-align: center; font-size: 12px; }
         .signature-box { width: 220px; border-top: 1px solid #94a3b8; padding-top: 10px; color: #1e293b; }
 
         @media print {
@@ -161,7 +162,7 @@
         
         <div class="menu-category">Gestión Digital</div>
         <a class="menu" href="bitacora.html">Bitácora de Eventos</a>
-        <a class="menu active-page" href="reportes.html">📄 Reportes e Informes</a>
+        <a class="menu" href="reportes.html" style="background: var(--sidebar-active); font-weight: 600; border-radius: 6px; margin: 2px 14px; padding: 10px 20px;">📄 Reportes e Informes</a>
         
         <div style="margin-top: auto; padding: 24px 20px; border-top: 1px solid rgba(255,255,255,0.1);">
             <div id="usuarioNombre" style="font-size:13px; color:#ffffff; font-weight:600; margin-bottom: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">Cargando...</div>
@@ -173,8 +174,8 @@
     <div class="main">
         <div class="no-print-zone">
             <div>
-                <h2>Reporte Ejecutivo - SQLite Cloud</h2>
-                <p>Consolidado multidisplinario conectado directamente a la base de datos local/cloud SQLite.</p>
+                <h2>Generador de Informes de Gestión</h2>
+                <p>Configure el balance antes de enviarlo a la impresora o PDF.</p>
             </div>
             <button class="btn-print" id="btnPrint" onclick="ejecutarImpresion()">🖨️ Imprimir / Guardar PDF</button>
         </div>
@@ -187,84 +188,56 @@
                     COMISIÓN PERMANENTE DE SALUD Y DESARROLLO SOCIAL INTEGRAL
                 </div>
                 <div class="report-meta">
-                    <b>Código:</b> CPS-2026-SQLITE<br>
+                    <b>Código:</b> CPS-2026-REP<br>
                     <b>Fecha Emisión:</b> <span id="fecha-reporte">--/--/----</span>
                 </div>
             </div>
 
             <div class="report-title">
-                <h1>REPORTE EJECUTIVO MULTIDISCIPLINARIO</h1>
-                <p>Balance General de Operaciones, Casos de Salud, Oficios, Informes y Bitácora</p>
+                <h1>INFORME CONSOLIDADO DE GESTIÓN SOCIAL</h1>
+                <p>Balance de Solicitudes, Atenciones y Demandas Geográficas en Materia de Salud</p>
             </div>
 
-            <!-- Sección I: Desglose por Tablas SQLite -->
-            <div class="section-heading">I. Consolidado General por Módulos (SQLite)</div>
+            <div class="section-heading">I. Resumen General de Casos Colectivos</div>
             <table class="report-table">
                 <thead>
                     <tr>
-                        <th>Módulo / Tabla</th>
-                        <th>Descripción del Indicador</th>
-                        <th>Total Registrado</th>
-                        <th>Estatus del Sistema</th>
+                        <th>Indicador Operativo de Gestión</th>
+                        <th>Total Registros</th>
+                        <th>Estatus de Control Interno</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr>
-                        <td rowspan="3"><b>casos_salud</b></td>
-                        <td>Total Solicitudes y Casos Registrados</td>
-                        <td id="rep-casos-tot" style="font-weight: 700;">...</td>
-                        <td>Base Activa SQLite</td>
+                        <td><b>Total Solicitudes Comunitarias Recibidas</b></td>
+                        <td id="rep-total" style="font-weight: 700;">...</td>
+                        <td>Sincronizado en Base de Datos</td>
                     </tr>
                     <tr>
-                        <td>Casos Activos (En Evaluación)</td>
-                        <td id="rep-casos-act" style="font-weight: 700; color: #b45309;">...</td>
-                        <td>Validación de Campo</td>
+                        <td><b>Casos Activos (En Gestión / Evaluación)</b></td>
+                        <td id="rep-activos" style="font-weight: 700; color: #b45309;">...</td>
+                        <td>Verificación Técnica y de Campo</td>
                     </tr>
                     <tr>
-                        <td>Casos Solventados / Atendidos</td>
-                        <td id="rep-casos-res" style="font-weight: 700; color: #15803d;">...</td>
-                        <td>Gestión Concluida</td>
-                    </tr>
-                    <tr>
-                        <td><b>oficios</b></td>
-                        <td>Oficios Emitidos / Correspondencia</td>
-                        <td id="rep-oficios" style="font-weight: 700; color: var(--sidebar-active);">...</td>
-                        <td>Control Ejecutivo</td>
-                    </tr>
-                    <tr>
-                        <td><b>informes</b></td>
-                        <td>Informes Técnicos Generados</td>
-                        <td id="rep-informes" style="font-weight: 700; color: #0f2547;">...</td>
-                        <td>Soporte Institucional</td>
-                    </tr>
-                    <tr>
-                        <td><b>bitacora_eventos</b></td>
-                        <td>Registros en Bitácora de Eventos</td>
-                        <td id="rep-bitacora" style="font-weight: 700; color: #7c3aed;">...</td>
-                        <td>Monitoreo Territorial</td>
-                    </tr>
-                    <tr>
-                        <td><b>agenda_oficina</b></td>
-                        <td>Planificación Semanal / Agenda</td>
-                        <td id="rep-agenda" style="font-weight: 700; color: #0284c7;">...</td>
-                        <td>Control de Actividades</td>
+                        <td><b>Casos Solventados (Efectividad Entrega)</b></td>
+                        <td id="rep-resueltos" style="font-weight: 700; color: #15803d;">...</td>
+                        <td>Asignación Institucional Concluida</td>
                     </tr>
                 </tbody>
             </table>
 
-            <!-- Sección II: Matriz Territorial -->
-            <div class="section-heading">II. Matriz Geográfica de Incidencia Social (Sectores)</div>
+            <div class="section-heading">II. Distribución Geográfica de Demandas (Sectores Críticos)</div>
             <table class="report-table">
                 <thead>
                     <tr>
                         <th>Comunidad / Sector Evaluado</th>
-                        <th>Cantidad de Solicitudes</th>
-                        <th>Participación Porcentual</th>
+                        <th>N° de Solicitudes Registradas</th>
+                        <th>Porcentaje de Incidencia Geográfica</th>
                     </tr>
                 </thead>
                 <tbody id="tabla-sectores-reporte">
                     <tr>
-                        <td colspan="3" style="color:#64748b; text-align: center; padding: 20px;">Consultando registros de sectores en SQLite...</td>
+                        <td colspan="3" style="color:#64748b; text-align: center; padding: 20px;">Cargando matriz geográfica y procesando datos consolidados...</td>
                     </tr>
                 </tbody>
             </table>
@@ -281,52 +254,63 @@
                     Firma, Control y Sello Oficina
                 </div>
             </div>
-
         </div>
     </div>
 </div>
 
 <script>
-// Configuración de conexión SQLite Cloud (asegúrate de incluir tu connection string o token si es requerido en tu entorno)
-// El SDK se conecta a tu base de datos sistema_gestion.sqlite visualizada en el Studio.
-async function cargarDatosSQLite() {
+document.addEventListener("DOMContentLoaded", () => {
+    const nombre = sessionStorage.getItem("usuario_nombre");
+    const coord = sessionStorage.getItem("usuario_coordinacion");
+    if (nombre) document.getElementById("usuarioNombre").textContent = nombre;
+    if (coord) document.getElementById("usuarioCoordinacion").textContent = coord.toUpperCase();
+
+    document.getElementById("fecha-reporte").innerText = new Date().toLocaleDateString('es-VE');
+    cargarDatosDelReporte();
+});
+
+function toggleMobileMenu() {
+    document.getElementById("sidebarMenu").classList.toggle("open");
+}
+
+async function consultarBaseDatos(query, params = []) {
     try {
-        // Inicializar la conexión usando SQLite Cloud SDK
-        const db = new SQLiteCloud.Database("sqlitecloud://your-connection-string-here?apikey=YOUR_API_KEY");
-        // O si utilizas la conexión directa configurada en tu proyecto local:
-        // const db = new SQLiteCloud.Database("sqlitecloud://.../?dbname=sistema_gestion.sqlite");
+        const response = await fetch("/api/query", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ query, params })
+        });
+        return await response.json();
+    } catch (error) {
+        console.error(error);
+        throw error;
+    }
+}
 
-        // Ejecutar consultas SQL en paralelo a las tablas de SQLite
-        const [casos, oficios, informes, bitacora, agenda] = await Promise.all([
-            db.sql`SELECT * FROM casos_salud;`,
-            db.sql`SELECT id FROM oficios;`,
-            db.sql`SELECT id FROM informes;`,
-            db.sql`SELECT id FROM bitacora_eventos;`,
-            db.sql`SELECT id FROM agenda_oficina;`
-        ]);
+async function cargarDatosDelReporte() {
+    try {
+        const registros = await consultarBaseDatos("SELECT id, nombre, cedula, telefono, sector, estatus FROM casos_salud");
 
-        const registrosCasos = casos || [];
+        if (!registros || !Array.isArray(registros) || registros.length === 0) {
+            document.getElementById("rep-total").innerText = "0";
+            document.getElementById("rep-activos").innerText = "0";
+            document.getElementById("rep-resueltos").innerText = "0";
+            document.getElementById("tabla-sectores-reporte").innerHTML = `<tr><td colspan="3" style="text-align:center; color:#94a3b8;">No existen datos para generar balances.</td></tr>`;
+            return;
+        }
 
-        // Métricas de Casos
-        const totalCasos = registrosCasos.length;
-        const activos = registrosCasos.filter(r => r.telefono && r.telefono !== "NULL").length;
-        const resueltos = registrosCasos.filter(r => r.cedula && r.sector && r.sector !== "NULL").length;
+        const totalRegistros = registros.length;
+        const activos = registros.filter(r => r.estatus === "En Gestión" || r.estatus === "En Espera").length;
+        const resueltos = registros.filter(r => r.estatus === "Resuelto").length;
 
-        document.getElementById("rep-casos-tot").innerText = totalCasos;
-        document.getElementById("rep-casos-act").innerText = activos;
-        document.getElementById("rep-casos-res").innerText = resueltos;
+        document.getElementById("rep-total").innerText = totalRegistros;
+        document.getElementById("rep-activos").innerText = activos;
+        document.getElementById("rep-resueltos").innerText = resueltos;
 
-        // Métricas de las demás tablas SQLite
-        document.getElementById("rep-oficios").innerText = oficios ? oficios.length : 0;
-        document.getElementById("rep-informes").innerText = informes ? informes.length : 0;
-        document.getElementById("rep-bitacora").innerText = bitacora ? bitacora.length : 0;
-        document.getElementById("rep-agenda").innerText = agenda ? agenda.length : 0;
-
-        // Matriz Geográfica por Sectores
         const conteoSectores = {};
         let totalValidos = 0;
 
-        registrosCasos.forEach(r => {
+        registros.forEach(r => {
             if (r.sector && r.sector !== "NULL" && r.sector.trim() !== "") {
                 const sectorNormalizado = r.sector.trim();
                 conteoSectores[sectorNormalizado] = (conteoSectores[sectorNormalizado] || 0) + 1;
@@ -338,7 +322,7 @@ async function cargarDatosSQLite() {
         const tablaSectoresHtml = document.getElementById("tabla-sectores-reporte");
 
         if (sectoresOrdenados.length === 0) {
-            tablaSectoresHtml.innerHTML = `<tr><td colspan="3" style="text-align:center; color:#94a3b8;">Sin sectores válidos detectados en SQLite.</td></tr>`;
+            tablaSectoresHtml.innerHTML = `<tr><td colspan="3" style="text-align:center; color:#94a3b8;">Sin sectores válidos detectados.</td></tr>`;
         } else {
             tablaSectoresHtml.innerHTML = sectoresOrdenados.map(([nombreSector, cantidad]) => {
                 const porcentaje = totalValidos > 0 ? ((cantidad / totalValidos) * 100).toFixed(1) : 0;
@@ -346,25 +330,16 @@ async function cargarDatosSQLite() {
                     <tr>
                         <td><b>${nombreSector}</b></td>
                         <td>${cantidad} ${cantidad === 1 ? 'solicitud' : 'solicitudes'}</td>
-                        <td><b>${porcentaje}%</b> de incidencia territorial</td>
+                        <td><b>${porcentaje}%</b> del histórico territorial</td>
                     </tr>
                 `;
             }).join("");
         }
 
     } catch (err) {
-        console.error("Error al conectar con SQLite Cloud:", err);
-        document.getElementById("tabla-sectores-reporte").innerHTML = `<tr><td colspan="3" style="text-align:center; color:var(--danger-color); font-weight:600;">Error de comunicación con SQLite Cloud.</td></tr>`;
+        console.error("Error al estructurar reporte institucional:", err);
+        document.getElementById("tabla-sectores-reporte").innerHTML = `<tr><td colspan="3" style="text-align:center; color:var(--danger-color); font-weight:600;">Error de comunicación con el servidor central de la base de datos local.</td></tr>`;
     }
-}
-
-document.addEventListener("DOMContentLoaded", () => {
-    document.getElementById("fecha-reporte").innerText = new Date().toLocaleDateString('es-VE');
-    cargarDatosSQLite();
-});
-
-function toggleMobileMenu() {
-    document.getElementById("sidebarMenu").classList.toggle("open");
 }
 
 function ejecutarImpresion() {
@@ -383,18 +358,10 @@ function ejecutarImpresion() {
     }, 150); 
 }
 
-function logout(){
+async function logout(){
     sessionStorage.clear();
     location.href="index.html";
 }
-</script>
-<script>
-    document.addEventListener("DOMContentLoaded", () => {
-        const nombre = sessionStorage.getItem("usuario_nombre");
-        const coord = sessionStorage.getItem("usuario_coordinacion");
-        if (nombre) document.getElementById("usuarioNombre").textContent = nombre;
-        if (coord) document.getElementById("usuarioCoordinacion").textContent = coord.toUpperCase();
-    });
 </script>
 </body>
 </html>
