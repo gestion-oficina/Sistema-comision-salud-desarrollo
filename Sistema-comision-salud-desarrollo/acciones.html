@@ -17,8 +17,29 @@
     
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
-    <!-- ARCHIVO DE CONEXIÓN CENTRALIZADO (CON INACTIVIDAD DE 5 MIN) -->
-    <script src="js/conexion.js"></script>
+    <!-- MOTOR CENTRAL DE CONEXIÓN SQLITE -->
+    <script>
+        window.sqlClient = {
+            async query(sqlText, params = []) {
+                const respuesta = await fetch("/api/query", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        query: sqlText,
+                        params: params
+                    })
+                });
+
+                if (!respuesta.ok) {
+                    throw new Error("Error de conexión con el servidor");
+                }
+
+                return await respuesta.json();
+            }
+        };
+    </script>
     
     <style>
         :root {
@@ -39,14 +60,20 @@
 
         .layout{ display:grid; grid-template-columns:280px 1fr; min-height:100vh; }
 
-        .sidebar{ background: var(--sidebar-bg); padding:24px 0; display: flex; flex-direction: column; transition: transform 0.3s ease; }
+        .sidebar{ background: var(--sidebar-bg); padding:24px 0; display: flex; flex-direction: column; transition: transform 0.3s ease; justify-content: space-between; z-index: 1000; }
+        .sidebar-top { display: flex; flex-direction: column; }
         .sidebar-brand { display: flex; flex-direction: column; align-items: center; text-align: center; padding: 0 16px 20px 16px; border-bottom: 1px solid rgba(255, 255, 255, 0.1); margin-bottom: 10px; }
         .sidebar-brand h2 { font-size: 11px; color: #ffffff; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; line-height: 1.4; margin-top: 5px; }
         .menu-category { font-size: 10.5px; font-weight: 700; color: var(--sidebar-text-sub); text-transform: uppercase; letter-spacing: 0.5px; padding: 16px 20px 6px 20px; }
         .menu{ display: block; padding: 8px 36px; color: var(--menu-text); cursor: pointer; font-size: 13.5px; font-weight: 500; text-decoration: none; transition: all 0.2s ease; opacity: 0.9; }
         .menu:hover{ opacity: 1; background: rgba(255, 255, 255, 0.05); }
 
-        .mobile-header { display: none; background: var(--sidebar-bg); color: white; padding: 14px 20px; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 1000; }
+        /* CIERRE DE SESIÓN ABAJO EN EL MENÚ */
+        .sidebar-footer { padding: 20px 14px; border-top: 1px solid rgba(255, 255, 255, 0.1); margin-top: auto; }
+        .btn-logout { width: 100%; background: rgba(220, 38, 38, 0.2); color: #fca5a5; border: 1px solid rgba(220, 38, 38, 0.4); padding: 10px; border-radius: 8px; font-size: 12.5px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: all 0.2s; text-decoration: none; }
+        .btn-logout:hover { background: var(--danger-color); color: white; }
+
+        .mobile-header { display: none; background: var(--sidebar-bg); color: white; padding: 14px 20px; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 1100; }
         .menu-toggle { background: transparent; border: none; color: white; font-size: 24px; cursor: pointer; }
 
         .main{ padding:40px; overflow-x: hidden; }
@@ -82,7 +109,7 @@
         .stat-card h4 { font-size: 11px; text-transform: uppercase; color: #64748b; font-weight: 700; margin-bottom: 6px; letter-spacing: 0.3px; }
         .stat-card .stat-value { font-size: 22px; font-weight: 700; color: var(--text-dark-title); }
 
-        /* FILTROS EN VIVO */
+        /* FILTROS EN TIEMPO REAL */
         .filter-container {
             display: grid;
             grid-template-columns: 1fr 220px 140px;
@@ -119,6 +146,7 @@
             height: 41px;
         }
         .btn-action:hover { background: #0052a3; }
+        .btn-action:disabled { background: #94a3b8; cursor: not-allowed; box-shadow: none; }
         .btn-secondary { background: #64748b; }
         .btn-secondary:hover { background: #475569; }
 
@@ -130,14 +158,19 @@
         .badge { padding: 4px 8px; border-radius: 4px; font-size: 10.5px; font-weight: 600; display: inline-block; }
         .badge-resuelto { background: #dcfce7; color: #166534; }
         .badge-gestion { background: #fef9c3; color: #854d0e; }
-        .badge-espera { background: #fee2e2; color: #991b1b; }
 
-        /* MODAL */
+        /* MINIATURA FOTO TABLA (GALERÍA COMPACTA) */
+        .table-galeria { display: flex; gap: 4px; flex-wrap: wrap; max-width: 100px; }
+        .table-img { width: 42px; height: 42px; object-fit: cover; border-radius: 6px; border: 1px solid #cbd5e1; cursor: pointer; transition: transform 0.2s; background: #0f172a; }
+        .table-img:hover { transform: scale(1.1); }
+
+        /* MODAL FORMULARIO */
         .modal-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(15, 37, 71, 0.6); display: none;
             justify-content: center; align-items: center; z-index: 2000; padding: 20px;
         }
+        .modal-overlay.active { display: flex; }
         .modal-card {
             background: white; width: 100%; max-width: 600px;
             border-radius: 12px; padding: 30px; box-shadow: 0 10px 25px rgba(0,0,0,0.1);
@@ -159,15 +192,30 @@
             border-color: var(--sidebar-active); background: white; box-shadow: 0 0 0 3px rgba(0,102,204,0.1);
         }
 
+        /* MODAL VISOR DE IMAGEN CON FLECHAS (IGUAL A BITÁCORA) */
+        .image-modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.9); backdrop-filter: blur(6px); display: none; align-items: center; justify-content: center; z-index: 3000; padding: 20px; }
+        .image-modal-overlay.active { display: flex; }
+        .image-modal-container { position: relative; max-width: 90vw; max-height: 90vh; display: flex; align-items: center; justify-content: center; }
+        .image-modal-content { max-width: 85vw; max-height: 85vh; object-fit: contain; border-radius: 8px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        
+        .nav-arrow { position: absolute; top: 50%; transform: translateY(-50%); background: rgba(255, 255, 255, 0.2); color: white; border: none; font-size: 24px; width: 45px; height: 45px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background 0.2s; z-index: 3010; }
+        .nav-arrow:hover { background: rgba(255, 255, 255, 0.4); }
+        .nav-arrow.prev { left: -60px; }
+        .nav-arrow.next { right: -60px; }
+        .image-counter { position: absolute; bottom: -35px; left: 50%; transform: translateX(-50%); color: #cbd5e1; font-size: 13px; font-weight: 600; }
+        .close-visor { position: absolute; top: -45px; right: 0; background: transparent; border: none; color: white; font-size: 28px; cursor: pointer; }
+
         @media (max-width: 900px) {
             .layout { grid-template-columns: 1fr; }
             .mobile-header { display: flex; }
-            .sidebar { position: fixed; top: 53px; left: 0; width: 280px; height: calc(100vh - 53px); z-index: 999; transform: translateX(-100%); }
-            .sidebar.open { transform: translateX(0); }
+            .sidebar { position: fixed; top: 53px; left: -280px; width: 280px; height: calc(100vh - 53px); z-index: 999; transition: transform 0.3s ease; }
+            .sidebar.active { transform: translateX(280px); }
             .main { padding: 20px; }
             .filter-container { grid-template-columns: 1fr; }
             .form-grid { grid-template-columns: 1fr; }
             .form-group.full { grid-column: span 1; }
+            .nav-arrow.prev { left: 10px; }
+            .nav-arrow.next { right: 10px; }
         }
     </style>
 </head>
@@ -175,40 +223,41 @@
 
 <div class="mobile-header">
     <div style="font-weight:700; font-size:12px; letter-spacing:0.5px;">COMISIÓN DE SALUD</div>
-    <button class="menu-toggle" onclick="toggleMobileMenu()">☰</button>
+    <button class="menu-toggle" onclick="toggleSidebar()">☰</button>
 </div>
 
 <div class="layout">
     <!-- MENÚ LATERAL -->
     <div class="sidebar" id="sidebarMenu">
-        <div class="sidebar-brand">
-            <h2>COMISIÓN PERMANENTE DE SALUD<br>Y DESARROLLO SOCIAL INTEGRAL</h2>
+        <div class="sidebar-top">
+            <div class="sidebar-brand">
+                <h2>COMISIÓN PERMANENTE DE SALUD<br>Y DESARROLLO SOCIAL INTEGRAL</h2>
+            </div>
+            
+            <a class="menu" href="dashboard.html">Principal</a>
+            
+            <div class="menu-category">Coor. Ejecutiva</div>
+            <a class="menu" href="ejecutiva.html">Oficios e Informes</a>
+            <a class="menu" href="planificacion.html">Planificación Semanal</a>
+            
+            <div class="menu-category">Coor. Política</div>
+            <a class="menu" href="politica.html">Liderazgos y Comunas</a>
+            
+            <div class="menu-category">Coor. Social</div>
+            <a class="menu" href="social.html">Casos Sociales</a>
+            <a class="menu" href="red_salud.html">Red de Salud (CPT/CDI)</a>
+            
+            <div class="menu-category">Gestión Despacho</div>
+            <a class="menu" href="acciones.html" style="background: var(--sidebar-active); font-weight: 600; border-radius: 6px; margin: 2px 14px; padding: 10px 20px;">⭐ Acciones Concejala</a>
+            
+            <div class="menu-category">Gestión Digital</div>
+            <a class="menu" href="bitacora.html">Bitácora de Eventos</a>
+            <a class="menu" href="reportes.html">📄 Reporte Integral</a>
+            <a class="menu" href="formatos.html">📁 Formatos de Oficina</a>
         </div>
-        
-        <a class="menu" href="dashboard.html">Principal</a>
-        
-        <div class="menu-category">Coor. Ejecutiva</div>
-        <a class="menu" href="ejecutiva.html">Oficios e Informes</a>
-        <a class="menu" href="planificacion.html">Planificación Semanal</a>
-        
-        <div class="menu-category">Coor. Política</div>
-        <a class="menu" href="politica.html">Liderazgos y Comunas</a>
-        
-        <div class="menu-category">Coor. Social</div>
-        <a class="menu" href="social.html">Casos Sociales</a>
-        <a class="menu" href="red_salud.html">Red de Salud (CPT/CDI)</a>
-        
-        <div class="menu-category">Gestión Despacho</div>
-        <a class="menu" href="acciones.html" style="background: var(--sidebar-active); font-weight: 600; border-radius: 6px; margin: 2px 14px; padding: 10px 20px;">⭐ Acciones Concejala</a>
-        
-        <div class="menu-category">Gestión Digital</div>
-        <a class="menu" href="bitacora.html">Bitácora de Eventos</a>
-        <a class="menu" href="reportes.html">📄 Reporte Integral</a>
-        
-        <div style="margin-top: auto; padding: 24px 20px; border-top: 1px solid rgba(255,255,255,0.1);">
-            <div id="usuarioNombre" style="font-size:13px; color:#ffffff; font-weight:600; margin-bottom: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">Cargando...</div>
-            <div id="usuarioCoordinacion" style="font-size:10.5px; color:var(--sidebar-text-sub); font-weight: 500; margin-bottom: 16px; text-transform: uppercase; letter-spacing: 0.3px;">Cargando...</div>
-            <a class="menu" onclick="logout()" style="cursor:pointer; font-size:12px; color:#f87171; padding: 8px 0; display: block; border-top: 1px solid rgba(255,255,255,0.05);">Cerrar sesión</a>
+
+        <div class="sidebar-footer">
+            <a href="#" class="btn-logout" onclick="cerrarSesion(event)">🚪 Cerrar Sesión</a>
         </div>
     </div>
 
@@ -218,7 +267,7 @@
             <div class="header-actions">
                 <div>
                     <h2>Registro de Acciones y Gestión de Despacho</h2>
-                    <p>Control institucional y seguimiento de actividades directas de la Concejala.</p>
+                    <p>Control institucional y seguimiento de actividades directas de la Concejala con soporte fotográfico en nube.</p>
                 </div>
                 <button class="btn-action" onclick="abrirModalAccion()">➕ Registrar Nueva Acción</button>
             </div>
@@ -265,8 +314,8 @@
                 <table class="data-table">
                     <thead>
                         <tr>
-                            <th>ID</th>
-                            <th>Título / Acción</th>
+                            <th>Evidencia</th>
+                            <th>ID / Título</th>
                             <th>Categoría & Fecha</th>
                             <th>Lugar / Involucrados</th>
                             <th>Acuerdos</th>
@@ -284,15 +333,17 @@
     </div>
 </div>
 
-<!-- MODAL PARA CREAR ACCIÓN -->
+<!-- MODAL PARA CREAR / EDITAR ACCIÓN -->
 <div class="modal-overlay" id="modalAccion">
     <div class="modal-card">
         <div class="modal-header">
-            <h3 id="modalTituloTexto">Registrar Nueva Acción de Despacho</h3>
+            <h3 id="modalAccionTitulo">Registrar Nueva Acción de Despacho</h3>
             <button class="close-modal" onclick="cerrarModalAccion()">✕</button>
         </div>
         <form id="formAccion" onsubmit="guardarAccion(event)">
-            <input type="hidden" id="accId">
+            <input type="hidden" id="accEditId" value="">
+            <input type="hidden" id="accFotoHidden" value="">
+            
             <div class="form-grid">
                 <div class="form-group full">
                     <label>Título de la Acción / Actividad</label>
@@ -334,64 +385,74 @@
                 </div>
                 <div class="form-group full">
                     <label>Acuerdos / Conclusiones</label>
-                    <textarea id="accAcuerdos" rows="3" placeholder="Detalle los compromisos asumidos..."></textarea>
+                    <textarea id="accAcuerdos" rows="2" placeholder="Detalle los compromisos asumidos..."></textarea>
+                </div>
+                <div class="form-group full">
+                    <label>Evidencia Fotográfica (Puedes seleccionar varias)</label>
+                    <input type="file" id="accFotoFile" accept="image/*" multiple>
+                    <small style="color: #64748b; font-size: 11px;">Las nuevas fotos se sumarán a las existentes si estás editando.</small>
                 </div>
             </div>
             <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 15px;">
                 <button type="button" class="btn-action btn-secondary" onclick="cerrarModalAccion()">Cancelar</button>
-                <button type="submit" class="btn-action">Guardar Registro</button>
+                <button type="submit" class="btn-action" id="btnGuardar">Guardar Registro</button>
             </div>
         </form>
     </div>
 </div>
 
+<!-- MODAL VISOR DE IMAGEN CON FLECHAS -->
+<div class="image-modal-overlay" id="imageModal" onclick="cerrarModalImagen(event)">
+    <div class="image-modal-container" onclick="event.stopPropagation()">
+        <button class="close-visor" onclick="cerrarModalImagenForzado()">×</button>
+        <button class="nav-arrow prev" id="btnPrev" onclick="cambiarFoto(-1)">&#10094;</button>
+        <img class="image-modal-content" id="imgModalFull" alt="Vista Ampliada">
+        <button class="nav-arrow next" id="btnNext" onclick="cambiarFoto(1)">&#10095;</button>
+        <div class="image-counter" id="imgCounter">1 / 1</div>
+    </div>
+</div>
+
 <script>
 let listaAccionesGlobales = [];
+let visorGaleriaActual = [];
+let visorIndiceActual = 0;
 
 document.addEventListener("DOMContentLoaded", () => {
-    const nombre = sessionStorage.getItem("usuario_nombre");
-    const coord = sessionStorage.getItem("usuario_coordinacion");
-    if (nombre) document.getElementById("usuarioNombre").textContent = nombre;
-    if (coord) document.getElementById("usuarioCoordinacion").textContent = coord.toUpperCase();
-
-    document.getElementById("accFecha").valueAsDate = new Date();
-    cargarAcciones();
+    if (window.sqlClient) {
+        cargarAcciones();
+    }
 });
 
-function toggleMobileMenu() {
-    document.getElementById("sidebarMenu").classList.toggle("open");
+function toggleSidebar() { 
+    document.getElementById("sidebarMenu").classList.toggle("active"); 
+}
+
+function cerrarSesion(e) {
+    e.preventDefault();
+    if (confirm("¿Estás seguro de que deseas cerrar sesión?")) {
+        sessionStorage.removeItem('usuario_logueado');
+        window.location.replace("login.html");
+    }
 }
 
 function abrirModalAccion() {
     document.getElementById("formAccion").reset();
-    document.getElementById("accId").value = "";
-    document.getElementById("modalTituloTexto").innerText = "Registrar Nueva Acción de Despacho";
+    document.getElementById("accEditId").value = "";
+    document.getElementById("accFotoHidden").value = "";
+    document.getElementById("modalAccionTitulo").innerText = "Registrar Nueva Acción de Despacho";
     document.getElementById("accFecha").valueAsDate = new Date();
-    document.getElementById("modalAccion").style.display = "flex";
+    document.getElementById("modalAccion").classList.add("active");
 }
 
 function cerrarModalAccion() {
-    document.getElementById("modalAccion").style.display = "none";
-}
-
-async function consultarBaseDatos(query, params = []) {
-    try {
-        const response = await fetch("/api/query", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ query, params })
-        });
-        return await response.json();
-    } catch (error) {
-        console.error(error);
-        throw error;
-    }
+    document.getElementById("modalAccion").classList.remove("active");
 }
 
 async function cargarAcciones() {
     const tbody = document.getElementById("tablaAccionesCuerpo");
     try {
-        await consultarBaseDatos(`
+        // Asegurar la tabla incluyendo la columna 'foto' (que guardará el JSON de URLs de ImgBB)
+        await window.sqlClient.query(`
             CREATE TABLE IF NOT EXISTS acciones_concejala (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 titulo TEXT NOT NULL,
@@ -402,14 +463,13 @@ async function cargarAcciones() {
                 involucrados TEXT,
                 acuerdos TEXT,
                 estatus TEXT,
+                foto TEXT,
                 creado_por TEXT
             );
         `);
 
-        listaAccionesGlobales = await consultarBaseDatos("SELECT * FROM acciones_concejala ORDER BY id DESC");
-        if (!listaAccionesGlobales || !Array.isArray(listaAccionesGlobales)) {
-            listaAccionesGlobales = [];
-        }
+        const resultado = await window.sqlClient.query("SELECT * FROM acciones_concejala ORDER BY id DESC");
+        listaAccionesGlobales = resultado.resultado || resultado || [];
 
         renderizarTabla(listaAccionesGlobales);
     } catch (err) {
@@ -421,7 +481,6 @@ async function cargarAcciones() {
 function renderizarTabla(datos) {
     const tbody = document.getElementById("tablaAccionesCuerpo");
     
-    // Calcular estadísticas
     document.getElementById("statTotal").innerText = datos.length;
     const completadas = datos.filter(d => d.estatus === "Completado").length;
     document.getElementById("statCompletadas").innerText = completadas;
@@ -432,19 +491,45 @@ function renderizarTabla(datos) {
         return;
     }
 
-    tbody.innerHTML = datos.map(item => `
-        <tr>
-            <td><b>#${item.id}</b></td>
-            <td><b>${item.titulo}</b></td>
-            <td><span style="color:var(--sidebar-active); font-weight:600;">${item.categoria}</span><br><small style="color:#64748b;">📅 ${item.fecha || 'N/D'} ${item.hora ? '— ' + item.hora : ''}</small></td>
-            <td>📍 ${item.lugar || 'N/D'}<br><small style="color:#64748b;">👥 ${item.involucrados || 'N/D'}</small></td>
-            <td>${item.acuerdos || 'Sin acuerdos específicos'}</td>
-            <td>
-                <span class="badge ${item.estatus === 'Completado' ? 'badge-resuelto' : 'badge-gestion'}">${item.estatus}</span><br>
-                <small style="color:#64748b;">Por: ${item.creado_por || 'Sistema'}</small>
-            </td>
-        </tr>
-    `).join("");
+    tbody.innerHTML = datos.map((item, index) => {
+        let fotosArray = [];
+        try {
+            if (item.foto) {
+                fotosArray = JSON.parse(item.foto);
+                if (!Array.isArray(fotosArray)) fotosArray = [item.foto];
+            }
+        } catch(e) {
+            fotosArray = item.foto ? [item.foto] : [];
+        }
+
+        const fotosJsonEscaped = JSON.stringify(fotosArray).replace(/'/g, "&apos;").replace(/"/g, "&quot;");
+
+        const galeriaHTML = fotosArray.length > 0 ? `
+            <div class="table-galeria">
+                ${fotosArray.map((url, imgIdx) => `
+                    <img src="${url.trim()}" class="table-img" onclick="abrirModalGaleria('${fotosJsonEscaped}', ${imgIdx})" title="Ver foto ampliada">
+                `).join('')}
+            </div>
+        ` : `<span style="color:#cbd5e1; font-size:11px;">Sin foto</span>`;
+
+        return `
+            <tr>
+                <td style="text-align:center;">${galeriaHTML}</td>
+                <td><b>#${item.id}</b><br><span style="color:var(--text-dark-title); font-weight:600;">${item.titulo}</span></td>
+                <td><span style="color:var(--sidebar-active); font-weight:600;">${item.categoria}</span><br><small style="color:#64748b;">📅 ${item.fecha || 'N/D'} ${item.hora ? '— ' + item.hora : ''}</small></td>
+                <td>📍 ${item.lugar || 'N/D'}<br><small style="color:#64748b;">👥 ${item.involucrados || 'N/D'}</small></td>
+                <td>${item.acuerdos || 'Sin acuerdos específicos'}</td>
+                <td>
+                    <span class="badge ${item.estatus === 'Completado' ? 'badge-resuelto' : 'badge-gestion'}">${item.estatus}</span><br>
+                    <small style="color:#64748b;">Por: ${item.creado_por || 'Sistema'}</small>
+                    <div style="margin-top: 6px; display: flex; gap: 4px;">
+                        <button class="btn-action" style="padding: 3px 6px; font-size: 10px; height: auto;" onclick='prepararEdicion(${JSON.stringify(item)})'>✏️</button>
+                        <button class="btn-action btn-secondary" style="padding: 3px 6px; font-size: 10px; height: auto; background: var(--danger-color);" onclick='borrarAccion(${item.id})'>🗑️</button>
+                    </div>
+                </td>
+            </tr>
+        `;
+    }).join("");
 }
 
 function aplicarFiltros() {
@@ -466,42 +551,176 @@ function limpiarFiltros() {
     renderizarTabla(listaAccionesGlobales);
 }
 
+async function subirImagenNube(file) {
+    const API_KEY = '3c49f725c88fe8005a46582f1ab30f52'; 
+    const url = `https://api.imgbb.com/1/upload?key=${API_KEY}`;
+    const formData = new FormData();
+    formData.append('image', file);
+
+    try {
+        const response = await fetch(url, {
+            method: 'POST',
+            body: formData
+        });
+        const data = await response.json();
+        
+        if (data.success) {
+            return data.data.url;
+        } else {
+            throw new Error("ImgBB rechazó la imagen: " + (data.error ? data.error.message : 'Error desconocido'));
+        }
+    } catch (error) {
+        console.error("Error subiendo a la nube:", error);
+        throw error;
+    }
+}
+
 async function guardarAccion(event) {
     event.preventDefault();
-    const id = document.getElementById("accId").value;
-    const titulo = document.getElementById("accTitulo").value;
+    if (!window.sqlClient) { alert("No hay conexión con la base de datos SQLite."); return; }
+
+    const btn = document.getElementById("btnGuardar");
+    const textoOriginalBoton = btn.innerText;
+    btn.textContent = "Procesando...";
+    btn.disabled = true;
+
+    const editId = document.getElementById("accEditId").value;
+    const titulo = document.getElementById("accTitulo").value.trim();
     const categoria = document.getElementById("accCategoria").value;
     const estatus = document.getElementById("accEstatus").value;
     const fecha = document.getElementById("accFecha").value;
     const hora = document.getElementById("accHora").value;
-    const lugar = document.getElementById("accLugar").value;
-    const involucrados = document.getElementById("accInvolucrados").value;
-    const acuerdos = document.getElementById("accAcuerdos").value;
+    const lugar = document.getElementById("accLugar").value.trim();
+    const involucrados = document.getElementById("accInvolucrados").value.trim();
+    const acuerdos = document.getElementById("accAcuerdos").value.trim();
     const creado_por = sessionStorage.getItem("usuario_nombre") || "Concejalía";
+    const fileInput = document.getElementById("accFotoFile").files;
+    const hiddenFotoVal = document.getElementById("accFotoHidden").value;
 
     try {
-        if (id) {
-            // Actualizar si tuviera ID (por si luego agregas edición directa)
-            await consultarBaseDatos(`UPDATE acciones_concejala SET titulo=?, categoria=?, fecha=?, hora=?, lugar=?, involucrados=?, acuerdos=?, estatus=? WHERE id=?`, 
-                [titulo, categoria, fecha, hora, lugar, involucrados, acuerdos, estatus, id]);
+        let fotosUrls = [];
+        if (hiddenFotoVal) {
+            try {
+                fotosUrls = JSON.parse(hiddenFotoVal);
+                if (!Array.isArray(fotosUrls)) fotosUrls = [hiddenFotoVal];
+            } catch(e) {
+                fotosUrls = [hiddenFotoVal];
+            }
+        }
+
+        if (fileInput && fileInput.length > 0) {
+            for (let i = 0; i < fileInput.length; i++) {
+                const urlNube = await subirImagenNube(fileInput[i]);
+                fotosUrls.push(urlNube);
+            }
+        }
+
+        const fotosJson = JSON.stringify(fotosUrls);
+        const idNum = parseInt(editId, 10);
+
+        if (!isNaN(idNum) && idNum > 0) {
+            await window.sqlClient.query(`
+                UPDATE acciones_concejala 
+                SET titulo = ?, categoria = ?, fecha = ?, hora = ?, lugar = ?, involucrados = ?, acuerdos = ?, estatus = ?, foto = ?
+                WHERE id = ?
+            `, [titulo, categoria, fecha, hora, lugar, involucrados, acuerdos, estatus, fotosJson, idNum]);
         } else {
-            // Insertar nuevo
-            await consultarBaseDatos(`INSERT INTO acciones_concejala (titulo, categoria, fecha, hora, lugar, involucrados, acuerdos, estatus, creado_por) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`, 
-                [titulo, categoria, fecha, hora, lugar, involucrados, acuerdos, estatus, creado_por]);
+            await window.sqlClient.query(`
+                INSERT INTO acciones_concejala (titulo, categoria, fecha, hora, lugar, involucrados, acuerdos, estatus, foto, creado_por) 
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            `, [titulo, categoria, fecha, hora, lugar, involucrados, acuerdos, estatus, fotosJson, creado_por]);
         }
         
         cerrarModalAccion();
         document.getElementById("formAccion").reset();
         cargarAcciones();
     } catch (err) {
-        alert("Error al guardar la acción en la base de datos.");
+        alert("Error al guardar la acción en la base de datos:\n" + err.message);
         console.error(err);
+    } finally {
+        btn.textContent = textoOriginalBoton;
+        btn.disabled = false;
     }
 }
 
-async function logout(){
-    sessionStorage.clear();
-    location.href="index.html";
+function prepararEdicion(item) {
+    document.getElementById("accEditId").value = item.id;
+    document.getElementById("accTitulo").value = item.titulo || "";
+    document.getElementById("accCategoria").value = item.categoria || "Visita Comunitaria";
+    document.getElementById("accEstatus").value = item.estatus || "Completado";
+    document.getElementById("accFecha").value = item.fecha || "";
+    document.getElementById("accHora").value = item.hora || "";
+    document.getElementById("accLugar").value = item.lugar || "";
+    document.getElementById("accInvolucrados").value = item.involucrados || "";
+    document.getElementById("accAcuerdos").value = item.acuerdos || "";
+    document.getElementById("accFotoHidden").value = item.foto || "";
+    document.getElementById("accFotoFile").value = "";
+    document.getElementById("modalAccionTitulo").innerText = "Modificar Acción de Despacho";
+    document.getElementById("modalAccion").classList.add("active");
+}
+
+async function borrarAccion(id) {
+    if (!window.sqlClient) return;
+    if (!confirm("¿Deseas eliminar permanentemente este registro de acción?")) return;
+
+    try {
+        await window.sqlClient.query("DELETE FROM acciones_concejala WHERE id = ?", [id]);
+        cargarAcciones();
+    } catch (err) {
+        alert("Error al eliminar el registro: " + err.message);
+    }
+}
+
+/* FUNCIONES DE VISOR DE GALERÍA (IGUAL A BITÁCORA) */
+function abrirModalGaleria(fotosJsonEscaped, indiceInicial) {
+    try {
+        const cleanJson = fotosJsonEscaped.replace(/&apos;/g, "'").replace(/&quot;/g, '"');
+        visorGaleriaActual = JSON.parse(cleanJson);
+    } catch(e) {
+        visorGaleriaActual = [];
+    }
+
+    visorIndiceActual = indiceInicial;
+    actualizarVisorImagen();
+    document.getElementById('imageModal').classList.add('active');
+}
+
+function actualizarVisorImagen() {
+    const imgFull = document.getElementById('imgModalFull');
+    const counter = document.getElementById('imgCounter');
+    const btnPrev = document.getElementById('btnPrev');
+    const btnNext = document.getElementById('btnNext');
+
+    if (visorGaleriaActual.length > 0) {
+        imgFull.src = visorGaleriaActual[visorIndiceActual];
+        counter.innerText = `${visorIndiceActual + 1} / ${visorGaleriaActual.length}`;
+
+        if (visorGaleriaActual.length > 1) {
+            btnPrev.style.display = "flex";
+            btnNext.style.display = "flex";
+        } else {
+            btnPrev.style.display = "none";
+            btnNext.style.display = "none";
+        }
+    }
+}
+
+function cambiarFoto(direccion) {
+    visorIndiceActual += direccion;
+    if (visorIndiceActual < 0) {
+        visorIndiceActual = visorGaleriaActual.length - 1;
+    } else if (visorIndiceActual >= visorGaleriaActual.length) {
+        visorIndiceActual = 0;
+    }
+    actualizarVisorImagen();
+}
+
+function cerrarModalImagen(event) {
+    document.getElementById('imageModal').classList.remove('active');
+}
+
+function cerrarModalImagenForzado() {
+    document.getElementById('imageModal').classList.remove('active');
 }
 </script>
 </body>
