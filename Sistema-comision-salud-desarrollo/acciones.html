@@ -1,1 +1,385 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <script>
+        const sesion = sessionStorage.getItem('usuario_logueado');
+        if (!sesion && window.location.pathname !== "/login.html") {
+            window.location.replace("login.html");
+        } else {
+            document.addEventListener("DOMContentLoaded", () => {
+                document.body.style.display = "block";
+            });
+        }
+    </script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Acciones de la Concejala - Comisión de Salud</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- ARCHIVO DE CONEXIÓN CENTRALIZADO (YA INCLUYE LA INACTIVIDAD DE 5 MIN) -->
+    <script src="js/conexion.js"></script>
+    
+    <style>
+        :root {
+            --bg-main: #f4f6f9;
+            --sidebar-bg: #1d3b6a;
+            --sidebar-active: #0066cc;
+            --sidebar-text-sub: #4ba3e3;
+            --menu-text: #ffffff;
+            --text-dark-title: #0f2547;
+            --border-color: #cbd5e1;
+            --success-color: #16a34a;
+            --warning-color: #eab308;
+            --danger-color: #dc2626;
+        }
 
+        *{ margin:0; padding:0; box-sizing:border-box; font-family: 'Inter', sans-serif; }
+        body{ background: var(--bg-main); color:#334155; }
+
+        .layout{ display:grid; grid-template-columns:280px 1fr; min-height:100vh; }
+
+        .sidebar{ background: var(--sidebar-bg); padding:24px 0; display: flex; flex-direction: column; transition: transform 0.3s ease; }
+        .sidebar-brand { display: flex; flex-direction: column; align-items: center; text-align: center; padding: 0 16px 20px 16px; border-bottom: 1px solid rgba(255, 255, 255, 0.1); margin-bottom: 10px; }
+        .sidebar-brand h2 { font-size: 11px; color: #ffffff; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; line-height: 1.4; margin-top: 5px; }
+        .menu-category { font-size: 10.5px; font-weight: 700; color: var(--sidebar-text-sub); text-transform: uppercase; letter-spacing: 0.5px; padding: 16px 20px 6px 20px; }
+        .menu{ display: block; padding: 8px 36px; color: var(--menu-text); cursor: pointer; font-size: 13.5px; font-weight: 500; text-decoration: none; transition: all 0.2s ease; opacity: 0.9; }
+        .menu:hover{ opacity: 1; background: rgba(255, 255, 255, 0.05); }
+
+        .mobile-header { display: none; background: var(--sidebar-bg); color: white; padding: 14px 20px; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 1000; }
+        .menu-toggle { background: transparent; border: none; color: white; font-size: 24px; cursor: pointer; }
+
+        .main{ padding:40px; overflow-x: hidden; }
+
+        .content-container {
+            max-width: 1100px;
+            margin: 0 auto;
+            background: white;
+            padding: 32px;
+            border-radius: 12px;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.01);
+        }
+
+        .header-actions { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; flex-wrap: wrap; gap: 15px; }
+        .header-actions h2 { font-size: 18px; color: var(--text-dark-title); font-weight: 700; }
+        .header-actions p { font-size: 12.5px; color: #64748b; margin-top: 2px; }
+
+        .btn-action { 
+            background: var(--sidebar-active); 
+            color: white; 
+            border: none; 
+            padding: 10px 18px; 
+            font-weight: 600; 
+            border-radius: 6px; 
+            cursor: pointer; 
+            font-size: 13px; 
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 4px rgba(0, 102, 204, 0.2);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            text-decoration: none;
+        }
+        .btn-action:hover { background: #0052a3; }
+
+        .table-responsive { width: 100%; overflow-x: auto; }
+        .data-table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 12px; }
+        .data-table th { background: #f8fafc; color: var(--text-dark-title); font-weight: 700; text-align: left; padding: 11px 12px; border: 1px solid #cbd5e1; }
+        .data-table td { padding: 10px 12px; border: 1px solid #cbd5e1; color: #334155; vertical-align: middle; }
+        
+        .badge { padding: 4px 8px; border-radius: 4px; font-size: 10.5px; font-weight: 600; display: inline-block; }
+        .badge-resuelto { background: #dcfce7; color: #166534; }
+        .badge-gestion { background: #fef9c3; color: #854d0e; }
+
+        /* MODAL */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(15, 37, 71, 0.6); display: none;
+            justify-content: center; align-items: center; z-index: 2000; padding: 20px;
+        }
+        .modal-card {
+            background: white; width: 100%; max-width: 600px;
+            border-radius: 12px; padding: 30px; box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            max-height: 90vh; overflow-y: auto;
+        }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid #e2e8f0; padding-bottom: 12px; }
+        .modal-header h3 { font-size: 16px; color: var(--text-dark-title); font-weight: 700; }
+        .close-modal { background: none; border: none; font-size: 20px; cursor: pointer; color: #64748b; }
+
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+        .form-group { display: flex; flex-direction: column; gap: 6px; margin-bottom: 12px; }
+        .form-group.full { grid-column: span 2; }
+        .form-group label { font-size: 11.5px; font-weight: 700; color: #475569; text-transform: uppercase; }
+        .form-group input, .form-group select, .form-group textarea {
+            padding: 10px 14px; border: 1px solid var(--border-color); border-radius: 6px;
+            font-size: 13px; background: #f8fafc; color: #1e293b; outline: none;
+        }
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+            border-color: var(--sidebar-active); background: white; box-shadow: 0 0 0 3px rgba(0,102,204,0.1);
+        }
+
+        @media (max-width: 900px) {
+            .layout { grid-template-columns: 1fr; }
+            .mobile-header { display: flex; }
+            .sidebar { position: fixed; top: 53px; left: 0; width: 280px; height: calc(100vh - 53px); z-index: 999; transform: translateX(-100%); }
+            .sidebar.open { transform: translateX(0); }
+            .main { padding: 20px; }
+            .form-grid { grid-template-columns: 1fr; }
+            .form-group.full { grid-column: span 1; }
+        }
+    </style>
+</head>
+<body style="display: none;">
+
+<div class="mobile-header">
+    <div style="font-weight:700; font-size:12px; letter-spacing:0.5px;">COMISIÓN DE SALUD</div>
+    <button class="menu-toggle" onclick="toggleMobileMenu()">☰</button>
+</div>
+
+<div class="layout">
+    <!-- MENÚ LATERAL IDÉNTICO AL RESTO DEL SISTEMA -->
+    <div class="sidebar" id="sidebarMenu">
+        <div class="sidebar-brand">
+            <h2>COMISIÓN PERMANENTE DE SALUD<br>Y DESARROLLO SOCIAL INTEGRAL</h2>
+        </div>
+        
+        <a class="menu" href="dashboard.html">Principal</a>
+        
+        <div class="menu-category">Coor. Ejecutiva</div>
+        <a class="menu" href="ejecutiva.html">Oficios e Informes</a>
+        <a class="menu" href="planificacion.html">Planificación Semanal</a>
+        
+        <div class="menu-category">Coor. Política</div>
+        <a class="menu" href="politica.html">Liderazgos y Comunas</a>
+        
+        <div class="menu-category">Coor. Social</div>
+        <a class="menu" href="social.html">Casos Sociales</a>
+        <a class="menu" href="red_salud.html">Red de Salud (CPT/CDI)</a>
+        
+        <div class="menu-category">Gestión Despacho</div>
+        <a class="menu" href="acciones.html" style="background: var(--sidebar-active); font-weight: 600; border-radius: 6px; margin: 2px 14px; padding: 10px 20px;">⭐ Acciones Concejala</a>
+        
+        <div class="menu-category">Gestión Digital</div>
+        <a class="menu" href="bitacora.html">Bitácora de Eventos</a>
+        <a class="menu" href="reportes.html">📄 Reporte Integral</a>
+        
+        <div style="margin-top: auto; padding: 24px 20px; border-top: 1px solid rgba(255,255,255,0.1);">
+            <div id="usuarioNombre" style="font-size:13px; color:#ffffff; font-weight:600; margin-bottom: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">Cargando...</div>
+            <div id="usuarioCoordinacion" style="font-size:10.5px; color:var(--sidebar-text-sub); font-weight: 500; margin-bottom: 16px; text-transform: uppercase; letter-spacing: 0.3px;">Cargando...</div>
+            <a class="menu" onclick="logout()" style="cursor:pointer; font-size:12px; color:#f87171; padding: 8px 0; display: block; border-top: 1px solid rgba(255,255,255,0.05);">Cerrar sesión</a>
+        </div>
+    </div>
+
+    <!-- CONTENIDO PRINCIPAL -->
+    <div class="main">
+        <div class="content-container">
+            <div class="header-actions">
+                <div>
+                    <h2>Registro de Acciones y Gestión de Despacho</h2>
+                    <p>Control institucional y seguimiento de actividades directas de la Concejala.</p>
+                </div>
+                <button class="btn-action" onclick="abrirModalAccion()">➕ Registrar Nueva Acción</button>
+            </div>
+
+            <div class="table-responsive">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Título / Acción</th>
+                            <th>Categoría & Fecha</th>
+                            <th>Lugar / Involucrados</th>
+                            <th>Acuerdos</th>
+                            <th>Estatus</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tablaAccionesCuerpo">
+                        <tr>
+                            <td colspan="6" style="text-align:center; color:#64748b; padding: 24px;">Cargando acciones de despacho...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL PARA CREAR ACCIÓN -->
+<div class="modal-overlay" id="modalAccion">
+    <div class="modal-card">
+        <div class="modal-header">
+            <h3>Registrar Nueva Acción de Despacho</h3>
+            <button class="close-modal" onclick="cerrarModalAccion()">✕</button>
+        </div>
+        <form id="formAccion" onsubmit="guardarAccion(event)">
+            <div class="form-grid">
+                <div class="form-group full">
+                    <label>Título de la Acción / Actividad</label>
+                    <input type="text" id="accTitulo" required placeholder="Ej: Visita de inspección al ambulatorio...">
+                </div>
+                <div class="form-group">
+                    <label>Categoría</label>
+                    <select id="accCategoria" required>
+                        <option value="Visita Comunitaria">Visita Comunitaria</option>
+                        <option value="Reunión Institucional">Reunión Institucional</option>
+                        <option value="Asesoría Ciudadana">Asesoría Ciudadana</option>
+                        <option value="Sesión de Cámara">Sesión de Cámara</option>
+                        <option value="Medios y Prensa">Medios y Prensa</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Estatus</label>
+                    <select id="accEstatus" required>
+                        <option value="Completado">Completado</option>
+                        <option value="En Proceso">En Proceso</option>
+                        <option value="Pendiente">Pendiente</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Fecha</label>
+                    <input type="date" id="accFecha" required>
+                </div>
+                <div class="form-group">
+                    <label>Hora</label>
+                    <input type="time" id="accHora">
+                </div>
+                <div class="form-group full">
+                    <label>Lugar / Comunidad</label>
+                    <input type="text" id="accLugar" placeholder="Ej: Sector Oropeza Castillo, CDI...">
+                </div>
+                <div class="form-group full">
+                    <label>Personas / Entes Involucrados</label>
+                    <input type="text" id="accInvolucrados" placeholder="Ej: Voceros de mesa técnica, director de salud...">
+                </div>
+                <div class="form-group full">
+                    <label>Acuerdos / Conclusiones</label>
+                    <textarea id="accAcuerdos" rows="3" placeholder="Detalle los compromisos asumidos..."></textarea>
+                </div>
+            </div>
+            <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 15px;">
+                <button type="button" class="btn-action" style="background: #64748b;" onclick="cerrarModalAccion()">Cancelar</button>
+                <button type="submit" class="btn-action">Guardar Registro</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+    const nombre = sessionStorage.getItem("usuario_nombre");
+    const coord = sessionStorage.getItem("usuario_coordinacion");
+    if (nombre) document.getElementById("usuarioNombre").textContent = nombre;
+    if (coord) document.getElementById("usuarioCoordinacion").textContent = coord.toUpperCase();
+
+    // Fecha actual por defecto en el input
+    document.getElementById("accFecha").valueAsDate = new Date();
+
+    cargarAcciones();
+});
+
+function toggleMobileMenu() {
+    document.getElementById("sidebarMenu").classList.toggle("open");
+}
+
+function abrirModalAccion() {
+    document.getElementById("modalAccion").style.display = "flex";
+}
+
+function cerrarModalAccion() {
+    document.getElementById("modalAccion").style.display = "none";
+}
+
+async function consultarBaseDatos(query, params = []) {
+    try {
+        const response = await fetch("/api/query", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ query, params })
+        });
+        return await response.json();
+    } catch (error) {
+        console.error(error);
+        throw error;
+    }
+}
+
+async function cargarAcciones() {
+    const tbody = document.getElementById("tablaAccionesCuerpo");
+    try {
+        // Asegurar que la tabla exista antes de consultar
+        await consultarBaseDatos(`
+            CREATE TABLE IF NOT EXISTS acciones_concejala (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                titulo TEXT NOT NULL,
+                categoria TEXT,
+                fecha TEXT,
+                hora TEXT,
+                lugar TEXT,
+                involucrados TEXT,
+                acuerdos TEXT,
+                estatus TEXT,
+                creado_por TEXT
+            );
+        `);
+
+        const datos = await consultarBaseDatos("SELECT * FROM acciones_concejala ORDER BY id DESC");
+        
+        if (!datos || datos.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:#94a3b8; padding: 24px;">No hay acciones registradas todavía.</td></tr>`;
+            return;
+        }
+
+        tbody.innerHTML = datos.map(item => `
+            <tr>
+                <td><b>#${item.id}</b></td>
+                <td><b>${item.titulo}</b></td>
+                <td><span style="color:var(--sidebar-active); font-weight:600;">${item.categoria}</span><br><small style="color:#64748b;">📅 ${item.fecha || 'N/D'} ${item.hora ? '— ' + item.hora : ''}</small></td>
+                <td>📍 ${item.lugar || 'N/D'}<br><small style="color:#64748b;">👥 ${item.involucrados || 'N/D'}</small></td>
+                <td>${item.acuerdos || 'Sin acuerdos específicos'}</td>
+                <td>
+                    <span class="badge ${item.estatus === 'Completado' ? 'badge-resuelto' : 'badge-gestion'}">${item.estatus}</span><br>
+                    <small style="color:#64748b;">Por: ${item.creado_por || 'Sistema'}</small>
+                </td>
+            </tr>
+        `).join("");
+
+    } catch (err) {
+        console.error("Error al cargar acciones:", err);
+        tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:var(--danger-color); font-weight:600;">Error al conectar con la base de datos para este módulo.</td></tr>`;
+    }
+}
+
+async function guardarAccion(event) {
+    event.preventDefault();
+    const titulo = document.getElementById("accTitulo").value;
+    const categoria = document.getElementById("accCategoria").value;
+    const estatus = document.getElementById("accEstatus").value;
+    const fecha = document.getElementById("accFecha").value;
+    const hora = document.getElementById("accHora").value;
+    const lugar = document.getElementById("accLugar").value;
+    const involucrados = document.getElementById("accInvolucrados").value;
+    const acuerdos = document.getElementById("accAcuerdos").value;
+    const creado_por = sessionStorage.getItem("usuario_nombre") || "Concejalía";
+
+    const query = `INSERT INTO acciones_concejala (titulo, categoria, fecha, hora, lugar, involucrados, acuerdos, estatus, creado_por) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+    
+    try {
+        await consultarBaseDatos(query, [titulo, categoria, fecha, hora, lugar, involucrados, acuerdos, estatus, creado_por]);
+        cerrarModalAccion();
+        document.getElementById("formAccion").reset();
+        document.getElementById("accFecha").valueAsDate = new Date();
+        cargarAcciones();
+    } catch (err) {
+        alert("Error al guardar la acción en la base de datos.");
+        console.error(err);
+    }
+}
+
+async function logout(){
+    sessionStorage.clear();
+    location.href="index.html";
+}
+</script>
+</body>
+</html>
