@@ -13,7 +13,7 @@
         }
     </script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Reportes Institucionales - Comisión de Salud</title>
+    <title>Reportes y Buscador Avanzado - Comisión de Salud</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
@@ -53,40 +53,60 @@
         .main{ padding:40px; overflow-x: hidden; }
         
         .no-print-zone {
-            max-width: 900px;
+            max-width: 1100px;
             margin: 0 auto 24px auto;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
             background: white;
-            padding: 16px 24px;
+            padding: 24px;
             border-radius: 12px;
             border: 1px solid #e2e8f0;
             box-shadow: 0 4px 6px -1px rgba(0,0,0,0.01);
         }
-        .no-print-zone h2 { font-size: 16px; color: var(--text-dark-title); font-weight: 700; }
-        .no-print-zone p { font-size: 12px; color: #64748b; margin-top: 2px; }
+        .header-actions { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 15px; }
+        .no-print-zone h2 { font-size: 18px; color: var(--text-dark-title); font-weight: 700; }
+        .no-print-zone p { font-size: 12.5px; color: #64748b; margin-top: 2px; }
         
-        .btn-print { 
+        .filter-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)) 150px; gap: 12px; align-items: end; }
+        .filter-group { display: flex; flex-direction: column; gap: 6px; }
+        .filter-group label { font-size: 11.5px; font-weight: 700; color: #475569; text-transform: uppercase; letter-spacing: 0.3px; }
+        .filter-group input, .filter-group select {
+            padding: 10px 14px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            font-size: 13px;
+            background: #f8fafc;
+            color: #1e293b;
+            outline: none;
+            transition: all 0.2s;
+        }
+        .filter-group input:focus, .filter-group select:focus { border-color: var(--sidebar-active); background: white; box-shadow: 0 0 0 3px rgba(0,102,204,0.1); }
+
+        .btn-action { 
             background: var(--sidebar-active); 
             color: white; 
             border: none; 
-            padding: 12px 24px; 
+            padding: 11px 20px; 
             font-weight: 600; 
             border-radius: 6px; 
             cursor: pointer; 
             font-size: 13px; 
             transition: all 0.2s ease;
             box-shadow: 0 2px 4px rgba(0, 102, 204, 0.2);
+            height: 41px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
         }
-        .btn-print:hover { background: #0052a3; }
+        .btn-action:hover { background: #0052a3; }
+        .btn-secondary { background: #64748b; box-shadow: 0 2px 4px rgba(100, 116, 139, 0.2); }
+        .btn-secondary:hover { background: #475569; }
 
         .report-paper {
             background: white;
             border: 1px solid #e2e8f0;
             border-radius: 12px;
-            padding: 50px;
-            max-width: 900px;
+            padding: 40px;
+            max-width: 1100px;
             margin: 0 auto;
             box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02);
         }
@@ -97,22 +117,27 @@
             align-items: center;
             border-bottom: 2px solid var(--text-dark-title);
             padding-bottom: 16px;
-            margin-bottom: 32px;
+            margin-bottom: 28px;
         }
         .institution-title { font-size: 11px; font-weight: 700; color: #1e293b; line-height: 1.5; text-transform: uppercase; letter-spacing: 0.3px; }
         .report-meta { text-align: right; font-size: 11px; color: #475569; line-height: 1.4; }
         
-        .report-title { text-align: center; margin-bottom: 36px; color: var(--text-dark-title); }
-        .report-title h1 { font-size: 22px; font-weight: 700; letter-spacing: 0.5px; }
-        .report-title p { font-size: 12px; color: #64748b; margin-top: 6px; font-weight: 500; }
+        .report-title { text-align: center; margin-bottom: 28px; color: var(--text-dark-title); }
+        .report-title h1 { font-size: 20px; font-weight: 700; letter-spacing: 0.5px; }
+        .report-title p { font-size: 12px; color: #64748b; margin-top: 4px; font-weight: 500; }
         
-        .section-heading { font-size: 14px; font-weight: 700; color: var(--text-dark-title); margin-top: 28px; margin-bottom: 12px; border-left: 3px solid var(--sidebar-active); padding-left: 8px; text-transform: uppercase; letter-spacing: 0.3px; }
+        .section-heading { font-size: 13.5px; font-weight: 700; color: var(--text-dark-title); margin-top: 24px; margin-bottom: 12px; border-left: 3px solid var(--sidebar-active); padding-left: 8px; text-transform: uppercase; letter-spacing: 0.3px; }
 
-        .report-table { width: 100%; border-collapse: collapse; margin-bottom: 20px; font-size: 13px; }
-        .report-table th { background: #f8fafc; color: var(--text-dark-title); font-weight: 700; text-align: left; padding: 12px; border: 1px solid #cbd5e1; }
-        .report-table td { padding: 12px; border: 1px solid #cbd5e1; color: #334155; }
+        .report-table { width: 100%; border-collapse: collapse; margin-bottom: 20px; font-size: 12.5px; }
+        .report-table th { background: #f8fafc; color: var(--text-dark-title); font-weight: 700; text-align: left; padding: 10px 12px; border: 1px solid #cbd5e1; }
+        .report-table td { padding: 10px 12px; border: 1px solid #cbd5e1; color: #334155; }
         
-        .signature-section { margin-top: 80px; display: flex; justify-content: space-between; text-align: center; font-size: 12px; }
+        .badge { padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; display: inline-block; }
+        .badge-resuelto { background: #dcfce7; color: #166534; }
+        .badge-gestion { background: #fef9c3; color: #854d0e; }
+        .badge-espera { background: #fee2e2; color: #991b1b; }
+
+        .signature-section { margin-top: 60px; display: flex; justify-content: space-between; text-align: center; font-size: 12px; }
         .signature-box { width: 220px; border-top: 1px solid #94a3b8; padding-top: 10px; color: #1e293b; }
 
         @media print {
@@ -129,8 +154,7 @@
             .sidebar { position: fixed; top: 53px; left: 0; width: 280px; height: calc(100vh - 53px); z-index: 999; transform: translateX(-100%); }
             .sidebar.open { transform: translateX(0); }
             .main { padding: 20px; }
-            .no-print-zone { flex-direction: column; gap: 14px; text-align: center; }
-            .btn-print { width: 100%; }
+            .filter-grid { grid-template-columns: 1fr; }
         }
     </style>
 </head>
@@ -172,14 +196,46 @@
     </div>
 
     <div class="main">
+        <!-- ZONA DE FILTRADO Y BÚSQUEDA AVANZADA (NO SE IMPRIME) -->
         <div class="no-print-zone">
-            <div>
-                <h2>Generador de Informes de Gestión</h2>
-                <p>Configure el balance antes de enviarlo a la impresora o PDF.</p>
+            <div class="header-actions">
+                <div>
+                    <h2>Buscador Avanzado y Motor de Reportes</h2>
+                    <p>Filtra por sector, estatus o término libre para consultar cualquier registro de la base SQLite.</p>
+                </div>
+                <div style="display: flex; gap: 10px;">
+                    <button class="btn-action btn-secondary" onclick="limpiarFiltros()">🔄 Restablecer</button>
+                    <button class="btn-action" id="btnPrint" onclick="ejecutarImpresion()">🖨️ Imprimir / PDF</button>
+                </div>
             </div>
-            <button class="btn-print" id="btnPrint" onclick="ejecutarImpresion()">🖨️ Imprimir / Guardar PDF</button>
+            
+            <div class="filter-grid">
+                <div class="filter-group">
+                    <label>Buscar por Texto (Nombre / Cédula / Teléfono)</label>
+                    <input type="text" id="filtroTexto" placeholder="Ej. Juan, 4483993..." oninput="aplicarFiltrosEnVivo()">
+                </div>
+                <div class="filter-group">
+                    <label>Filtrar por Sector / Comunidad</label>
+                    <select id="filtroSector" onchange="aplicarFiltrosEnVivo()">
+                        <option value="">Todos los sectores</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label>Filtrar por Estatus</label>
+                    <select id="filtroEstatus" onchange="aplicarFiltrosEnVivo()">
+                        <option value="">Todos los estatus</option>
+                        <option value="Resuelto">Resuelto</option>
+                        <option value="En Gestión">En Gestión</option>
+                        <option value="En Espera">En Espera</option>
+                    </select>
+                </div>
+                <div>
+                    <button class="btn-action" style="width: 100%;" onclick="aplicarFiltrosEnVivo()">🔍 Filtrar Datos</button>
+                </div>
+            </div>
         </div>
 
+        <!-- DOCUMENTO LISTO PARA IMPRESIÓN / VISUALIZACIÓN -->
         <div class="report-paper">
             <div class="report-header">
                 <div class="institution-title">
@@ -188,56 +244,50 @@
                     COMISIÓN PERMANENTE DE SALUD Y DESARROLLO SOCIAL INTEGRAL
                 </div>
                 <div class="report-meta">
-                    <b>Código:</b> CPS-2026-REP<br>
+                    <b>Código:</b> CPS-2026-ADV<br>
                     <b>Fecha Emisión:</b> <span id="fecha-reporte">--/--/----</span>
                 </div>
             </div>
 
             <div class="report-title">
-                <h1>INFORME CONSOLIDADO DE GESTIÓN SOCIAL</h1>
-                <p>Balance de Solicitudes, Atenciones y Demandas Geográficas en Materia de Salud</p>
+                <h1>REPORTE CONSOLIDADO DE REGISTROS SISTEMÁTICOS</h1>
+                <p id="subtitulo-filtros">Mostrando la totalidad de expedientes activos en el sistema local SQLite</p>
             </div>
 
-            <div class="section-heading">I. Resumen General de Casos Colectivos</div>
-            <table class="report-table">
+            <div class="section-heading">I. Resumen de Indicadores Filtrados</div>
+            <table class="report-table" style="margin-bottom: 24px;">
                 <thead>
                     <tr>
-                        <th>Indicador Operativo de Gestión</th>
-                        <th>Total Registros</th>
-                        <th>Estatus de Control Interno</th>
+                        <th>Total Registros en Vista</th>
+                        <th>Casos Solventados</th>
+                        <th>Casos Activos / Pendientes</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr>
-                        <td><b>Total Solicitudes Comunitarias Recibidas</b></td>
-                        <td id="rep-total" style="font-weight: 700;">...</td>
-                        <td>Sincronizado en Base de Datos</td>
-                    </tr>
-                    <tr>
-                        <td><b>Casos Activos (En Gestión / Evaluación)</b></td>
-                        <td id="rep-activos" style="font-weight: 700; color: #b45309;">...</td>
-                        <td>Verificación Técnica y de Campo</td>
-                    </tr>
-                    <tr>
-                        <td><b>Casos Solventados (Efectividad Entrega)</b></td>
-                        <td id="rep-resueltos" style="font-weight: 700; color: #15803d;">...</td>
-                        <td>Asignación Institucional Concluida</td>
+                        <td id="stat-total" style="font-weight: 700; font-size: 14px;">0</td>
+                        <td id="stat-resueltos" style="font-weight: 700; color: #166534; font-size: 14px;">0</td>
+                        <td id="stat-activos" style="font-weight: 700; color: #b45309; font-size: 14px;">0</td>
                     </tr>
                 </tbody>
             </table>
 
-            <div class="section-heading">II. Distribución Geográfica de Demandas (Sectores Críticos)</div>
+            <div class="section-heading">II. Detalle Detallado de Expedientes</div>
             <table class="report-table">
                 <thead>
                     <tr>
-                        <th>Comunidad / Sector Evaluado</th>
-                        <th>N° de Solicitudes Registradas</th>
-                        <th>Porcentaje de Incidencia Geográfica</th>
+                        <th>ID</th>
+                        <th>Nombre y Apellido</th>
+                        <th>Cédula</th>
+                        <th>Teléfono</th>
+                        <th>Sector / Comunidad</th>
+                        <th>Tipo / Subtipo</th>
+                        <th>Estatus</th>
                     </tr>
                 </thead>
-                <tbody id="tabla-sectores-reporte">
+                <tbody id="tabla-cuerpo-reporte">
                     <tr>
-                        <td colspan="3" style="color:#64748b; text-align: center; padding: 20px;">Cargando matriz geográfica y procesando datos consolidados...</td>
+                        <td colspan="7" style="text-align:center; color:#64748b; padding: 24px;">Cargando registros desde la base de datos local SQLite...</td>
                     </tr>
                 </tbody>
             </table>
@@ -259,6 +309,8 @@
 </div>
 
 <script>
+let registrosGlobales = [];
+
 document.addEventListener("DOMContentLoaded", () => {
     const nombre = sessionStorage.getItem("usuario_nombre");
     const coord = sessionStorage.getItem("usuario_coordinacion");
@@ -266,7 +318,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (coord) document.getElementById("usuarioCoordinacion").textContent = coord.toUpperCase();
 
     document.getElementById("fecha-reporte").innerText = new Date().toLocaleDateString('es-VE');
-    cargarDatosDelReporte();
+    cargarDatosCompletosSQLite();
 });
 
 function toggleMobileMenu() {
@@ -287,59 +339,108 @@ async function consultarBaseDatos(query, params = []) {
     }
 }
 
-async function cargarDatosDelReporte() {
+async function cargarDatosCompletosSQLite() {
     try {
-        const registros = await consultarBaseDatos("SELECT id, nombre, cedula, telefono, sector, estatus FROM casos_salud");
-
-        if (!registros || !Array.isArray(registros) || registros.length === 0) {
-            document.getElementById("rep-total").innerText = "0";
-            document.getElementById("rep-activos").innerText = "0";
-            document.getElementById("rep-resueltos").innerText = "0";
-            document.getElementById("tabla-sectores-reporte").innerHTML = `<tr><td colspan="3" style="text-align:center; color:#94a3b8;">No existen datos para generar balances.</td></tr>`;
-            return;
+        registrosGlobales = await consultarBaseDatos("SELECT id, nombre, cedula, telefono, sector, tipo, subtipo, estatus FROM casos_salud ORDER BY id DESC");
+        
+        if (!registrosGlobales || !Array.isArray(registrosGlobales)) {
+            registrosGlobales = [];
         }
 
-        const totalRegistros = registros.length;
-        const activos = registros.filter(r => r.estatus === "En Gestión" || r.estatus === "En Espera").length;
-        const resueltos = registros.filter(r => r.estatus === "Resuelto").length;
-
-        document.getElementById("rep-total").innerText = totalRegistros;
-        document.getElementById("rep-activos").innerText = activos;
-        document.getElementById("rep-resueltos").innerText = resueltos;
-
-        const conteoSectores = {};
-        let totalValidos = 0;
-
-        registros.forEach(r => {
-            if (r.sector && r.sector !== "NULL" && r.sector.trim() !== "") {
-                const sectorNormalizado = r.sector.trim();
-                conteoSectores[sectorNormalizado] = (conteoSectores[sectorNormalizado] || 0) + 1;
-                totalValidos++;
-            }
-        });
-
-        const sectoresOrdenados = Object.entries(conteoSectores).sort((a, b) => b[1] - a[1]);
-        const tablaSectoresHtml = document.getElementById("tabla-sectores-reporte");
-
-        if (sectoresOrdenados.length === 0) {
-            tablaSectoresHtml.innerHTML = `<tr><td colspan="3" style="text-align:center; color:#94a3b8;">Sin sectores válidos detectados.</td></tr>`;
-        } else {
-            tablaSectoresHtml.innerHTML = sectoresOrdenados.map(([nombreSector, cantidad]) => {
-                const porcentaje = totalValidos > 0 ? ((cantidad / totalValidos) * 100).toFixed(1) : 0;
-                return `
-                    <tr>
-                        <td><b>${nombreSector}</b></td>
-                        <td>${cantidad} ${cantidad === 1 ? 'solicitud' : 'solicitudes'}</td>
-                        <td><b>${porcentaje}%</b> del histórico territorial</td>
-                    </tr>
-                `;
-            }).join("");
-        }
+        poblarSelectorSectores(registrosGlobales);
+        renderizarTabla(registrosGlobales);
 
     } catch (err) {
-        console.error("Error al estructurar reporte institucional:", err);
-        document.getElementById("tabla-sectores-reporte").innerHTML = `<tr><td colspan="3" style="text-align:center; color:var(--danger-color); font-weight:600;">Error de comunicación con el servidor central de la base de datos local.</td></tr>`;
+        console.error("Error al cargar registros:", err);
+        document.getElementById("tabla-cuerpo-reporte").innerHTML = `<tr><td colspan="7" style="text-align:center; color:var(--danger-color); font-weight:600;">Error de comunicación con el servidor SQLite.</td></tr>`;
     }
+}
+
+function poblarSelectorSectores(datos) {
+    const selectSector = document.getElementById("filtroSector");
+    const sectoresUnicos = [...new Set(datos.map(item => item.sector).filter(s => s && s !== "NULL" && s.trim() !== ""))].sort();
+    
+    selectSector.innerHTML = '<option value="">Todos los sectores</option>';
+    sectoresUnicos.forEach(sector => {
+        const option = document.createElement("option");
+        option.value = sector;
+        option.textContent = sector;
+        selectSector.appendChild(option);
+    });
+}
+
+function aplicarFiltrosEnVivo() {
+    const texto = document.getElementById("filtroTexto").value.toLowerCase().trim();
+    const sectorFiltro = document.getElementById("filtroSector").value;
+    const estatusFiltro = document.getElementById("filtroEstatus").value;
+
+    const filtrados = registrosGlobales.filter(item => {
+        const matchTexto = !texto || 
+            (item.nombre && item.nombre.toLowerCase().includes(texto)) || 
+            (item.cedula && item.cedula.toLowerCase().includes(texto)) || 
+            (item.telefono && item.telefono.toLowerCase().includes(texto));
+        
+        const matchSector = !sectorFiltro || item.sector === sectorFiltro;
+        const matchEstatus = !estatusFiltro || item.estatus === estatusFiltro;
+
+        return matchTexto && matchSector && matchEstatus;
+    });
+
+    let descSub = "Mostrando registros filtrados del sistema local SQLite";
+    let filtrosActivosTxt = [];
+    if (texto) filtrosActivosTxt.text = `Texto: "${texto}"`;
+    if (sectorFiltro) filtrosActivosTxt.push(`Sector: ${sectorFiltro}`);
+    if (estatusFiltro) filtrosActivosTxt.push(`Estatus: ${estatusFiltro}`);
+    
+    if (filtrosActivosTxt.length > 0) {
+        document.getElementById("subtitulo-filtros").innerText = `Filtros aplicados — ${filtrosActivosTxt.join(' | ')}`;
+    } else {
+        document.getElementById("subtitulo-filtros").innerText = "Mostrando la totalidad de expedientes activos en el sistema local SQLite";
+    }
+
+    renderizarTabla(filtrados);
+}
+
+function limpiarFiltros() {
+    document.getElementById("filtroTexto").value = "";
+    document.getElementById("filtroSector").value = "";
+    document.getElementById("filtroEstatus").value = "";
+    document.getElementById("subtitulo-filtros").innerText = "Mostrando la totalidad de expedientes activos en el sistema local SQLite";
+    renderizarTabla(registrosGlobales);
+}
+
+function renderizarTabla(datos) {
+    const tbody = document.getElementById("tabla-cuerpo-reporte");
+    
+    document.getElementById("stat-total").innerText = datos.length;
+    const resueltosCount = datos.filter(d => d.estatus === "Resuelto").length;
+    const activosCount = datos.length - resueltosCount;
+    
+    document.getElementById("stat-resueltos").innerText = resueltosCount;
+    document.getElementById("stat-activos").innerText = activosCount;
+
+    if (datos.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; color:#94a3b8; padding: 24px;">No se encontraron registros que coincidan con los filtros seleccionados.</td></tr>`;
+        return;
+    }
+
+    tbody.innerHTML = datos.map(item => {
+        let badgeClass = "badge-gestion";
+        if (item.estatus === "Resuelto") badgeClass = "badge-resuelto";
+        if (item.estatus === "En Espera") badgeClass = "badge-espera";
+
+        return `
+            <tr>
+                <td><b>#${item.id}</b></td>
+                <td><b>${item.nombre || 'N/D'}</b></td>
+                <td>${item.cedula || 'N/D'}</td>
+                <td>${item.telefono || 'N/D'}</td>
+                <td>${item.sector || 'N/D'}</td>
+                <td>${item.tipo || 'N/D'} ${item.subtipo ? '— ' + item.subtipo : ''}</td>
+                <td><span class="badge ${badgeClass}">${item.estatus || 'Pendiente'}</span></td>
+            </tr>
+        `;
+    }).join("");
 }
 
 function ejecutarImpresion() {
@@ -351,7 +452,7 @@ function ejecutarImpresion() {
     setTimeout(() => {
         window.print();
         setTimeout(() => {
-            boton.innerText = "🖨️ Imprimir / Guardar PDF";
+            boton.innerText = "🖨️ Imprimir / PDF";
             boton.style.opacity = "1";
             boton.style.pointerEvents = "auto";
         }, 1000);
