@@ -91,8 +91,18 @@
         .analytics-container { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 28px; }
         .analytics-card { background: white; border: 1px solid var(--border-color); border-radius: 16px; padding: 22px; box-shadow: var(--card-shadow); display: flex; flex-direction: column; gap: 14px; }
         .analytics-card h3 { font-size: 14px; color: var(--text-dark-title); font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; display: flex; align-items: center; justify-content: space-between; }
-        .chart-box { position: relative; height: 240px; width: 100%; display: flex; justify-content: center; align-items: center; }
-        #mapa-red { height: 240px; width: 100%; border-radius: 10px; z-index: 10; border: 1px solid var(--border-color); }
+        .chart-box { position: relative; height: 265px; width: 100%; display: flex; justify-content: center; align-items: center; }
+        
+        /* CONTENEDOR DE MAPA ESTILO SALA SITUACIONAL */
+        .map-wrapper { position: relative; width: 100%; }
+        #mapa-red { height: 265px; width: 100%; border-radius: 10px; z-index: 10; border: 1px solid var(--border-color); }
+        .map-overlay-badge { position: absolute; bottom: 12px; left: 12px; z-index: 1000; background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(4px); color: white; padding: 6px 12px; border-radius: 6px; font-size: 11px; font-weight: 600; display: flex; align-items: center; gap: 6px; border: 1px solid rgba(255,255,255,0.1); }
+        .map-radar-dot { width: 8px; height: 8px; background: #22c55e; border-radius: 50%; box-shadow: 0 0 0 rgba(34, 197, 94, 0.4); animation: pulse-radar 2s infinite; }
+        @keyframes pulse-radar {
+            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7); }
+            70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(34, 197, 94, 0); }
+            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(34, 197, 94, 0); }
+        }
 
         /* BARRA DE FILTROS Y BÚSQUEDA */
         .toolbar-container { background: white; padding: 16px 20px; border-radius: 12px; border: 1px solid var(--border-color); box-shadow: var(--card-shadow); display: flex; gap: 16px; align-items: center; margin-bottom: 24px; flex-wrap: wrap; }
@@ -250,7 +260,7 @@
                 </div>
             </div>
 
-            <!-- SECCIÓN ANALÍTICA: GRÁFICO Y MAPA -->
+            <!-- SECCIÓN ANALÍTICA: GRÁFICO Y MAPA ESTILO SALA SITUACIONAL -->
             <div class="analytics-container">
                 <div class="analytics-card">
                     <h3>📊 Operabilidad de la Red</h3>
@@ -259,8 +269,14 @@
                     </div>
                 </div>
                 <div class="analytics-card">
-                    <h3>🗺️ Mapa de Ubicación Georreferenciada</h3>
-                    <div id="mapa-red"></div>
+                    <h3>🗺️ Mapa de Ubicación Georreferenciada <span style="font-size:11px; font-weight:500; color:var(--sidebar-active);">[Sala Situacional]</span></h3>
+                    <div class="map-wrapper">
+                        <div id="mapa-red"></div>
+                        <div class="map-overlay-badge">
+                            <div class="map-radar-dot"></div>
+                            <span id="map-status-text">Radar Activo: 0 nodos geolocalizados</span>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -386,7 +402,7 @@
         map = L.map('mapa-red').setView([10.4633, -66.6272], 13);
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             maxZoom: 19,
-            attribution: '© OpenStreetMap'
+            attribution: '© OpenStreetMap - Sala Situacional Ambrosio Plaza'
         }).addTo(map);
         markersLayer = L.layerGroup().addTo(map);
     }
@@ -448,7 +464,6 @@
         try {
             const data = await consultarBaseDatos("SELECT * FROM casos_salud");
             
-            // FILTRO ESTRICTO PARA CENTROS DE SALUD REALES
             centrosCache = (Array.isArray(data) ? data : []).filter(c => {
                 const tipoCentro = (c.tipo || "").trim();
                 return tipoCentro === "CDI" || 
@@ -522,24 +537,54 @@
         if (!markersLayer) return;
         markersLayer.clearLayers();
 
+        let geolocalizadosCount = 0;
+
         lista.forEach(c => {
             if (c.lat && c.lng) {
                 const lat = parseFloat(c.lat);
                 const lng = parseFloat(c.lng);
                 if (!isNaN(lat) && !isNaN(lng)) {
+                    geolocalizadosCount++;
                     let colorPin = '#16a34a';
-                    if (c.estatus === 'Con fallas') colorPin = '#f59e0b';
-                    if (c.estatus === 'Inactivo') colorPin = '#dc2626';
+                    let pulseColor = 'rgba(22, 163, 74, 0.3)';
+                    if (c.estatus === 'Con fallas') { colorPin = '#f59e0b'; pulseColor = 'rgba(245, 158, 11, 0.3)'; }
+                    if (c.estatus === 'Inactivo') { colorPin = '#dc2626'; pulseColor = 'rgba(220, 38, 38, 0.3)'; }
 
-                    const markerHtml = `<div style="background-color: ${colorPin}; width: 14px; height: 14px; border-radius: 50%; border: 2px solid white; box-shadow: 0 0 4px rgba(0,0,0,0.3);"></div>`;
-                    const customIcon = L.divIcon({ html: markerHtml, className: 'custom-leaflet-icon', iconSize: [14, 14] });
+                    // Marcador con pulso estilo radar
+                    const markerHtml = `
+                        <div style="position: relative; display: flex; align-items: center; justify-content: center;">
+                            <div style="position: absolute; width: 28px; height: 28px; background: ${pulseColor}; border-radius: 50%; animation: pulse-radar 2s infinite;"></div>
+                            <div style="background-color: ${colorPin}; width: 14px; height: 14px; border-radius: 50%; border: 2px solid white; box-shadow: 0 0 6px rgba(0,0,0,0.4); z-index: 2;"></div>
+                        </div>`;
+                    const customIcon = L.divIcon({ html: markerHtml, className: 'custom-leaflet-icon', iconSize: [28, 28], iconAnchor: [14, 14] });
 
                     const marker = L.marker([lat, lng], { icon: customIcon });
-                    marker.bindPopup(`<b>${c.nombre || 'Centro'}</b><br>Tipo: ${c.tipo}<br>Estatus: ${c.estatus || 'Operativo'}<br>Ubicación: ${c.ubicacion || 'N/A'}`);
+                    
+                    // Popup interactivo enriquecido
+                    const popupContent = `
+                        <div style="font-family: 'Inter', sans-serif; font-size: 12px; padding: 4px; max-width: 200px;">
+                            <b style="color: #0f2547; font-size: 13px;">${c.nombre || 'Centro'}</b><br>
+                            <span style="display:inline-block; margin-top:4px; font-weight:700; color: ${colorPin};">● Estatus: ${c.estatus || 'Operativo'}</span><br>
+                            <span style="color: #475569;"><b>Tipo:</b> ${c.tipo}</span><br>
+                            <span style="color: #475569;"><b>Eje:</b> ${c.sector || 'N/A'}</span><br>
+                            <hr style="margin: 6px 0; border: none; border-top: 1px solid #e2e8f0;">
+                            <button onclick="filtrarPorCentroMapa('${c.nombre.replace(/'/g, "\\'")}')" style="background: #0066cc; color: white; border: none; padding: 4px 8px; border-radius: 4px; font-size: 11px; cursor: pointer; width: 100%; font-weight: 600;">🔍 Filtrar en Red</button>
+                        </div>
+                    `;
+                    marker.bindPopup(popupContent);
                     markersLayer.addLayer(marker);
                 }
             }
         });
+
+        document.getElementById("map-status-text").innerText = `Radar Activo: ${geolocalizadosCount} de ${lista.length} geolocalizados`;
+    }
+
+    // Función exclusiva de Sala Situacional para filtrar al hacer clic en el mapa
+    window.filtrarPorCentroMapa = function(nombreCentro) {
+        document.getElementById("input-busqueda").value = nombreCentro;
+        filtrarRedSalud();
+        map.closePopup();
     }
 
     function cambiarFiltro(tipo, btnElement) {
