@@ -84,17 +84,32 @@
         .btn-danger { background: var(--danger-color); color: white; }
         .btn-danger:hover { background: #b91c1c; }
 
-        /* FORMULARIO DE REGISTRO */
-        .form-card {
-            background: #f8fafc;
+        /* MODAL FLOTANTE PARA EL FORMULARIO */
+        .modal-form-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            z-index: 9999;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .modal-form-card {
+            background: white;
             border: 1px solid var(--border-color);
-            border-radius: 8px;
-            padding: 24px;
-            margin-bottom: 30px;
+            border-radius: 12px;
+            padding: 28px;
+            width: 100%;
+            max-width: 750px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
         }
         .form-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
             gap: 16px;
             margin-bottom: 16px;
         }
@@ -119,7 +134,7 @@
         .table-img-thumb { width: 45px; height: 45px; object-fit: cover; border-radius: 6px; border: 1px solid #cbd5e1; cursor: pointer; transition: transform 0.2s; }
         .table-img-thumb:hover { transform: scale(1.08); }
 
-        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 9999; align-items: center; justify-content: center; }
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 10000; align-items: center; justify-content: center; }
         .modal-content { max-width: 90%; max-height: 90%; border-radius: 8px; object-fit: contain; }
 
         @media (max-width: 900px) {
@@ -143,8 +158,73 @@
     <img id="imgModalAmpliada" class="modal-content" src="" alt="Evidencia" onclick="event.stopPropagation()">
 </div>
 
+<!-- MODAL FLOTANTE FORMULARIO -->
+<div class="modal-form-overlay" id="contenedorFormulario">
+    <div class="modal-form-card" onclick="event.stopPropagation()">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <h3 id="tituloFormAccion" style="font-size: 15px; font-weight: 700; color: var(--text-dark-title);">Registrar Nueva Acción de Despacho</h3>
+            <button type="button" onclick="toggleFormulario()" style="background: none; border: none; font-size: 18px; cursor: pointer; color: #64748b;">✕</button>
+        </div>
+        
+        <form id="formAccion" onsubmit="guardarAccion(event)">
+            <input type="hidden" id="accionId">
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>Título de la Acción</label>
+                    <input type="text" id="titulo" required placeholder="Ej. Visita de inspección al ambulatorio">
+                </div>
+                <div class="form-group">
+                    <label>Categoría</label>
+                    <select id="categoria" required>
+                        <option value="Visita Comunitaria">Visita Comunitaria</option>
+                        <option value="Reunión Institucional">Reunión Institucional</option>
+                        <option value="Asesoría Ciudadana">Asesoría Ciudadana</option>
+                        <option value="Sesión de Cámara">Sesión de Cámara</option>
+                        <option value="Medios y Prensa">Medios y Prensa</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Fecha</label>
+                    <input type="date" id="fecha" required>
+                </div>
+                <div class="form-group">
+                    <label>Hora</label>
+                    <input type="time" id="hora" required>
+                </div>
+                <div class="form-group">
+                    <label>Lugar</label>
+                    <input type="text" id="lugar" required placeholder="Ej. Sector Oropeza Castillo">
+                </div>
+                <div class="form-group">
+                    <label>Involucrados / Voceros</label>
+                    <input type="text" id="involucrados" placeholder="Ej. Voceros de Salud">
+                </div>
+                <div class="form-group">
+                    <label>Estatus</label>
+                    <select id="estatus" required>
+                        <option value="En Proceso">En Proceso</option>
+                        <option value="Completado">Completado</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>URL de Evidencia / Foto</label>
+                    <input type="text" id="foto" placeholder="https://ejemplo.com/imagen.jpg">
+                </div>
+            </div>
+            <div class="form-group" style="margin-bottom: 20px;">
+                <label>Acuerdos / Observaciones</label>
+                <textarea id="acuerdos" placeholder="Detalles de los acuerdos alcanzados..."></textarea>
+            </div>
+            <div style="display: flex; gap: 10px; justify-content: flex-end;">
+                <button type="button" class="btn-action btn-danger" onclick="toggleFormulario()">Cancelar</button>
+                <button type="submit" class="btn-action">💾 Guardar Registro</button>
+            </div>
+        </form>
+    </div>
+</div>
+
 <div class="layout">
-    <!-- MENÚ LATERAL CON ACCIONES CONCEJALA SELECCIONADO -->
+    <!-- MENÚ LATERAL -->
     <div class="sidebar" id="sidebarMenu">
         <div class="sidebar-top">
             <div class="sidebar-brand">
@@ -199,65 +279,6 @@
                 </div>
             </div>
 
-            <!-- FORMULARIO OCULTO/VISIBLE PARA NUEVA ACCIÓN -->
-            <div class="form-card" id="contenedorFormulario" style="display: none;">
-                <h3 id="tituloFormAccion" style="font-size: 14px; font-weight: 700; color: var(--text-dark-title); margin-bottom: 15px;">Registrar Nueva Acción de Despacho</h3>
-                <form id="formAccion" onsubmit="guardarAccion(event)">
-                    <input type="hidden" id="accionId">
-                    <div class="form-grid">
-                        <div class="form-group">
-                            <label>Título de la Acción</label>
-                            <input type="text" id="titulo" required placeholder="Ej. Visita de inspección al ambulatorio">
-                        </div>
-                        <div class="form-group">
-                            <label>Categoría</label>
-                            <select id="categoria" required>
-                                <option value="Visita Comunitaria">Visita Comunitaria</option>
-                                <option value="Reunión Institucional">Reunión Institucional</option>
-                                <option value="Asesoría Ciudadana">Asesoría Ciudadana</option>
-                                <option value="Sesión de Cámara">Sesión de Cámara</option>
-                                <option value="Medios y Prensa">Medios y Prensa</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label>Fecha</label>
-                            <input type="date" id="fecha" required>
-                        </div>
-                        <div class="form-group">
-                            <label>Hora</label>
-                            <input type="time" id="hora" required>
-                        </div>
-                        <div class="form-group">
-                            <label>Lugar</label>
-                            <input type="text" id="lugar" required placeholder="Ej. Sector Oropeza Castillo">
-                        </div>
-                        <div class="form-group">
-                            <label>Involucrados / Voceros</label>
-                            <input type="text" id="involucrados" placeholder="Ej. Voceros de Salud">
-                        </div>
-                        <div class="form-group">
-                            <label>Estatus</label>
-                            <select id="estatus" required>
-                                <option value="En Proceso">En Proceso</option>
-                                <option value="Completado">Completado</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label>URL de Evidencia / Foto</label>
-                            <input type="text" id="foto" placeholder="https://ejemplo.com/imagen.jpg">
-                        </div>
-                    </div>
-                    <div class="form-group" style="margin-bottom: 16px;">
-                        <label>Acuerdos / Observaciones</label>
-                        <textarea id="acuerdos" placeholder="Detalles de los acuerdos alcanzados..."></textarea>
-                    </div>
-                    <div style="display: flex; gap: 10px;">
-                        <button type="submit" class="btn-action">💾 Guardar Registro</button>
-                        <button type="button" class="btn-action btn-danger" onclick="toggleFormulario()">Cancelar</button>
-                    </div>
-                </form>
-            </div>
-
             <!-- TABLA DE ACCIONES -->
             <div class="table-responsive">
                 <table class="data-table">
@@ -305,14 +326,14 @@ function toggleSidebar() {
 
 function toggleFormulario() {
     const formCard = document.getElementById("contenedorFormulario");
-    if (formCard.style.display === "none") {
-        formCard.style.display = "block";
+    if (formCard.style.display === "flex") {
+        formCard.style.display = "none";
+    } else {
+        formCard.style.display = "flex";
         document.getElementById("formAccion").reset();
         document.getElementById("accionId").value = "";
         document.getElementById("tituloFormAccion").innerText = "Registrar Nueva Acción de Despacho";
         document.getElementById("fecha").value = new Date().toISOString().split('T')[0];
-    } else {
-        formCard.style.display = "none";
     }
 }
 
@@ -427,8 +448,7 @@ function editarAccion(id) {
     document.getElementById("acuerdos").value = item.acuerdos || "";
 
     document.getElementById("tituloFormAccion").innerText = `Editar Acción #${item.id}`;
-    document.getElementById("contenedorFormulario").style.display = "block";
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    document.getElementById("contenedorFormulario").style.display = "flex";
 }
 
 function abrirModalFoto(url) {
