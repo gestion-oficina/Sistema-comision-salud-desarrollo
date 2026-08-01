@@ -13,7 +13,7 @@
         }
     </script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Reportes Institucionales Consolidados - Comisión de Salud</title>
+    <title>Reporte Ejecutivo Multidisciplinario - Comisión de Salud</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -101,16 +101,16 @@
         .report-meta { text-align: right; font-size: 11px; color: #475569; line-height: 1.4; }
         
         .report-title { text-align: center; margin-bottom: 36px; color: var(--text-dark-title); }
-        .report-title h1 { font-size: 22px; font-weight: 700; letter-spacing: 0.5px; }
+        .report-title h1 { font-size: 21px; font-weight: 700; letter-spacing: 0.5px; }
         .report-title p { font-size: 12px; color: #64748b; margin-top: 6px; font-weight: 500; }
         
-        .section-heading { font-size: 14px; font-weight: 700; color: var(--text-dark-title); margin-top: 28px; margin-bottom: 12px; border-left: 3px solid var(--sidebar-active); padding-left: 8px; text-transform: uppercase; letter-spacing: 0.3px; }
+        .section-heading { font-size: 13.5px; font-weight: 700; color: var(--text-dark-title); margin-top: 28px; margin-bottom: 12px; border-left: 3px solid var(--sidebar-active); padding-left: 8px; text-transform: uppercase; letter-spacing: 0.3px; }
 
         .report-table { width: 100%; border-collapse: collapse; margin-bottom: 20px; font-size: 13px; }
         .report-table th { background: #f8fafc; color: var(--text-dark-title); font-weight: 700; text-align: left; padding: 12px; border: 1px solid #cbd5e1; }
         .report-table td { padding: 12px; border: 1px solid #cbd5e1; color: #334155; }
         
-        .signature-section { margin-top: 80px; display: flex; justify-content: space-between; text-align: center; font-size: 12px; }
+        .signature-section { margin-top: 70px; display: flex; justify-content: space-between; text-align: center; font-size: 12px; }
         .signature-box { width: 220px; border-top: 1px solid #94a3b8; padding-top: 10px; color: #1e293b; }
 
         @media print {
@@ -172,8 +172,8 @@
     <div class="main">
         <div class="no-print-zone">
             <div>
-                <h2>Generador de Informes de Gestión Institucional</h2>
-                <p>Balance consolidado en tiempo real de Casos Sociales, Oficios, Informes y Bitácora.</p>
+                <h2>Generador de Informes de Gestión a Otro Nivel</h2>
+                <p>Consolidado completo y cruzado de Casos Sociales, Oficios, Informes Técnicos y Bitácora.</p>
             </div>
             <button class="btn-print" id="btnPrint" onclick="ejecutarImpresion()">🖨️ Imprimir / Guardar PDF</button>
         </div>
@@ -186,63 +186,78 @@
                     COMISIÓN PERMANENTE DE SALUD Y DESARROLLO SOCIAL INTEGRAL
                 </div>
                 <div class="report-meta">
-                    <b>Código:</b> CPS-2026-REP<br>
+                    <b>Código:</b> CPS-2026-EXEC<br>
                     <b>Fecha Emisión:</b> <span id="fecha-reporte">--/--/----</span>
                 </div>
             </div>
 
             <div class="report-title">
-                <h1>INFORME CONSOLIDADO MULTIDISCIPLINARIO DE GESTIÓN</h1>
-                <p>Balance General de Casos Sociales, Correspondencia, Documentación Técnica y Bitácora de Eventos</p>
+                <h1>REPORTE EJECUTIVO MULTIDISCIPLINARIO</h1>
+                <p>Evaluación Integral de Operaciones, Correspondencia, Informes y Despliegue de Campo</p>
             </div>
 
-            <!-- Sección I: Indicadores Operativos Globales -->
-            <div class="section-heading">I. Resumen General de Actividad Institucional</div>
+            <!-- Sección I: Desglose por Módulos y Estado de Gestión -->
+            <div class="section-heading">I. Consolidado General por Áreas de Trabajo</div>
             <table class="report-table">
                 <thead>
                     <tr>
-                        <th>Área / Módulo del Sistema</th>
-                        <th>Total Registros en Base de Datos</th>
-                        <th>Estado de Sincronización</th>
+                        <th>Área / Coordinación</th>
+                        <th>Componente Evaluado</th>
+                        <th>Volumen Registrado</th>
+                        <th>Estatus Institucional</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr>
-                        <td><b>Casos Sociales y de Salud Registrados</b></td>
-                        <td id="rep-casos" style="font-weight: 700;">...</td>
-                        <td>Verificado en Red Operativa</td>
+                        <td rowspan="3"><b>Coor. Social</b></td>
+                        <td>Total Casos y Solicitudes de Salud</td>
+                        <td id="rep-casos-tot" style="font-weight: 700;">...</td>
+                        <td>Base Territorial Activa</td>
                     </tr>
                     <tr>
-                        <td><b>Oficios y Correspondencias Creadas</b></td>
+                        <td>Casos Activos (En Evaluación)</td>
+                        <td id="rep-casos-act" style="font-weight: 700; color: #b45309;">...</td>
+                        <td>Verificación de Campo</td>
+                    </tr>
+                    <tr>
+                        <td>Casos Atendidos / Solventados</td>
+                        <td id="rep-casos-res" style="font-weight: 700; color: #15803d;">...</td>
+                        <td>Gestión Concluida</td>
+                    </tr>
+                    <tr>
+                        <td><b>Coor. Ejecutiva</b></td>
+                        <td>Oficios Creados / Emitidos</td>
                         <td id="rep-oficios" style="font-weight: 700; color: var(--sidebar-active);">...</td>
-                        <td>Control Ejecutivo de Salida</td>
+                        <td>Control de Salida Oficial</td>
                     </tr>
                     <tr>
-                        <td><b>Informes Técnicos Emitidos</b></td>
-                        <td id="rep-informes" style="font-weight: 700; color: #b45309;">...</td>
-                        <td>Validación de Comisión</td>
+                        <td><b>Informes Técnicos</b></td>
+                        <td>Documentos y Balances Generados</td>
+                        <td id="rep-informes" style="font-weight: 700; color: #0f2547;">...</td>
+                        <td>Soporte Legislativo y Social</td>
                     </tr>
                     <tr>
-                        <td><b>Eventos Registrados en Bitácora</b></td>
-                        <td id="rep-bitacora" style="font-weight: 700; color: #15803d;">...</td>
-                        <td>Seguimiento Territorial y de Campo</td>
+                        <td><b>Gestión Digital</b></td>
+                        <td>Registros en Bitácora de Eventos</td>
+                        <td id="rep-bitacora" style="font-weight: 700; color: #7c3aed;">...</td>
+                        <td>Monitoreo y Actividades</td>
                     </tr>
                 </tbody>
             </table>
 
-            <!-- Sección II: Desglose Geográfico -->
-            <div class="section-heading">II. Distribución Geográfica de Demandas (Sectores Críticos)</div>
+            <!-- Sección II: Matriz Territorial de Impacto -->
+            <div class="section-heading">II. Matriz Geográfica de Incidencia Social (Sectores)</div>
             <table class="report-table">
                 <thead>
                     <tr>
                         <th>Comunidad / Sector Evaluado</th>
-                        <th>N° de Solicitudes / Casos</th>
-                        <th>Porcentaje de Incidencia Geográfica</th>
+                        <th>Cantidad de Solicitudes</th>
+                        <th>Participación Porcentaje Territorial</th>
                     </tr>
                 </thead>
                 <tbody id="tabla-sectores-reporte">
                     <tr>
-                        <td colspan="3" style="color:#64748b; text-align: center; padding: 20px;">Procesando matriz territorial desde Supabase...</td>
+                        <td colspan="3" style="color:#64748b; text-align: center; padding: 20px;">Sincronizando matriz territorial...</td>
                     </tr>
                 </tbody>
             </table>
@@ -272,71 +287,72 @@ const client = supabase.createClient(
 
 document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("fecha-reporte").innerText = new Date().toLocaleDateString('es-VE');
-    cargarDatosMultidisciplinarios();
+    cargarReporteMultidisciplinarioAvanzado();
 });
 
 function toggleMobileMenu() {
     document.getElementById("sidebarMenu").classList.toggle("open");
 }
 
-async function cargarDatosMultidisciplinarios() {
+async function cargarReporteMultidisciplinarioAvanzado() {
     try {
-        // Consultar en paralelo todas las tablas correspondientes del sistema
+        // Consultar todas las fuentes operativas en paralelo
         const [resCasos, resOficios, resInformes, resBitacora] = await Promise.all([
-            client.from("casos_salud").select("id, sector"),
-            client.from("oficios").select("id"),     // Ajusta el nombre de la tabla si difiere en tu BD (ej. oficios_emitidos)
-            client.from("informes").select("id"),    // Ajusta el nombre de la tabla de informes si es distinta
-            client.from("bitacora").select("id")     // Ajusta el nombre de la tabla de bitácora si es distinta
+            client.from("casos_salud").select("id, nombre, cedula, telefono, sector"),
+            client.from("oficios").select("id"),
+            client.from("informes").select("id"),
+            client.from("bitacora").select("id")
         ]);
 
-        // 1. Métricas Generales
-        const totalCasos = resCasos.data ? resCasos.data.length : 0;
-        const totalOficios = resOficios.data ? resOficios.data.length : 0;
-        const totalInformes = resInformes.data ? resInformes.data.length : 0;
-        const totalBitacora = resBitacora.data ? resBitacora.data.length : 0;
+        const registrosCasos = resCasos.data || [];
+        
+        // 1. Métricas de Casos Sociales (Lógica idéntica y robusta del sistema)
+        const totalCasos = registrosCasos.length;
+        const activos = registrosCasos.filter(r => r.telefono && r.telefono !== "NULL").length;
+        const resueltos = registrosCasos.filter(r => r.cedula && r.sector && r.sector !== "NULL").length;
 
-        document.getElementById("rep-casos").innerText = totalCasos;
-        document.getElementById("rep-oficios").innerText = totalOficios;
-        document.getElementById("rep-informes").innerText = totalInformes;
-        document.getElementById("rep-bitacora").innerText = totalBitacora;
+        document.getElementById("rep-casos-tot").innerText = totalCasos;
+        document.getElementById("rep-casos-act").innerText = activos;
+        document.getElementById("rep-casos-res").innerText = resueltos;
 
-        // 2. Matriz Geográfica basada en casos_salud
-        if (resCasos.data && resCasos.data.length > 0) {
-            const conteoSectores = {};
-            let totalValidos = 0;
+        // 2. Métricas de Oficios, Informes y Bitácora
+        document.getElementById("rep-oficios").innerText = resOficios.data ? resOficios.data.length : 0;
+        document.getElementById("rep-informes").innerText = resInformes.data ? resInformes.data.length : 0;
+        document.getElementById("rep-bitacora").innerText = resBitacora.data ? resBitacora.data.length : 0;
 
-            resCasos.data.forEach(r => {
-                if (r.sector && r.sector !== "NULL" && r.sector.trim() !== "") {
-                    const sectorNormalizado = r.sector.trim();
-                    conteoSectores[sectorNormalizado] = (conteoSectores[sectorNormalizado] || 0) + 1;
-                    totalValidos++;
-                }
-            });
+        // 3. Matriz Territorial de Sectores Completa
+        const conteoSectores = {};
+        let totalValidos = 0;
 
-            const sectoresOrdenados = Object.entries(conteoSectores).sort((a, b) => b[1] - a[1]);
-            const tablaSectoresHtml = document.getElementById("tabla-sectores-reporte");
-
-            if (sectoresOrdenados.length === 0) {
-                tablaSectoresHtml.innerHTML = `<tr><td colspan="3" style="text-align:center; color:#94a3b8;">Sin sectores válidos detectados.</td></tr>`;
-            } else {
-                tablaSectoresHtml.innerHTML = sectoresOrdenados.map(([nombreSector, cantidad]) => {
-                    const porcentaje = totalValidos > 0 ? ((cantidad / totalValidos) * 100).toFixed(1) : 0;
-                    return `
-                        <tr>
-                            <td><b>${nombreSector}</b></td>
-                            <td>${cantidad} ${cantidad === 1 ? 'solicitud' : 'solicitudes'}</td>
-                            <td><b>${porcentaje}%</b> del histórico territorial</td>
-                        </tr>
-                    `;
-                }).join("");
+        registrosCasos.forEach(r => {
+            if (r.sector && r.sector !== "NULL" && r.sector.trim() !== "") {
+                const sectorNormalizado = r.sector.trim();
+                conteoSectores[sectorNormalizado] = (conteoSectores[sectorNormalizado] || 0) + 1;
+                totalValidos++;
             }
+        });
+
+        const sectoresOrdenados = Object.entries(conteoSectores).sort((a, b) => b[1] - a[1]);
+        const tablaSectoresHtml = document.getElementById("tabla-sectores-reporte");
+
+        if (sectoresOrdenados.length === 0) {
+            tablaSectoresHtml.innerHTML = `<tr><td colspan="3" style="text-align:center; color:#94a3b8;">Sin sectores válidos detectados.</td></tr>`;
         } else {
-            document.getElementById("tabla-sectores-reporte").innerHTML = `<tr><td colspan="3" style="text-align:center; color:#94a3b8;">No existen datos geográficos para procesar.</td></tr>`;
+            tablaSectoresHtml.innerHTML = sectoresOrdenados.map(([nombreSector, cantidad]) => {
+                const porcentaje = totalValidos > 0 ? ((cantidad / totalValidos) * 100).toFixed(1) : 0;
+                return `
+                    <tr>
+                        <td><b>${nombreSector}</b></td>
+                        <td>${cantidad} ${cantidad === 1 ? 'solicitud' : 'solicitudes'}</td>
+                        <td><b>${porcentaje}%</b> de incidencia territorial</td>
+                    </tr>
+                `;
+            }).join("");
         }
 
     } catch (err) {
-        console.error("Error al estructurar reporte institucional:", err);
-        document.getElementById("tabla-sectores-reporte").innerHTML = `<tr><td colspan="3" style="text-align:center; color:var(--danger-color); font-weight:600;">Error de comunicación con el servidor central de Supabase.</td></tr>`;
+        console.error("Error al estructurar reporte ejecutivo:", err);
+        document.getElementById("tabla-sectores-reporte").innerHTML = `<tr><td colspan="3" style="text-align:center; color:var(--danger-color); font-weight:600;">Error de comunicación con Supabase.</td></tr>`;
     }
 }
 
