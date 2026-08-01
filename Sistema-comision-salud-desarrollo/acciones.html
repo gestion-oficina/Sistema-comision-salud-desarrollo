@@ -147,6 +147,14 @@
         .badge-resuelto { background: #dcfce7; color: #166534; }
         .badge-gestion { background: #fef9c3; color: #854d0e; }
 
+        /* MINIATURA DE FOTO */
+        .table-img-thumb { width: 45px; height: 45px; object-fit: cover; border-radius: 6px; border: 1px solid #cbd5e1; cursor: pointer; transition: transform 0.2s; }
+        .table-img-thumb:hover { transform: scale(1.08); }
+
+        /* MODAL DE FOTO GRANDE */
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 2000; align-items: center; justify-content: center; }
+        .modal-content { max-width: 90%; max-height: 90%; border-radius: 8px; box-shadow: 0 10px 25px rgba(0,0,0,0.3); }
+
         /* ESTILOS EXCLUSIVOS PARA IMPRESIÓN (MEMBRETE INSTITUCIONAL) */
         .print-header { display: none; }
 
@@ -161,6 +169,7 @@
             .print-header h2 { font-size: 12px; color: #334155; font-weight: 600; margin-top: 4px; }
             .print-header p { font-size: 10px; color: #64748b; margin-top: 2px; }
             .data-table th { background: #1d3b6a !important; color: white !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            .table-img-thumb { width: 55px; height: 55px; }
         }
 
         @media (max-width: 900px) {
@@ -178,6 +187,11 @@
 <div class="mobile-header">
     <div style="font-weight:700; font-size:12px; letter-spacing:0.5px;">COMISIÓN DE SALUD</div>
     <button class="menu-toggle" onclick="toggleSidebar()">☰</button>
+</div>
+
+<!-- MODAL VISUALIZACIÓN FOTO -->
+<div class="modal-overlay" id="modalFoto" onclick="cerrarModalFoto()">
+    <img id="imgModalAmpliada" class="modal-content" src="" alt="Evidencia Ampliada">
 </div>
 
 <div class="layout">
@@ -230,13 +244,13 @@
             <div class="print-header">
                 <h1>República Bolivariana de Venezuela • Estado Miranda</h1>
                 <h2>Concejo Municipal Ambrosio Plaza — Comisión Permanente de Salud y Desarrollo Social Integral</h2>
-                <p>Reporte Ejecutivo Consolidado de Gestión Institucional</p>
+                <p>Reporte Ejecutivo Consolidado de Gestión Institucional con Evidencias Fotográficas</p>
             </div>
 
             <div class="header-actions">
                 <div>
                     <h2>Reporte Integral y Consolidado de Gestión</h2>
-                    <p>Filtre y genere cortes de actividades y acciones del despacho para rendición institucional.</p>
+                    <p>Filtre y genere cortes de actividades, acciones del despacho y evidencias para rendición institucional.</p>
                 </div>
                 <button class="btn-action btn-success no-print" onclick="window.print()">🖨️ Imprimir / Guardar PDF</button>
             </div>
@@ -289,6 +303,7 @@
                     <thead>
                         <tr>
                             <th>ID</th>
+                            <th>Foto</th>
                             <th>Título de la Acción</th>
                             <th>Categoría</th>
                             <th>Fecha & Hora</th>
@@ -298,7 +313,7 @@
                     </thead>
                     <tbody id="tablaReportesCuerpo">
                         <tr>
-                            <td colspan="6" style="text-align:center; color:#64748b; padding: 24px;">Cargando registros de gestión...</td>
+                            <td colspan="7" style="text-align:center; color:#64748b; padding: 24px;">Cargando registros de gestión...</td>
                         </tr>
                     </tbody>
                 </table>
@@ -344,7 +359,7 @@ async function cargarDatosReporte() {
         renderizarReporte(listaMaestraReportes);
     } catch (err) {
         console.error("Error cargando reporte:", err);
-        tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:var(--danger-color); font-weight:600;">Error al conectar con la base de datos de acciones.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; color:var(--danger-color); font-weight:600;">Error al conectar con la base de datos de acciones.</td></tr>`;
     }
 }
 
@@ -357,23 +372,39 @@ function renderizarReporte(datos) {
     document.getElementById("repProceso").innerText = datos.length - completadas;
 
     if (datos.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:#94a3b8; padding: 24px;">No se encontraron registros en el rango de fechas o filtros seleccionados.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; color:#94a3b8; padding: 24px;">No se encontraron registros en el rango de fechas o filtros seleccionados.</td></tr>`;
         return;
     }
 
-    tbody.innerHTML = datos.map(item => `
-        <tr>
-            <td><b>#${item.id}</b></td>
-            <td><span style="color:var(--text-dark-title); font-weight:600;">${item.titulo}</span><br><small style="color:#64748b;">Acuerdos: ${item.acuerdos || 'N/D'}</small></td>
-            <td><span style="color:var(--sidebar-active); font-weight:600;">${item.categoria}</span></td>
-            <td>📅 ${item.fecha || 'N/D'}<br><small style="color:#64748b;">⏰ ${item.hora || 'N/D'}</small></td>
-            <td>📍 ${item.lugar || 'N/D'}<br><small style="color:#64748b;">👥 ${item.involucrados || 'N/D'}</small></td>
-            <td>
-                <span class="badge ${item.estatus === 'Completado' ? 'badge-resuelto' : 'badge-gestion'}">${item.estatus}</span><br>
-                <small style="color:#64748b;">Por: ${item.creado_por || 'Sistema'}</small>
-            </td>
-        </tr>
-    `).join("");
+    tbody.innerHTML = datos.map(item => {
+        const fotoHtml = item.foto 
+            ? `<img src="${item.foto}" class="table-img-thumb" onclick="abrirModalFoto('${item.foto}')" alt="Evidencia">` 
+            : `<span style="color:#94a3b8; font-size:11px; font-style:italic;">Sin foto</span>`;
+
+        return `
+            <tr>
+                <td><b>#${item.id}</b></td>
+                <td style="text-align: center;">${fotoHtml}</td>
+                <td><span style="color:var(--text-dark-title); font-weight:600;">${item.titulo}</span><br><small style="color:#64748b;">Acuerdos: ${item.acuerdos || 'N/D'}</small></td>
+                <td><span style="color:var(--sidebar-active); font-weight:600;">${item.categoria}</span></td>
+                <td>📅 ${item.fecha || 'N/D'}<br><small style="color:#64748b;">⏰ ${item.hora || 'N/D'}</small></td>
+                <td>📍 ${item.lugar || 'N/D'}<br><small style="color:#64748b;">👥 ${item.involucrados || 'N/D'}</small></td>
+                <td>
+                    <span class="badge ${item.estatus === 'Completado' ? 'badge-resuelto' : 'badge-gestion'}">${item.estatus}</span><br>
+                    <small style="color:#64748b;">Por: ${item.creado_por || 'Sistema'}</small>
+                </td>
+            </tr>
+        `;
+    }).join("");
+}
+
+function abrirModalFoto(url) {
+    document.getElementById("imgModalAmpliada").src = url;
+    document.getElementById("modalFoto").style.display = "flex";
+}
+
+function cerrarModalFoto() {
+    document.getElementById("modalFoto").style.display = "none";
 }
 
 function aplicarFiltrosReporte() {
