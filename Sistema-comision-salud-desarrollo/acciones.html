@@ -13,7 +13,7 @@
         }
     </script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Acciones de la Concejala - Comisión de Salud</title>
+    <title>Reporte Integral y Ejecutivo - Comisión de Salud</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
@@ -88,7 +88,7 @@
         .header-actions h2 { font-size: 18px; color: var(--text-dark-title); font-weight: 700; }
         .header-actions p { font-size: 12.5px; color: #64748b; margin-top: 2px; }
 
-        /* PANEL DE FILTROS */
+        /* PANEL DE FILTROS Y RANGOS */
         .report-filters {
             background: #f8fafc;
             border: 1px solid var(--border-color);
@@ -96,7 +96,7 @@
             padding: 20px;
             margin-bottom: 24px;
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)) 140px;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)) 140px;
             gap: 15px;
             align-items: end;
         }
@@ -115,8 +115,29 @@
         .btn-action:hover { background: #0052a3; }
         .btn-secondary { background: #64748b; }
         .btn-secondary:hover { background: #475569; }
+        .btn-success { background: var(--success-color); }
+        .btn-success:hover { background: #15803d; }
 
-        /* TABLA DE ACCIONES */
+        /* TARJETAS RESUMEN EJECUTIVO */
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 16px;
+            margin-bottom: 30px;
+        }
+        .summary-card {
+            background: white;
+            border: 1px solid var(--border-color);
+            border-left: 4px solid var(--sidebar-active);
+            border-radius: 8px;
+            padding: 18px;
+        }
+        .summary-card.success { border-left-color: var(--success-color); }
+        .summary-card.warning { border-left-color: var(--warning-color); }
+        .summary-card h4 { font-size: 11px; text-transform: uppercase; color: #64748b; font-weight: 700; margin-bottom: 8px; }
+        .summary-card .number { font-size: 24px; font-weight: 700; color: var(--text-dark-title); }
+
+        /* TABLA DE REPORTES */
         .table-responsive { width: 100%; overflow-x: auto; margin-bottom: 24px; }
         .data-table { width: 100%; border-collapse: collapse; font-size: 12px; }
         .data-table th { background: #f8fafc; color: var(--text-dark-title); font-weight: 700; text-align: left; padding: 11px 12px; border: 1px solid #cbd5e1; }
@@ -133,6 +154,23 @@
         /* MODAL DE FOTO GRANDE */
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 2000; align-items: center; justify-content: center; }
         .modal-content { max-width: 90%; max-height: 90%; border-radius: 8px; box-shadow: 0 10px 25px rgba(0,0,0,0.3); }
+
+        /* ESTILOS EXCLUSIVOS PARA IMPRESIÓN (MEMBRETE INSTITUCIONAL) */
+        .print-header { display: none; }
+
+        @media print {
+            body { background: white; color: black; }
+            .sidebar, .mobile-header, .report-filters, .header-actions button, .no-print { display: none !important; }
+            .layout { display: block; }
+            .main { padding: 0; }
+            .content-container { border: none; box-shadow: none; padding: 0; max-width: 100%; }
+            .print-header { display: block; text-align: center; margin-bottom: 20px; border-bottom: 2px solid #0f2547; padding-bottom: 15px; }
+            .print-header h1 { font-size: 14px; font-weight: 700; color: #0f2547; text-transform: uppercase; }
+            .print-header h2 { font-size: 12px; color: #334155; font-weight: 600; margin-top: 4px; }
+            .print-header p { font-size: 10px; color: #64748b; margin-top: 2px; }
+            .data-table th { background: #1d3b6a !important; color: white !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            .table-img-thumb { width: 55px; height: 55px; }
+        }
 
         @media (max-width: 900px) {
             .layout { grid-template-columns: 1fr; }
@@ -178,11 +216,11 @@
             <a class="menu" href="red_salud.html">Red de Salud (CPT/CDI)</a>
             
             <div class="menu-category">Gestión Despacho</div>
-            <a class="menu" href="acciones.html" style="background: var(--sidebar-active); font-weight: 600; border-radius: 6px; margin: 2px 14px; padding: 10px 20px;">⭐ Acciones Concejala</a>
+            <a class="menu" href="acciones.html">⭐ Acciones Concejala</a>
             
             <div class="menu-category">Gestión Digital</div>
             <a class="menu" href="bitacora.html">Bitácora de Eventos</a>
-            <a class="menu" href="reportes.html">📄 Reporte Integral</a>
+            <a class="menu" href="reportes.html" style="background: var(--sidebar-active); font-weight: 600; border-radius: 6px; margin: 2px 14px; padding: 10px 20px;">📄 Reporte Integral</a>
             <a class="menu" href="formatos.html">📁 Formatos de Oficina</a>
         </div>
 
@@ -202,24 +240,35 @@
     <div class="main">
         <div class="content-container">
             
-            <div class="header-actions">
-                <div>
-                    <h2>Registro de Acciones de la Concejala</h2>
-                    <p>Filtre, consulte y gestione las actividades y visitas del despacho.</p>
-                </div>
-                <button class="btn-action" onclick="alert('Función para nueva acción o registro rápido')">➕ Nueva Acción</button>
+            <!-- MEMBRETE PARA IMPRESIÓN OFICIAL -->
+            <div class="print-header">
+                <h1>República Bolivariana de Venezuela • Estado Miranda</h1>
+                <h2>Concejo Municipal Ambrosio Plaza — Comisión Permanente de Salud y Desarrollo Social Integral</h2>
+                <p>Reporte Ejecutivo Consolidado de Gestión Institucional con Evidencias Fotográficas</p>
             </div>
 
-            <!-- PANEL DE FILTROS -->
-            <div class="report-filters">
+            <div class="header-actions">
+                <div>
+                    <h2>Reporte Integral y Consolidado de Gestión</h2>
+                    <p>Filtre y genere cortes de actividades, acciones del despacho y evidencias para rendición institucional.</p>
+                </div>
+                <button class="btn-action btn-success no-print" onclick="window.print()">🖨️ Imprimir / Guardar PDF</button>
+            </div>
+
+            <!-- FILTROS AVANZADOS POR FECHAS Y CATEGORÍA -->
+            <div class="report-filters no-print">
                 <div class="filter-group">
-                    <label>Buscar</label>
-                    <input type="text" id="filtroTexto" placeholder="Título, lugar..." oninput="aplicarFiltrosAcciones()">
+                    <label>Fecha Desde</label>
+                    <input type="date" id="filtroDesde" onchange="aplicarFiltrosReporte()">
+                </div>
+                <div class="filter-group">
+                    <label>Fecha Hasta</label>
+                    <input type="date" id="filtroHasta" onchange="aplicarFiltrosReporte()">
                 </div>
                 <div class="filter-group">
                     <label>Categoría</label>
-                    <select id="filtroCategoria" onchange="aplicarFiltrosAcciones()">
-                        <option value="">Todas</option>
+                    <select id="filtroCatReporte" onchange="aplicarFiltrosReporte()">
+                        <option value="">Todas las categorías</option>
                         <option value="Visita Comunitaria">Visita Comunitaria</option>
                         <option value="Reunión Institucional">Reunión Institucional</option>
                         <option value="Asesoría Ciudadana">Asesoría Ciudadana</option>
@@ -227,16 +276,24 @@
                         <option value="Medios y Prensa">Medios y Prensa</option>
                     </select>
                 </div>
-                <div class="filter-group">
-                    <label>Estatus</label>
-                    <select id="filtroEstatus" onchange="aplicarFiltrosAcciones()">
-                        <option value="">Todos</option>
-                        <option value="Completado">Completado</option>
-                        <option value="En Proceso">En Proceso</option>
-                    </select>
-                </div>
                 <div>
-                    <button class="btn-action btn-secondary" style="width: 100%;" onclick="limpiarFiltrosAcciones()">🔄 Limpiar</button>
+                    <button class="btn-action btn-secondary" style="width: 100%;" onclick="limpiarFiltrosReporte()">🔄 Restablecer</button>
+                </div>
+            </div>
+
+            <!-- RESUMEN EJECUTIVO DE INDICADORES -->
+            <div class="summary-grid">
+                <div class="summary-card">
+                    <h4>Total en Periodo</h4>
+                    <div class="number" id="repTotal">0</div>
+                </div>
+                <div class="summary-card success">
+                    <h4>Acciones Completadas</h4>
+                    <div class="number" id="repCompletadas" style="color: var(--success-color);">0</div>
+                </div>
+                <div class="summary-card warning">
+                    <h4>En Proceso / Pendientes</h4>
+                    <div class="number" id="repProceso" style="color: var(--warning-color);">0</div>
                 </div>
             </div>
 
@@ -254,9 +311,9 @@
                             <th>Estatus</th>
                         </tr>
                     </thead>
-                    <tbody id="tablaAccionesCuerpo">
+                    <tbody id="tablaReportesCuerpo">
                         <tr>
-                            <td colspan="7" style="text-align:center; color:#64748b; padding: 24px;">Cargando registros...</td>
+                            <td colspan="7" style="text-align:center; color:#64748b; padding: 24px;">Cargando registros de gestión...</td>
                         </tr>
                     </tbody>
                 </table>
@@ -267,7 +324,7 @@
 </div>
 
 <script>
-let listaMaestraAcciones = [];
+let listaMaestraReportes = [];
 
 document.addEventListener("DOMContentLoaded", () => {
     const nombreUsuario = sessionStorage.getItem("usuario_nombre") || sessionStorage.getItem("usuario_logueado") || "Usuario";
@@ -277,7 +334,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     if (window.sqlClient) {
-        cargarDatosAcciones();
+        cargarDatosReporte();
     }
 });
 
@@ -294,23 +351,28 @@ function cerrarSesion(e) {
     }
 }
 
-async function cargarDatosAcciones() {
-    const tbody = document.getElementById("tablaAccionesCuerpo");
+async function cargarDatosReporte() {
+    const tbody = document.getElementById("tablaReportesCuerpo");
     try {
         const resultado = await window.sqlClient.query("SELECT * FROM acciones_concejala ORDER BY fecha DESC");
-        listaMaestraAcciones = resultado.resultado || resultado || [];
-        renderizarTablaAcciones(listaMaestraAcciones);
+        listaMaestraReportes = resultado.resultado || resultado || [];
+        renderizarReporte(listaMaestraReportes);
     } catch (err) {
-        console.error("Error cargando acciones:", err);
+        console.error("Error cargando reporte:", err);
         tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; color:var(--danger-color); font-weight:600;">Error al conectar con la base de datos de acciones.</td></tr>`;
     }
 }
 
-function renderizarTablaAcciones(datos) {
-    const tbody = document.getElementById("tablaAccionesCuerpo");
+function renderizarReporte(datos) {
+    const tbody = document.getElementById("tablaReportesCuerpo");
+    
+    document.getElementById("repTotal").innerText = datos.length;
+    const completadas = datos.filter(d => d.estatus === "Completado").length;
+    document.getElementById("repCompletadas").innerText = completadas;
+    document.getElementById("repProceso").innerText = datos.length - completadas;
 
     if (datos.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; color:#94a3b8; padding: 24px;">No se encontraron registros con los filtros seleccionados.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; color:#94a3b8; padding: 24px;">No se encontraron registros en el rango de fechas o filtros seleccionados.</td></tr>`;
         return;
     }
 
@@ -336,29 +398,6 @@ function renderizarTablaAcciones(datos) {
     }).join("");
 }
 
-function aplicarFiltrosAcciones() {
-    const texto = document.getElementById("filtroTexto").value.toLowerCase();
-    const categoria = document.getElementById("filtroCategoria").value;
-    const estatus = document.getElementById("filtroEstatus").value;
-
-    const filtrados = listaMaestraAcciones.filter(item => {
-        const matchTexto = !texto || (item.titulo && item.titulo.toLowerCase().includes(texto)) || (item.lugar && item.lugar.toLowerCase().includes(texto));
-        const matchCat = !categoria || item.categoria === categoria;
-        const matchEst = !estatus || item.estatus === estatus;
-
-        return matchTexto && matchCat && matchEst;
-    });
-
-    renderizarTablaAcciones(filtrados);
-}
-
-function limpiarFiltrosAcciones() {
-    document.getElementById("filtroTexto").value = "";
-    document.getElementById("filtroCategoria").value = "";
-    document.getElementById("filtroEstatus").value = "";
-    renderizarTablaAcciones(listaMaestraAcciones);
-}
-
 function abrirModalFoto(url) {
     document.getElementById("imgModalAmpliada").src = url;
     document.getElementById("modalFoto").style.display = "flex";
@@ -366,6 +405,30 @@ function abrirModalFoto(url) {
 
 function cerrarModalFoto() {
     document.getElementById("modalFoto").style.display = "none";
+}
+
+function aplicarFiltrosReporte() {
+    const desde = document.getElementById("filtroDesde").value;
+    const hasta = document.getElementById("filtroHasta").value;
+    const categoria = document.getElementById("filtroCatReporte").value;
+
+    const filtrados = listaMaestraReportes.filter(item => {
+        const fechaItem = item.fecha || "";
+        const matchDesde = !desde || fechaItem >= desde;
+        const matchHasta = !hasta || fechaItem <= hasta;
+        const matchCat = !categoria || item.categoria === categoria;
+
+        return matchDesde && matchHasta && matchCat;
+    });
+
+    renderizarReporte(filtrados);
+}
+
+function limpiarFiltrosReporte() {
+    document.getElementById("filtroDesde").value = "";
+    document.getElementById("filtroHasta").value = "";
+    document.getElementById("filtroCatReporte").value = "";
+    renderizarReporte(listaMaestraReportes);
 }
 </script>
 </body>
