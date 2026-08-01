@@ -64,6 +64,23 @@
         .no-print-zone h2 { font-size: 18px; color: var(--text-dark-title); font-weight: 700; }
         .no-print-zone p { font-size: 12.5px; color: #64748b; margin-top: 2px; }
         
+        /* TARJETAS DE RESUMEN GLOBAL */
+        .global-stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 14px;
+            margin-bottom: 20px;
+        }
+        .stat-card {
+            background: #f8fafc;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 16px;
+            text-align: center;
+        }
+        .stat-card h4 { font-size: 11px; text-transform: uppercase; color: #64748b; font-weight: 700; margin-bottom: 6px; letter-spacing: 0.3px; }
+        .stat-card .stat-value { font-size: 22px; font-weight: 700; color: var(--text-dark-title); }
+
         .filter-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)) 150px; gap: 12px; align-items: end; }
         .filter-group { display: flex; flex-direction: column; gap: 6px; }
         .filter-group label { font-size: 11.5px; font-weight: 700; color: #475569; text-transform: uppercase; letter-spacing: 0.3px; }
@@ -195,16 +212,40 @@
     </div>
 
     <div class="main">
-        <!-- ZONA DE FILTRADO Y SELECCIÓN DE MÓDULO (NO SE IMPRIME) -->
+        <!-- ZONA DE FILTRADO Y RESUMEN GLOBAL (NO SE IMPRIME) -->
         <div class="no-print-zone">
             <div class="header-actions">
                 <div>
                     <h2>Módulo de Reporte Integral del Sistema</h2>
-                    <p>Consolida y filtra la información global: Casos Sociales, Oficios, Planificación Semanal, Red de Salud y Bitácora.</p>
+                    <p>Consolida y filtra la información global de todas las áreas de la comisión.</p>
                 </div>
                 <div style="display: flex; gap: 10px;">
                     <button class="btn-action btn-secondary" onclick="limpiarFiltros()">🔄 Restablecer</button>
                     <button class="btn-action" id="btnPrint" onclick="ejecutarImpresion()">🖨️ Imprimir / PDF</button>
+                </div>
+            </div>
+
+            <!-- PANEL DE RESUMEN GLOBAL DE TODAS LAS TABLAS -->
+            <div class="global-stats-grid">
+                <div class="stat-card">
+                    <h4>Casos Sociales</h4>
+                    <div class="stat-value" id="global-stat-social">0</div>
+                </div>
+                <div class="stat-card">
+                    <h4>Planificación Semanal</h4>
+                    <div class="stat-value" id="global-stat-plan">0</div>
+                </div>
+                <div class="stat-card">
+                    <h4>Bitácora de Eventos</h4>
+                    <div class="stat-value" id="global-stat-bitacora">0</div>
+                </div>
+                <div class="stat-card">
+                    <h4>Oficios e Informes</h4>
+                    <div class="stat-value" id="global-stat-oficios">0</div>
+                </div>
+                <div class="stat-card">
+                    <h4>Red de Salud</h4>
+                    <div class="stat-value" id="global-stat-red">0</div>
                 </div>
             </div>
             
@@ -319,6 +360,9 @@ document.addEventListener("DOMContentLoaded", () => {
     if (coord) document.getElementById("usuarioCoordinacion").textContent = coord.toUpperCase();
 
     document.getElementById("fecha-reporte").innerText = new Date().toLocaleDateString('es-VE');
+    
+    // Carga inicial de totales globales y del módulo activo
+    cargarResumenGlobal();
     cargarDatosModulo(moduloActual);
 });
 
@@ -337,6 +381,27 @@ async function consultarBaseDatos(query, params = []) {
     } catch (error) {
         console.error(error);
         throw error;
+    }
+}
+
+// CARGA LOS TALLIES DE TODOS LOS MÓDULOS PARA LAS TARJETAS SUPERIORES
+async function cargarResumenGlobal() {
+    try {
+        const [soc, plan, bit, ofi, red] = await Promise.all([
+            consultarBaseDatos("SELECT COUNT(*) as total FROM casos_salud"),
+            consultarBaseDatos("SELECT COUNT(*) as total FROM planificacion"),
+            consultarBaseDatos("SELECT COUNT(*) as total FROM bitacora"),
+            consultarBaseDatos("SELECT COUNT(*) as total FROM oficios"),
+            consultarBaseDatos("SELECT COUNT(*) as total FROM red_salud")
+        ]);
+
+        if (soc && soc[0]) document.getElementById("global-stat-social").innerText = soc[0].total || 0;
+        if (plan && plan[0]) document.getElementById("global-stat-plan").innerText = plan[0].total || 0;
+        if (bit && bit[0]) document.getElementById("global-stat-bitacora").innerText = bit[0].total || 0;
+        if (ofi && ofi[0]) document.getElementById("global-stat-oficios").innerText = ofi[0].total || 0;
+        if (red && red[0]) document.getElementById("global-stat-red").innerText = red[0].total || 0;
+    } catch (e) {
+        console.error("Error al cargar resumen global:", e);
     }
 }
 
@@ -367,7 +432,7 @@ async function cargarDatosModulo(modulo) {
             document.getElementById("meta-codigo").innerText = "CPS-2026-PLN";
             document.getElementById("titulo-reporte-principal").innerText = "REPORTE DE PLANIFICACIÓN SEMANAL DE ACTIVIDADES";
             document.getElementById("firma-responsable").innerText = "Coordinación Ejecutiva";
-            query = "SELECT id, actividad, dia, lugar, hora, estatus, creado_por FROM planificacion ORDER BY id DESC";
+            query = "SELECT id, titulo, fecha, lugar, hora, estatus, creado_por, descripcion FROM planificacion ORDER BY id DESC";
         } else if (modulo === "red_salud") {
             document.getElementById("meta-codigo").innerText = "CPS-2026-RED";
             document.getElementById("titulo-reporte-principal").innerText = "REPORTE OPERATIVO DE CENTROS DE SALUD (CPT / CDI)";
@@ -387,6 +452,7 @@ async function cargarDatosModulo(modulo) {
 
         poblarCreadores(registrosGlobales);
         renderizarTablaSegunModulo(registrosGlobales, modulo);
+        cargarResumenGlobal(); // Actualiza contadores globales
 
     } catch (err) {
         console.error("Error al cargar datos del módulo:", err);
@@ -424,7 +490,6 @@ function aplicarFiltrosEnVivo() {
 function limpiarFiltros() {
     document.getElementById("filtroTexto").value = "";
     document.getElementById("filtroCreador").value = "";
-    document.getElementById("subtitulo-filtros").innerText = "Mostrando la totalidad de registros del módulo actual en SQLite";
     renderizarTablaSegunModulo(registrosGlobales, moduloActual);
 }
 
@@ -471,12 +536,12 @@ function renderizarTablaSegunModulo(datos, modulo) {
             </tr>
         `).join("");
     } else if (modulo === "planificacion") {
-        headersTr.innerHTML = `<th>ID</th><th>Actividad Programada</th><th>Día / Semana</th><th>Lugar</th><th>Hora</th><th>Estatus</th><th>Responsable / Creador</th>`;
+        headersTr.innerHTML = `<th>ID</th><th>Título de Actividad</th><th>Fecha</th><th>Lugar</th><th>Hora</th><th>Estatus</th><th>Creador</th>`;
         tbody.innerHTML = datos.map(item => `
             <tr>
                 <td><b>#${item.id}</b></td>
-                <td><b>${item.actividad || 'N/D'}</b></td>
-                <td>${item.dia || 'N/D'}</td>
+                <td><b>${item.titulo || item.actividad || 'N/D'}</b><br><small style="color:#64748b;">${item.descripcion || ''}</small></td>
+                <td>${item.fecha || item.dia || 'N/D'}</td>
                 <td>${item.lugar || 'N/D'}</td>
                 <td>${item.hora || 'N/D'}</td>
                 <td><span class="badge ${item.estatus === 'Completada' ? 'badge-resuelto' : 'badge-gestion'}">${item.estatus || 'Programada'}</span></td>
