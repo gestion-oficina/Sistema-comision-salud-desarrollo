@@ -207,11 +207,15 @@
         .pdf-header-print, .pdf-footer-print, .pdf-signatures-print { display: none; }
 
         @media print {
+            @page {
+                size: letter;
+                margin: 1.5cm;
+            }
             body { background: white; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
             .sidebar, .mobile-header, .header-buttons, .filter-container, .stats-grid, .btn-action, .no-print { display: none !important; }
             .layout { display: block; }
-            .main { padding: 0; }
-            .content-container { border: none; box-shadow: none; padding: 0; max-width: 100%; margin: 0; }
+            .main { padding: 0 !important; }
+            .content-container { border: none !important; box-shadow: none !important; padding: 0 !important; max-width: 100% !important; margin: 0 !important; }
             
             /* Mostrar Encabezado Institucional en el PDF */
             .pdf-header-print { display: block !important; margin-bottom: 15px; }
@@ -219,9 +223,11 @@
             .pdf-header-table td { border: none !important; padding: 0 !important; }
             .pdf-header-divider { border-top: 4.5pt solid #ff6666; margin-bottom: 20pt; width: 100%; }
 
-            /* Mostrar Bloque de Firmas y Pie de Página en el PDF */
-            .pdf-signatures-print { display: block !important; margin-top: 40pt; page-break-inside: avoid; }
-            .pdf-footer-print { display: block !important; position: fixed; bottom: 0; left: 0; width: 100%; text-align: center; font-size: 8.5pt; font-family: 'Arial', sans-serif; background: white; }
+            /* Mostrar Bloque de Firmas en el PDF */
+            .pdf-signatures-print { display: block !important; margin-top: 30pt; page-break-inside: avoid; }
+
+            /* Mostrar Pie de Página Institucional en el PDF (Flujo normal de impresión para evitar solapamiento) */
+            .pdf-footer-print { display: block !important; margin-top: 40pt; page-break-inside: avoid; }
 
             .data-table { font-size: 10px; }
             .data-table th, .data-table td { padding: 6px; }
@@ -384,7 +390,7 @@
 
             <!-- BLOQUE DE FIRMAS INSTITUCIONALES PARA PDF -->
             <div class="pdf-signatures-print">
-                <p style="font-family: 'Arial', sans-serif; font-size: 11pt; margin-bottom: 30pt; text-align: center;">Por la comisión permanente.</p>
+                <p style="font-family: 'Arial', sans-serif; font-size: 11pt; margin-bottom: 25pt; text-align: center;">Por la comisión permanente.</p>
                 
                 <table border="0" cellspacing="0" cellpadding="0" style="width: 100%; border-collapse: collapse; margin-bottom: 20pt; font-family: 'Arial', sans-serif;">
                     <tr>
