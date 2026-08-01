@@ -13,9 +13,24 @@
         }
     </script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Acciones de la Concejala - Comisión de Salud</title>
+    <title>Reporte Integral y Ejecutivo - Comisión de Salud</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- MOTOR CENTRAL DE CONEXIÓN SQLITE -->
+    <script>
+        window.sqlClient = {
+            async query(sqlText, params = []) {
+                const respuesta = await fetch("/api/query", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ query: sqlText, params: params })
+                });
+                if (!respuesta.ok) throw new Error("Error de conexión con el servidor");
+                return await respuesta.json();
+            }
+        };
+    </script>
     
     <style>
         :root {
@@ -69,60 +84,61 @@
             box-shadow: 0 4px 6px -1px rgba(0,0,0,0.01);
         }
 
-        .header-actions { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; flex-wrap: wrap; gap: 15px; }
+        .header-actions { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 15px; }
         .header-actions h2 { font-size: 18px; color: var(--text-dark-title); font-weight: 700; }
         .header-actions p { font-size: 12.5px; color: #64748b; margin-top: 2px; }
+
+        /* PANEL DE FILTROS Y RANGOS */
+        .report-filters {
+            background: #f8fafc;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 24px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)) 140px;
+            gap: 15px;
+            align-items: end;
+        }
+        .filter-group { display: flex; flex-direction: column; gap: 6px; }
+        .filter-group label { font-size: 11px; font-weight: 700; color: #475569; text-transform: uppercase; }
+        .filter-group input, .filter-group select {
+            padding: 10px 14px; border: 1px solid var(--border-color); border-radius: 6px;
+            font-size: 13px; background: white; color: #1e293b; outline: none;
+        }
 
         .btn-action { 
             background: var(--sidebar-active); color: white; border: none; padding: 10px 18px; 
             font-weight: 600; border-radius: 6px; cursor: pointer; font-size: 13px; 
-            transition: all 0.2s ease; display: inline-flex; align-items: center; justify-content: center; gap: 6px; text-decoration: none;
+            transition: all 0.2s ease; display: flex; align-items: center; justify-content: center; gap: 6px; text-decoration: none; height: 41px;
         }
         .btn-action:hover { background: #0052a3; }
+        .btn-secondary { background: #64748b; }
+        .btn-secondary:hover { background: #475569; }
         .btn-success { background: var(--success-color); }
         .btn-success:hover { background: #15803d; }
-        .btn-danger { background: var(--danger-color); color: white; }
-        .btn-danger:hover { background: #b91c1c; }
 
-        /* MODAL FLOTANTE PARA EL FORMULARIO */
-        .modal-form-overlay {
-            display: none;
-            position: fixed;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.6);
-            z-index: 9999;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
+        /* TARJETAS RESUMEN EJECUTIVO */
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 16px;
+            margin-bottom: 30px;
         }
-        .modal-form-card {
+        .summary-card {
             background: white;
             border: 1px solid var(--border-color);
-            border-radius: 12px;
-            padding: 28px;
-            width: 100%;
-            max-width: 750px;
-            max-height: 90vh;
-            overflow-y: auto;
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            border-left: 4px solid var(--sidebar-active);
+            border-radius: 8px;
+            padding: 18px;
         }
-        .form-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 16px;
-            margin-bottom: 16px;
-        }
-        .form-group { display: flex; flex-direction: column; gap: 6px; }
-        .form-group label { font-size: 11px; font-weight: 700; color: #475569; text-transform: uppercase; }
-        .form-group input, .form-group select, .form-group textarea {
-            padding: 10px 14px; border: 1px solid var(--border-color); border-radius: 6px;
-            font-size: 13px; background: white; color: #1e293b; outline: none;
-        }
-        .form-group textarea { resize: vertical; min-height: 80px; }
+        .summary-card.success { border-left-color: var(--success-color); }
+        .summary-card.warning { border-left-color: var(--warning-color); }
+        .summary-card h4 { font-size: 11px; text-transform: uppercase; color: #64748b; font-weight: 700; margin-bottom: 8px; }
+        .summary-card .number { font-size: 24px; font-weight: 700; color: var(--text-dark-title); }
 
-        /* TABLA DE REGISTROS */
-        .table-responsive { width: 100%; overflow-x: auto; }
+        /* TABLA DE REPORTES */
+        .table-responsive { width: 100%; overflow-x: auto; margin-bottom: 24px; }
         .data-table { width: 100%; border-collapse: collapse; font-size: 12px; }
         .data-table th { background: #f8fafc; color: var(--text-dark-title); font-weight: 700; text-align: left; padding: 11px 12px; border: 1px solid #cbd5e1; }
         .data-table td { padding: 10px 12px; border: 1px solid #cbd5e1; color: #334155; vertical-align: middle; }
@@ -131,11 +147,21 @@
         .badge-resuelto { background: #dcfce7; color: #166534; }
         .badge-gestion { background: #fef9c3; color: #854d0e; }
 
-        .table-img-thumb { width: 45px; height: 45px; object-fit: cover; border-radius: 6px; border: 1px solid #cbd5e1; cursor: pointer; transition: transform 0.2s; }
-        .table-img-thumb:hover { transform: scale(1.08); }
+        /* ESTILOS EXCLUSIVOS PARA IMPRESIÓN (MEMBRETE INSTITUCIONAL) */
+        .print-header { display: none; }
 
-        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 10000; align-items: center; justify-content: center; }
-        .modal-content { max-width: 90%; max-height: 90%; border-radius: 8px; object-fit: contain; }
+        @media print {
+            body { background: white; color: black; }
+            .sidebar, .mobile-header, .report-filters, .header-actions button, .no-print { display: none !important; }
+            .layout { display: block; }
+            .main { padding: 0; }
+            .content-container { border: none; box-shadow: none; padding: 0; max-width: 100%; }
+            .print-header { display: block; text-align: center; margin-bottom: 20px; border-bottom: 2px solid #0f2547; padding-bottom: 15px; }
+            .print-header h1 { font-size: 14px; font-weight: 700; color: #0f2547; text-transform: uppercase; }
+            .print-header h2 { font-size: 12px; color: #334155; font-weight: 600; margin-top: 4px; }
+            .print-header p { font-size: 10px; color: #64748b; margin-top: 2px; }
+            .data-table th { background: #1d3b6a !important; color: white !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+        }
 
         @media (max-width: 900px) {
             .layout { grid-template-columns: 1fr; }
@@ -143,6 +169,7 @@
             .sidebar { position: fixed; top: 53px; left: -280px; width: 280px; height: calc(100vh - 53px); z-index: 999; transition: transform 0.3s ease; }
             .sidebar.active { transform: translateX(280px); }
             .main { padding: 20px; }
+            .report-filters { grid-template-columns: 1fr; }
         }
     </style>
 </head>
@@ -151,76 +178,6 @@
 <div class="mobile-header">
     <div style="font-weight:700; font-size:12px; letter-spacing:0.5px;">COMISIÓN DE SALUD</div>
     <button class="menu-toggle" onclick="toggleSidebar()">☰</button>
-</div>
-
-<!-- MODAL FOTO AMPLIADA -->
-<div class="modal-overlay" id="modalFoto" onclick="cerrarModalFoto()">
-    <img id="imgModalAmpliada" class="modal-content" src="" alt="Evidencia" onclick="event.stopPropagation()">
-</div>
-
-<!-- MODAL FLOTANTE FORMULARIO -->
-<div class="modal-form-overlay" id="contenedorFormulario">
-    <div class="modal-form-card" onclick="event.stopPropagation()">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-            <h3 id="tituloFormAccion" style="font-size: 15px; font-weight: 700; color: var(--text-dark-title);">Registrar Nueva Acción de Despacho</h3>
-            <button type="button" onclick="toggleFormulario()" style="background: none; border: none; font-size: 18px; cursor: pointer; color: #64748b;">✕</button>
-        </div>
-        
-        <form id="formAccion" onsubmit="guardarAccion(event)">
-            <input type="hidden" id="accionId">
-            <div class="form-grid">
-                <div class="form-group">
-                    <label>Título de la Acción</label>
-                    <input type="text" id="titulo" required placeholder="Ej. Visita de inspección al ambulatorio">
-                </div>
-                <div class="form-group">
-                    <label>Categoría</label>
-                    <select id="categoria" required>
-                        <option value="Visita Comunitaria">Visita Comunitaria</option>
-                        <option value="Reunión Institucional">Reunión Institucional</option>
-                        <option value="Asesoría Ciudadana">Asesoría Ciudadana</option>
-                        <option value="Sesión de Cámara">Sesión de Cámara</option>
-                        <option value="Medios y Prensa">Medios y Prensa</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label>Fecha</label>
-                    <input type="date" id="fecha" required>
-                </div>
-                <div class="form-group">
-                    <label>Hora</label>
-                    <input type="time" id="hora" required>
-                </div>
-                <div class="form-group">
-                    <label>Lugar</label>
-                    <input type="text" id="lugar" required placeholder="Ej. Sector Oropeza Castillo">
-                </div>
-                <div class="form-group">
-                    <label>Involucrados / Voceros</label>
-                    <input type="text" id="involucrados" placeholder="Ej. Voceros de Salud">
-                </div>
-                <div class="form-group">
-                    <label>Estatus</label>
-                    <select id="estatus" required>
-                        <option value="En Proceso">En Proceso</option>
-                        <option value="Completado">Completado</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label>URL de Evidencia / Foto</label>
-                    <input type="text" id="foto" placeholder="https://ejemplo.com/imagen.jpg">
-                </div>
-            </div>
-            <div class="form-group" style="margin-bottom: 20px;">
-                <label>Acuerdos / Observaciones</label>
-                <textarea id="acuerdos" placeholder="Detalles de los acuerdos alcanzados..."></textarea>
-            </div>
-            <div style="display: flex; gap: 10px; justify-content: flex-end;">
-                <button type="button" class="btn-action btn-danger" onclick="toggleFormulario()">Cancelar</button>
-                <button type="submit" class="btn-action">💾 Guardar Registro</button>
-            </div>
-        </form>
-    </div>
 </div>
 
 <div class="layout">
@@ -245,11 +202,11 @@
             <a class="menu" href="red_salud.html">Red de Salud (CPT/CDI)</a>
             
             <div class="menu-category">Gestión Despacho</div>
-            <a class="menu" href="acciones.html" style="background: var(--sidebar-active); font-weight: 600; border-radius: 6px; margin: 2px 14px; padding: 10px 20px;">⭐ Acciones Concejala</a>
+            <a class="menu" href="acciones.html">⭐ Acciones Concejala</a>
             
             <div class="menu-category">Gestión Digital</div>
             <a class="menu" href="bitacora.html">Bitácora de Eventos</a>
-            <a class="menu" href="reportes.html">📄 Reporte Integral</a>
+            <a class="menu" href="reportes.html" style="background: var(--sidebar-active); font-weight: 600; border-radius: 6px; margin: 2px 14px; padding: 10px 20px;">📄 Reporte Integral</a>
             <a class="menu" href="formatos.html">📁 Formatos de Oficina</a>
         </div>
 
@@ -258,7 +215,7 @@
                 <div class="user-avatar" id="userAvatar">W</div>
                 <div class="user-details">
                     <div class="user-name" id="userNameLabel">Usuario</div>
-                    <div class="user-role">Concejala / Sistema</div>
+                    <div class="user-role">Concejalía / Sistema</div>
                 </div>
             </div>
             <a href="#" class="btn-logout" onclick="cerrarSesion(event)">🚪 Cerrar Sesión</a>
@@ -269,34 +226,79 @@
     <div class="main">
         <div class="content-container">
             
+            <!-- MEMBRETE PARA IMPRESIÓN OFICIAL -->
+            <div class="print-header">
+                <h1>República Bolivariana de Venezuela • Estado Miranda</h1>
+                <h2>Concejo Municipal Ambrosio Plaza — Comisión Permanente de Salud y Desarrollo Social Integral</h2>
+                <p>Reporte Ejecutivo Consolidado de Gestión Institucional</p>
+            </div>
+
             <div class="header-actions">
                 <div>
-                    <h2>Registro y Control de Acciones de Despacho</h2>
-                    <p>Gestione, cree y supervise las acciones de la Concejala en terreno y comisiones.</p>
+                    <h2>Reporte Integral y Consolidado de Gestión</h2>
+                    <p>Filtre y genere cortes de actividades y acciones del despacho para rendición institucional.</p>
+                </div>
+                <button class="btn-action btn-success no-print" onclick="window.print()">🖨️ Imprimir / Guardar PDF</button>
+            </div>
+
+            <!-- FILTROS AVANZADOS POR FECHAS Y CATEGORÍA -->
+            <div class="report-filters no-print">
+                <div class="filter-group">
+                    <label>Fecha Desde</label>
+                    <input type="date" id="filtroDesde" onchange="aplicarFiltrosReporte()">
+                </div>
+                <div class="filter-group">
+                    <label>Fecha Hasta</label>
+                    <input type="date" id="filtroHasta" onchange="aplicarFiltrosReporte()">
+                </div>
+                <div class="filter-group">
+                    <label>Categoría</label>
+                    <select id="filtroCatReporte" onchange="aplicarFiltrosReporte()">
+                        <option value="">Todas las categorías</option>
+                        <option value="Visita Comunitaria">Visita Comunitaria</option>
+                        <option value="Reunión Institucional">Reunión Institucional</option>
+                        <option value="Asesoría Ciudadana">Asesoría Ciudadana</option>
+                        <option value="Sesión de Cámara">Sesión de Cámara</option>
+                        <option value="Medios y Prensa">Medios y Prensa</option>
+                    </select>
                 </div>
                 <div>
-                    <button class="btn-action btn-success" onclick="toggleFormulario()">➕ Nueva Acción</button>
+                    <button class="btn-action btn-secondary" style="width: 100%;" onclick="limpiarFiltrosReporte()">🔄 Restablecer</button>
                 </div>
             </div>
 
-            <!-- TABLA DE ACCIONES -->
+            <!-- RESUMEN EJECUTIVO DE INDICADORES -->
+            <div class="summary-grid">
+                <div class="summary-card">
+                    <h4>Total en Periodo</h4>
+                    <div class="number" id="repTotal">0</div>
+                </div>
+                <div class="summary-card success">
+                    <h4>Acciones Completadas</h4>
+                    <div class="number" id="repCompletadas" style="color: var(--success-color);">0</div>
+                </div>
+                <div class="summary-card warning">
+                    <h4>En Proceso / Pendientes</h4>
+                    <div class="number" id="repProceso" style="color: var(--warning-color);">0</div>
+                </div>
+            </div>
+
+            <!-- TABLA GENERAL DE RESULTADOS -->
             <div class="table-responsive">
                 <table class="data-table">
                     <thead>
                         <tr>
                             <th>ID</th>
-                            <th>Foto</th>
                             <th>Título de la Acción</th>
                             <th>Categoría</th>
                             <th>Fecha & Hora</th>
                             <th>Lugar / Involucrados</th>
                             <th>Estatus</th>
-                            <th>Acciones</th>
                         </tr>
                     </thead>
-                    <tbody id="tablaAccionesCuerpo">
+                    <tbody id="tablaReportesCuerpo">
                         <tr>
-                            <td colspan="8" style="text-align:center; color:#64748b; padding: 24px;">Cargando registros...</td>
+                            <td colspan="6" style="text-align:center; color:#64748b; padding: 24px;">Cargando registros de gestión...</td>
                         </tr>
                     </tbody>
                 </table>
@@ -307,7 +309,7 @@
 </div>
 
 <script>
-let listaAcciones = [];
+let listaMaestraReportes = [];
 
 document.addEventListener("DOMContentLoaded", () => {
     const nombreUsuario = sessionStorage.getItem("usuario_nombre") || sessionStorage.getItem("usuario_logueado") || "Usuario";
@@ -315,26 +317,14 @@ document.addEventListener("DOMContentLoaded", () => {
         document.getElementById("userNameLabel").innerText = nombreUsuario;
         document.getElementById("userAvatar").innerText = nombreUsuario.charAt(0).toUpperCase();
     }
-    
-    document.getElementById("fecha").value = new Date().toISOString().split('T')[0];
-    cargarAcciones();
+
+    if (window.sqlClient) {
+        cargarDatosReporte();
+    }
 });
 
 function toggleSidebar() { 
     document.getElementById("sidebarMenu").classList.toggle("active"); 
-}
-
-function toggleFormulario() {
-    const formCard = document.getElementById("contenedorFormulario");
-    if (formCard.style.display === "flex") {
-        formCard.style.display = "none";
-    } else {
-        formCard.style.display = "flex";
-        document.getElementById("formAccion").reset();
-        document.getElementById("accionId").value = "";
-        document.getElementById("tituloFormAccion").innerText = "Registrar Nueva Acción de Despacho";
-        document.getElementById("fecha").value = new Date().toISOString().split('T')[0];
-    }
 }
 
 function cerrarSesion(e) {
@@ -346,120 +336,68 @@ function cerrarSesion(e) {
     }
 }
 
-async function cargarAcciones() {
-    const tbody = document.getElementById("tablaAccionesCuerpo");
+async function cargarDatosReporte() {
+    const tbody = document.getElementById("tablaReportesCuerpo");
     try {
-        const respuesta = await fetch('/api/acciones');
-        if (!respuesta.ok) throw new Error("Error al obtener los datos");
-        listaAcciones = await respuesta.json();
-        renderizarTabla(listaAcciones);
+        const resultado = await window.sqlClient.query("SELECT * FROM acciones_concejala ORDER BY fecha DESC");
+        listaMaestraReportes = resultado.resultado || resultado || [];
+        renderizarReporte(listaMaestraReportes);
     } catch (err) {
-        console.error("Error al cargar acciones:", err);
-        tbody.innerHTML = `<tr><td colspan="8" style="text-align:center; color:var(--danger-color); font-weight:600;">Error al conectar con la base de datos local SQLite.</td></tr>`;
+        console.error("Error cargando reporte:", err);
+        tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:var(--danger-color); font-weight:600;">Error al conectar con la base de datos de acciones.</td></tr>`;
     }
 }
 
-function renderizarTabla(datos) {
-    const tbody = document.getElementById("tablaAccionesCuerpo");
-    if (!datos || datos.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="8" style="text-align:center; color:#94a3b8; padding: 24px;">No hay acciones registradas. Haga clic en "Nueva Acción" para comenzar.</td></tr>`;
+function renderizarReporte(datos) {
+    const tbody = document.getElementById("tablaReportesCuerpo");
+    
+    document.getElementById("repTotal").innerText = datos.length;
+    const completadas = datos.filter(d => d.estatus === "Completado").length;
+    document.getElementById("repCompletadas").innerText = completadas;
+    document.getElementById("repProceso").innerText = datos.length - completadas;
+
+    if (datos.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:#94a3b8; padding: 24px;">No se encontraron registros en el rango de fechas o filtros seleccionados.</td></tr>`;
         return;
     }
 
-    tbody.innerHTML = datos.map(item => {
-        const fotoHtml = item.foto 
-            ? `<img src="${item.foto}" class="table-img-thumb" onclick="abrirModalFoto('${item.foto}')" alt="Evidencia">` 
-            : `<span style="color:#94a3b8; font-size:11px; font-style:italic;">Sin foto</span>`;
-
-        return `
-            <tr>
-                <td><b>#${item.id}</b></td>
-                <td style="text-align: center;">${fotoHtml}</td>
-                <td><span style="color:var(--text-dark-title); font-weight:600;">${item.titulo}</span><br><small style="color:#64748b;">Acuerdos: ${item.acuerdos || 'N/D'}</small></td>
-                <td><span style="color:var(--sidebar-active); font-weight:600;">${item.categoria}</span></td>
-                <td>📅 ${item.fecha || 'N/D'}<br><small style="color:#64748b;">⏰ ${item.hora || 'N/D'}</small></td>
-                <td>📍 ${item.lugar || 'N/D'}<br><small style="color:#64748b;">👥 ${item.involucrados || 'N/D'}</small></td>
-                <td>
-                    <span class="badge ${item.estatus === 'Completado' ? 'badge-resuelto' : 'badge-gestion'}">${item.estatus}</span><br>
-                    <small style="color:#64748b;">Por: ${item.creado_por || 'Sistema'}</small>
-                </td>
-                <td>
-                    <button class="btn-action" style="padding: 5px 10px; font-size:11px;" onclick="editarAccion(${item.id})">✏️ Editar</button>
-                </td>
-            </tr>
-        `;
-    }).join("");
+    tbody.innerHTML = datos.map(item => `
+        <tr>
+            <td><b>#${item.id}</b></td>
+            <td><span style="color:var(--text-dark-title); font-weight:600;">${item.titulo}</span><br><small style="color:#64748b;">Acuerdos: ${item.acuerdos || 'N/D'}</small></td>
+            <td><span style="color:var(--sidebar-active); font-weight:600;">${item.categoria}</span></td>
+            <td>📅 ${item.fecha || 'N/D'}<br><small style="color:#64748b;">⏰ ${item.hora || 'N/D'}</small></td>
+            <td>📍 ${item.lugar || 'N/D'}<br><small style="color:#64748b;">👥 ${item.involucrados || 'N/D'}</small></td>
+            <td>
+                <span class="badge ${item.estatus === 'Completado' ? 'badge-resuelto' : 'badge-gestion'}">${item.estatus}</span><br>
+                <small style="color:#64748b;">Por: ${item.creado_por || 'Sistema'}</small>
+            </td>
+        </tr>
+    `).join("");
 }
 
-async function guardarAccion(e) {
-    e.preventDefault();
-    const id = document.getElementById("accionId").value;
-    const datosAccion = {
-        titulo: document.getElementById("titulo").value,
-        categoria: document.getElementById("categoria").value,
-        fecha: document.getElementById("fecha").value,
-        hora: document.getElementById("hora").value,
-        lugar: document.getElementById("lugar").value,
-        involucrados: document.getElementById("involucrados").value,
-        estatus: document.getElementById("estatus").value,
-        foto: document.getElementById("foto").value,
-        acuerdos: document.getElementById("acuerdos").value,
-        creado_por: sessionStorage.getItem("usuario_nombre") || sessionStorage.getItem("usuario_logueado") || "Willie Aponte"
-    };
+function aplicarFiltrosReporte() {
+    const desde = document.getElementById("filtroDesde").value;
+    const hasta = document.getElementById("filtroHasta").value;
+    const categoria = document.getElementById("filtroCatReporte").value;
 
-    try {
-        let url = '/api/acciones';
-        let method = 'POST';
+    const filtrados = listaMaestraReportes.filter(item => {
+        const fechaItem = item.fecha || "";
+        const matchDesde = !desde || fechaItem >= desde;
+        const matchHasta = !hasta || fechaItem <= hasta;
+        const matchCat = !categoria || item.categoria === categoria;
 
-        if (id) {
-            url = `/api/acciones/${id}`;
-            method = 'PUT';
-        }
+        return matchDesde && matchHasta && matchCat;
+    });
 
-        const respuesta = await fetch(url, {
-            method: method,
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(datosAccion)
-        });
-
-        if (!respuesta.ok) throw new Error("Error al guardar en el servidor");
-
-        toggleFormulario();
-        cargarAcciones();
-    } catch (err) {
-        console.error("Error al guardar:", err);
-        alert("Ocurrió un error al guardar la acción.");
-    }
+    renderizarReporte(filtrados);
 }
 
-function editarAccion(id) {
-    const item = listaAcciones.find(d => d.id === id);
-    if (!item) return;
-
-    document.getElementById("accionId").value = item.id;
-    document.getElementById("titulo").value = item.titulo || "";
-    document.getElementById("categoria").value = item.categoria || "Visita Comunitaria";
-    document.getElementById("fecha").value = item.fecha || "";
-    document.getElementById("hora").value = item.hora || "";
-    document.getElementById("lugar").value = item.lugar || "";
-    document.getElementById("involucrados").value = item.involucrados || "";
-    document.getElementById("estatus").value = item.estatus || "En Proceso";
-    document.getElementById("foto").value = item.foto || "";
-    document.getElementById("acuerdos").value = item.acuerdos || "";
-
-    document.getElementById("tituloFormAccion").innerText = `Editar Acción #${item.id}`;
-    document.getElementById("contenedorFormulario").style.display = "flex";
-}
-
-function abrirModalFoto(url) {
-    const modal = document.getElementById("modalFoto");
-    const img = document.getElementById("imgModalAmpliada");
-    img.src = url;
-    modal.style.display = "flex";
-}
-
-function cerrarModalFoto() {
-    document.getElementById("modalFoto").style.display = "none";
+function limpiarFiltrosReporte() {
+    document.getElementById("filtroDesde").value = "";
+    document.getElementById("filtroHasta").value = "";
+    document.getElementById("filtroCatReporte").value = "";
+    renderizarReporte(listaMaestraReportes);
 }
 </script>
 </body>
