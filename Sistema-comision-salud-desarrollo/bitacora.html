@@ -44,9 +44,9 @@
     <style>
         :root { 
             --bg-main: #f4f6f9; 
-            --sidebar-bg: #003da5; 
-            --sidebar-active: #2563eb; 
-            --sidebar-text-sub: #94a3b8; 
+            --sidebar-bg: #1d3b6a; 
+            --sidebar-active: #0066cc; 
+            --sidebar-text-sub: #4ba3e3; 
             --menu-text: #ffffff; 
             --text-dark-title: #0f2547; 
             --success-color: #16a34a; 
@@ -62,15 +62,15 @@
         /* SIDEBAR */
         .sidebar { background: var(--sidebar-bg); padding:24px 0; display: flex; flex-direction: column; z-index: 1000; border-right: 1px solid rgba(255, 255, 255, 0.1); justify-content: space-between; }
         .sidebar-top { display: flex; flex-direction: column; }
-        .sidebar-brand { display: flex; flex-direction: column; align-items: center; text-align: center; padding: 0 16px 20px 16px; border-bottom: 1px solid rgba(255, 255, 255, 0.08); margin-bottom: 10px; }
+        .sidebar-brand { display: flex; flex-direction: column; align-items: center; text-align: center; padding: 0 16px 20px 16px; border-bottom: 1px solid rgba(255, 255, 255, 0.1); margin-bottom: 10px; }
         .sidebar-brand h2 { font-size: 11px; color: #ffffff; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; line-height: 1.4; margin-top: 5px; }
-        .menu-category { font-size: 10px; font-weight: 700; color: var(--sidebar-text-sub); text-transform: uppercase; letter-spacing: 0.8px; padding: 16px 20px 6px 20px; }
-        .menu { display: block; padding: 9px 36px; color: var(--menu-text); cursor: pointer; font-size: 13px; font-weight: 500; text-decoration: none; transition: all 0.2s ease; opacity: 0.85; }
-        .menu:hover { opacity: 1; background: rgba(255, 255, 255, 0.08); }
-        .menu.active-page { background: var(--sidebar-active); color: #ffffff; font-weight: 600; border-radius: 8px; margin: 2px 14px; padding: 10px 18px; opacity: 1; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3); }
+        .menu-category { font-size: 10.5px; font-weight: 700; color: var(--sidebar-text-sub); text-transform: uppercase; letter-spacing: 0.5px; padding: 16px 20px 6px 20px; }
+        .menu { display: block; padding: 8px 36px; color: var(--menu-text); cursor: pointer; font-size: 13.5px; font-weight: 500; text-decoration: none; transition: all 0.2s ease; opacity: 0.9; }
+        .menu:hover { opacity: 1; background: rgba(255, 255, 255, 0.05); }
+        .menu.active-page { background: var(--sidebar-active); color: #ffffff; font-weight: 600; border-radius: 6px; margin: 2px 14px; padding: 10px 20px; opacity: 1; }
         
         /* BOTÓN CERRAR SESIÓN ABAJO */
-        .sidebar-footer { padding: 20px 14px; border-top: 1px solid rgba(255, 255, 255, 0.08); margin-top: auto; }
+        .sidebar-footer { padding: 20px 14px; border-top: 1px solid rgba(255, 255, 255, 0.1); margin-top: auto; }
         .btn-logout { width: 100%; background: rgba(220, 38, 38, 0.2); color: #fca5a5; border: 1px solid rgba(220, 38, 38, 0.4); padding: 10px; border-radius: 8px; font-size: 12.5px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: all 0.2s; text-decoration: none; }
         .btn-logout:hover { background: var(--danger-color); color: white; }
 
@@ -81,16 +81,16 @@
         .subtitle { font-size: 13px; color: #64748b; font-weight: 500; margin-bottom: 0; }
         
         /* BOTONES */
-        .btn { padding: 10px 16px; font-size: 13px; font-weight: 600; border-radius: 8px; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: all 0.2s; border: none; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
-        .btn-primary { background: var(--sidebar-active); color: white; box-shadow: 0 2px 4px rgba(37, 99, 235, 0.2); }
-        .btn-primary:hover { background: #1d4ed8; }
+        .btn { padding: 10px 16px; font-size: 13px; font-weight: 600; border-radius: 6px; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: all 0.2s; border: none; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+        .btn-primary { background: var(--sidebar-active); color: white; }
+        .btn-primary:hover { background: #0052a3; }
         .btn-primary:disabled { background: #94a3b8; cursor: not-allowed; box-shadow: none; }
         .btn-secondary { background: white; border: 1px solid var(--border-color); color: #475569; }
         .btn-secondary:hover { background: #f8fafc; }
         
-        /* GRILLA Y TARJETAS UNIFORMES */
+        /* GRILLA Y TARJETAS */
         .blog-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; align-items: stretch; }
-        .evento-card { background: white; border: 1px solid #e2e8f0; border-radius: 12px; padding: 16px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02); display: flex; flex-direction: column; justify-content: space-between; height: 100%; }
+        .evento-card { background: white; border: 1px solid #e2e8f0; border-radius: 8px; padding: 16px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02); display: flex; flex-direction: column; justify-content: space-between; height: 100%; }
         
         .card-top-content { display: flex; flex-direction: column; }
         .card-bottom-content { display: flex; flex-direction: column; margin-top: auto; }
@@ -121,18 +121,18 @@
         .btn-del:hover { background: #fecaca; }
 
         /* VENTANA MODAL FORMULARIO */
-        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(4px); display: none; align-items: center; justify-content: center; z-index: 2000; padding: 16px; }
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 37, 71, 0.6); backdrop-filter: blur(3px); display: none; align-items: center; justify-content: center; z-index: 2000; padding: 16px; }
         .modal-overlay.active { display: flex; }
-        .modal-content { background: white; border-radius: 12px; width: 100%; max-width: 500px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); overflow: hidden; animation: slideUp 0.25s ease-out; }
+        .modal-content { background: white; border-radius: 12px; width: 100%; max-width: 500px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.15); overflow: hidden; }
         .modal-header { background: #f8fafc; padding: 16px 20px; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; }
         .modal-header h3 { font-size: 16px; color: var(--text-dark-title); font-weight: 700; }
         .modal-close { background: transparent; border: none; font-size: 20px; cursor: pointer; color: #64748b; }
         .modal-body { padding: 20px; display: flex; flex-direction: column; gap: 14px; max-height: 75vh; overflow-y: auto; }
         
         .form-group { display: flex; flex-direction: column; gap: 6px; }
-        .form-group label { font-size: 11px; font-weight: 700; color: #475569; text-transform: uppercase; letter-spacing: 0.5px; }
-        .form-group input, .form-group textarea { padding: 10px 12px; border: 1px solid var(--border-color); border-radius: 8px; font-size: 13.5px; color: #1e293b; outline: none; width: 100%; }
-        .form-group input:focus, .form-group textarea:focus { border-color: var(--sidebar-active); box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1); }
+        .form-group label { font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; }
+        .form-group input, .form-group textarea { padding: 9px 12px; border: 1px solid var(--border-color); border-radius: 6px; font-size: 13px; color: #1e293b; outline: none; width: 100%; }
+        .form-group input:focus, .form-group textarea:focus { border-color: var(--sidebar-active); box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.12); }
         
         .modal-footer { padding: 16px 20px; background: #f8fafc; border-top: 1px solid #e2e8f0; display: flex; justify-content: flex-end; gap: 10px; }
 
@@ -150,18 +150,15 @@
         .close-visor { position: absolute; top: -45px; right: 0; background: transparent; border: none; color: white; font-size: 28px; cursor: pointer; }
 
         /* HEADER MÓVIL */
-        .mobile-header { display: none; background: var(--sidebar-bg); color: white; padding: 14px 20px; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 1100; }
+        .mobile-header { display: none; background: var(--sidebar-bg); color: white; padding: 14px 20px; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 1100; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
         .mobile-toggle { background: transparent; border: none; color: white; font-size: 22px; cursor: pointer; }
-
-        @keyframes slideUp { from { transform: translateY(15px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
 
         @media (max-width: 768px) {
             .layout { grid-template-columns: 1fr; }
-            .sidebar { position: fixed; top: 52px; left: -280px; width: 280px; height: calc(100vh - 52px); transition: left 0.3s ease; }
-            .sidebar.active { left: 0; }
+            .sidebar { position: fixed; top: 52px; left: -280px; width: 280px; height: calc(100vh - 52px); transition: transform 0.3s ease; }
+            .sidebar.active { transform: translateX(280px); }
             .mobile-header { display: flex; }
             .main { padding: 24px 16px; }
-            .main h2 { font-size: 22px; }
             .blog-grid { grid-template-columns: 1fr; }
             .nav-arrow.prev { left: 10px; }
             .nav-arrow.next { right: 10px; }
@@ -172,7 +169,7 @@
 <body style="display: none;">
 
     <div class="mobile-header">
-        <span style="font-size: 13px; font-weight: 700;">BITÁCORA DIGITAL</span>
+        <span style="font-size: 13px; font-weight: 700; letter-spacing: 0.5px;">BITÁCORA DIGITAL</span>
         <button class="mobile-toggle" onclick="toggleSidebar()">☰</button>
     </div>
 
@@ -186,7 +183,6 @@
                 
                 <div class="menu-category">Coor. Ejecutiva</div>
                 <a class="menu" href="ejecutiva.html">Oficios e Informes</a>
-                <a class="menu" href="red_salud.html">Red de Salud (CPT/CDI)</a>
                 <a class="menu" href="planificacion.html">Planificación Semanal</a>
                 
                 <div class="menu-category">Coor. Política</div>
@@ -194,13 +190,15 @@
                 
                 <div class="menu-category">Coor. Social</div>
                 <a class="menu" href="social.html">Casos Sociales</a>
+                <a class="menu" href="red_salud.html">Red de Salud (CPT/CDI)</a>
                 
                 <div class="menu-category">Gestión Digital</div>
                 <a class="menu active-page" href="bitacora.html">Bitácora de Eventos</a>
                 <a class="menu" href="reportes.html">📄 Reportes e Informes</a>
+                <a class="menu" href="formatos.html">📁 Formatos de Oficina</a>
             </div>
 
-            <!-- CIERRE DE SESIÓN UBICADO ABAJO EN EL MENÚ -->
+            <!-- CIERRE DE SESIÓN ABAJO EN EL MENÚ -->
             <div class="sidebar-footer">
                 <a href="#" class="btn-logout" onclick="cerrarSesion(event)">
                     🚪 Cerrar Sesión
@@ -236,7 +234,7 @@
 
                 <div class="form-group">
                     <label>Título de la Actividad</label>
-                    <input type="text" id="in-titulo" placeholder="Ej: Jornada Médica Integral en las Clavellinas">
+                    <input type="text" id="in-titulo" placeholder="Ej: Jornada Médica Integral en Las Clavellinas">
                 </div>
                 <div class="form-group">
                     <label>Sector / Comunidad</label>
@@ -244,8 +242,8 @@
                 </div>
                 <div class="form-group">
                     <label>Fotos de Evidencia (Puedes seleccionar varias)</label>
-                    <input type="file" id="in-file-foto" accept="image/*" multiple>
-                    <small style="color: #64748b; font-size: 11px; margin-top: 2px;">Si editas y seleccionas nuevas fotos, reemplazarán a las anteriores.</small>
+                    <input type="file" id="in-file-foto" accept="image/*" multiple style="border:none; padding:3px 0;">
+                    <small style="color: #64748b; font-size: 11px; margin-top: 2px;">Si editas y seleccionas nuevas fotos, se agregarán o reemplazarán las anteriores.</small>
                 </div>
                 <div class="form-group">
                     <label>Descripción / Resumen del Despliegue</label>
@@ -330,7 +328,7 @@
                  FROM bitacora_eventos
                  ORDER BY id DESC`
             );
-            const data = resultado.resultado || [];
+            const data = resultado.resultado || resultado || [];
 
             if (!data || data.length === 0) {
                 container.innerHTML = `<div style="color: #64748b; font-size: 13px; padding: 10px;">📝 No hay eventos registrados en la bitácora aún.</div>`;
@@ -358,7 +356,7 @@
                 const galeriaHTML = `
                     <div class="galeria-grid ${isSingle ? 'single-img' : ''}">
                         ${fotosArray.map((url, imgIdx) => `
-                            <img src="${url}" class="galeria-item" alt="Evidencia" onclick="abrirModalGaleria('${fotosJsonEscaped}', ${imgIdx})" title="Clic para ampliar imagen">
+                            <img src="${url.trim()}" class="galeria-item" alt="Evidencia" onclick="abrirModalGaleria('${fotosJsonEscaped}', ${imgIdx})" title="Clic para ampliar imagen">
                         `).join('')}
                     </div>
                 `;
@@ -501,7 +499,6 @@
 
     async function subirImagenNube(file) {
         const API_KEY = '3c49f725c88fe8005a46582f1ab30f52'; 
-
         const url = `https://api.imgbb.com/1/upload?key=${API_KEY}`;
         const formData = new FormData();
         formData.append('image', file);
@@ -531,14 +528,9 @@
         }
         
         const idLimpio = String(id).trim();
-        if (idLimpio === 'undefined' || idLimpio === 'null' || idLimpio === '') {
-            alert("🚨 ERROR: El ID está llegando vacío o como 'undefined'. Revisa que la columna en tu base de datos se llame exactamente 'id' en minúsculas.");
-            return;
-        }
-
         const idNumerico = parseInt(idLimpio, 10);
         if (isNaN(idNumerico)) {
-            alert("🚨 ERROR: El ID recibido no es un número. Valor recibido: " + idLimpio);
+            alert("🚨 ERROR: El ID recibido no es válido.");
             return;
         }
 
@@ -576,18 +568,24 @@
             let fotosUrls = [];
             const hiddenFotoVal = document.getElementById('in-url-foto-hidden').value;
 
-            if (fileInputFotos && fileInputFotos.length > 0) {
-                for (let i = 0; i < fileInputFotos.length; i++) {
-                    const urlSeguraNube = await subirImagenNube(fileInputFotos[i]);
-                    fotosUrls.push(urlSeguraNube);
-                }
-            } else if (hiddenFotoVal) {
+            if (hiddenFotoVal) {
                 try {
                     fotosUrls = JSON.parse(hiddenFotoVal);
                     if (!Array.isArray(fotosUrls)) fotosUrls = [hiddenFotoVal];
                 } catch(e) {
                     fotosUrls = [hiddenFotoVal];
                 }
+            }
+
+            if (fileInputFotos && fileInputFotos.length > 0) {
+                for (let i = 0; i < fileInputFotos.length; i++) {
+                    const urlSeguraNube = await subirImagenNube(fileInputFotos[i]);
+                    fotosUrls.push(urlSeguraNube);
+                }
+            }
+
+            if (fotosUrls.length === 0) {
+                fotosUrls.push('https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=500');
             }
 
             const url_foto_json = JSON.stringify(fotosUrls);
