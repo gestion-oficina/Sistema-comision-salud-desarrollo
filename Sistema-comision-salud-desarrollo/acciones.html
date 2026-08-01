@@ -68,9 +68,15 @@
         .menu{ display: block; padding: 8px 36px; color: var(--menu-text); cursor: pointer; font-size: 13.5px; font-weight: 500; text-decoration: none; transition: all 0.2s ease; opacity: 0.9; }
         .menu:hover{ opacity: 1; background: rgba(255, 255, 255, 0.05); }
 
-        /* CIERRE DE SESIÓN ABAJO EN EL MENÚ */
-        .sidebar-footer { padding: 20px 14px; border-top: 1px solid rgba(255, 255, 255, 0.1); margin-top: auto; }
-        .btn-logout { width: 100%; background: rgba(220, 38, 38, 0.2); color: #fca5a5; border: 1px solid rgba(220, 38, 38, 0.4); padding: 10px; border-radius: 8px; font-size: 12.5px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: all 0.2s; text-decoration: none; }
+        /* USUARIO ACTIVO Y CIERRE DE SESIÓN ABAJO EN EL MENÚ */
+        .sidebar-footer { padding: 16px 14px; border-top: 1px solid rgba(255, 255, 255, 0.1); margin-top: auto; }
+        .user-info-box { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; padding: 0 6px; }
+        .user-avatar { width: 32px; height: 32px; border-radius: 50%; background: var(--sidebar-active); color: white; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 13px; flex-shrink: 0; }
+        .user-details { overflow: hidden; }
+        .user-name { font-size: 12px; font-weight: 600; color: white; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .user-role { font-size: 10px; color: var(--sidebar-text-sub); }
+
+        .btn-logout { width: 100%; background: rgba(220, 38, 38, 0.2); color: #fca5a5; border: 1px solid rgba(220, 38, 38, 0.4); padding: 9px; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: all 0.2s; text-decoration: none; }
         .btn-logout:hover { background: var(--danger-color); color: white; }
 
         .mobile-header { display: none; background: var(--sidebar-bg); color: white; padding: 14px 20px; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 1100; }
@@ -192,7 +198,7 @@
             border-color: var(--sidebar-active); background: white; box-shadow: 0 0 0 3px rgba(0,102,204,0.1);
         }
 
-        /* MODAL VISOR DE IMAGEN CON FLECHAS (IGUAL A BITÁCORA) */
+        /* MODAL VISOR DE IMAGEN CON FLECHAS */
         .image-modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.9); backdrop-filter: blur(6px); display: none; align-items: center; justify-content: center; z-index: 3000; padding: 20px; }
         .image-modal-overlay.active { display: flex; }
         .image-modal-container { position: relative; max-width: 90vw; max-height: 90vh; display: flex; align-items: center; justify-content: center; }
@@ -257,6 +263,13 @@
         </div>
 
         <div class="sidebar-footer">
+            <div class="user-info-box">
+                <div class="user-avatar" id="userAvatar">W</div>
+                <div class="user-details">
+                    <div class="user-name" id="userNameLabel">Usuario</div>
+                    <div class="user-role">Concejalía / Sistema</div>
+                </div>
+            </div>
             <a href="#" class="btn-logout" onclick="cerrarSesion(event)">🚪 Cerrar Sesión</a>
         </div>
     </div>
@@ -418,6 +431,13 @@ let visorGaleriaActual = [];
 let visorIndiceActual = 0;
 
 document.addEventListener("DOMContentLoaded", () => {
+    // Mostrar nombre del usuario en sesión
+    const nombreUsuario = sessionStorage.getItem("usuario_nombre") || sessionStorage.getItem("usuario_logueado") || "Usuario";
+    if (document.getElementById("userNameLabel")) {
+        document.getElementById("userNameLabel").innerText = nombreUsuario;
+        document.getElementById("userAvatar").innerText = nombreUsuario.charAt(0).toUpperCase();
+    }
+
     if (window.sqlClient) {
         cargarAcciones();
     }
@@ -431,6 +451,7 @@ function cerrarSesion(e) {
     e.preventDefault();
     if (confirm("¿Estás seguro de que deseas cerrar sesión?")) {
         sessionStorage.removeItem('usuario_logueado');
+        sessionStorage.removeItem('usuario_nombre');
         window.location.replace("login.html");
     }
 }
@@ -451,7 +472,6 @@ function cerrarModalAccion() {
 async function cargarAcciones() {
     const tbody = document.getElementById("tablaAccionesCuerpo");
     try {
-        // Asegurar la tabla incluyendo la columna 'foto' (que guardará el JSON de URLs de ImgBB)
         await window.sqlClient.query(`
             CREATE TABLE IF NOT EXISTS acciones_concejala (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -593,7 +613,7 @@ async function guardarAccion(event) {
     const lugar = document.getElementById("accLugar").value.trim();
     const involucrados = document.getElementById("accInvolucrados").value.trim();
     const acuerdos = document.getElementById("accAcuerdos").value.trim();
-    const creado_por = sessionStorage.getItem("usuario_nombre") || "Concejalía";
+    const creado_por = sessionStorage.getItem("usuario_nombre") || sessionStorage.getItem("usuario_logueado") || "Concejalía";
     const fileInput = document.getElementById("accFotoFile").files;
     const hiddenFotoVal = document.getElementById("accFotoHidden").value;
 
@@ -671,7 +691,7 @@ async function borrarAccion(id) {
     }
 }
 
-/* FUNCIONES DE VISOR DE GALERÍA (IGUAL A BITÁCORA) */
+/* FUNCIONES DE VISOR DE GALERÍA */
 function abrirModalGaleria(fotosJsonEscaped, indiceInicial) {
     try {
         const cleanJson = fotosJsonEscaped.replace(/&apos;/g, "'").replace(/&quot;/g, '"');
