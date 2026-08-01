@@ -447,17 +447,32 @@
         const contenedor = document.getElementById("contenedor-ejes");
         try {
             const data = await consultarBaseDatos("SELECT * FROM casos_salud");
-            centrosCache = (Array.isArray(data) ? data : []).filter(c => (c.coordinacion === "Ejecutiva" || c.coordinacion === "Social" || c.tipo === "Caso Comunitario" || c.tipo === "Comuna") && c.tipo !== "Autoridad");
+            
+            // FILTRO ESTRICTO PARA CENTROS DE SALUD REALES
+            centrosCache = (Array.isArray(data) ? data : []).filter(c => {
+                const tipoCentro = (c.tipo || "").trim();
+                return tipoCentro === "CDI" || 
+                       tipoCentro === "CMP" || 
+                       tipoCentro === "Barrio Adentro" || 
+                       tipoCentro === "Sala de Rehabilitación" ||
+                       tipoCentro.toLowerCase().includes("consultorio") ||
+                       tipoCentro.toLowerCase().includes("ambulatorio") ||
+                       tipoCentro.toLowerCase().includes("hospital");
+            });
 
             if (centrosCache.length === 0) {
-                contenedor.innerHTML = `<div style="color: #64748b; font-size: 13px; padding: 10px;">⚠️ No se encontraron centros registrados aún.</div>`;
+                contenedor.innerHTML = `<div style="color: #64748b; font-size: 13px; padding: 10px;">⚠️ No se encontraron centros de salud registrados aún. Utiliza el botón "Registrar Centro" para agregar el primero.</div>`;
                 actualizarGrafico([]);
                 actualizarMapaMarkers([]);
+                document.getElementById("total-centros").innerText = 0;
+                document.getElementById("total-cmp").innerText = 0;
+                document.getElementById("total-ba").innerText = 0;
+                document.getElementById("total-ejes").innerText = 0;
                 return;
             }
 
             const totalCMP = centrosCache.filter(c => c.tipo === 'CMP').length;
-            const totalOtros = centrosCache.filter(c => c.tipo === 'CDI' || c.tipo === 'Barrio Adentro').length;
+            const totalOtros = centrosCache.filter(c => c.tipo === 'CDI' || c.tipo === 'Barrio Adentro' || c.tipo === 'Sala de Rehabilitación').length;
             
             document.getElementById("total-centros").innerText = centrosCache.length;
             document.getElementById("total-cmp").innerText = totalCMP;
