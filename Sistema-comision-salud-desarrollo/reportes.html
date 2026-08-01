@@ -362,22 +362,22 @@ async function cargarDatosModulo(modulo) {
             document.getElementById("meta-codigo").innerText = "CPS-2026-OFI";
             document.getElementById("titulo-reporte-principal").innerText = "REPORTE DE OFICIOS E INFORMES INSTITUCIONALES";
             document.getElementById("firma-responsable").innerText = "Coordinación Ejecutiva";
-            query = "SELECT id, numero_oficio AS cedula, dirigido_a AS nombre, asunto AS sector, tipo, subtipo, estatus, creado_por, fecha AS telefono FROM oficios ORDER BY id DESC";
+            query = "SELECT id, numero_oficio, dirigido_a, asunto, tipo, subtipo, estatus, creado_por, fecha FROM oficios ORDER BY id DESC";
         } else if (modulo === "planificacion") {
             document.getElementById("meta-codigo").innerText = "CPS-2026-PLN";
             document.getElementById("titulo-reporte-principal").innerText = "REPORTE DE PLANIFICACIÓN SEMANAL DE ACTIVIDADES";
             document.getElementById("firma-responsable").innerText = "Coordinación Ejecutiva";
-            query = "SELECT id, actividad AS nombre, dia AS sector, lugar AS subtipo, hora AS telefono, estatus, creado_por, '' AS cedula, '' AS tipo FROM planificacion ORDER BY id DESC";
+            query = "SELECT id, actividad, dia, lugar, hora, estatus, creado_por FROM planificacion ORDER BY id DESC";
         } else if (modulo === "red_salud") {
             document.getElementById("meta-codigo").innerText = "CPS-2026-RED";
             document.getElementById("titulo-reporte-principal").innerText = "REPORTE OPERATIVO DE CENTROS DE SALUD (CPT / CDI)";
             document.getElementById("firma-responsable").innerText = "Coordinación de Salud";
-            query = "SELECT id, nombre_centro AS nombre, parroquia AS sector, medico_jefe AS subtipo, telefono, estatus, creado_por, '' AS cedula, tipo FROM red_salud ORDER BY id DESC";
+            query = "SELECT id, nombre_centro, parroquia, medico_jefe, telefono, estatus, creado_por, tipo FROM red_salud ORDER BY id DESC";
         } else if (modulo === "bitacora") {
             document.getElementById("meta-codigo").innerText = "CPS-2026-BIT";
             document.getElementById("titulo-reporte-principal").innerText = "REPORTE DE BITÁCORA DE EVENTOS Y MONITOREO";
             document.getElementById("firma-responsable").innerText = "Gestión Digital";
-            query = "SELECT id, titulo AS nombre, descripcion AS sector, categoria AS subtipo, fecha AS telefono, estatus, creado_por, '' AS cedula, '' AS tipo FROM bitacora ORDER BY id DESC";
+            query = "SELECT id, titulo, descripcion, categoria, fecha, estatus, creado_por FROM bitacora ORDER BY id DESC";
         }
 
         registrosGlobales = await consultarBaseDatos(query);
@@ -433,7 +433,7 @@ function renderizarTablaSegunModulo(datos, modulo) {
     const headersTr = document.getElementById("table-headers-dynamic");
     
     document.getElementById("stat-1").innerText = datos.length;
-    const resueltosCount = datos.filter(d => d.estatus === "Resuelto" || d.estatus === "Completado" || d.estatus === "Operativo").length;
+    const resueltosCount = datos.filter(d => d.estatus === "Resuelto" || d.estatus === "Completado" || d.estatus === "Operativo" || d.estatus === "Emitido" || d.estatus === "Entregado").length;
     const activosCount = datos.length - resueltosCount;
     
     document.getElementById("stat-2").innerText = resueltosCount;
@@ -458,15 +458,15 @@ function renderizarTablaSegunModulo(datos, modulo) {
             </tr>
         `).join("");
     } else if (modulo === "oficios") {
-        headersTr.innerHTML = `<th>ID</th><th>N° Oficio</th><th>Dirigido a</th><th>Asunto / Sector</th><th>Tipo / Subtipo</th><th>Fecha</th><th>Estatus / Creador</th>`;
+        headersTr.innerHTML = `<th>ID</th><th>N° Oficio</th><th>Dirigido a</th><th>Asunto</th><th>Tipo / Subtipo</th><th>Fecha</th><th>Estatus / Creador</th>`;
         tbody.innerHTML = datos.map(item => `
             <tr>
                 <td><b>#${item.id}</b></td>
-                <td><b>${item.cedula || 'N/D'}</b></td>
-                <td>${item.nombre || 'N/D'}</td>
-                <td>${item.sector || 'N/D'}</td>
+                <td><b>${item.numero_oficio || 'N/D'}</b></td>
+                <td>${item.dirigido_a || 'N/D'}</td>
+                <td>${item.asunto || 'N/D'}</td>
                 <td>${item.tipo || 'N/D'} ${item.subtipo ? '— ' + item.subtipo : ''}</td>
-                <td>${item.telefono || 'N/D'}</td>
+                <td>${item.fecha || 'N/D'}</td>
                 <td><span class="badge ${item.estatus === 'Emitido' || item.estatus === 'Entregado' ? 'badge-resuelto' : 'badge-gestion'}">${item.estatus || 'En Trámite'}</span><br><small style="color:#64748b;">Por: ${item.creado_por || 'Sistema'}</small></td>
             </tr>
         `).join("");
@@ -475,22 +475,22 @@ function renderizarTablaSegunModulo(datos, modulo) {
         tbody.innerHTML = datos.map(item => `
             <tr>
                 <td><b>#${item.id}</b></td>
-                <td><b>${item.nombre || 'N/D'}</b></td>
-                <td>${item.sector || 'N/D'}</td>
-                <td>${item.subtipo || 'N/D'}</td>
-                <td>${item.telefono || 'N/D'}</td>
+                <td><b>${item.actividad || 'N/D'}</b></td>
+                <td>${item.dia || 'N/D'}</td>
+                <td>${item.lugar || 'N/D'}</td>
+                <td>${item.hora || 'N/D'}</td>
                 <td><span class="badge ${item.estatus === 'Completada' ? 'badge-resuelto' : 'badge-gestion'}">${item.estatus || 'Programada'}</span></td>
                 <td>${item.creado_por || 'Comisión'}</td>
             </tr>
         `).join("");
     } else if (modulo === "red_salud") {
-        headersTr.innerHTML = `<th>ID</th><th>Centro de Salud (CPT/CDI)</th><th>Parroquia / Sector</th><th>Médico Jefe / Responsable</th><th>Teléfono</th><th>Condición</th><th>Creador / Registro</th>`;
+        headersTr.innerHTML = `<th>ID</th><th>Centro de Salud (CPT/CDI)</th><th>Parroquia</th><th>Médico Jefe</th><th>Teléfono</th><th>Condición</th><th>Creador / Registro</th>`;
         tbody.innerHTML = datos.map(item => `
             <tr>
                 <td><b>#${item.id}</b></td>
-                <td><b>${item.nombre || 'N/D'}</b></td>
-                <td>${item.sector || 'N/D'}</td>
-                <td>${item.subtipo || 'N/D'}</td>
+                <td><b>${item.nombre_centro || 'N/D'}</b></td>
+                <td>${item.parroquia || 'N/D'}</td>
+                <td>${item.medico_jefe || 'N/D'}</td>
                 <td>${item.telefono || 'N/D'}</td>
                 <td><span class="badge ${item.estatus === 'Operativo' ? 'badge-resuelto' : 'badge-espera'}">${item.estatus || 'Operativo'}</span></td>
                 <td>${item.creado_por || 'Sistema'}</td>
@@ -501,10 +501,10 @@ function renderizarTablaSegunModulo(datos, modulo) {
         tbody.innerHTML = datos.map(item => `
             <tr>
                 <td><b>#${item.id}</b></td>
-                <td><b>${item.nombre || 'N/D'}</b></td>
-                <td>${item.sector || 'N/D'}</td>
-                <td>${item.subtipo || 'N/D'}</td>
-                <td>${item.telefono || 'N/D'}</td>
+                <td><b>${item.titulo || 'N/D'}</b></td>
+                <td>${item.descripcion || 'N/D'}</td>
+                <td>${item.categoria || 'N/D'}</td>
+                <td>${item.fecha || 'N/D'}</td>
                 <td><span class="badge badge-resuelto">${item.estatus || 'Registrado'}</span></td>
                 <td>${item.creado_por || 'Sistema'}</td>
             </tr>
