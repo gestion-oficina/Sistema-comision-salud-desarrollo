@@ -87,6 +87,7 @@
         .header-actions { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 15px; }
         .header-actions h2 { font-size: 18px; color: var(--text-dark-title); font-weight: 700; }
         .header-actions p { font-size: 12.5px; color: #64748b; margin-top: 2px; }
+        .header-buttons-group { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
 
         /* PANEL DE FILTROS Y RANGOS */
         .report-filters {
@@ -252,7 +253,10 @@
                     <h2>Reporte Integral y Consolidado de Gestión</h2>
                     <p>Filtre y genere cortes de actividades, acciones del despacho y evidencias para rendición institucional.</p>
                 </div>
-                <button class="btn-action btn-success no-print" onclick="window.print()">🖨️ Imprimir / Guardar PDF</button>
+                <div class="header-buttons-group no-print">
+                    <button class="btn-action" onclick="alert('Función para nueva acción o registro rápido')">➕ Nueva Acción</button>
+                    <button class="btn-action btn-success" onclick="window.print()">🖨️ Imprimir / Guardar PDF</button>
+                </div>
             </div>
 
             <!-- FILTROS AVANZADOS POR FECHAS Y CATEGORÍA -->
