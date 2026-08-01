@@ -69,9 +69,13 @@
         .menu:hover { opacity: 1; background: rgba(255, 255, 255, 0.05); }
         .menu.active-page { background: var(--sidebar-active); color: #ffffff; font-weight: 600; border-radius: 6px; margin: 2px 14px; padding: 10px 20px; opacity: 1; }
         
-        /* BOTÓN CERRAR SESIÓN ABAJO */
-        .sidebar-footer { padding: 20px 14px; border-top: 1px solid rgba(255, 255, 255, 0.1); margin-top: auto; }
-        .btn-logout { width: 100%; background: rgba(220, 38, 38, 0.2); color: #fca5a5; border: 1px solid rgba(220, 38, 38, 0.4); padding: 10px; border-radius: 8px; font-size: 12.5px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: all 0.2s; text-decoration: none; }
+        /* SECCIÓN INFERIOR DE USUARIO Y CIERRE DE SESIÓN */
+        .sidebar-footer { padding: 16px 20px 20px 20px; border-top: 1px solid rgba(255, 255, 255, 0.1); margin-top: auto; display: flex; flex-direction: column; gap: 12px; }
+        .user-info-box { display: flex; flex-direction: column; gap: 2px; }
+        .user-name { font-size: 12.5px; font-weight: 700; color: #ffffff; }
+        .user-role { font-size: 10.5px; font-weight: 700; color: var(--sidebar-text-sub); letter-spacing: 0.5px; }
+        
+        .btn-logout { width: 100%; background: rgba(220, 38, 38, 0.2); color: #fca5a5; border: 1px solid rgba(220, 38, 38, 0.4); padding: 9px; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: all 0.2s; text-decoration: none; }
         .btn-logout:hover { background: var(--danger-color); color: white; }
 
         /* PANEL CENTRAL */
@@ -198,8 +202,12 @@
                 <a class="menu" href="formatos.html">📁 Formatos de Oficina</a>
             </div>
 
-            <!-- CIERRE DE SESIÓN ABAJO EN EL MENÚ -->
+            <!-- BLOQUE DE USUARIO Y CIERRE DE SESIÓN ABAJO -->
             <div class="sidebar-footer">
+                <div class="user-info-box">
+                    <span class="user-name">Willie Aponte</span>
+                    <span class="user-role">ADMIN</span>
+                </div>
                 <a href="#" class="btn-logout" onclick="cerrarSesion(event)">
                     🚪 Cerrar Sesión
                 </a>
