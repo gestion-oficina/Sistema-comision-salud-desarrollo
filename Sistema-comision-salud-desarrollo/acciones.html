@@ -87,6 +87,7 @@
         .header-actions { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 15px; }
         .header-actions h2 { font-size: 18px; color: var(--text-dark-title); font-weight: 700; }
         .header-actions p { font-size: 12.5px; color: #64748b; margin-top: 2px; }
+        .header-buttons-group { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
 
         /* PANEL DE FILTROS Y RANGOS */
         .report-filters {
@@ -151,9 +152,26 @@
         .table-img-thumb { width: 45px; height: 45px; object-fit: cover; border-radius: 6px; border: 1px solid #cbd5e1; cursor: pointer; transition: transform 0.2s; }
         .table-img-thumb:hover { transform: scale(1.08); }
 
-        /* MODAL DE FOTO GRANDE */
-        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 2000; align-items: center; justify-content: center; }
-        .modal-content { max-width: 90%; max-height: 90%; border-radius: 8px; box-shadow: 0 10px 25px rgba(0,0,0,0.3); }
+        /* MODAL DE FOTO GRANDE CORREGIDO */
+        .modal-overlay { 
+            display: none; 
+            position: fixed; 
+            top: 0; 
+            left: 0; 
+            width: 100%; 
+            height: 100%; 
+            background: rgba(0,0,0,0.85); 
+            z-index: 9999; 
+            align-items: center; 
+            justify-content: center; 
+        }
+        .modal-content { 
+            max-width: 90%; 
+            max-height: 90%; 
+            border-radius: 8px; 
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5); 
+            object-fit: contain; 
+        }
 
         /* ESTILOS EXCLUSIVOS PARA IMPRESIÓN (MEMBRETE INSTITUCIONAL) */
         .print-header { display: none; }
@@ -189,9 +207,9 @@
     <button class="menu-toggle" onclick="toggleSidebar()">☰</button>
 </div>
 
-<!-- MODAL VISUALIZACIÓN FOTO -->
+<!-- MODAL VISUALIZACIÓN FOTO (Se cierra al hacer clic fuera de la imagen) -->
 <div class="modal-overlay" id="modalFoto" onclick="cerrarModalFoto()">
-    <img id="imgModalAmpliada" class="modal-content" src="" alt="Evidencia Ampliada">
+    <img id="imgModalAmpliada" class="modal-content" src="" alt="Evidencia Ampliada" onclick="event.stopPropagation()">
 </div>
 
 <div class="layout">
@@ -229,7 +247,7 @@
                 <div class="user-avatar" id="userAvatar">W</div>
                 <div class="user-details">
                     <div class="user-name" id="userNameLabel">Usuario</div>
-                    <div class="user-role">Concejalía / Sistema</div>
+                    <div class="user-role">Concejala / Sistema</div>
                 </div>
             </div>
             <a href="#" class="btn-logout" onclick="cerrarSesion(event)">🚪 Cerrar Sesión</a>
@@ -252,7 +270,10 @@
                     <h2>Reporte Integral y Consolidado de Gestión</h2>
                     <p>Filtre y genere cortes de actividades, acciones del despacho y evidencias para rendición institucional.</p>
                 </div>
-                <button class="btn-action btn-success no-print" onclick="window.print()">🖨️ Imprimir / Guardar PDF</button>
+                <div class="header-buttons-group no-print">
+                    <button class="btn-action" onclick="alert('Función para nueva acción o registro rápido')">➕ Nueva Acción</button>
+                    <button class="btn-action btn-success" onclick="window.print()">🖨️ Imprimir / Guardar PDF</button>
+                </div>
             </div>
 
             <!-- FILTROS AVANZADOS POR FECHAS Y CATEGORÍA -->
@@ -399,8 +420,10 @@ function renderizarReporte(datos) {
 }
 
 function abrirModalFoto(url) {
-    document.getElementById("imgModalAmpliada").src = url;
-    document.getElementById("modalFoto").style.display = "flex";
+    const modal = document.getElementById("modalFoto");
+    const img = document.getElementById("imgModalAmpliada");
+    img.src = url;
+    modal.style.display = "flex";
 }
 
 function cerrarModalFoto() {
