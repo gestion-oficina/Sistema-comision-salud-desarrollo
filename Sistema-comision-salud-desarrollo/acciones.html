@@ -84,9 +84,28 @@
             box-shadow: 0 4px 6px -1px rgba(0,0,0,0.01);
         }
 
-        .header-actions { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; flex-wrap: wrap; gap: 15px; }
+        .header-actions { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 15px; }
         .header-actions h2 { font-size: 18px; color: var(--text-dark-title); font-weight: 700; }
         .header-actions p { font-size: 12.5px; color: #64748b; margin-top: 2px; }
+
+        /* PANEL DE FILTROS */
+        .report-filters {
+            background: #f8fafc;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 24px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)) 140px;
+            gap: 15px;
+            align-items: end;
+        }
+        .filter-group { display: flex; flex-direction: column; gap: 6px; }
+        .filter-group label { font-size: 11px; font-weight: 700; color: #475569; text-transform: uppercase; }
+        .filter-group input, .filter-group select {
+            padding: 10px 14px; border: 1px solid var(--border-color); border-radius: 6px;
+            font-size: 13px; background: white; color: #1e293b; outline: none;
+        }
 
         .btn-action { 
             background: var(--sidebar-active); color: white; border: none; padding: 10px 18px; 
@@ -94,6 +113,8 @@
             transition: all 0.2s ease; display: flex; align-items: center; justify-content: center; gap: 6px; text-decoration: none; height: 41px;
         }
         .btn-action:hover { background: #0052a3; }
+        .btn-secondary { background: #64748b; }
+        .btn-secondary:hover { background: #475569; }
 
         /* TABLA DE ACCIONES */
         .table-responsive { width: 100%; overflow-x: auto; margin-bottom: 24px; }
@@ -119,6 +140,7 @@
             .sidebar { position: fixed; top: 53px; left: -280px; width: 280px; height: calc(100vh - 53px); z-index: 999; transition: transform 0.3s ease; }
             .sidebar.active { transform: translateX(280px); }
             .main { padding: 20px; }
+            .report-filters { grid-template-columns: 1fr; }
         }
     </style>
 </head>
@@ -182,10 +204,40 @@
             
             <div class="header-actions">
                 <div>
-                    <h2>Registro de Acciones del Despacho</h2>
-                    <p>Gestión directa de visitas, reuniones institucionales y acuerdos de la Concejala.</p>
+                    <h2>Registro de Acciones de la Concejala</h2>
+                    <p>Filtre, consulte y gestione las actividades y visitas del despacho.</p>
                 </div>
                 <button class="btn-action" onclick="alert('Función para nueva acción o registro rápido')">➕ Nueva Acción</button>
+            </div>
+
+            <!-- PANEL DE FILTROS -->
+            <div class="report-filters">
+                <div class="filter-group">
+                    <label>Buscar</label>
+                    <input type="text" id="filtroTexto" placeholder="Título, lugar..." oninput="aplicarFiltrosAcciones()">
+                </div>
+                <div class="filter-group">
+                    <label>Categoría</label>
+                    <select id="filtroCategoria" onchange="aplicarFiltrosAcciones()">
+                        <option value="">Todas</option>
+                        <option value="Visita Comunitaria">Visita Comunitaria</option>
+                        <option value="Reunión Institucional">Reunión Institucional</option>
+                        <option value="Asesoría Ciudadana">Asesoría Ciudadana</option>
+                        <option value="Sesión de Cámara">Sesión de Cámara</option>
+                        <option value="Medios y Prensa">Medios y Prensa</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label>Estatus</label>
+                    <select id="filtroEstatus" onchange="aplicarFiltrosAcciones()">
+                        <option value="">Todos</option>
+                        <option value="Completado">Completado</option>
+                        <option value="En Proceso">En Proceso</option>
+                    </select>
+                </div>
+                <div>
+                    <button class="btn-action btn-secondary" style="width: 100%;" onclick="limpiarFiltrosAcciones()">🔄 Limpiar</button>
+                </div>
             </div>
 
             <!-- TABLA GENERAL DE RESULTADOS -->
@@ -215,6 +267,8 @@
 </div>
 
 <script>
+let listaMaestraAcciones = [];
+
 document.addEventListener("DOMContentLoaded", () => {
     const nombreUsuario = sessionStorage.getItem("usuario_nombre") || sessionStorage.getItem("usuario_logueado") || "Usuario";
     if (document.getElementById("userNameLabel")) {
@@ -244,38 +298,65 @@ async function cargarDatosAcciones() {
     const tbody = document.getElementById("tablaAccionesCuerpo");
     try {
         const resultado = await window.sqlClient.query("SELECT * FROM acciones_concejala ORDER BY fecha DESC");
-        const datos = resultado.resultado || resultado || [];
-
-        if (datos.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; color:#94a3b8; padding: 24px;">No se encontraron registros de acciones.</td></tr>`;
-            return;
-        }
-
-        tbody.innerHTML = datos.map(item => {
-            const fotoHtml = item.foto 
-                ? `<img src="${item.foto}" class="table-img-thumb" onclick="abrirModalFoto('${item.foto}')" alt="Evidencia">` 
-                : `<span style="color:#94a3b8; font-size:11px; font-style:italic;">Sin foto</span>`;
-
-            return `
-                <tr>
-                    <td><b>#${item.id}</b></td>
-                    <td style="text-align: center;">${fotoHtml}</td>
-                    <td><span style="color:var(--text-dark-title); font-weight:600;">${item.titulo}</span><br><small style="color:#64748b;">Acuerdos: ${item.acuerdos || 'N/D'}</small></td>
-                    <td><span style="color:var(--sidebar-active); font-weight:600;">${item.categoria}</span></td>
-                    <td>📅 ${item.fecha || 'N/D'}<br><small style="color:#64748b;">⏰ ${item.hora || 'N/D'}</small></td>
-                    <td>📍 ${item.lugar || 'N/D'}<br><small style="color:#64748b;">👥 ${item.involucrados || 'N/D'}</small></td>
-                    <td>
-                        <span class="badge ${item.estatus === 'Completado' ? 'badge-resuelto' : 'badge-gestion'}">${item.estatus}</span><br>
-                        <small style="color:#64748b;">Por: ${item.creado_por || 'Sistema'}</small>
-                    </td>
-                </tr>
-            `;
-        }).join("");
-
+        listaMaestraAcciones = resultado.resultado || resultado || [];
+        renderizarTablaAcciones(listaMaestraAcciones);
     } catch (err) {
         console.error("Error cargando acciones:", err);
         tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; color:var(--danger-color); font-weight:600;">Error al conectar con la base de datos de acciones.</td></tr>`;
     }
+}
+
+function renderizarTablaAcciones(datos) {
+    const tbody = document.getElementById("tablaAccionesCuerpo");
+
+    if (datos.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; color:#94a3b8; padding: 24px;">No se encontraron registros con los filtros seleccionados.</td></tr>`;
+        return;
+    }
+
+    tbody.innerHTML = datos.map(item => {
+        const fotoHtml = item.foto 
+            ? `<img src="${item.foto}" class="table-img-thumb" onclick="abrirModalFoto('${item.foto}')" alt="Evidencia">` 
+            : `<span style="color:#94a3b8; font-size:11px; font-style:italic;">Sin foto</span>`;
+
+        return `
+            <tr>
+                <td><b>#${item.id}</b></td>
+                <td style="text-align: center;">${fotoHtml}</td>
+                <td><span style="color:var(--text-dark-title); font-weight:600;">${item.titulo}</span><br><small style="color:#64748b;">Acuerdos: ${item.acuerdos || 'N/D'}</small></td>
+                <td><span style="color:var(--sidebar-active); font-weight:600;">${item.categoria}</span></td>
+                <td>📅 ${item.fecha || 'N/D'}<br><small style="color:#64748b;">⏰ ${item.hora || 'N/D'}</small></td>
+                <td>📍 ${item.lugar || 'N/D'}<br><small style="color:#64748b;">👥 ${item.involucrados || 'N/D'}</small></td>
+                <td>
+                    <span class="badge ${item.estatus === 'Completado' ? 'badge-resuelto' : 'badge-gestion'}">${item.estatus}</span><br>
+                    <small style="color:#64748b;">Por: ${item.creado_por || 'Sistema'}</small>
+                </td>
+            </tr>
+        `;
+    }).join("");
+}
+
+function aplicarFiltrosAcciones() {
+    const texto = document.getElementById("filtroTexto").value.toLowerCase();
+    const categoria = document.getElementById("filtroCategoria").value;
+    const estatus = document.getElementById("filtroEstatus").value;
+
+    const filtrados = listaMaestraAcciones.filter(item => {
+        const matchTexto = !texto || (item.titulo && item.titulo.toLowerCase().includes(texto)) || (item.lugar && item.lugar.toLowerCase().includes(texto));
+        const matchCat = !categoria || item.categoria === categoria;
+        const matchEst = !estatus || item.estatus === estatus;
+
+        return matchTexto && matchCat && matchEst;
+    });
+
+    renderizarTablaAcciones(filtrados);
+}
+
+function limpiarFiltrosAcciones() {
+    document.getElementById("filtroTexto").value = "";
+    document.getElementById("filtroCategoria").value = "";
+    document.getElementById("filtroEstatus").value = "";
+    renderizarTablaAcciones(listaMaestraAcciones);
 }
 
 function abrirModalFoto(url) {
