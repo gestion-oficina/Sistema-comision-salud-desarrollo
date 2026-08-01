@@ -17,21 +17,6 @@
     
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
-    <!-- MOTOR CENTRAL DE CONEXIÓN SQLITE -->
-    <script>
-        window.sqlClient = {
-            async query(sqlText, params = []) {
-                const respuesta = await fetch("/api/query", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ query: sqlText, params: params })
-                });
-                if (!respuesta.ok) throw new Error("Error de conexión con el servidor");
-                return await respuesta.json();
-            }
-        };
-    </script>
-    
     <style>
         :root {
             --bg-main: #f4f6f9;
@@ -310,12 +295,8 @@ document.addEventListener("DOMContentLoaded", () => {
         document.getElementById("userAvatar").innerText = nombreUsuario.charAt(0).toUpperCase();
     }
     
-    // Asignar fecha de hoy por defecto al formulario
     document.getElementById("fecha").value = new Date().toISOString().split('T')[0];
-
-    if (window.sqlClient) {
-        cargarAcciones();
-    }
+    cargarAcciones();
 });
 
 function toggleSidebar() { 
@@ -347,18 +328,19 @@ function cerrarSesion(e) {
 async function cargarAcciones() {
     const tbody = document.getElementById("tablaAccionesCuerpo");
     try {
-        const resultado = await window.sqlClient.query("SELECT * FROM acciones_concejala ORDER BY fecha DESC");
-        listaAcciones = resultado.resultado || resultado || [];
+        const respuesta = await fetch('/api/acciones');
+        if (!respuesta.ok) throw new Error("Error al obtener los datos");
+        listaAcciones = await respuesta.json();
         renderizarTabla(listaAcciones);
     } catch (err) {
         console.error("Error al cargar acciones:", err);
-        tbody.innerHTML = `<tr><td colspan="8" style="text-align:center; color:var(--danger-color); font-weight:600;">Error al conectar con la base de datos.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="8" style="text-align:center; color:var(--danger-color); font-weight:600;">Error al conectar con la base de datos local SQLite.</td></tr>`;
     }
 }
 
 function renderizarTabla(datos) {
     const tbody = document.getElementById("tablaAccionesCuerpo");
-    if (datos.length === 0) {
+    if (!datos || datos.length === 0) {
         tbody.innerHTML = `<tr><td colspan="8" style="text-align:center; color:#94a3b8; padding: 24px;">No hay acciones registradas. Haga clic en "Nueva Acción" para comenzar.</td></tr>`;
         return;
     }
@@ -391,31 +373,36 @@ function renderizarTabla(datos) {
 async function guardarAccion(e) {
     e.preventDefault();
     const id = document.getElementById("accionId").value;
-    const titulo = document.getElementById("titulo").value;
-    const categoria = document.getElementById("categoria").value;
-    const fecha = document.getElementById("fecha").value;
-    const hora = document.getElementById("hora").value;
-    const lugar = document.getElementById("lugar").value;
-    const involucrados = document.getElementById("involucrados").value;
-    const estatus = document.getElementById("estatus").value;
-    const foto = document.getElementById("foto").value;
-    const acuerdos = document.getElementById("acuerdos").value;
-    const usuarioActual = sessionStorage.getItem("usuario_nombre") || sessionStorage.getItem("usuario_logueado") || "Willie Aponte";
+    const datosAccion = {
+        titulo: document.getElementById("titulo").value,
+        categoria: document.getElementById("categoria").value,
+        fecha: document.getElementById("fecha").value,
+        hora: document.getElementById("hora").value,
+        lugar: document.getElementById("lugar").value,
+        involucrados: document.getElementById("involucrados").value,
+        estatus: document.getElementById("estatus").value,
+        foto: document.getElementById("foto").value,
+        acuerdos: document.getElementById("acuerdos").value,
+        creado_por: sessionStorage.getItem("usuario_nombre") || sessionStorage.getItem("usuario_logueado") || "Willie Aponte"
+    };
 
     try {
+        let url = '/api/acciones';
+        let method = 'POST';
+
         if (id) {
-            // Actualizar registro existente (evitando duplicar filas)
-            await window.sqlClient.query(
-                "UPDATE acciones_concejala SET titulo = ?, categoria = ?, fecha = ?, hora = ?, lugar = ?, involucrados = ?, estatus = ?, foto = ?, acuerdos = ? WHERE id = ?",
-                [titulo, categoria, fecha, hora, lugar, involucrados, estatus, foto, acuerdos, id]
-            );
-        } else {
-            // Insertar nuevo registro
-            await window.sqlClient.query(
-                "INSERT INTO acciones_concejala (titulo, categoria, fecha, hora, lugar, involucrados, estatus, foto, acuerdos, creado_por) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-                [titulo, categoria, fecha, hora, lugar, involucrados, estatus, foto, acuerdos, usuarioActual]
-            );
+            url = `/api/acciones/${id}`;
+            method = 'PUT';
         }
+
+        const respuesta = await fetch(url, {
+            method: method,
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(datosAccion)
+        });
+
+        if (!respuesta.ok) throw new Error("Error al guardar en el servidor");
+
         toggleFormulario();
         cargarAcciones();
     } catch (err) {
