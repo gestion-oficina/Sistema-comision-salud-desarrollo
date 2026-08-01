@@ -13,10 +13,11 @@
         }
     </script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Reporte Ejecutivo Multidisciplinario - Comisión de Salud</title>
+    <title>Reporte Ejecutivo Multidisciplinario - SQLite Cloud</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <!-- SDK de SQLite Cloud -->
+    <script src="https://unpkg.com/@sqlitecloud/drivers"></script>
     
     <style>
         :root {
@@ -172,8 +173,8 @@
     <div class="main">
         <div class="no-print-zone">
             <div>
-                <h2>Generador de Informes de Gestión a Otro Nivel</h2>
-                <p>Consolidado completo y cruzado de Casos Sociales, Oficios, Informes Técnicos y Bitácora.</p>
+                <h2>Reporte Ejecutivo - SQLite Cloud</h2>
+                <p>Consolidado multidisplinario conectado directamente a la base de datos local/cloud SQLite.</p>
             </div>
             <button class="btn-print" id="btnPrint" onclick="ejecutarImpresion()">🖨️ Imprimir / Guardar PDF</button>
         </div>
@@ -186,78 +187,84 @@
                     COMISIÓN PERMANENTE DE SALUD Y DESARROLLO SOCIAL INTEGRAL
                 </div>
                 <div class="report-meta">
-                    <b>Código:</b> CPS-2026-EXEC<br>
+                    <b>Código:</b> CPS-2026-SQLITE<br>
                     <b>Fecha Emisión:</b> <span id="fecha-reporte">--/--/----</span>
                 </div>
             </div>
 
             <div class="report-title">
                 <h1>REPORTE EJECUTIVO MULTIDISCIPLINARIO</h1>
-                <p>Evaluación Integral de Operaciones, Correspondencia, Informes y Despliegue de Campo</p>
+                <p>Balance General de Operaciones, Casos de Salud, Oficios, Informes y Bitácora</p>
             </div>
 
-            <!-- Sección I: Desglose por Módulos y Estado de Gestión -->
-            <div class="section-heading">I. Consolidado General por Áreas de Trabajo</div>
+            <!-- Sección I: Desglose por Tablas SQLite -->
+            <div class="section-heading">I. Consolidado General por Módulos (SQLite)</div>
             <table class="report-table">
                 <thead>
                     <tr>
-                        <th>Área / Coordinación</th>
-                        <th>Componente Evaluado</th>
-                        <th>Volumen Registrado</th>
-                        <th>Estatus Institucional</th>
+                        <th>Módulo / Tabla</th>
+                        <th>Descripción del Indicador</th>
+                        <th>Total Registrado</th>
+                        <th>Estatus del Sistema</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr>
-                        <td rowspan="3"><b>Coor. Social</b></td>
-                        <td>Total Casos y Solicitudes de Salud</td>
+                        <td rowspan="3"><b>casos_salud</b></td>
+                        <td>Total Solicitudes y Casos Registrados</td>
                         <td id="rep-casos-tot" style="font-weight: 700;">...</td>
-                        <td>Base Territorial Activa</td>
+                        <td>Base Activa SQLite</td>
                     </tr>
                     <tr>
                         <td>Casos Activos (En Evaluación)</td>
                         <td id="rep-casos-act" style="font-weight: 700; color: #b45309;">...</td>
-                        <td>Verificación de Campo</td>
+                        <td>Validación de Campo</td>
                     </tr>
                     <tr>
-                        <td>Casos Atendidos / Solventados</td>
+                        <td>Casos Solventados / Atendidos</td>
                         <td id="rep-casos-res" style="font-weight: 700; color: #15803d;">...</td>
                         <td>Gestión Concluida</td>
                     </tr>
                     <tr>
-                        <td><b>Coor. Ejecutiva</b></td>
-                        <td>Oficios Creados / Emitidos</td>
+                        <td><b>oficios</b></td>
+                        <td>Oficios Emitidos / Correspondencia</td>
                         <td id="rep-oficios" style="font-weight: 700; color: var(--sidebar-active);">...</td>
-                        <td>Control de Salida Oficial</td>
+                        <td>Control Ejecutivo</td>
                     </tr>
                     <tr>
-                        <td><b>Informes Técnicos</b></td>
-                        <td>Documentos y Balances Generados</td>
+                        <td><b>informes</b></td>
+                        <td>Informes Técnicos Generados</td>
                         <td id="rep-informes" style="font-weight: 700; color: #0f2547;">...</td>
-                        <td>Soporte Legislativo y Social</td>
+                        <td>Soporte Institucional</td>
                     </tr>
                     <tr>
-                        <td><b>Gestión Digital</b></td>
+                        <td><b>bitacora_eventos</b></td>
                         <td>Registros en Bitácora de Eventos</td>
                         <td id="rep-bitacora" style="font-weight: 700; color: #7c3aed;">...</td>
-                        <td>Monitoreo y Actividades</td>
+                        <td>Monitoreo Territorial</td>
+                    </tr>
+                    <tr>
+                        <td><b>agenda_oficina</b></td>
+                        <td>Planificación Semanal / Agenda</td>
+                        <td id="rep-agenda" style="font-weight: 700; color: #0284c7;">...</td>
+                        <td>Control de Actividades</td>
                     </tr>
                 </tbody>
             </table>
 
-            <!-- Sección II: Matriz Territorial de Impacto -->
+            <!-- Sección II: Matriz Territorial -->
             <div class="section-heading">II. Matriz Geográfica de Incidencia Social (Sectores)</div>
             <table class="report-table">
                 <thead>
                     <tr>
                         <th>Comunidad / Sector Evaluado</th>
                         <th>Cantidad de Solicitudes</th>
-                        <th>Participación Porcentaje Territorial</th>
+                        <th>Participación Porcentual</th>
                     </tr>
                 </thead>
                 <tbody id="tabla-sectores-reporte">
                     <tr>
-                        <td colspan="3" style="color:#64748b; text-align: center; padding: 20px;">Sincronizando matriz territorial...</td>
+                        <td colspan="3" style="color:#64748b; text-align: center; padding: 20px;">Consultando registros de sectores en SQLite...</td>
                     </tr>
                 </tbody>
             </table>
@@ -280,33 +287,27 @@
 </div>
 
 <script>
-const client = supabase.createClient(
-    "https://soqgmwzknfgmxefbnfgs.supabase.co",
-    "sb_publishable_VytLFdygkUVqnTLWNkiM3g_75HnE8qQ"
-);
-
-document.addEventListener("DOMContentLoaded", () => {
-    document.getElementById("fecha-reporte").innerText = new Date().toLocaleDateString('es-VE');
-    cargarReporteMultidisciplinarioAvanzado();
-});
-
-function toggleMobileMenu() {
-    document.getElementById("sidebarMenu").classList.toggle("open");
-}
-
-async function cargarReporteMultidisciplinarioAvanzado() {
+// Configuración de conexión SQLite Cloud (asegúrate de incluir tu connection string o token si es requerido en tu entorno)
+// El SDK se conecta a tu base de datos sistema_gestion.sqlite visualizada en el Studio.
+async function cargarDatosSQLite() {
     try {
-        // Consultar todas las fuentes operativas en paralelo
-        const [resCasos, resOficios, resInformes, resBitacora] = await Promise.all([
-            client.from("casos_salud").select("id, nombre, cedula, telefono, sector"),
-            client.from("oficios").select("id"),
-            client.from("informes").select("id"),
-            client.from("bitacora").select("id")
+        // Inicializar la conexión usando SQLite Cloud SDK
+        const db = new SQLiteCloud.Database("sqlitecloud://your-connection-string-here?apikey=YOUR_API_KEY");
+        // O si utilizas la conexión directa configurada en tu proyecto local:
+        // const db = new SQLiteCloud.Database("sqlitecloud://.../?dbname=sistema_gestion.sqlite");
+
+        // Ejecutar consultas SQL en paralelo a las tablas de SQLite
+        const [casos, oficios, informes, bitacora, agenda] = await Promise.all([
+            db.sql`SELECT * FROM casos_salud;`,
+            db.sql`SELECT id FROM oficios;`,
+            db.sql`SELECT id FROM informes;`,
+            db.sql`SELECT id FROM bitacora_eventos;`,
+            db.sql`SELECT id FROM agenda_oficina;`
         ]);
 
-        const registrosCasos = resCasos.data || [];
-        
-        // 1. Métricas de Casos Sociales (Lógica idéntica y robusta del sistema)
+        const registrosCasos = casos || [];
+
+        // Métricas de Casos
         const totalCasos = registrosCasos.length;
         const activos = registrosCasos.filter(r => r.telefono && r.telefono !== "NULL").length;
         const resueltos = registrosCasos.filter(r => r.cedula && r.sector && r.sector !== "NULL").length;
@@ -315,12 +316,13 @@ async function cargarReporteMultidisciplinarioAvanzado() {
         document.getElementById("rep-casos-act").innerText = activos;
         document.getElementById("rep-casos-res").innerText = resueltos;
 
-        // 2. Métricas de Oficios, Informes y Bitácora
-        document.getElementById("rep-oficios").innerText = resOficios.data ? resOficios.data.length : 0;
-        document.getElementById("rep-informes").innerText = resInformes.data ? resInformes.data.length : 0;
-        document.getElementById("rep-bitacora").innerText = resBitacora.data ? resBitacora.data.length : 0;
+        // Métricas de las demás tablas SQLite
+        document.getElementById("rep-oficios").innerText = oficios ? oficios.length : 0;
+        document.getElementById("rep-informes").innerText = informes ? informes.length : 0;
+        document.getElementById("rep-bitacora").innerText = bitacora ? bitacora.length : 0;
+        document.getElementById("rep-agenda").innerText = agenda ? agenda.length : 0;
 
-        // 3. Matriz Territorial de Sectores Completa
+        // Matriz Geográfica por Sectores
         const conteoSectores = {};
         let totalValidos = 0;
 
@@ -336,7 +338,7 @@ async function cargarReporteMultidisciplinarioAvanzado() {
         const tablaSectoresHtml = document.getElementById("tabla-sectores-reporte");
 
         if (sectoresOrdenados.length === 0) {
-            tablaSectoresHtml.innerHTML = `<tr><td colspan="3" style="text-align:center; color:#94a3b8;">Sin sectores válidos detectados.</td></tr>`;
+            tablaSectoresHtml.innerHTML = `<tr><td colspan="3" style="text-align:center; color:#94a3b8;">Sin sectores válidos detectados en SQLite.</td></tr>`;
         } else {
             tablaSectoresHtml.innerHTML = sectoresOrdenados.map(([nombreSector, cantidad]) => {
                 const porcentaje = totalValidos > 0 ? ((cantidad / totalValidos) * 100).toFixed(1) : 0;
@@ -351,9 +353,18 @@ async function cargarReporteMultidisciplinarioAvanzado() {
         }
 
     } catch (err) {
-        console.error("Error al estructurar reporte ejecutivo:", err);
-        document.getElementById("tabla-sectores-reporte").innerHTML = `<tr><td colspan="3" style="text-align:center; color:var(--danger-color); font-weight:600;">Error de comunicación con Supabase.</td></tr>`;
+        console.error("Error al conectar con SQLite Cloud:", err);
+        document.getElementById("tabla-sectores-reporte").innerHTML = `<tr><td colspan="3" style="text-align:center; color:var(--danger-color); font-weight:600;">Error de comunicación con SQLite Cloud.</td></tr>`;
     }
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+    document.getElementById("fecha-reporte").innerText = new Date().toLocaleDateString('es-VE');
+    cargarDatosSQLite();
+});
+
+function toggleMobileMenu() {
+    document.getElementById("sidebarMenu").classList.toggle("open");
 }
 
 function ejecutarImpresion() {
@@ -372,8 +383,8 @@ function ejecutarImpresion() {
     }, 150); 
 }
 
-async function logout(){
-    await client.auth.signOut();
+function logout(){
+    sessionStorage.clear();
     location.href="index.html";
 }
 </script>
