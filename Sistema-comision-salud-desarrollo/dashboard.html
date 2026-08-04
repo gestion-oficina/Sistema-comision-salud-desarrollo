@@ -264,15 +264,18 @@ function toggleMobileMenu() {
 
 async function calcularMetricasYTopSectores() {
     try {
-        // Consultas segmentadas y reales de la base de datos local SQLite
-        const [registrosCasos, registrosDirigentes] = await Promise.all([
-            window.consultarBaseDatos("SELECT id, estatus, sector FROM casos_salud"),
-            window.consultarBaseDatos("SELECT id FROM liderazgos_comunas") // Tabla específica de la coordinación política
-        ]);
+        const registrosCasos = await window.consultarBaseDatos("SELECT id, estatus, sector FROM casos_salud");
 
         if (!registrosCasos) {
             ponerCeros();
             return;
+        }
+
+        let registrosDirigentes = [];
+        try {
+            registrosDirigentes = await window.consultarBaseDatos("SELECT id FROM liderazgos_comunas");
+        } catch (e) {
+            console.warn("Tabla de liderazgos no disponible de forma inmediata, usando valor por defecto", e);
         }
 
         const totalCasos = registrosCasos.length;
@@ -280,13 +283,11 @@ async function calcularMetricasYTopSectores() {
         const casosResueltos = registrosCasos.filter(r => r.estatus && r.estatus.toLowerCase() === 'resuelto').length;
         const totalDirigentes = registrosDirigentes ? registrosDirigentes.length : 0;
 
-        // Renderizado exacto en pantalla separando casos de dirigentes
         document.getElementById("count-total").innerText = totalCasos;
         document.getElementById("count-espera").innerText = casosEnEspera;
         document.getElementById("count-resueltos").innerText = casosResueltos;
         document.getElementById("count-dirigentes").innerText = totalDirigentes;
 
-        // Cálculo de efectividad basado en estatus reales
         if (totalCasos > 0) {
             const porcentajeEficiencia = (casosResueltos / totalCasos) * 100;
             document.getElementById("kpi-resolucion").innerText = `${porcentajeEficiencia.toFixed(1)}%`;
@@ -294,7 +295,6 @@ async function calcularMetricasYTopSectores() {
             document.getElementById("kpi-resolucion").innerText = "0.0%";
         }
 
-        // Procesamiento del Top 5 de Sectores basado netamente en los casos sociales
         const conteoSectores = {};
         registrosCasos.forEach(r => {
             if (r.sector && r.sector !== "NULL" && r.sector.trim() !== "") {
