@@ -64,7 +64,7 @@
         .main h2 { font-size: 26px; color: var(--text-dark-title); font-weight: 700; margin-bottom: 6px; }
         .subtitle-concejala { font-size: 13px; color: #64748b; margin-bottom: 24px; font-weight: 500; }
         
-        .tabs-container { display: flex; background: #e2e8f0; padding: 6px; border-radius: 8px; max-width: 500px; margin-bottom: 20px; border: 1px solid #cbd5e1; gap: 4px; }
+        .tabs-container { display: flex; background: #e2e8f0; padding: 6px; border-radius: 8px; max-width: 700px; margin-bottom: 20px; border: 1px solid #cbd5e1; gap: 4px; }
         .tab-btn { flex: 1; padding: 10px 14px; border: none; background: transparent; color: #475569; font-size: 12px; font-weight: 600; cursor: pointer; border-radius: 6px; text-align: center; transition: all 0.2s; }
         .tab-btn.active { background: var(--sidebar-bg); color: white; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
         
@@ -179,6 +179,7 @@
         
         <div class="tabs-container">
             <button class="tab-btn active" id="tab-oficios" onclick="switchData('Oficio')">✉ Oficios Enviados</button>
+            <button class="tab-btn" id="tab-recibidos" onclick="switchData('Recibido')">📥 Oficios Recibidos</button>
             <button class="tab-btn" id="tab-informes" onclick="switchData('Informe')">📊 Informes de Gestión</button>
         </div>
 
@@ -261,21 +262,21 @@
         </div>
     </div>
 
-    <!-- MODAL NUEVO / EDITAR OFICIO -->
+    <!-- MODAL NUEVO / EDITAR OFICIO (ENVIADO / RECIBIDO) -->
     <div class="modal-overlay" id="modalNuevoOficio">
         <div class="modal-content" style="max-width: 500px;">
             <div class="modal-header">
-                <h3 id="modal-title-oficio">Registrar Nuevo Oficio Enviado</h3>
+                <h3 id="modal-title-oficio">Registrar Nuevo Oficio</h3>
                 <button class="close-modal" onclick="cerrarFormOficio()">&times;</button>
             </div>
             <form id="formOficio" class="modal-flex-form">
                 <div class="modal-body">
                     <div style="display: flex; flex-direction: column; gap: 4px;">
-                        <label class="info-label">NÚMERO O CÓDIGO DEL OFICIO:</label>
+                        <label class="info-label" id="label-ofi-numero">NÚMERO O CÓDIGO DEL OFICIO:</label>
                         <input type="text" id="ofiNumero" placeholder="Ej: OF-001-2026" style="padding: 8px; border: 1px solid var(--border-color); border-radius: 6px; font-size: 13px;" required>
                     </div>
                     <div style="display: flex; flex-direction: column; gap: 4px;">
-                        <label class="info-label">SECTOR O ENTE DESTINO:</label>
+                        <label class="info-label" id="label-ofi-destino">SECTOR O ENTE DESTINO:</label>
                         <input type="text" id="ofiDestino" placeholder="Ej: Dirección de Salud Municipal" style="padding: 8px; border: 1px solid var(--border-color); border-radius: 6px; font-size: 13px;" required>
                     </div>
                     <div style="display: flex; flex-direction: column; gap: 4px;">
@@ -461,14 +462,21 @@
             const thead = document.getElementById("thead-dinamico");
 
             try {
-                let sql = filtroActual === 'Oficio' 
-                    ? "SELECT * FROM oficios ORDER BY created_at DESC" 
-                    : "SELECT * FROM informes ORDER BY created_at DESC";
+                let sql = "";
+                if (filtroActual === 'Oficio') {
+                    sql = "SELECT * FROM oficios ORDER BY created_at DESC";
+                } else if (filtroActual === 'Recibido') {
+                    sql = "SELECT * FROM oficios_recibidos ORDER BY created_at DESC";
+                } else {
+                    sql = "SELECT * FROM informes ORDER BY created_at DESC";
+                }
 
                 todosLosRegistros = await consultarBaseDatos(sql);
                 
                 if (filtroActual === 'Oficio') {
                     thead.innerHTML = `<tr><th style="width: 120px;">Nro Oficio</th><th>Asunto / Clasificación</th><th>Sector / Ente Destino</th><th>Estado</th><th style="width: 180px;">Acciones</th></tr>`;
+                } else if (filtroActual === 'Recibido') {
+                    thead.innerHTML = `<tr><th style="width: 120px;">Nro Oficio</th><th>Asunto / Clasificación</th><th>Ente / Remitente Emisor</th><th>Estado</th><th style="width: 180px;">Acciones</th></tr>`;
                 } else {
                     thead.innerHTML = `<tr><th style="width: 120px;">Nro Informe</th><th>Título del Informe Legislativo</th><th>Área de Cobertura</th><th>Estado</th><th style="width: 180px;">Acciones</th></tr>`;
                 }
@@ -490,7 +498,7 @@
             const datosFiltrados = todosLosRegistros.filter(r => {
                 const campoNumero = (r.numero || "").toLowerCase();
                 const campoAsunto = (r.asunto || "").toLowerCase();
-                const campoDestino = (r.destino || r.actores || "").toLowerCase();
+                const campoDestino = (r.destino || r.remitente || r.actores || "").toLowerCase();
                 
                 if (encargadoVal && !campoDestino.includes(encargadoVal) && !campoAsunto.includes(encargadoVal) && !campoNumero.includes(encargadoVal)) {
                     return false;
@@ -537,8 +545,15 @@
 
             tbody.innerHTML = datosFiltrados.map(r => {
                 let numeroDocumento = r.numero || `#${r.id}`;
-                let tituloColumna = filtroActual === 'Oficio' ? (r.asunto || 'Sin asunto') : (r.asunto || 'Sin título');
-                let sectorColumna = filtroActual === 'Oficio' ? (r.destino || 'No especificado') : (`${r.actores || ''} (Resp: ${r.responsable || ''})`);
+                let tituloColumna = filtroActual === 'Informe' ? (r.asunto || 'Sin título') : (r.asunto || 'Sin asunto');
+                let sectorColumna = '';
+                if (filtroActual === 'Oficio') {
+                    sectorColumna = r.destino || 'No especificado';
+                } else if (filtroActual === 'Recibido') {
+                    sectorColumna = r.remitente || 'No especificado';
+                } else {
+                    sectorColumna = `${r.actores || ''} (Resp: ${r.responsable || ''})`;
+                }
 
                 const esCreador = r.creado_por && r.creado_por.toLowerCase() === usuarioActual.toLowerCase();
                 const esAdmin = rolActual === 'admin';
@@ -584,14 +599,14 @@
                 return;
             }
 
-            document.getElementById("modal-id").innerText = `${filtroActual} Nº ${registro.numero || registro.id}`;
+            document.getElementById("modal-id").innerText = `${filtroActual === 'Recibido' ? 'Oficio Recibido' : filtroActual} Nº ${registro.numero || registro.id}`;
             
-            if (filtroActual === 'Oficio') {
-                document.getElementById("modal-title-doc").innerText = "Expediente de Oficio Enviado";
+            if (filtroActual === 'Oficio' || filtroActual === 'Recibido') {
+                document.getElementById("modal-title-doc").innerText = filtroActual === 'Oficio' ? "Expediente de Oficio Enviado" : "Expediente de Oficio Recibido";
                 document.getElementById("modal-label-nombre").innerText = "Asunto del Oficio";
                 document.getElementById("modal-nombre").innerText = registro.asunto || "Sin asunto";
-                document.getElementById("modal-label-sector").innerText = "Sector / Organismo Destinatario";
-                document.getElementById("modal-sector").innerText = registro.destino || "No especificado";
+                document.getElementById("modal-label-sector").innerText = filtroActual === 'Oficio' ? "Sector / Organismo Destinatario" : "Ente / Remitente Emisor";
+                document.getElementById("modal-sector").innerText = filtroActual === 'Oficio' ? (registro.destino || "No especificado") : (registro.remitente || "No especificado");
                 document.getElementById("btnDescargarWordModal").style.display = "none";
             } else {
                 document.getElementById("modal-title-doc").innerText = "Expediente de Informe Legislativo";
@@ -615,8 +630,10 @@
 
         window.registrarNuevo = function() {
             idEnEdicion = null;
-            if (filtroActual === 'Oficio') {
-                document.getElementById("modal-title-oficio").innerText = "Registrar Nuevo Oficio Enviado";
+            if (filtroActual === 'Oficio' || filtroActual === 'Recibido') {
+                document.getElementById("modal-title-oficio").innerText = filtroActual === 'Oficio' ? "Registrar Nuevo Oficio Enviado" : "Registrar Nuevo Oficio Recibido";
+                document.getElementById("label-ofi-destino").innerText = filtroActual === 'Oficio' ? "SECTOR O ENTE DESTINO:" : "ENTE / REMITENTE EMISOR:";
+                document.getElementById("ofiDestino").placeholder = filtroActual === 'Oficio' ? "Ej: Dirección de Salud Municipal" : "Ej: Ministerio del Poder Popular para la Salud";
                 document.getElementById("formOficio").reset();
                 document.getElementById("modalNuevoOficio").classList.add("open");
             } else {
@@ -647,10 +664,11 @@
 
             idEnEdicion = idBuscado;
 
-            if (filtroActual === 'Oficio') {
-                document.getElementById("modal-title-oficio").innerText = "Editar Oficio Enviado";
+            if (filtroActual === 'Oficio' || filtroActual === 'Recibido') {
+                document.getElementById("modal-title-oficio").innerText = filtroActual === 'Oficio' ? "Editar Oficio Enviado" : "Editar Oficio Recibido";
+                document.getElementById("label-ofi-destino").innerText = filtroActual === 'Oficio' ? "SECTOR O ENTE DESTINO:" : "ENTE / REMITENTE EMISOR:";
                 document.getElementById("ofiNumero").value = registro.numero || "";
-                document.getElementById("ofiDestino").value = registro.destino || "";
+                document.getElementById("ofiDestino").value = (filtroActual === 'Oficio' ? registro.destino : registro.remitente) || "";
                 document.getElementById("ofiAsunto").value = registro.asunto || "";
                 document.getElementById("modalNuevoOficio").classList.add("open");
             } else {
@@ -683,27 +701,37 @@
 
         async function guardarOficioModal() {
             const numero = document.getElementById("ofiNumero").value.trim();
-            const destino = document.getElementById("ofiDestino").value.trim();
+            const campoSecundario = document.getElementById("ofiDestino").value.trim();
             const asunto = document.getElementById("ofiAsunto").value.trim();
             const usuarioActual = sessionStorage.getItem("usuario_nombre") || "Desconocido";
 
             try {
                 let sql, params;
-                if (idEnEdicion) {
-                    sql = "UPDATE oficios SET numero = ?, destino = ?, asunto = ? WHERE id = ?";
-                    params = [numero, destino, asunto, idEnEdicion];
+                if (filtroActual === 'Oficio') {
+                    if (idEnEdicion) {
+                        sql = "UPDATE oficios SET numero = ?, destino = ?, asunto = ? WHERE id = ?";
+                        params = [numero, campoSecundario, asunto, idEnEdicion];
+                    } else {
+                        sql = "INSERT INTO oficios (numero, destino, asunto, creado_por, created_at) VALUES (?, ?, ?, ?, datetime('now'))";
+                        params = [numero, campoSecundario, asunto, usuarioActual];
+                    }
                 } else {
-                    sql = "INSERT INTO oficios (numero, destino, asunto, creado_por, created_at) VALUES (?, ?, ?, ?, datetime('now'))";
-                    params = [numero, destino, asunto, usuarioActual];
+                    if (idEnEdicion) {
+                        sql = "UPDATE oficios_recibidos SET numero = ?, remitente = ?, asunto = ? WHERE id = ?";
+                        params = [numero, campoSecundario, asunto, idEnEdicion];
+                    } else {
+                        sql = "INSERT INTO oficios_recibidos (numero, remitente, asunto, creado_por, created_at) VALUES (?, ?, ?, ?, datetime('now'))";
+                        params = [numero, campoSecundario, asunto, usuarioActual];
+                    }
                 }
 
                 await consultarBaseDatos(sql, params);
 
-                alert(idEnEdicion ? "¡Oficio actualizado con éxito!" : "¡Oficio Enviado registrado con éxito!");
+                alert(idEnEdicion ? "¡Registro actualizado con éxito!" : "¡Registro guardado con éxito!");
                 cerrarFormOficio();
                 loadData();
             } catch (err) {
-                alert("Ocurrió un error al guardar el Oficio: " + err.message);
+                alert("Ocurrió un error al guardar el registro: " + err.message);
             }
         }
 
@@ -858,9 +886,19 @@
         window.switchData = function(tipo) {
             filtroActual = tipo;
             document.getElementById("tab-oficios").classList.toggle("active", tipo === 'Oficio');
+            document.getElementById("tab-recibidos").classList.toggle("active", tipo === 'Recibido');
             document.getElementById("tab-informes").classList.toggle("active", tipo === 'Informe');
-            document.getElementById("page-title").innerText = tipo === 'Oficio' ? "Gestión de Oficios Institucionales" : "Informes de Gestión Legislativa";
-            document.getElementById("btn-nuevo-registro").innerText = tipo === 'Oficio' ? "➕ Registrar Nuevo Oficio" : "➕ Generar Nuevo Informe";
+            
+            if (tipo === 'Oficio') {
+                document.getElementById("page-title").innerText = "Gestión de Oficios Institucionales";
+                document.getElementById("btn-nuevo-registro").innerText = "➕ Registrar Nuevo Oficio";
+            } else if (tipo === 'Recibido') {
+                document.getElementById("page-title").innerText = "Gestión de Oficios Recibidos";
+                document.getElementById("btn-nuevo-registro").innerText = "➕ Registrar Oficio Recibido";
+            } else {
+                document.getElementById("page-title").innerText = "Informes de Gestión Legislativa";
+                document.getElementById("btn-nuevo-registro").innerText = "➕ Generar Nuevo Informe";
+            }
             
             document.getElementById("filter-date").value = "todos";
             document.getElementById("filter-encargado").value = "";
@@ -871,9 +909,14 @@
         window.eliminarRegistro = async function(id) {
             if (!confirm("¿Estás seguro de que deseas eliminar este registro?")) return;
 
-            let sql = filtroActual === 'Oficio' 
-                ? "DELETE FROM oficios WHERE id = ?" 
-                : "DELETE FROM informes WHERE id = ?";
+            let sql = "";
+            if (filtroActual === 'Oficio') {
+                sql = "DELETE FROM oficios WHERE id = ?";
+            } else if (filtroActual === 'Recibido') {
+                sql = "DELETE FROM oficios_recibidos WHERE id = ?";
+            } else {
+                sql = "DELETE FROM informes WHERE id = ?";
+            }
 
             try {
                 await consultarBaseDatos(sql, [id]);
