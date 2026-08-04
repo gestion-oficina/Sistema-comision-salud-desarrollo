@@ -275,11 +275,20 @@ async function calcularMetricasYTopSectores() {
         try {
             registrosDirigentes = await window.consultarBaseDatos("SELECT id FROM liderazgos_comunas");
         } catch (e) {
-            console.warn("Tabla de liderazgos no disponible de forma inmediata, usando valor por defecto", e);
+            try {
+                registrosDirigentes = await window.consultarBaseDatos("SELECT id FROM lideres_territoriales");
+            } catch (errAlt) {
+                console.warn("Tabla de liderazgos no disponible de forma inmediata", errAlt);
+            }
         }
 
         const totalCasos = registrosCasos.length;
-        const casosEnEspera = registrosCasos.filter(r => r.estatus && (r.estatus.toLowerCase() === 'en gestión' || r.estatus.toLowerCase() === 'pendiente')).length;
+        const casosEnEspera = registrosCasos.filter(r => r.estatus && (
+            r.estatus.toLowerCase() === 'en gestión' || 
+            r.estatus.toLowerCase() === 'pendiente' || 
+            r.estatus.toLowerCase() === 'en espera'
+        )).length;
+        
         const casosResueltos = registrosCasos.filter(r => r.estatus && r.estatus.toLowerCase() === 'resuelto').length;
         const totalDirigentes = registrosDirigentes ? registrosDirigentes.length : 0;
 
