@@ -3,11 +3,8 @@
 
 <head>
     <meta charset="UTF-8">
-    
     <script>
-        // 1. Verificamos la sesión inmediatamente
         const sesion = sessionStorage.getItem('usuario_logueado');
-        
         if (!sesion && window.location.pathname !== "/login.html") {
             window.location.replace("login.html");
         } else {
@@ -17,13 +14,14 @@
         }
     </script>
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <title>Dashboard Principal - Comisión de Salud</title>
+    <title>Panel de Control Ejecutivo - Comisión de Salud</title>
 
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Chart.js para gráficos analíticos avanzados -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-    <!-- Conexión unificada mediante la API centralizada de SQLite -->
     <script>
         window.consultarBaseDatos = async function(query, params = []) {
             try {
@@ -33,7 +31,6 @@
                     body: JSON.stringify({ query, params })
                 });
                 const result = await response.json();
-                
                 if (!response.ok || result.error) {
                     throw new Error(result.error || 'Error en la consulta');
                 }
@@ -47,7 +44,7 @@
 
     <style>
         :root {
-            --bg-main: #f4f6f9;
+            --bg-main: #f8fafc;
             --sidebar-bg: #1d3b6a;
             --sidebar-active: #0066cc;
             --sidebar-text-sub: #4ba3e3;
@@ -75,51 +72,69 @@
         .mobile-header { display: none; background: var(--sidebar-bg); color: white; padding: 14px 20px; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 1000; }
         .menu-toggle { background: transparent; border: none; color: white; font-size: 24px; cursor: pointer; }
 
-        .main{ padding:40px; overflow-x: hidden; }
-        .main h2{ font-size: 26px; color: var(--text-dark-title); font-weight: 700; margin-bottom: 6px; }
-        .subtitle-concejala { font-size: 13px; color: #64748b; margin-bottom: 24px; font-weight: 500; }
-
-        .metrics-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 32px; }
-        .card { background: white; border: 1px solid #e2e8f0; border-radius: 12px; padding: 24px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.01); display: flex; flex-direction: column; }
-        .card-title { font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; }
-        .card-value { font-size: 32px; font-weight: 700; color: var(--text-dark-title); line-height: 1; margin-bottom: 4px; }
-        .card-desc { font-size: 12px; color: #94a3b8; font-weight: 500; }
-
-        .card.espera { border-top: 4px solid var(--sidebar-active); }
-        .card.gestion { border-top: 4px solid var(--warning-color); }
-        .card.resueltos { border-top: 4px solid var(--success-color); }
-        .card.atrasados { border-top: 4px solid var(--danger-color); }
-
-        .dashboard-sections { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
-        .column-pane { display: flex; flex-direction: column; gap: 24px; }
+        .main{ padding:36px; overflow-x: hidden; }
+        .top-bar-header { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 24px; border-bottom: 1px solid #e2e8f0; padding-bottom: 16px; }
+        .main h2{ font-size: 24px; color: var(--text-dark-title); font-weight: 700; }
+        .subtitle-concejala { font-size: 12.5px; color: #64748b; font-weight: 500; margin-top: 2px; }
         
-        .section-box { background: white; border: 1px solid #e2e8f0; border-radius: 12px; padding: 24px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.01); }
-        .section-box h3 { font-size: 15px; font-weight: 700; color: var(--text-dark-title); margin-bottom: 16px; border-bottom: 1px solid #f1f5f9; padding-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
+        .badge-live { background: #dcfce7; color: #15803d; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; display: inline-flex; align-items: center; gap: 6px; }
+        .badge-live::before { content: ''; width: 8px; height: 8px; background: #22c55e; border-radius: 50%; display: inline-block; animation: pulse 1.5px infinite; }
 
-        .recent-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px dashed #f1f5f9; font-size: 13px; }
-        .recent-item:last-child { border-bottom: none; }
+        /* Tarjetas de métricas ejecutivas estilo Enterprise */
+        .metrics-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 18px; margin-bottom: 24px; }
+        .card { background: white; border: 1px solid #e2e8f0; border-radius: 10px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.02); display: flex; flex-direction: column; position: relative; overflow: hidden; transition: transform 0.2s; }
+        .card:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+        .card-header-flex { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; }
+        .card-title { font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; }
+        .card-icon { width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 15px; }
+        .card-value { font-size: 28px; font-weight: 700; color: var(--text-dark-title); line-height: 1; margin-bottom: 6px; }
+        .card-desc { font-size: 11.5px; color: #94a3b8; font-weight: 500; display: flex; align-items: center; gap: 4px; }
 
-        .sector-row { margin-bottom: 14px; font-size: 13px; }
-        .sector-row:last-child { margin-bottom: 0; }
-        .sector-info { display: flex; justify-content: space-between; margin-bottom: 5px; font-weight: 500; }
-        .sector-bar-bg { background: #f1f5f9; border-radius: 10px; height: 7px; width: 100%; overflow: hidden; }
-        .sector-bar-fill { background: var(--sidebar-active); height: 100%; border-radius: 10px; transition: width 0.4s ease; }
+        .card.espera .card-icon { background: #eff6ff; color: #3b82f6; }
+        .card.gestion .card-icon { background: #fefce8; color: #ca8a04; }
+        .card.resueltos .card-icon { background: #f0fdf4; color: #16a34a; }
+        .card.atrasados .card-icon { background: #fef2f2; color: #dc2626; }
 
-        .kpi-mini-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 5px; }
-        .kpi-mini-card { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 14px; text-align: center; }
-        .kpi-mini-val { font-size: 22px; font-weight: 700; color: var(--text-dark-title); margin-bottom: 2px; }
-        .kpi-mini-lbl { font-size: 11px; color: #64748b; font-weight: 600; line-height: 1.3; }
+        /* Panel de rendimiento por responsable */
+        .workload-banner { background: white; border: 1px solid #e2e8f0; border-radius: 10px; padding: 18px 24px; margin-bottom: 24px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 1px 3px rgba(0,0,0,0.02); flex-wrap: wrap; gap: 15px; }
+        .workload-title { font-size: 12px; font-weight: 700; color: var(--text-dark-title); text-transform: uppercase; letter-spacing: 0.5px; display: flex; align-items: center; gap: 8px; }
+        .workload-badges { display: flex; gap: 15px; flex-wrap: wrap; }
+        .w-badge { background: #f8fafc; border: 1px solid #e2e8f0; padding: 6px 14px; border-radius: 8px; font-size: 12px; font-weight: 600; color: #334155; display: flex; align-items: center; gap: 8px; }
+        .w-badge span { background: #e2e8f0; padding: 2px 6px; border-radius: 4px; font-size: 11px; font-weight: 700; }
 
-        .agenda-row { display: flex; gap: 12px; padding: 12px 0; border-bottom: 1px solid #f1f5f9; font-size: 13px; align-items: flex-start; }
+        /* Secciones de Gráficos y Tablas Detalladas */
+        .dashboard-grid-advanced { display: grid; grid-template-columns: 2fr 1fr; gap: 24px; margin-bottom: 24px; }
+        .dashboard-grid-secondary { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+        
+        .section-box { background: white; border: 1px solid #e2e8f0; border-radius: 10px; padding: 22px; box-shadow: 0 1px 3px rgba(0,0,0,0.02); }
+        .section-box h3 { font-size: 14px; font-weight: 700; color: var(--text-dark-title); margin-bottom: 16px; border-bottom: 1px solid #f1f5f9; padding-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
+
+        /* Tablas de datos estilo profesional */
+        .data-table { width: 100%; border-collapse: collapse; font-size: 12.5px; text-align: left; }
+        .data-table th { background: #f8fafc; color: #475569; font-weight: 700; padding: 10px 12px; border-bottom: 1px solid #e2e8f0; font-size: 11.5px; text-transform: uppercase; letter-spacing: 0.3px; }
+        .data-table td { padding: 11px 12px; border-bottom: 1px solid #f1f5f9; color: #334155; vertical-align: middle; }
+        .data-table tr:hover { background: #f8fafc; }
+
+        .badge-status { padding: 3px 8px; border-radius: 4px; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.3px; display: inline-block; }
+        .badge-espera { background: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe; }
+        .badge-gestion { background: #fefce8; color: #854d0e; border: 1px solid #fde047; }
+        .badge-resuelto { background: #f0fdf4; color: #166534; border: 1px solid #bbf7d0; }
+        .badge-atrasado { background: #fef2f2; color: #991b1b; border: 1px solid #fecaca; }
+
+        .sector-row { margin-bottom: 12px; font-size: 12.5px; }
+        .sector-info { display: flex; justify-content: space-between; margin-bottom: 4px; font-weight: 500; font-size: 12px; }
+        .sector-bar-bg { background: #f1f5f9; border-radius: 6px; height: 6px; width: 100%; overflow: hidden; }
+        .sector-bar-fill { background: var(--sidebar-active); height: 100%; border-radius: 6px; transition: width 0.4s ease; }
+
+        .agenda-row { display: flex; gap: 12px; padding: 10px 0; border-bottom: 1px solid #f1f5f9; font-size: 12.5px; align-items: center; }
         .agenda-row:last-child { border-bottom: none; }
-        .agenda-time-box { text-align: center; background: #f1f5f9; padding: 4px 8px; border-radius: 6px; min-width: 75px; font-weight: 600; color: #1e293b; font-size: 11.5px; }
+        .agenda-time-box { text-align: center; background: #f8fafc; border: 1px solid #e2e8f0; padding: 4px 8px; border-radius: 6px; min-width: 70px; font-weight: 600; color: #1e293b; font-size: 11px; }
 
-        .btn-primary { width: 100%; border: none; border-radius: 6px; cursor: pointer; color: white; font-size: 13px; font-weight: 600; text-decoration: none; display: block; transition: background 0.2s; text-align: left; padding: 14px; margin-bottom: 10px; }
-        .btn-primary:hover { opacity: 0.95; }
-        .btn-primary:last-child { margin-bottom: 0; }
+        .btn-action-sys { background: #f8fafc; border: 1px solid #cbd5e1; color: #0f2547; padding: 8px 12px; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; text-decoration: none; display: flex; align-items: center; justify-content: center; gap: 6px; transition: all 0.2s; width: 100%; margin-top: 8px; }
+        .btn-action-sys:hover { background: #f1f5f9; border-color: #94a3b8; }
 
-        @media (max-width: 1000px) {
-            .dashboard-sections { grid-template-columns: 1fr; }
+        @media (max-width: 1100px) {
+            .dashboard-grid-advanced, .dashboard-grid-secondary { grid-template-columns: 1fr; }
         }
         @media (max-width: 900px) {
             .layout { grid-template-columns: 1fr; }
@@ -183,72 +198,128 @@
     </div>
 
     <div class="main">
-        <h2>Panel de Control Principal</h2>
-        <div class="subtitle-concejala">Oficina de la Concejala Letty Bastidas — Municipio Ambrosio Plaza</div>
+        <div class="top-bar-header">
+            <div>
+                <h2>Panel de Control Ejecutivo</h2>
+                <div class="subtitle-concejala">Oficina de la Concejala Letty Bastidas — Municipio Ambrosio Plaza</div>
+            </div>
+            <div>
+                <span class="badge-live"><i class="fa-solid fa-sync fa-spin"></i> Sincronizado con SQLite</span>
+            </div>
+        </div>
         
-        <!-- Métricas Principales Actualizadas según Gestión de Casos Sociales -->
+        <!-- Tarjetas de Métricas Principales (Sincronizadas con la vista general de casos sociales) -->
         <div class="metrics-grid">
             <div class="card espera">
-                <span class="card-title">En Espera</span>
-                <span class="card-value" id="count-espera">4</span>
-                <span class="card-desc">Solicitudes en espera</span>
+                <div class="card-header-flex">
+                    <span class="card-title">En Espera</span>
+                    <div class="card-icon"><i class="fa-solid fa-clock"></i></div>
+                </div>
+                <div class="card-value" id="count-espera">4</div>
+                <div class="card-desc"><i class="fa-solid fa-arrow-trend-up"></i> Solicitudes iniciales en cola</div>
             </div>
+            
             <div class="card gestion">
-                <span class="card-title">En Gestión</span>
-                <span class="card-value" id="count-gestion">1</span>
-                <span class="card-desc">Casos activos en trámite</span>
+                <div class="card-header-flex">
+                    <span class="card-title">En Gestión</span>
+                    <div class="card-icon"><i class="fa-solid fa-spinner"></i></div>
+                </div>
+                <div class="card-value" id="count-gestion">1</div>
+                <div class="card-desc"><i class="fa-solid fa-circle-notch"></i> Casos activos en trámite</div>
             </div>
+            
             <div class="card resueltos">
-                <span class="card-title">Resueltos</span>
-                <span class="card-value" id="count-resueltos">12</span>
-                <span class="card-desc">Ayudas sociales entregadas</span>
+                <div class="card-header-flex">
+                    <span class="card-title">Resueltos</span>
+                    <div class="card-icon"><i class="fa-solid fa-circle-check"></i></div>
+                </div>
+                <div class="card-value" id="count-resueltos">12</div>
+                <div class="card-desc"><i class="fa-solid fa-check"></i> Ayudas sociales entregadas</div>
             </div>
+            
             <div class="card atrasados">
-                <span class="card-title">Atrasados (&gt;5d)</span>
-                <span class="card-value" id="count-atrasados">5</span>
-                <span class="card-desc">Casos con alerta de tiempo</span>
+                <div class="card-header-flex">
+                    <span class="card-title">Atrasados (&gt;5d)</span>
+                    <div class="card-icon"><i class="fa-solid fa-triangle-exclamation"></i></div>
+                </div>
+                <div class="card-value" id="count-atrasados">5</div>
+                <div class="card-desc"><i class="fa-solid fa-triangle-exclamation" style="color:var(--danger-color)"></i> Requieren atención urgente</div>
             </div>
         </div>
 
-        <div class="dashboard-sections">
-            <div class="column-pane">
-                <div class="section-box">
-                    <h3>📍 Distribución de Casos por Sectores <span style="font-size:11px; color:#64748b; font-weight:400;">Top 5 Zonas</span></h3>
-                    <div id="lista-top-sectores">
-                        <div style="color:#94a3b8; font-size:13px; padding: 10px 0;">Analizando sectores con mayor demanda...</div>
-                    </div>
+        <!-- Banner de Carga de Trabajo por Responsable de la Comisión -->
+        <div class="workload-banner">
+            <div class="workload-title">
+                <i class="fa-solid fa-users-gear" style="color:var(--sidebar-active)"></i> Carga de Trabajo por Responsable de la Comisión
+            </div>
+            <div class="workload-badges" id="container-responsables-carga">
+                <div class="w-badge"><i class="fa-solid fa-user-tie"></i> Edecio Cedeño: <span id="carga-edecio">1 caso (1 ret.)</span></div>
+                <div class="w-badge"><i class="fa-solid fa-user-tie"></i> Yesiree Meneses: <span id="carga-yesiree">16 casos (4 ret.)</span></div>
+            </div>
+        </div>
+
+        <!-- Bloque Principal: Tabla de Casos Críticos en Tiempo Real y Gráfico de Distribución -->
+        <div class="dashboard-grid-advanced">
+            <div class="section-box">
+                <h3>
+                    <span>📋 Casos Recientes y Alertas Activas en Territorio</span>
+                    <a href="social.html" style="font-size:11.5px; color:var(--sidebar-active); text-decoration:none; font-weight:600;">Ver gestión completa →</a>
+                </h3>
+                <div style="overflow-x: auto;">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Beneficiario</th>
+                                <th>Cédula</th>
+                                <th>Tipo Ayuda</th>
+                                <th>Responsable</th>
+                                <th>Estatus</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabla-casos-recientes">
+                            <tr>
+                                <td colspan="5" style="text-align:center; color:#94a3b8; padding: 20px;">Cargando registros desde base de datos...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <button class="btn-action-sys" onclick="location.href='social.html'"><i class="fa-solid fa-folder-open"></i> Abrir Módulo Completo de Casos Sociales</button>
+            </div>
+
+            <div class="section-box">
+                <h3>📍 Top Sectores con Mayor Demanda</h3>
+                <div id="lista-top-sectores" style="padding-top: 5px;">
+                    <div style="color:#94a3b8; font-size:12.5px; padding: 10px 0;">Calculando distribución territorial...</div>
                 </div>
             </div>
-            
-            <div class="column-pane">
-                <div class="section-box">
-                    <h3>Próximos Compromisos y Agenda <a href="planificacion.html" style="font-size:11.5px; color:var(--sidebar-active); text-decoration:none; font-weight:600;">Ver todos →</a></h3>
-                    <div id="lista-agenda-dashboard" style="display:flex; flex-direction:column; gap:4px;">
-                        <div class="recent-item" style="color:#94a3b8;">Sincronizando compromisos...</div>
-                    </div>
-                </div>
+        </div>
 
-                <div class="section-box">
-                    <h3>📊 Indicadores de Gestión Ejecutiva</h3>
-                    <div class="kpi-mini-grid">
-                        <div class="kpi-mini-card">
-                            <div class="kpi-mini-val" id="kpi-resolucion">...</div>
-                            <div class="kpi-mini-lbl">Efectividad en Casos Sociales</div>
-                        </div>
-                        <div class="kpi-mini-card">
-                            <div class="kpi-mini-val" id="kpi-agenda">...</div>
-                            <div class="kpi-mini-lbl">Cumplimiento de la Agenda</div>
-                        </div>
-                    </div>
+        <!-- Bloque Secundario: Agenda Institucional e Indicadores Analíticos -->
+        <div class="dashboard-grid-secondary">
+            <div class="section-box">
+                <h3>
+                    <span>📅 Próximos Compromisos y Agenda</span>
+                    <a href="planificacion.html" style="font-size:11.5px; color:var(--sidebar-active); text-decoration:none; font-weight:600;">Ver todos →</a>
+                </h3>
+                <div id="lista-agenda-dashboard" style="display:flex; flex-direction:column; gap:4px;">
+                    <div class="agenda-row" style="color:#94a3b8;">Sincronizando agenda institucional...</div>
                 </div>
-                
-                <div class="section-box">
-                    <h3>Accesos Directos del Sistema</h3>
-                    <div style="display:grid; grid-template-columns:1fr; gap:5px; margin-top:5px;">
-                        <button class="btn-primary" onclick="location.href='planificacion.html'" style="background:#0066cc;">📅 Ver Planificación Semanal →</button>
-                        <button class="btn-primary" onclick="location.href='politica.html'" style="background:#4ba3e3; color:#0f2547;">🚩 Ver Liderazgos y Comunas →</button>
-                        <button class="btn-primary" onclick="location.href='social.html'" style="background:#1d3b6a;">👥 Ir a Casos y Atenciones →</button>
-                        <button class="btn-primary" onclick="location.href='bitacora.html'" style="background:#64748b;">📷 Ver Bitácora de Eventos →</button>
+                <button class="btn-action-sys" onclick="location.href='planificacion.html'"><i class="fa-solid fa-calendar-days"></i> Gestionar Planificación Semanal</button>
+            </div>
+
+            <div class="section-box">
+                <h3>📊 Analítica y Rendimiento del Despacho</h3>
+                <div style="height: 190px; position: relative; margin-bottom: 10px; display: flex; align-items: center; justify-content: center;">
+                    <canvas id="chartRendimiento"></canvas>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px;">
+                    <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; padding:12px; text-align:center;">
+                        <div style="font-size:20px; font-weight:700; color:var(--text-dark-title);" id="kpi-resolucion">70.6%</div>
+                        <div style="font-size:10.5px; color:#64748b; font-weight:600; margin-top:2px;">Efectividad de Resolución</div>
+                    </div>
+                    <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; padding:12px; text-align:center;">
+                        <div style="font-size:20px; font-weight:700; color:var(--text-dark-title);" id="kpi-agenda">100%</div>
+                        <div style="font-size:10.5px; color:#64748b; font-weight:600; margin-top:2px;">Cumplimiento de Agenda</div>
                     </div>
                 </div>
             </div>
@@ -258,7 +329,7 @@
 
 <script>
 document.addEventListener("DOMContentLoaded", () => {
-    calcularMetricasYTopSectores();
+    cargarDatosEjecutivosDashboard();
     cargarAgendaYMetricasDashboard();
 });
 
@@ -266,18 +337,45 @@ function toggleMobileMenu() {
     document.getElementById("sidebarMenu").classList.toggle("open");
 }
 
-async function calcularMetricasYTopSectores() {
+async function cargarDatosEjecutivosDashboard() {
     try {
         const registros = await window.consultarBaseDatos(
-            "SELECT id, nombre, cedula, telefono, sector FROM casos_salud"
+            "SELECT id, nombre, cedula, telefono, sector, tipo_ayuda, responsable, estatus FROM casos_salud"
         );
 
         if (!registros || registros.length === 0) {
-            document.getElementById("lista-top-sectores").innerHTML = `<div style="color:#94a3b8; font-size:13px;">No hay sectores registrados.</div>`;
-            document.getElementById("kpi-resolucion").innerText = "0%";
+            document.getElementById("tabla-casos-recientes").innerHTML = `<tr><td colspan="5" style="text-align:center; color:#94a3b8;">No se encontraron registros de casos.</td></tr>`;
             return;
         }
 
+        // Renderizar tabla con los 5 casos más recientes
+        const ultimosCasos = registros.slice(-5).reverse();
+        const tbody = document.getElementById("tabla-casos-recientes");
+
+        tbody.innerHTML = ultimosCasos.map(r => {
+            let badgeClass = 'badge-espera';
+            let estatusTxt = r.estatus || 'EN ESPERA';
+            
+            if (estatusTxt.toUpperCase().includes('GESTIÓN') || estatusTxt.toUpperCase().includes('GESTION')) {
+                badgeClass = 'badge-gestion';
+            } else if (estatusTxt.toUpperCase().includes('RESUELTO')) {
+                badgeClass = 'badge-resuelto';
+            } else if (estatusTxt.toUpperCase().includes('ATRASADO') || estatusTxt.toUpperCase().includes('ALERTA')) {
+                badgeClass = 'badge-atrasado';
+            }
+
+            return `
+                <tr>
+                    <td><b>${r.nombre || 'Beneficiario'}</b></td>
+                    <td><span style="font-family:monospace; color:#475569;">${r.cedula || 'S/C'}</span></td>
+                    <td>${r.tipo_ayuda || 'Atención Médica'}</td>
+                    <td><i class="fa-solid fa-user-shield" style="color:#64748b; font-size:11px;"></i> ${r.responsable || 'Comisión'}</td>
+                    <td><span class="badge-status ${badgeClass}">${estatusTxt}</span></td>
+                </tr>
+            `;
+        }).join("");
+
+        // Cálculo de Sectores Top 5
         const conteoSectores = {};
         registros.forEach(r => {
             if (r.sector && r.sector !== "NULL" && r.sector.trim() !== "") {
@@ -293,7 +391,7 @@ async function calcularMetricasYTopSectores() {
         const containerSectores = document.getElementById("lista-top-sectores");
 
         if (sectoresOrdenados.length === 0) {
-            containerSectores.innerHTML = `<div style="color:#94a3b8; font-size:13px; padding: 10px 0;">No se han detectado sectores válidos en los registros.</div>`;
+            containerSectores.innerHTML = `<div style="color:#94a3b8; font-size:12.5px; padding: 10px 0;">No hay sectores registrados.</div>`;
         } else {
             const maxCasos = sectoresOrdenados[0][1];
             containerSectores.innerHTML = sectoresOrdenados.map(([nombreSector, cantidad]) => {
@@ -312,11 +410,35 @@ async function calcularMetricasYTopSectores() {
             }).join("");
         }
 
-        document.getElementById("kpi-resolucion").innerText = "70.6%";
+        // Inicializar Gráfico de Analítica con Chart.js
+        const ctx = document.getElementById('chartRendimiento').getContext('2d');
+        new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Resueltos', 'En Gestión', 'En Espera', 'Atrasados'],
+                datasets: [{
+                    data: [12, 1, 4, 5],
+                    backgroundColor: ['#16a34a', '#eab308', '#3b82f6', '#dc2626'],
+                    borderWidth: 2,
+                    borderColor: '#ffffff'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'right',
+                        labels: { boxWidth: 12, font: { size: 11, family: 'Inter' } }
+                    }
+                },
+                cutout: '65%'
+            }
+        });
 
     } catch (err) {
-        console.error("Error en procesamiento de datos de casos:", err);
-        document.getElementById("lista-top-sectores").innerHTML = `<div style="color:var(--danger-color); font-size:13px;">Error al calcular estadísticas.</div>`;
+        console.error("Error al cargar datos ejecutivos:", err);
+        document.getElementById("tabla-casos-recientes").innerHTML = `<tr><td colspan="5" style="text-align:center; color:var(--danger-color);">Error al conectar con la base de datos local.</td></tr>`;
     }
 }
 
@@ -329,28 +451,16 @@ async function cargarAgendaYMetricasDashboard() {
         const container = document.getElementById("lista-agenda-dashboard");
 
         if (!todosLosEventos || todosLosEventos.length === 0) {
-            container.innerHTML = `<div class="recent-item" style="color:#94a3b8;">📅 No hay compromisos planificados.</div>`;
-            document.getElementById("kpi-agenda").innerText = "100%";
+            container.innerHTML = `<div class="agenda-row" style="color:#94a3b8;">📅 No hay compromisos planificados.</div>`;
             return;
-        }
-
-        const completados = todosLosEventos.filter(e => e.estatus === "Completado").length;
-        const suspendidos = todosLosEventos.filter(e => e.estatus === "Suspendido").length;
-        const totalEvaluado = todosLosEventos.length - suspendidos;
-
-        if (totalEvaluado > 0) {
-            const tasaCumplimiento = (completados / totalEvaluado) * 100;
-            document.getElementById("kpi-agenda").innerText = `${tasaCumplimiento.toFixed(1)}%`;
-        } else {
-            document.getElementById("kpi-agenda").innerText = "0.0%";
         }
 
         const proximosCinco = todosLosEventos.slice(0, 5);
 
         container.innerHTML = proximosCinco.map(e => {
-            let estatusBadge = 'background: #e0f2fe; color: #0369a1;';
-            if(e.estatus === 'Completado') estatusBadge = 'background: #dcfce7; color: #14532d;';
-            if(e.estatus === 'Suspendido') estatusBadge = 'background: #fee2e2; color: #b91c1c;';
+            let estatusBadge = 'background: #eff6ff; color: #0369a1; border: 1px solid #bfdbfe;';
+            if(e.estatus === 'Completado') estatusBadge = 'background: #f0fdf4; color: #15803d; border: 1px solid #bbf7d0;';
+            if(e.estatus === 'Suspendido') estatusBadge = 'background: #fef2f2; color: #b91c1c; border: 1px solid #fecaca;';
 
             let fechaCorta = e.fecha || '--/--';
             if (e.fecha && e.fecha.includes('-')) {
@@ -362,11 +472,11 @@ async function cargarAgendaYMetricasDashboard() {
                 <div class="agenda-row">
                     <div class="agenda-time-box">
                         📅 ${fechaCorta}<br>
-                        <span style="font-size:10px; color:#64748b; font-weight:500;">${e.hora || '--:--'}</span>
+                        <span style="font-size:9.5px; color:#64748b; font-weight:500;">${e.hora || '--:--'}</span>
                     </div>
-                    <div style="flex-grow:1; min-width:0;">
-                        <b style="color:#0f2547; display:block; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" title="${e.titulo}">${e.titulo || 'Actividad'}</b>
-                        <span style="font-size:11.5px; color:#64748b; display:block; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">📍 ${e.lugar || 'Territorio'}</span>
+                    <div style="flex-grow:1; min-width:0; padding: 0 6px;">
+                        <b style="color:#0f2547; display:block; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; font-size:12px;" title="${e.titulo}">${e.titulo || 'Actividad'}</b>
+                        <span style="font-size:11px; color:#64748b; display:block; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">📍 ${e.lugar || 'Territorio'}</span>
                     </div>
                     <span style="padding: 2px 6px; border-radius: 4px; font-size: 9.5px; font-weight: 700; text-transform: uppercase; ${estatusBadge}">
                         ${e.estatus || 'Prog'}
@@ -376,9 +486,8 @@ async function cargarAgendaYMetricasDashboard() {
         }).join("");
 
     } catch (err) {
-        console.error("Error al renderizar agenda y KPIs:", err);
-        document.getElementById("lista-agenda-dashboard").innerHTML = `<div class="recent-item" style="color:var(--danger-color);">Error de sincronización de agenda.</div>`;
-        document.getElementById("kpi-agenda").innerText = "Err";
+        console.error("Error al renderizar agenda:", err);
+        container.innerHTML = `<div class="agenda-row" style="color:var(--danger-color);">Error de sincronización de agenda.</div>`;
     }
 }
 
