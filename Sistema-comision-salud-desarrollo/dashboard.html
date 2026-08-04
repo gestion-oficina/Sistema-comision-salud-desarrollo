@@ -21,7 +21,7 @@
 
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
-    <!-- Conexión unificada mediante la API centralizada de SQLite Cloud -->
+    <!-- Conexión unificada mediante la API centralizada local de SQLite -->
     <script>
         window.consultarBaseDatos = async function(query, params = []) {
             try {
@@ -32,7 +32,6 @@
                 });
                 const result = await response.json();
                 
-                // Si la API devuelve un objeto de error estructurado
                 if (!response.ok || result.error) {
                     throw new Error(result.error || 'Error en la consulta');
                 }
@@ -164,8 +163,8 @@
         <div id="enlaceAuditoria" style="display: none;">
             <a href="auditoria.html" class="menu">🛡️ Panel de Auditoría</a>
         </div>
-          <div class="menu-category">Gestión Despacho</div>
-            <a class="menu" href="acciones.html" style="background: ; font-weight: 600; border-radius: 6px; margin: 2px 14px; padding: 10px 20px;">⭐ Acciones Concejala</a>
+        <div class="menu-category">Gestión Despacho</div>
+        <a class="menu" href="acciones.html" style="font-weight: 600; border-radius: 6px; margin: 2px 14px; padding: 10px 20px;">⭐ Acciones Concejala</a>
 
         <script>
             if (sessionStorage.getItem("usuario_rol") === "admin") {
@@ -186,24 +185,24 @@
         
         <div class="metrics-grid">
             <div class="card total">
-                <span class="card-title">Casos Comunitarios</span>
+                <span class="card-title">Casos Sociales Totales</span>
                 <span class="card-value" id="count-total">...</span>
-                <span class="card-desc">Solicitudes totales registradas</span>
+                <span class="card-desc">Solicitudes ciudadanas registradas</span>
             </div>
             <div class="card pending">
-                <span class="card-title">En Gestión / Evaluación</span>
+                <span class="card-title">Casos En Gestión</span>
                 <span class="card-value" id="count-espera">...</span>
-                <span class="card-desc">Casos activos en trámite</span>
+                <span class="card-desc">Solicitudes activas o en trámite</span>
             </div>
             <div class="card resolved">
                 <span class="card-title">Casos Resueltos</span>
                 <span class="card-value" id="count-resueltos">...</span>
-                <span class="card-desc">Ayudas sociales entregadas</span>
+                <span class="card-desc">Atenciones sociales culminadas</span>
             </div>
             <div class="card medica">
-                <span class="card-title">Planillas Médicas</span>
-                <span class="card-value" id="count-medica">...</span>
-                <span class="card-desc">Atenciones al Personal del Concejo</span>
+                <span class="card-title">Dirigentes Sociales / Liderazgos</span>
+                <span class="card-value" id="count-dirigentes">...</span>
+                <span class="card-desc">Red política y comunas activas</span>
             </div>
         </div>
 
@@ -265,36 +264,39 @@ function toggleMobileMenu() {
 
 async function calcularMetricasYTopSectores() {
     try {
-        const registros = await window.consultarBaseDatos(
-            "SELECT id, nombre, cedula, telefono, sector FROM casos_salud"
-        );
+        // Consultas segmentadas y reales de la base de datos local SQLite
+        const [registrosCasos, registrosDirigentes] = await Promise.all([
+            window.consultarBaseDatos("SELECT id, estatus, sector FROM casos_salud"),
+            window.consultarBaseDatos("SELECT id FROM liderazgos_comunas") // Tabla específica de la coordinación política
+        ]);
 
-        if (!registros || registros.length === 0) {
+        if (!registrosCasos) {
             ponerCeros();
-            document.getElementById("lista-top-sectores").innerHTML = `<div style="color:#94a3b8; font-size:13px;">No hay sectores registrados.</div>`;
-            document.getElementById("kpi-resolucion").innerText = "0%";
             return;
         }
 
-        const casosComunitarios = registros.filter(r => r.sector && r.sector !== "NULL");
-        const activos = registros.filter(r => r.telefono && r.telefono !== "NULL");
-        const atencionesMedicas = registros.filter(r => !r.cedula || r.cedula === "NULL");
-        const resueltos = registros.filter(r => r.cedula && r.sector && r.sector !== "NULL");
+        const totalCasos = registrosCasos.length;
+        const casosEnEspera = registrosCasos.filter(r => r.estatus && (r.estatus.toLowerCase() === 'en gestión' || r.estatus.toLowerCase() === 'pendiente')).length;
+        const casosResueltos = registrosCasos.filter(r => r.estatus && r.estatus.toLowerCase() === 'resuelto').length;
+        const totalDirigentes = registrosDirigentes ? registrosDirigentes.length : 0;
 
-        document.getElementById("count-total").innerText = casosComunitarios.length;
-        document.getElementById("count-espera").innerText = activos.length;
-        document.getElementById("count-resueltos").innerText = resueltos.length;
-        document.getElementById("count-medica").innerText = atencionesMedicas.length;
+        // Renderizado exacto en pantalla separando casos de dirigentes
+        document.getElementById("count-total").innerText = totalCasos;
+        document.getElementById("count-espera").innerText = casosEnEspera;
+        document.getElementById("count-resueltos").innerText = casosResueltos;
+        document.getElementById("count-dirigentes").innerText = totalDirigentes;
 
-        if (casosComunitarios.length > 0) {
-            const porcentajeEficiencia = (resueltos.length / casosComunitarios.length) * 100;
+        // Cálculo de efectividad basado en estatus reales
+        if (totalCasos > 0) {
+            const porcentajeEficiencia = (casosResueltos / totalCasos) * 100;
             document.getElementById("kpi-resolucion").innerText = `${porcentajeEficiencia.toFixed(1)}%`;
         } else {
-            document.getElementById("kpi-resolucion").innerText = "100%";
+            document.getElementById("kpi-resolucion").innerText = "0.0%";
         }
 
+        // Procesamiento del Top 5 de Sectores basado netamente en los casos sociales
         const conteoSectores = {};
-        registros.forEach(r => {
+        registrosCasos.forEach(r => {
             if (r.sector && r.sector !== "NULL" && r.sector.trim() !== "") {
                 const sectorNormalizado = r.sector.trim();
                 conteoSectores[sectorNormalizado] = (conteoSectores[sectorNormalizado] || 0) + 1;
@@ -328,7 +330,7 @@ async function calcularMetricasYTopSectores() {
         }
 
     } catch (err) {
-        console.error("Error en procesamiento de datos de casos:", err);
+        console.error("Error en procesamiento de métricas de base de datos:", err);
         ponerErrores();
         document.getElementById("lista-top-sectores").innerHTML = `<div style="color:var(--danger-color); font-size:13px;">Error al calcular estadísticas.</div>`;
     }
@@ -400,14 +402,14 @@ function ponerCeros() {
     document.getElementById("count-total").innerText = "0";
     document.getElementById("count-espera").innerText = "0";
     document.getElementById("count-resueltos").innerText = "0";
-    document.getElementById("count-medica").innerText = "0";
+    document.getElementById("count-dirigentes").innerText = "0";
 }
 
 function ponerErrores() {
     document.getElementById("count-total").innerText = "Err";
     document.getElementById("count-espera").innerText = "Err";
     document.getElementById("count-resueltos").innerText = "Err";
-    document.getElementById("count-medica").innerText = "Err";
+    document.getElementById("count-dirigentes").innerText = "Err";
 }
 
 function logout(){
