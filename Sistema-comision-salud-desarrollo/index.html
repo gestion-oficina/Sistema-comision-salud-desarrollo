@@ -172,7 +172,7 @@
             
             <div class="portal-actions-top">
                 <!-- Botón de Acceso al Sistema -->
-                <a href="/" class="btn-sistema-access">
+                <a href="dashboard.html" class="btn-sistema-access">
                     <i class="fa-solid fa-right-to-bracket"></i> Acceder al Sistema
                 </a>
                 <button class="theme-toggle-btn" id="themeBtn" onclick="toggleTheme()" title="Cambiar modo claro/oscuro">
@@ -193,13 +193,13 @@
     <!-- CONTENEDOR PRINCIPAL NOTICIAS -->
     <div class="portal-container">
         
-        <!-- NOTICIA PRINCIPAL HERO -->
-        <main class="hero-featured-news">
+        <!-- NOTICIA PRINCIPAL HERO (Dinámica desde SQLite) -->
+        <main class="hero-featured-news" id="hero-container">
             <div class="hero-image-container">
                 <img src="https://lh3.googleusercontent.com/d/1QpdROfMzVTZJKHmlqf8zm--u1sYTVyTT" alt="Despliegue Comunitario y Social">
                 <div class="hero-image-overlay">
                     <span class="tag">Despliegue Territorial • Guarenas</span>
-                    <h2>Comisión de Salud intensifica atención directa a familias en las comunidades de Ambrosio Plaza</h2>
+                    <h2>Cargando contenido dinámico desde la base de datos...</h2>
                     <span class="meta-date"><i class="fa-regular fa-clock"></i> Actualizado hoy • Municipio Ambrosio Plaza, Edo. Miranda</span>
                 </div>
             </div>
@@ -208,7 +208,7 @@
                     <i class="fa-solid fa-share-nodes" title="Compartir"></i>
                     <i class="fa-regular fa-bookmark" title="Guardar"></i>
                 </div>
-                <a href="/" class="btn-ver-sistema">
+                <a href="dashboard.html" class="btn-ver-sistema">
                     Ver Sistema <i class="fa-solid fa-arrow-right"></i>
                 </a>
             </div>
@@ -235,46 +235,9 @@
             <h3>Últimas Noticias y Jornadas</h3>
         </div>
 
-        <div class="news-grid-4">
-            <!-- Tarjeta 1 -->
-            <div class="news-card-item">
-                <img src="https://lh3.googleusercontent.com/d/1QpdROfMzVTZJKHmlqf8zm--u1sYTVyTT" alt="Ofrenda Protocolar">
-                <div class="news-card-content">
-                    <span class="cat">Protocolo Cívico</span>
-                    <h4>Rinden Homenaje Cívico al Libertador Simón Bolívar en Plaza Bolívar</h4>
-                    <p>Equipo legislativo y fuerzas vivas participaron en la solemne ofrenda floral por la memoria patria.</p>
-                </div>
-            </div>
-
-            <!-- Tarjeta 2 -->
-            <div class="news-card-item">
-                <img src="https://lh3.googleusercontent.com/d/1QpdROfMzVTZJKHmlqf8zm--u1sYTVyTT" alt="Supervisión de Salud">
-                <div class="news-card-content">
-                    <span class="cat">Salud Primaria</span>
-                    <h4>Inspección Técnica a Centros de Atención Asistencial Local</h4>
-                    <p>Verificación del inventario de insumos médicos y operatividad en la red primaria de salud de Guarenas.</p>
-                </div>
-            </div>
-
-            <!-- Tarjeta 3 -->
-            <div class="news-card-item">
-                <img src="https://lh3.googleusercontent.com/d/1QpdROfMzVTZJKHmlqf8zm--u1sYTVyTT" alt="Atención Adulto Mayor">
-                <div class="news-card-content">
-                    <span class="cat">Bienestar Social</span>
-                    <h4>Jornada Especial Dedicada al Cuidado y Resguardo del Adulto Mayor</h4>
-                    <p>Entrega de medicamentos y respaldo institucional directo a abuelos y abuelas de distintas parroquias.</p>
-                </div>
-            </div>
-
-            <!-- Tarjeta 4 -->
-            <div class="news-card-item">
-                <img src="https://lh3.googleusercontent.com/d/1QpdROfMzVTZJKHmlqf8zm--u1sYTVyTT" alt="Encuentro Comunitario">
-                <div class="news-card-content">
-                    <span class="cat">Cultura y Comunidad</span>
-                    <h4>Celebración de Encuentro Comunitario y Expresiones Culturales</h4>
-                    <p>Participación activa en actividades culturales tradicionales organizadas por los líderes comunitarios.</p>
-                </div>
-            </div>
+        <div class="news-grid-4" id="news-grid-container">
+            <!-- Tarjetas secundarias inyectadas automáticamente desde SQLite -->
+            <div style="color: var(--texto-secundario); font-size: 13px; padding: 10px;">Cargando registros municipales...</div>
         </div>
     </section>
 
@@ -332,10 +295,92 @@
             event.target.reset();
         }
 
-        document.addEventListener("DOMContentLoaded", () => {
+        // Carga dinámica de publicaciones desde SQLite
+        document.addEventListener("DOMContentLoaded", async () => {
             if (localStorage.getItem('theme') === 'dark') {
                 document.body.setAttribute('data-theme', 'dark');
                 document.querySelector('#themeBtn i').className = 'fa-solid fa-sun';
+            }
+
+            try {
+                const respuesta = await fetch("/api/query", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        query: "SELECT titulo, sector, descripcion, url_foto, fecha, publicar_web, seccion_web FROM bitacora_eventos WHERE publicar_web = 1 ORDER BY id DESC"
+                    })
+                });
+
+                if (!respuesta.ok) throw new Error("Error al conectar con la base de datos SQLite");
+
+                const resultado = await respuesta.json();
+                const publicaciones = resultado.resultado || resultado || [];
+
+                if (publicaciones.length > 0) {
+                    // 1. Noticia Principal (Hero)
+                    const principal = publicaciones[0];
+                    let fotosPrincipal = [];
+                    try {
+                        fotosPrincipal = JSON.parse(principal.url_foto);
+                        if (!Array.isArray(fotosPrincipal)) fotosPrincipal = [principal.url_foto];
+                    } catch(e) {
+                        fotosPrincipal = principal.url_foto ? [principal.url_foto] : ['https://lh3.googleusercontent.com/d/1QpdROfMzVTZJKHmlqf8zm--u1sYTVyTT'];
+                    }
+
+                    const heroContainer = document.getElementById('hero-container');
+                    if (heroContainer) {
+                        heroContainer.innerHTML = `
+                            <div class="hero-image-container">
+                                <img src="${fotosPrincipal[0]}" alt="${principal.titulo}">
+                                <div class="hero-image-overlay">
+                                    <span class="tag">${principal.seccion_web ? principal.seccion_web.toUpperCase() : 'GESTIÓN'} • ${principal.sector || 'Guarenas'}</span>
+                                    <h2>${principal.titulo}</h2>
+                                    <span class="meta-date"><i class="fa-regular fa-clock"></i> ${principal.fecha || 'Reciente'} • Municipio Ambrosio Plaza, Edo. Miranda</span>
+                                </div>
+                            </div>
+                            <div class="hero-bottom-actions">
+                                <div class="social-share">
+                                    <i class="fa-solid fa-share-nodes" title="Compartir"></i>
+                                    <i class="fa-regular fa-bookmark" title="Guardar"></i>
+                                </div>
+                                <a href="dashboard.html" class="btn-ver-sistema">
+                                    Ver Sistema <i class="fa-solid fa-arrow-right"></i>
+                                </a>
+                            </div>
+                        `;
+                    }
+
+                    // 2. Grilla Secundaria (Del índice 1 en adelante)
+                    const secundarias = publicaciones.slice(1, 5);
+                    const gridContainer = document.getElementById('news-grid-container');
+                    
+                    if (gridContainer && secundarias.length > 0) {
+                        gridContainer.innerHTML = secundarias.map(item => {
+                            let fotosItem = [];
+                            try {
+                                fotosItem = JSON.parse(item.url_foto);
+                                if (!Array.isArray(fotosItem)) fotosItem = [item.url_foto];
+                            } catch(e) {
+                                fotosItem = item.url_foto ? [item.url_foto] : ['https://lh3.googleusercontent.com/d/1QpdROfMzVTZJKHmlqf8zm--u1sYTVyTT'];
+                            }
+
+                            return `
+                                <div class="news-card-item">
+                                    <img src="${fotosItem[0]}" alt="Noticia">
+                                    <div class="news-card-content">
+                                        <span class="cat">${item.seccion_web || 'General'}</span>
+                                        <h4>${item.titulo}</h4>
+                                        <p>${item.descripcion}</p>
+                                    </div>
+                                </div>
+                            `;
+                        }).join('');
+                    } else if (gridContainer) {
+                        gridContainer.innerHTML = `<div style="color: var(--texto-secundario); font-size: 13px; padding: 10px;">No hay más noticias secundarias registradas para la web.</div>`;
+                    }
+                }
+            } catch (error) {
+                console.error("Error al cargar la dinámica web desde SQLite:", error);
             }
         });
     </script>
