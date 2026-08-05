@@ -18,15 +18,42 @@
 
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
-    <!-- IMPORTACIÓN DE NEON DATABASE -->
-    <script type="module">
-        import { neon } from 'https://cdn.jsdelivr.net/npm/@neondatabase/serverless/+esm';
-        const connectionString = "postgresql://neondb_owner:npg_djCruebcPY94@ep-sparkling-math-avejx7o4-pooler.c-11.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require";
-        window.sqlClient = neon(connectionString, { disableWarningInBrowsers: true });
-        
-        if (typeof window.iniciarApp === 'function') {
-            window.iniciarApp();
-        }
+    <!-- ADAPTADOR PARA SQLITE CLOUD VÍA API BACKEND -->
+    <script>
+        window.sqlClient = async function(strings, ...values) {
+            let query = "";
+            strings.forEach((part, index) => {
+                query += part;
+                if (index < values.length) {
+                    query += "?";
+                }
+            });
+
+            const response = await fetch("/api/query", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    query,
+                    params: values
+                })
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.error || "Error en SQLite Cloud");
+            }
+
+            return data;
+        };
+
+        window.addEventListener("DOMContentLoaded", () => {
+            if (typeof window.iniciarApp === "function") {
+                window.iniciarApp();
+            }
+        });
     </script>
 
     <style>
@@ -157,7 +184,7 @@
                 <tbody id="tablaFormatos" style="font-size: 13.5px; color: #334155;">
                     <tr>
                         <td colspan="5" style="text-align: center; padding: 30px; color: #94a3b8; font-style: italic;">
-                            Sincronizando registros con Neon...
+                            Sincronizando registros con SQLite Cloud...
                         </td>
                     </tr>
                 </tbody>
@@ -170,7 +197,7 @@
 <div id="modalFormatos" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.4); z-index: 9999; align-items: center; justify-content: center;">
     <div class="section-box" style="width: 100%; max-width: 460px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1);">
         <h3 style="margin-top: 0; color: var(--text-dark-title); font-size: 18px; margin-bottom: 4px; border: none; padding: 0;">Subir Plantilla de Oficina</h3>
-        <p style="color: #64748b; font-size: 12.5px; margin-bottom: 20px;">El archivo se guardará en Cloudinary y se indexará en Neon.</p>
+        <p style="color: #64748b; font-size: 12.5px; margin-bottom: 20px;">El archivo se guardará en Cloudinary y se indexará en SQLite.</p>
         
         <form id="uploadForm">
             <div style="margin-bottom: 14px;">
@@ -290,7 +317,7 @@
 
         } catch (err) {
             console.error("Error al renderizar:", err);
-            tablaFormatos.innerHTML = `<tr><td colspan="5" style="text-align: center; padding: 30px; color: #ef4444; font-weight: 600;">⚠️ Error de enlace con Neon: ${err.message}</td></tr>`;
+            tablaFormatos.innerHTML = `<tr><td colspan="5" style="text-align: center; padding: 30px; color: #ef4444; font-weight: 600;">⚠️ Error de enlace con SQLite Cloud: ${err.message}</td></tr>`;
         }
     }
 
@@ -300,8 +327,8 @@
         }
 
         try {
-            await window.sqlClient`DELETE FROM formatos_oficina WHERE id = ${id}`;
-            await cargarFormatos(); // Recarga la tabla inmediatamente para reflejar el cambio
+            await window.sqlClient`DELETE FROM formatos_oficina WHERE id = ${Number(id)}`;
+            await cargarFormatos();
         } catch (err) {
             console.error("Error al eliminar:", err);
             alert("No se pudo eliminar el registro: " + err.message);
@@ -361,7 +388,7 @@
 
             const urlNube = uploadData.secure_url;
 
-            btnGuardar.innerText = "⏳ Guardando registro en Neon...";
+            btnGuardar.innerText = "⏳ Guardando registro en SQLite...";
 
             await window.sqlClient`
                 INSERT INTO formatos_oficina (nombre, descripcion, categoria, tipo_archivo, url_descarga, creado_por)
