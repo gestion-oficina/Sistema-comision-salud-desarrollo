@@ -13,88 +13,104 @@
         }
     </script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Reporte Integral del Sistema - Comisión de Salud</title>
+    <title>Reporte Integral Avanzado - Comisión de Salud</title>
     
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     
-    <!-- ARCHIVO DE CONEXIÓN CENTRALIZADO -->
+    <!-- ARCHIVO DE CONEXIÓN CENTRALIZADO (LOCAL SQLITE) -->
     <script src="js/conexion.js"></script>
     
     <style>
         :root {
-            --bg-main: #f4f6f9;
-            --sidebar-bg: #1d3b6a;
-            --sidebar-active: #0066cc;
-            --sidebar-text-sub: #4ba3e3;
-            --menu-text: #ffffff;
-            --text-dark-title: #0f2547;
-            --border-color: #cbd5e1;
-            --success-color: #16a34a;
-            --warning-color: #eab308;
+            --bg-main: #f8fafc;
+            --sidebar-bg: #0f172a;
+            --sidebar-active: #2563eb;
+            --sidebar-text-sub: #94a3b8;
+            --menu-text: #f1f5f9;
+            --text-dark-title: #1e293b;
+            --border-color: #e2e8f0;
+            --success-color: #059669;
+            --warning-color: #d97706;
             --danger-color: #dc2626;
+            --primary-glow: rgba(37, 99, 235, 0.15);
         }
 
-        *{ margin:0; padding:0; box-sizing:border-box; font-family: 'Inter', sans-serif; }
+        *{ margin:0; padding:0; box-sizing:border-box; font-family: 'Plus Jakarta Sans', sans-serif; }
         body{ background: var(--bg-main); color:#334155; }
 
         .layout{ display:grid; grid-template-columns:280px 1fr; min-height:100vh; }
 
-        .sidebar{ background: var(--sidebar-bg); padding:24px 0; display: flex; flex-direction: column; transition: transform 0.3s ease; }
-        .sidebar-brand { display: flex; flex-direction: column; align-items: center; text-align: center; padding: 0 16px 20px 16px; border-bottom: 1px solid rgba(255, 255, 255, 0.1); margin-bottom: 10px; }
-        .sidebar-brand h2 { font-size: 11px; color: #ffffff; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; line-height: 1.4; margin-top: 5px; }
-        .menu-category { font-size: 10.5px; font-weight: 700; color: var(--sidebar-text-sub); text-transform: uppercase; letter-spacing: 0.5px; padding: 16px 20px 6px 20px; }
-        .menu{ display: block; padding: 8px 36px; color: var(--menu-text); cursor: pointer; font-size: 13.5px; font-weight: 500; text-decoration: none; transition: all 0.2s ease; opacity: 0.9; }
-        .menu:hover{ opacity: 1; background: rgba(255, 255, 255, 0.05); }
+        /* SIDEBAR MODERNO */
+        .sidebar{ background: var(--sidebar-bg); padding:24px 0; display: flex; flex-direction: column; transition: transform 0.3s ease; border-right: 1px solid rgba(255, 255, 255, 0.05); }
+        .sidebar-brand { display: flex; flex-direction: column; align-items: center; text-align: center; padding: 0 16px 20px 16px; border-bottom: 1px solid rgba(255, 255, 255, 0.08); margin-bottom: 10px; }
+        .sidebar-brand h2 { font-size: 11.5px; color: #ffffff; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; line-height: 1.4; margin-top: 5px; }
+        .menu-category { font-size: 10px; font-weight: 700; color: var(--sidebar-text-sub); text-transform: uppercase; letter-spacing: 1px; padding: 18px 20px 6px 20px; }
+        .menu{ display: block; padding: 9px 24px; color: var(--menu-text); cursor: pointer; font-size: 13px; font-weight: 500; text-decoration: none; transition: all 0.2s ease; opacity: 0.85; margin: 2px 12px; border-radius: 6px;}
+        .menu:hover{ opacity: 1; background: rgba(255, 255, 255, 0.06); color: #ffffff; }
 
         .mobile-header { display: none; background: var(--sidebar-bg); color: white; padding: 14px 20px; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 1000; }
         .menu-toggle { background: transparent; border: none; color: white; font-size: 24px; cursor: pointer; }
 
-        .main{ padding:40px; overflow-x: hidden; }
+        .main{ padding:36px; overflow-x: hidden; }
         
+        /* ZONA DE CONTROL Y FILTROS */
         .no-print-zone {
-            max-width: 1100px;
+            max-width: 1200px;
             margin: 0 auto 24px auto;
             background: white;
-            padding: 24px;
-            border-radius: 12px;
-            border: 1px solid #e2e8f0;
-            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.01);
+            padding: 28px;
+            border-radius: 16px;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.02), 0 4px 6px -4px rgba(0,0,0,0.02);
         }
-        .header-actions { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 15px; }
-        .no-print-zone h2 { font-size: 18px; color: var(--text-dark-title); font-weight: 700; }
-        .no-print-zone p { font-size: 12.5px; color: #64748b; margin-top: 2px; }
+        .header-actions { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 15px; }
+        .no-print-zone h2 { font-size: 20px; color: var(--text-dark-title); font-weight: 700; letter-spacing: -0.3px; }
+        .no-print-zone p { font-size: 13px; color: #64748b; margin-top: 4px; }
         
-        /* TARJETAS DE RESUMEN GLOBAL */
+        /* TARJETAS DE RESUMEN GLOBAL REDiseñadas */
         .global-stats-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-            gap: 14px;
-            margin-bottom: 20px;
+            grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
         }
         .stat-card {
-            background: #f8fafc;
+            background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 18px;
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px -2px rgba(0,0,0,0.05);
+            border-color: #cbd5e1;
+        }
+        .stat-card::after {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; width: 4px; height: 100%;
+            background: var(--sidebar-active);
+        }
+        .stat-card h4 { font-size: 11px; text-transform: uppercase; color: #64748b; font-weight: 700; margin-bottom: 8px; letter-spacing: 0.5px; }
+        .stat-card .stat-value { font-size: 24px; font-weight: 800; color: var(--text-dark-title); letter-spacing: -0.5px; }
+
+        .filter-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)) 160px; gap: 16px; align-items: end; }
+        .filter-group { display: flex; flex-direction: column; gap: 6px; }
+        .filter-group label { font-size: 11px; font-weight: 700; color: #475569; text-transform: uppercase; letter-spacing: 0.5px; }
+        .filter-group input, .filter-group select {
+            padding: 11px 14px;
             border: 1px solid var(--border-color);
             border-radius: 8px;
-            padding: 16px;
-            text-align: center;
-        }
-        .stat-card h4 { font-size: 11px; text-transform: uppercase; color: #64748b; font-weight: 700; margin-bottom: 6px; letter-spacing: 0.3px; }
-        .stat-card .stat-value { font-size: 22px; font-weight: 700; color: var(--text-dark-title); }
-
-        .filter-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)) 150px; gap: 12px; align-items: end; }
-        .filter-group { display: flex; flex-direction: column; gap: 6px; }
-        .filter-group label { font-size: 11.5px; font-weight: 700; color: #475569; text-transform: uppercase; letter-spacing: 0.3px; }
-        .filter-group input, .filter-group select {
-            padding: 10px 14px;
-            border: 1px solid var(--border-color);
-            border-radius: 6px;
             font-size: 13px;
             background: #f8fafc;
             color: #1e293b;
             outline: none;
             transition: all 0.2s;
         }
-        .filter-group input:focus, .filter-group select:focus { border-color: var(--sidebar-active); background: white; box-shadow: 0 0 0 3px rgba(0,102,204,0.1); }
+        .filter-group input:focus, .filter-group select:focus { border-color: var(--sidebar-active); background: white; box-shadow: 0 0 0 4px var(--primary-glow); }
 
         .btn-action { 
             background: var(--sidebar-active); 
@@ -102,29 +118,30 @@
             border: none; 
             padding: 11px 20px; 
             font-weight: 600; 
-            border-radius: 6px; 
+            border-radius: 8px; 
             cursor: pointer; 
             font-size: 13px; 
             transition: all 0.2s ease;
-            box-shadow: 0 2px 4px rgba(0, 102, 204, 0.2);
-            height: 41px;
+            box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.2);
+            height: 44px;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 6px;
+            gap: 8px;
         }
-        .btn-action:hover { background: #0052a3; }
-        .btn-secondary { background: #64748b; box-shadow: 0 2px 4px rgba(100, 116, 139, 0.2); }
+        .btn-action:hover { background: #1d4ed8; transform: translateY(-1px); }
+        .btn-secondary { background: #64748b; box-shadow: 0 4px 6px -1px rgba(100, 116, 139, 0.2); }
         .btn-secondary:hover { background: #475569; }
 
+        /* DOCUMENTO / PAPEL DE REPORTE */
         .report-paper {
             background: white;
-            border: 1px solid #e2e8f0;
-            border-radius: 12px;
-            padding: 40px;
-            max-width: 1100px;
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 48px;
+            max-width: 1200px;
             margin: 0 auto;
-            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02);
+            box-shadow: 0 10px 25px -5px rgba(0,0,0,0.03);
         }
         
         .report-header {
@@ -132,29 +149,31 @@
             justify-content: space-between;
             align-items: center;
             border-bottom: 2px solid var(--text-dark-title);
-            padding-bottom: 16px;
-            margin-bottom: 28px;
+            padding-bottom: 20px;
+            margin-bottom: 32px;
         }
-        .institution-title { font-size: 11px; font-weight: 700; color: #1e293b; line-height: 1.5; text-transform: uppercase; letter-spacing: 0.3px; }
-        .report-meta { text-align: right; font-size: 11px; color: #475569; line-height: 1.4; }
+        .institution-title { font-size: 11.5px; font-weight: 700; color: #0f172a; line-height: 1.5; text-transform: uppercase; letter-spacing: 0.5px; }
+        .report-meta { text-align: right; font-size: 11.5px; color: #475569; line-height: 1.5; }
         
-        .report-title { text-align: center; margin-bottom: 28px; color: var(--text-dark-title); }
-        .report-title h1 { font-size: 20px; font-weight: 700; letter-spacing: 0.5px; }
-        .report-title p { font-size: 12px; color: #64748b; margin-top: 4px; font-weight: 500; }
+        .report-title { text-align: center; margin-bottom: 32px; color: var(--text-dark-title); }
+        .report-title h1 { font-size: 22px; font-weight: 800; letter-spacing: -0.3px; }
+        .report-title p { font-size: 12.5px; color: #64748b; margin-top: 6px; font-weight: 500; }
         
-        .section-heading { font-size: 13.5px; font-weight: 700; color: var(--text-dark-title); margin-top: 28px; margin-bottom: 12px; border-left: 3px solid var(--sidebar-active); padding-left: 8px; text-transform: uppercase; letter-spacing: 0.3px; }
+        .section-heading { font-size: 13px; font-weight: 700; color: var(--text-dark-title); margin-top: 32px; margin-bottom: 14px; border-left: 4px solid var(--sidebar-active); padding-left: 10px; text-transform: uppercase; letter-spacing: 0.5px; }
 
-        .report-table { width: 100%; border-collapse: collapse; margin-bottom: 20px; font-size: 12px; }
-        .report-table th { background: #f8fafc; color: var(--text-dark-title); font-weight: 700; text-align: left; padding: 10px 12px; border: 1px solid #cbd5e1; }
-        .report-table td { padding: 9px 12px; border: 1px solid #cbd5e1; color: #334155; }
+        .report-table { width: 100%; border-collapse: separate; border-spacing: 0; margin-bottom: 24px; font-size: 12.5px; border-radius: 8px; overflow: hidden; border: 1px solid var(--border-color); }
+        .report-table th { background: #f1f5f9; color: var(--text-dark-title); font-weight: 700; text-align: left; padding: 12px 16px; border-bottom: 1px solid var(--border-color); }
+        .report-table td { padding: 12px 16px; border-bottom: 1px solid var(--border-color); color: #334155; background: #ffffff; }
+        .report-table tr:last-child td { border-bottom: none; }
+        .report-table tr:hover td { background: #f8fafc; }
         
-        .badge { padding: 4px 8px; border-radius: 4px; font-size: 10.5px; font-weight: 600; display: inline-block; }
-        .badge-resuelto { background: #dcfce7; color: #166534; }
-        .badge-gestion { background: #fef9c3; color: #854d0e; }
-        .badge-espera { background: #fee2e2; color: #991b1b; }
+        .badge { padding: 5px 10px; border-radius: 6px; font-size: 11px; font-weight: 600; display: inline-block; letter-spacing: 0.3px; }
+        .badge-resuelto { background: #ecfdf5; color: #065f46; border: 1px solid #a7f3d0; }
+        .badge-gestion { background: #fefce8; color: #854d0e; border: 1px solid #fde047; }
+        .badge-espera { background: #fef2f2; color: #991b1b; border: 1px solid #fecaca; }
 
-        .signature-section { margin-top: 60px; display: flex; justify-content: space-between; text-align: center; font-size: 12px; }
-        .signature-box { width: 220px; border-top: 1px solid #94a3b8; padding-top: 10px; color: #1e293b; }
+        .signature-section { margin-top: 64px; display: flex; justify-content: space-between; text-align: center; font-size: 12.5px; page-break-inside: avoid; }
+        .signature-box { width: 240px; border-top: 1.5px solid #64748b; padding-top: 12px; color: #1e293b; }
 
         @media print {
             body { background: white; color: black; }
@@ -202,24 +221,25 @@
         
         <div class="menu-category">Gestión Digital</div>
         <a class="menu" href="bitacora.html">Bitácora de Eventos</a>
-        <a class="menu" href="reportes.html" style="background: var(--sidebar-active); font-weight: 600; border-radius: 6px; margin: 2px 14px; padding: 10px 20px;">📄 Reporte Integral</a>
-          <div class="menu-category">Gestión Despacho</div>
-            <a class="menu" href="acciones.html" style="background: var(--sidebar-active); font-weight: 600; border-radius: 6px; margin: 2px 14px; padding: 10px 20px;">⭐ Acciones Concejala</a>
+        <a class="menu" href="reportes.html" style="background: var(--sidebar-active); font-weight: 600; color: white; opacity: 1;">📄 Reporte Integral</a>
         
-        <div style="margin-top: auto; padding: 24px 20px; border-top: 1px solid rgba(255,255,255,0.1);">
+        <div class="menu-category">Gestión Despacho</div>
+        <a class="menu" href="acciones.html">⭐ Acciones Concejala</a>
+        
+        <div style="margin-top: auto; padding: 20px; border-top: 1px solid rgba(255,255,255,0.08);">
             <div id="usuarioNombre" style="font-size:13px; color:#ffffff; font-weight:600; margin-bottom: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">Cargando...</div>
-            <div id="usuarioCoordinacion" style="font-size:10.5px; color:var(--sidebar-text-sub); font-weight: 500; margin-bottom: 16px; text-transform: uppercase; letter-spacing: 0.3px;">Cargando...</div>
-            <a class="menu" onclick="logout()" style="cursor:pointer; font-size:12px; color:#f87171; padding: 8px 0; display: block; border-top: 1px solid rgba(255,255,255,0.05);">Cerrar sesión</a>
+            <div id="usuarioCoordinacion" style="font-size:10px; color:var(--sidebar-text-sub); font-weight: 600; margin-bottom: 14px; text-transform: uppercase; letter-spacing: 0.5px;">Cargando...</div>
+            <a class="menu" onclick="logout()" style="cursor:pointer; font-size:12px; color:#f87171; padding: 8px 0; display: block; border-top: 1px solid rgba(255,255,255,0.05); margin: 0;">Cerrar sesión</a>
         </div>
     </div>
 
     <div class="main">
-        <!-- ZONA DE FILTRADO Y RESUMEN GLOBAL (NO SE IMPRIME) -->
+        <!-- ZONA DE CONTROL Y FILTRADO (NO SE IMPRIME) -->
         <div class="no-print-zone">
             <div class="header-actions">
                 <div>
-                    <h2>Módulo de Reporte Integral del Sistema</h2>
-                    <p>Consolida y filtra la información global de todas las áreas de la comisión.</p>
+                    <h2>Módulo de Reporte Integral Avanzado</h2>
+                    <p>Consolidación inteligente y análisis de datos en tiempo real desde la base SQLite.</p>
                 </div>
                 <div style="display: flex; gap: 10px;">
                     <button class="btn-action btn-secondary" onclick="limpiarFiltros()">🔄 Restablecer</button>
@@ -234,15 +254,15 @@
                     <div class="stat-value" id="global-stat-social">0</div>
                 </div>
                 <div class="stat-card">
-                    <h4>Planificación Semanal</h4>
+                    <h4>Planificación</h4>
                     <div class="stat-value" id="global-stat-plan">0</div>
                 </div>
                 <div class="stat-card">
-                    <h4>Bitácora de Eventos</h4>
+                    <h4>Bitácora Eventos</h4>
                     <div class="stat-value" id="global-stat-bitacora">0</div>
                 </div>
                 <div class="stat-card">
-                    <h4>Oficios e Informes</h4>
+                    <h4>Oficios / Informes</h4>
                     <div class="stat-value" id="global-stat-oficios">0</div>
                 </div>
                 <div class="stat-card">
@@ -267,18 +287,18 @@
                     <input type="text" id="filtroTexto" placeholder="Filtrar por nombre, cédula, código..." oninput="aplicarFiltrosEnVivo()">
                 </div>
                 <div class="filter-group">
-                    <label>Filtrar por Creador / Usuario</label>
+                    <label>Filtrar por Usuario / Creador</label>
                     <select id="filtroCreador" onchange="aplicarFiltrosEnVivo()">
                         <option value="">Todos los usuarios</option>
                     </select>
                 </div>
                 <div>
-                    <button class="btn-action" style="width: 100%;" onclick="aplicarFiltrosEnVivo()">🔍 Actualizar Vista</button>
+                    <button class="btn-action" style="width: 100%;" onclick="aplicarFiltrosEnVivo()">🔍 Actualizar</button>
                 </div>
             </div>
         </div>
 
-        <!-- DOCUMENTO LISTO PARA IMPRESIÓN / VISUALIZACIÓN -->
+        <!-- DOCUMENTO IMPRESO / VISUALIZACIÓN -->
         <div class="report-paper">
             <div class="report-header">
                 <div class="institution-title">
@@ -294,11 +314,11 @@
 
             <div class="report-title">
                 <h1 id="titulo-reporte-principal">REPORTE CONSOLIDADO: CASOS SOCIALES</h1>
-                <p id="subtitulo-filtros">Mostrando registros correspondientes al módulo social en la base SQLite</p>
+                <p id="subtitulo-filtros">Mostrando registros correspondientes al módulo social en la base de datos local SQLite</p>
             </div>
 
             <div class="section-heading">I. Resumen de Indicadores del Módulo</div>
-            <table class="report-table" style="margin-bottom: 24px;">
+            <table class="report-table" style="margin-bottom: 28px;">
                 <thead>
                     <tr>
                         <th id="th-stat-1">Total Registros</th>
@@ -308,9 +328,9 @@
                 </thead>
                 <tbody>
                     <tr>
-                        <td id="stat-1" style="font-weight: 700; font-size: 14px;">0</td>
-                        <td id="stat-2" style="font-weight: 700; color: #166534; font-size: 14px;">0</td>
-                        <td id="stat-3" style="font-weight: 700; color: #b45309; font-size: 14px;">0</td>
+                        <td id="stat-1" style="font-weight: 700; font-size: 15px;">0</td>
+                        <td id="stat-2" style="font-weight: 700; color: var(--success-color); font-size: 15px;">0</td>
+                        <td id="stat-3" style="font-weight: 700; color: var(--warning-color); font-size: 15px;">0</td>
                     </tr>
                 </tbody>
             </table>
@@ -330,7 +350,7 @@
                 </thead>
                 <tbody id="tabla-cuerpo-reporte">
                     <tr>
-                        <td colspan="7" style="text-align:center; color:#64748b; padding: 24px;">Cargando registros desde SQLite...</td>
+                        <td colspan="7" style="text-align:center; color:#64748b; padding: 32px;">Cargando registros desde la base de datos local...</td>
                     </tr>
                 </tbody>
             </table>
@@ -363,7 +383,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
     document.getElementById("fecha-reporte").innerText = new Date().toLocaleDateString('es-VE');
     
-    // Carga inicial de totales globales y del módulo activo
     cargarResumenGlobal();
     cargarDatosModulo(moduloActual);
 });
@@ -381,12 +400,11 @@ async function consultarBaseDatos(query, params = []) {
         });
         return await response.json();
     } catch (error) {
-        console.error(error);
+        console.error("Error conectando con la API local SQLite:", error);
         throw error;
     }
 }
 
-// CARGA LOS TALLIES DE TODOS LOS MÓDULOS PARA LAS TARJETAS SUPERIORES
 async function cargarResumenGlobal() {
     try {
         const [soc, plan, bit, ofi, red] = await Promise.all([
@@ -403,7 +421,7 @@ async function cargarResumenGlobal() {
         if (ofi && ofi[0]) document.getElementById("global-stat-oficios").innerText = ofi[0].total || 0;
         if (red && red[0]) document.getElementById("global-stat-red").innerText = red[0].total || 0;
     } catch (e) {
-        console.error("Error al cargar resumen global:", e);
+        console.error("Error al cargar contadores globales:", e);
     }
 }
 
@@ -416,7 +434,7 @@ async function cambiarModuloReporte() {
 
 async function cargarDatosModulo(modulo) {
     const tbody = document.getElementById("tabla-cuerpo-reporte");
-    tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; color:#64748b; padding: 24px;">Cargando datos del módulo...</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; color:#64748b; padding: 32px;">Sincronizando registros locales...</td></tr>`;
 
     try {
         let query = "";
@@ -454,11 +472,11 @@ async function cargarDatosModulo(modulo) {
 
         poblarCreadores(registrosGlobales);
         renderizarTablaSegunModulo(registrosGlobales, modulo);
-        cargarResumenGlobal(); // Actualiza contadores globales
+        cargarResumenGlobal();
 
     } catch (err) {
-        console.error("Error al cargar datos del módulo:", err);
-        tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; color:var(--danger-color); font-weight:600;">Error al conectar con la base de datos SQLite para este módulo. Verifique que la tabla exista.</td></tr>`;
+        console.error("Error al consultar la base de datos:", err);
+        tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; color:var(--danger-color); font-weight:600; padding: 32px;">Error al conectar con la base de datos SQLite. Verifique la disponibilidad del servicio local.</td></tr>`;
     }
 }
 
@@ -507,7 +525,7 @@ function renderizarTablaSegunModulo(datos, modulo) {
     document.getElementById("stat-3").innerText = activosCount;
 
     if (datos.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; color:#94a3b8; padding: 24px;">No se encontraron registros en este módulo con los filtros aplicados.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; color:#94a3b8; padding: 32px;">No se encontraron registros activos con los filtros aplicados.</td></tr>`;
         return;
     }
 
@@ -581,7 +599,7 @@ function renderizarTablaSegunModulo(datos, modulo) {
 
 function ejecutarImpresion() {
     const boton = document.getElementById("btnPrint");
-    boton.innerText = "⌛ Preparando documento...";
+    boton.innerText = "⌛ Generando...";
     boton.style.opacity = "0.6";
     boton.style.pointerEvents = "none"; 
 
