@@ -68,6 +68,7 @@
             --success-color: #16a34a;
             --warning-color: #eab308;
             --danger-color: #dc2626;
+            --primary: #2563eb;
         }
 
         *{ margin:0; padding:0; box-sizing:border-box; font-family: 'Inter', sans-serif; }
@@ -93,12 +94,29 @@
         .section-box { background: white; border: 1px solid #e2e8f0; border-radius: 12px; padding: 24px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.01); }
         .section-box h3 { font-size: 15px; font-weight: 700; color: var(--text-dark-title); margin-bottom: 16px; border-bottom: 1px solid #f1f5f9; padding-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
 
-        .btn-header { background: var(--sidebar-active); border: none; border-radius: 6px; cursor: pointer; color: white; font-size: 13px; font-weight: 600; padding: 12px 20px; transition: background 0.2s; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+        .toolbar-filters { display: flex; gap: 12px; margin-bottom: 20px; flex-wrap: wrap; align-items: center; justify-content: space-between; }
+        .search-box { position: relative; flex: 1; min-width: 240px; }
+        .search-box input { width: 100%; padding: 10px 14px 10px 36px; border-radius: 8px; border: 1px solid var(--border-color); font-size: 13.5px; outline: none; background: white; }
+        .search-box input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1); }
+        .search-box span { position: absolute; left: 12px; top: 11px; color: #94a3b8; font-size: 14px; }
+
+        .filter-select { padding: 10px 14px; border-radius: 8px; border: 1px solid var(--border-color); font-size: 13.5px; background: white; outline: none; color: #334155; }
+        .filter-select:focus { border-color: var(--primary); }
+
+        .btn-header { background: var(--sidebar-active); border: none; border-radius: 6px; cursor: pointer; color: white; font-size: 13px; font-weight: 600; padding: 12px 20px; transition: background 0.2s; box-shadow: 0 2px 4px rgba(0,0,0,0.05); display: flex; align-items: center; gap: 6px; }
         .btn-header:hover { opacity: 0.95; }
         .btn-header:disabled { background: #94a3b8; cursor: not-allowed; }
 
         .modal-input { width: 100%; padding: 10px; background: #ffffff; border: 1px solid var(--border-color); border-radius: 6px; color: #334155; box-sizing: border-box; font-size: 13.5px; margin-top: 5px; }
         .modal-input:focus { outline: 2px solid var(--sidebar-active); }
+
+        /* Botones de acción de tabla */
+        .action-btn { padding: 6px 10px; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: 600; border: none; display: inline-flex; align-items: center; gap: 4px; text-decoration: none; transition: opacity 0.2s; }
+        .action-btn:hover { opacity: 0.85; }
+        .btn-download { background: #2563eb; color: white; }
+        .btn-preview { background: #0ea5e9; color: white; }
+        .btn-copy { background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; }
+        .btn-delete { background: #dc2626; color: white; }
 
         @media (max-width: 900px) {
             .layout { grid-template-columns: 1fr; }
@@ -159,23 +177,48 @@
     </div>
 
     <div class="main">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; flex-wrap: wrap; gap: 12px;">
             <div>
                 <h2>Panel de Formatos de Oficina</h2>
                 <div class="subtitle-concejala">Oficina de la Concejala Letty Bastidas — Municipio Ambrosio Plaza</div>
             </div>
             <button class="btn-header" onclick="abrirModalFormatos()">
-                ➕ Subir Nuevo Formato
+                <span>➕</span> Subir Nuevo Formato
             </button>
         </div>
         
         <div class="section-box" style="margin-top: 15px;">
             <h3>📁 Plantillas y Formatos Disponibles</h3>
+            
+            <!-- BARRA DE FILTROS Y BÚSQUEDA AVANZADA -->
+            <div class="toolbar-filters" style="margin-top: 15px;">
+                <div class="search-box">
+                    <span>🔍</span>
+                    <input type="text" id="searchInput" placeholder="Buscar por nombre, descripción o creador..." oninput="filtrarFormatos()">
+                </div>
+                <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                    <select id="filtroCategoria" class="filter-select" onchange="filtrarFormatos()">
+                        <option value="">🌐 Todas las Áreas</option>
+                        <option value="Coordinación Ejecutiva">Coordinación Ejecutiva</option>
+                        <option value="Coordinación Política">Coordinación Política</option>
+                        <option value="Coordinación Social">Coordinación Social</option>
+                        <option value="Gestión Digital">Gestión Digital</option>
+                    </select>
+                    <select id="filtroTipo" class="filter-select" onchange="filtrarFormatos()">
+                        <option value="">📄 Todas las Extensiones</option>
+                        <option value="WORD">Word (.doc/.docx)</option>
+                        <option value="EXCEL">Excel (.xls/.xlsx)</option>
+                        <option value="PDF">PDF (.pdf)</option>
+                    </select>
+                </div>
+            </div>
+
             <table style="width: 100%; border-collapse: collapse; text-align: left; margin-top: 10px;">
                 <thead>
                     <tr style="border-bottom: 2px solid #e2e8f0; color: #64748b; font-size: 12px; text-transform: uppercase;">
                         <th style="padding: 12px 8px;">Nombre del Formato</th>
                         <th style="padding: 12px 8px;">Área Asignada</th>
+                        <th style="padding: 12px 8px;">Versión</th>
                         <th style="padding: 12px 8px;">Extensión</th>
                         <th style="padding: 12px 8px;">Descripción</th>
                         <th style="padding: 12px 8px; text-align: right;">Acciones</th>
@@ -183,7 +226,7 @@
                 </thead>
                 <tbody id="tablaFormatos" style="font-size: 13.5px; color: #334155;">
                     <tr>
-                        <td colspan="5" style="text-align: center; padding: 30px; color: #94a3b8; font-style: italic;">
+                        <td colspan="6" style="text-align: center; padding: 30px; color: #94a3b8; font-style: italic;">
                             Sincronizando registros con SQLite Cloud...
                         </td>
                     </tr>
@@ -193,11 +236,11 @@
     </div>
 </div>
 
-<!-- MODAL PARA SUBIR FORMATO -->
+<!-- MODAL PARA SUBIR FORMATO (CON VERSIÓN) -->
 <div id="modalFormatos" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.4); z-index: 9999; align-items: center; justify-content: center;">
     <div class="section-box" style="width: 100%; max-width: 460px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1);">
-        <h3 style="margin-top: 0; color: var(--text-dark-title); font-size: 18px; margin-bottom: 4px; border: none; padding: 0;">Subir Plantilla de Oficina</h3>
-        <p style="color: #64748b; font-size: 12.5px; margin-bottom: 20px;">El archivo se guardará en Cloudinary y se indexará en SQLite.</p>
+        <h3 style="margin-top: 0; color: var(--text-dark-title); font-size: 18px; margin-bottom: 4px; border: none; padding: 0;">Subir Plantilla Oficial</h3>
+        <p style="color: #64748b; font-size: 12.5px; margin-bottom: 20px;">El archivo se respaldará en la nube y se indexará en SQLite.</p>
         
         <form id="uploadForm">
             <div style="margin-bottom: 14px;">
@@ -205,14 +248,20 @@
                 <input type="text" id="nombre" class="modal-input" placeholder="Ej: Solicitud de Ayudas Médicas" required>
             </div>
             
-            <div style="margin-bottom: 14px;">
-                <label style="font-size: 12.5px; font-weight: 600; color: #475569;">Coordinación Directa:</label>
-                <select id="categoria" class="modal-input" required>
-                    <option value="Coordinación Ejecutiva">Coordinación Ejecutiva</option>
-                    <option value="Coordinación Política">Coordinación Política</option>
-                    <option value="Coordinación Social">Coordinación Social</option>
-                    <option value="Gestión Digital">Gestión Digital</option>
-                </select>
+            <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 10px; margin-bottom: 14px;">
+                <div>
+                    <label style="font-size: 12.5px; font-weight: 600; color: #475569;">Coordinación:</label>
+                    <select id="categoria" class="modal-input" required>
+                        <option value="Coordinación Ejecutiva">Coordinación Ejecutiva</option>
+                        <option value="Coordinación Política">Coordinación Política</option>
+                        <option value="Coordinación Social">Coordinación Social</option>
+                        <option value="Gestión Digital">Gestión Digital</option>
+                    </select>
+                </div>
+                <div>
+                    <label style="font-size: 12.5px; font-weight: 600; color: #475569;">Versión:</label>
+                    <input type="text" id="version" class="modal-input" value="1.0" placeholder="1.0" required>
+                </div>
             </div>
 
             <div style="margin-bottom: 14px;">
@@ -233,7 +282,22 @@
     </div>
 </div>
 
+<!-- MODAL DE PREVISUALIZACIÓN RÁPIDA -->
+<div id="modalPrevisualizacion" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.6); z-index: 10000; align-items: center; justify-content: center; backdrop-filter: blur(2px);">
+    <div class="section-box" style="width: 90%; max-width: 800px; height: 85vh; display: flex; flex-direction: column; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);">
+        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #e2f8f0; padding-bottom: 12px; margin-bottom: 12px;">
+            <h3 id="tituloPreview" style="margin: 0; border: none; padding: 0; font-size: 16px;">Previsualización de Documento</h3>
+            <button onclick="cerrarPrevisualizacion()" style="background: transparent; border: none; font-size: 20px; cursor: pointer; color: #64748b;">✕</button>
+        </div>
+        <div style="flex: 1; width: 100%; background: #f8fafc; border-radius: 8px; overflow: hidden; border: 1px solid #e2e8f0; display: flex; align-items: center; justify-content: center;" id="contenedorIframe">
+            <!-- Se inserta dinámicamente el visor -->
+        </div>
+    </div>
+</div>
+
 <script>
+    let todosLosFormatos = [];
+
     window.iniciarApp = function() {
         const nombreUsuario = sessionStorage.getItem("usuario_nombre");
         const coordinacionUsuario = sessionStorage.getItem("usuario_coordinacion");
@@ -263,6 +327,7 @@
         if (modal) {
             modal.style.display = "none";
             document.getElementById("uploadForm").reset();
+            document.getElementById("version").value = "1.0";
         }
     }
 
@@ -272,53 +337,104 @@
 
         try {
             const formatos = await window.sqlClient`SELECT * FROM formatos_oficina ORDER BY id DESC`;
-
-            if (!formatos || formatos.length === 0) {
-                tablaFormatos.innerHTML = `
-                    <tr>
-                        <td colspan="5" style="text-align: center; padding: 30px; color: #94a3b8;">
-                            📁 No hay plantillas disponibles en el repositorio.
-                        </td>
-                    </tr>`;
-                return;
-            }
-
-            tablaFormatos.innerHTML = formatos.map(f => {
-                let extStyle = "background: #e2e8f0; color: #475569; font-weight: 700; padding: 3px 8px; border-radius: 4px; font-size: 11px;";
-                if (f.tipo_archivo === "WORD") extStyle = "background: #e0f2fe; color: #0369a1; font-weight: 700; padding: 3px 8px; border-radius: 4px; font-size: 11px;";
-                if (f.tipo_archivo === "EXCEL") extStyle = "background: #dcfce7; color: #14532d; font-weight: 700; padding: 3px 8px; border-radius: 4px; font-size: 11px;";
-                if (f.tipo_archivo === "PDF") extStyle = "background: #fee2e2; color: #991b1b; font-weight: 700; padding: 3px 8px; border-radius: 4px; font-size: 11px;";
-
-                return `
-                    <tr style="border-bottom: 1px solid #e2e8f0;">
-                        <td style="padding: 12px 8px; font-weight: 600; color: #0f172a;">${f.nombre}</td>
-                        <td style="padding: 12px 8px; color: #334155;">${f.categoria || 'General'}</td>
-                        <td style="padding: 12px 8px;">
-                            <span style="${extStyle}">
-                                ${f.tipo_archivo || 'DOCUMENTO'}
-                            </span>
-                        </td>
-                        <td style="padding: 12px 8px; color: #64748b; max-width: 250px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${f.descripcion || ''}">
-                            ${f.descripcion || 'Sin descripción'}
-                        </td>
-                        <td style="padding: 12px 8px; text-align: right;">
-                            <div style="display: flex; justify-content: flex-end; gap: 6px;">
-                                <a href="${f.url_descarga}" target="_blank" style="padding: 6px 12px; background: #2563eb; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 12.5px; font-weight: 600; text-decoration: none; display: inline-block;">
-                                    📥 Descargar
-                                </a>
-                                <button onclick="eliminarFormato(${f.id})" style="padding: 6px 10px; background: #dc2626; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 12.5px; font-weight: 600;" title="Eliminar registro">
-                                    🗑️
-                                </button>
-                            </div>
-                        </td>
-                    </tr>
-                `;
-            }).join("");
-
+            todosLosFormatos = Array.from(formatos || []);
+            renderizarTabla(todosLosFormatos);
         } catch (err) {
-            console.error("Error al renderizar:", err);
-            tablaFormatos.innerHTML = `<tr><td colspan="5" style="text-align: center; padding: 30px; color: #ef4444; font-weight: 600;">⚠️ Error de enlace con SQLite Cloud: ${err.message}</td></tr>`;
+            console.error("Error al cargar:", err);
+            tablaFormatos.innerHTML = `<tr><td colspan="6" style="text-align: center; padding: 30px; color: #ef4444; font-weight: 600;">⚠️ Error de enlace con SQLite Cloud: ${err.message}</td></tr>`;
         }
+    }
+
+    function renderizarTabla(lista) {
+        const tablaFormatos = document.getElementById("tablaFormatos");
+
+        if (lista.length === 0) {
+            tablaFormatos.innerHTML = `
+                <tr>
+                    <td colspan="6" style="text-align: center; padding: 30px; color: #94a3b8;">
+                        📁 No se encontraron plantillas registradas con los filtros seleccionados.
+                    </td>
+                </tr>`;
+            return;
+        }
+
+        tablaFormatos.innerHTML = lista.map(f => {
+            let extStyle = "background: #e2e8f0; color: #475569; font-weight: 700; padding: 3px 8px; border-radius: 4px; font-size: 11px;";
+            if (f.tipo_archivo === "WORD") extStyle = "background: #e0f2fe; color: #0369a1; font-weight: 700; padding: 3px 8px; border-radius: 4px; font-size: 11px;";
+            if (f.tipo_archivo === "EXCEL") extStyle = "background: #dcfce7; color: #14532d; font-weight: 700; padding: 3px 8px; border-radius: 4px; font-size: 11px;";
+            if (f.tipo_archivo === "PDF") extStyle = "background: #fee2e2; color: #991b1b; font-weight: 700; padding: 3px 8px; border-radius: 4px; font-size: 11px;";
+
+            const versionBadge = `<span style="background: #f1f5f9; color: #334155; font-weight: 600; padding: 2px 6px; border-radius: 4px; font-size: 11px; border: 1px solid #cbd5e1;">v${f.version || '1.0'}</span>`;
+
+            return `
+                <tr style="border-bottom: 1px solid #e2e8f0;">
+                    <td style="padding: 12px 8px; font-weight: 600; color: #0f172a;">${f.nombre}</td>
+                    <td style="padding: 12px 8px; color: #334155;">${f.categoria || 'General'}</td>
+                    <td style="padding: 12px 8px;">${versionBadge}</td>
+                    <td style="padding: 12px 8px;"><span style="${extStyle}">${f.tipo_archivo || 'DOCUMENTO'}</span></td>
+                    <td style="padding: 12px 8px; color: #64748b; max-width: 200px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${f.descripcion || ''}">
+                        ${f.descripcion || 'Sin descripción'}
+                    </td>
+                    <td style="padding: 12px 8px; text-align: right;">
+                        <div style="display: flex; justify-content: flex-end; gap: 5px; flex-wrap: wrap;">
+                            <button onclick="previsualizarArchivo('${f.url_descarga}', '${f.nombre}', '${f.tipo_archivo}')" class="action-btn btn-preview" title="Vista previa rápida">👁️ Ver</button>
+                            <a href="${f.url_descarga}" target="_blank" class="action-btn btn-download" title="Descargar documento">📥 Descargar</a>
+                            <button onclick="copiarEnlace('${f.url_descarga}')" class="action-btn btn-copy" title="Copiar enlace directo al portapapeles">🔗 Copiar</button>
+                            <button onclick="eliminarFormato(${f.id})" class="action-btn btn-delete" title="Eliminar registro">🗑️</button>
+                        </div>
+                    </td>
+                </tr>
+            `;
+        }).join("");
+    }
+
+    function filtrarFormatos() {
+        const texto = document.getElementById("searchInput").value.toLowerCase();
+        const categoria = document.getElementById("filtroCategoria").value;
+        const tipo = document.getElementById("filtroTipo").value;
+
+        let filtrados = todosLosFormatos.filter(f => {
+            const matchTexto = (f.nombre || '').toLowerCase().includes(texto) ||
+                               (f.descripcion || '').toLowerCase().includes(texto) ||
+                               (f.creado_por || '').toLowerCase().includes(texto);
+            const matchCat = categoria === "" || f.categoria === categoria;
+            const matchTipo = tipo === "" || f.tipo_archivo === tipo;
+
+            return matchTexto && matchCat && matchTipo;
+        });
+
+        renderizarTabla(filtrados);
+    }
+
+    function previsualizarArchivo(url, nombre, tipo) {
+        const modal = document.getElementById("modalPrevisualizacion");
+        const titulo = document.getElementById("tituloPreview");
+        const contenedor = document.getElementById("contenedorIframe");
+
+        titulo.innerText = `Previsualización: ${nombre}`;
+        
+        if (tipo === 'PDF') {
+            contenedor.innerHTML = `<iframe src="${url}" style="width:100%; height:100%; border:none;"></iframe>`;
+        } else {
+            // Para Word o Excel, usamos el visor público de Google Docs incrustado de forma limpia
+            const urlVisor = `https://docs.google.com/gview?url=${encodeURIComponent(url)}&embedded=true`;
+            contenedor.innerHTML = `<iframe src="${urlVisor}" style="width:100%; height:100%; border:none;"></iframe>`;
+        }
+
+        modal.style.display = "flex";
+    }
+
+    function cerrarPrevisualizacion() {
+        document.getElementById("modalPrevisualizacion").style.display = "none";
+        document.getElementById("contenedorIframe").innerHTML = "";
+    }
+
+    function copiarEnlace(url) {
+        navigator.clipboard.writeText(url).then(() => {
+            alert("✅ Enlace directo copiado al portapapeles. ¡Ya puedes compartirlo en WhatsApp o correo!");
+        }).catch(err => {
+            alert("No se pudo copiar el enlace: " + err);
+        });
     }
 
     async function eliminarFormato(id) {
@@ -351,6 +467,7 @@
         
         const nombre = document.getElementById("nombre").value.trim();
         const categoria = document.getElementById("categoria").value;
+        const version = document.getElementById("version").value.trim() || "1.0";
         const descripcion = document.getElementById("descripcion").value.trim();
         const creado_por = sessionStorage.getItem("usuario_nombre") || "Funcionario";
 
@@ -391,8 +508,8 @@
             btnGuardar.innerText = "⏳ Guardando registro en SQLite...";
 
             await window.sqlClient`
-                INSERT INTO formatos_oficina (nombre, descripcion, categoria, tipo_archivo, url_descarga, creado_por)
-                VALUES (${nombre}, ${descripcion}, ${categoria}, ${tipoExt}, ${urlNube}, ${creado_por})
+                INSERT INTO formatos_oficina (nombre, descripcion, categoria, tipo_archivo, url_descarga, version, creado_por)
+                VALUES (${nombre}, ${descripcion}, ${categoria}, ${tipoExt}, ${urlNube}, ${version}, ${creado_por})
             `;
 
             cerrarModalFormatos();
