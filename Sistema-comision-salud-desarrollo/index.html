@@ -21,8 +21,8 @@
             --texto-principal: #0b1c3d;
             --texto-secundario: #556270;
             --brand-azul: #0a192f;
-            --brand-bright: #0056b3; /* Azul primario para botones e highlights */
-            --brand-accent: #007bff; /* Tono azul para reemplazo del amarillo */
+            --brand-bright: #0056b3; 
+            --brand-accent: #007bff; 
             --borde: #d1d9e0;
             --shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.08), 0 8px 10px -6px rgba(0, 0, 0, 0.08);
         }
@@ -75,7 +75,23 @@
         .portal-nav-categories a { color: #cbd5e1; text-decoration: none; font-size: 12.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; padding: 4px 0; }
         .portal-nav-categories a:hover, .portal-nav-categories a.active { color: var(--brand-bright); border-bottom: 2px solid var(--brand-bright); }
 
-        .portal-container { max-width: 1240px; margin: 0 auto; padding: 25px 20px; display: grid; grid-template-columns: 2.3fr 1fr; gap: 25px; }
+        /* BLOQUES DE TEXTO INSTITUCIONAL INTERMEDIO */
+        .institutional-banner-text {
+            max-width: 1240px; margin: 25px auto; padding: 0 20px;
+        }
+        .institutional-box {
+            background: var(--bg-card); border-left: 5px solid var(--brand-bright); border-top: 1px solid var(--borde);
+            border-right: 1px solid var(--borde); border-bottom: 1px solid var(--borde); border-radius: 0 8px 8px 0;
+            padding: 22px 28px; box-shadow: var(--shadow); display: flex; align-items: center; gap: 20px;
+        }
+        .institutional-box-icon {
+            font-size: 28px; color: var(--brand-bright); background: rgba(0, 86, 179, 0.1); width: 60px; height: 60px;
+            border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+        }
+        .institutional-box-content h4 { font-family: 'Poppins', sans-serif; font-size: 16px; font-weight: 700; color: var(--texto-principal); margin-bottom: 4px; }
+        .institutional-box-content p { font-size: 13.5px; color: var(--texto-secundario); line-height: 1.5; }
+
+        .portal-container { max-width: 1240px; margin: 0 auto; padding: 10px 20px 25px 20px; display: grid; grid-template-columns: 2.3fr 1fr; gap: 25px; }
 
         .hero-featured-news {
             background: var(--bg-card); border-radius: 8px; border: 1px solid var(--borde); overflow: hidden;
@@ -203,8 +219,8 @@
         .sector-card-info h5 { font-family: 'Poppins', sans-serif; font-size: 13px; font-weight: 600; color: #ffffff; line-height: 1.2; }
         .sector-card-info span { font-size: 11px; color: #38bdf8; font-weight: 500; }
 
-        /* NUEVA GALERÍA DE FOTOS (ESTILO MOSAICO FOTOGRÁFICO) */
-        .multimedia-section { max-width: 1240px; margin: 30px auto 45px auto; padding: 0 20px; }
+        /* GALERÍA DE FOTOS ESTILO MOSAICO */
+        .multimedia-section { max-width: 1240px; margin: 20px auto 40px auto; padding: 0 20px; }
         .multimedia-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 2px solid var(--brand-bright); padding-bottom: 8px; flex-wrap: wrap; gap: 10px; }
         .multimedia-header h3 { font-family: 'Poppins', sans-serif; font-size: 18px; font-weight: 700; color: var(--texto-principal); text-transform: uppercase; letter-spacing: 0.5px; display: flex; align-items: center; gap: 10px; }
         .multimedia-header h3 i { color: var(--brand-bright); }
@@ -403,6 +419,19 @@
         </ul>
     </header>
 
+    <!-- BLOQUE INSTITUCIONAL 1: INTRODUCTORIO DE LA GESTIÓN -->
+    <div class="institutional-banner-text">
+        <div class="institutional-box">
+            <div class="institutional-box-icon">
+                <i class="fa-solid fa-hand-holding-heart"></i>
+            </div>
+            <div class="institutional-box-content">
+                <h4>Compromiso Social y Legislación Activa en el Municipio Ambrosio Plaza</h4>
+                <p>Bajo el liderazgo de la <strong>Concejala Letty Bastidas</strong>, la Comisión Permanente de Salud y Desarrollo Social Integral impulsa políticas públicas cercanas a la gente, garantizando atención directa, bienestar y acompañamiento constante en cada sector de Guarenas.</p>
+            </div>
+        </div>
+    </div>
+
     <div class="portal-container">
         
         <main class="hero-featured-news" id="hero-container">
@@ -451,6 +480,19 @@
             <div style="color: var(--texto-secundario); font-size: 13px; padding: 10px;">Cargando registros municipales...</div>
         </div>
     </section>
+
+    <!-- BLOQUE INSTITUCIONAL 2: ACERCA DEL TRABAJO DE CAMPO -->
+    <div class="institutional-banner-text">
+        <div class="institutional-box">
+            <div class="institutional-box-icon">
+                <i class="fa-solid fa-users-viewfinder"></i>
+            </div>
+            <div class="institutional-box-content">
+                <h4>Trabajo Articulado en las Comunidades y Redes de Salud</h4>
+                <p>Mediante recorridos permanentes de fiscalización, atención social y articulación con los centros de diagnóstico integral (CDI), la comisión legislativa verifica el óptimo funcionamiento de los servicios para brindar respuestas oportunas a las familias guareneras.</p>
+            </div>
+        </div>
+    </div>
 
     <!-- MAPA TERRITORIAL REAL E INTERACTIVO -->
     <section class="sectores-section" id="sectores">
