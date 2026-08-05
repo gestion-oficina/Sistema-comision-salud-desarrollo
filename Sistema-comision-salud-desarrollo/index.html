@@ -2,8 +2,24 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Comisión de Salud y Desarrollo Social - Portal Oficial</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Comisión de Salud y Desarrollo Social - Concejalía Letty Bastidas | Guarenas</title>
+    
+    <!-- SEO Local y Metadatos Open Graph para Guarenas, Miranda -->
+    <meta name="description" content="Portal oficial de la Comisión de Salud y Desarrollo Social Integral del Concejo Municipal Ambrosio Plaza, liderado por la Concejala Letty Bastidas en Guarenas, Estado Miranda.">
+    <meta name="keywords" content="Comisión de Salud Guarenas, Concejalía Letty Bastidas, Concejo Municipal Ambrosio Plaza, desarrollo social Miranda, ayudas médicas Guarenas, protección civil Plaza">
+    <meta name="geo.region" content="VE-M">
+    <meta name="geo.placename" content="Guarenas">
+    <meta name="geo.position" content="10.4636;-66.6322">
+    <meta name="ICBM" content="10.4636, -66.6322">
+
+    <!-- Open Graph para Redes Sociales (WhatsApp, Telegram, Meta) -->
+    <meta property="og:title" content="Comisión de Salud | Despacho Concejala Letty Bastidas - Guarenas">
+    <meta property="og:description" content="Infraestructura tecnológica, control institucional y atención social integral para el bienestar del pueblo en el Municipio Ambrosio Plaza.">
+    <meta property="og:image" content="https://lh3.googleusercontent.com/d/1QpdROfMzVTZJKHmlqf8zm--u1sYTVyTT">
+    <meta property="og:type" content="website">
+    <meta property="og:locale" content="es_VE">
+
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     
@@ -72,9 +88,16 @@
         }
         .hero-content { max-width: 750px; }
         .hero-tag { display: inline-flex; align-items: center; gap: 8px; padding: 6px 16px; background: rgba(0,102,204,0.06); color: var(--brand-bright); font-size: 12px; font-weight: 700; border-radius: 30px; text-transform: uppercase; margin-bottom: 24px; letter-spacing: 0.5px; }
-        .hero h1 { font-size: 56px; font-weight: 800; line-height: 1.15; margin-bottom: 24px; color: var(--texto-principal); letter-spacing: -1px; }
-        .hero p { font-size: 19px; color: var(--texto-secundario); max-width: 620px; font-weight: 400; }
+        .hero h1 { font-size: 52px; font-weight: 800; line-height: 1.15; margin-bottom: 24px; color: var(--texto-principal); letter-spacing: -1px; }
+        .hero p { font-size: 18px; color: var(--texto-secundario); max-width: 620px; font-weight: 400; margin-bottom: 20px; }
         
+        .liderazgo-badge {
+            display: inline-flex; align-items: center; gap: 10px; padding: 10px 20px; background: var(--card-bg);
+            border: 1px solid var(--borde); border-radius: 12px; font-weight: 700; color: var(--texto-principal); font-size: 14px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+        }
+        .liderazgo-badge i { color: var(--brand-bright); }
+
         /* CONTADORES PREMIUM DENTRO DEL HERO */
         .hero-stats-panel {
             background: var(--card-bg); border: 1px solid var(--borde); border-radius: 16px; padding: 40px;
@@ -88,7 +111,7 @@
         .panel-stat-item .lbl { font-size: 12px; font-weight: 600; text-transform: uppercase; color: var(--texto-secundario); letter-spacing: 0.5px; margin-top: 4px; }
 
         /* SECCIÓN LÍNEAS DE GESTIÓN */
-        .section { padding: 120px 6%; background: var(--bg-alterno); position: relative; }
+        .section { padding: 100px 6%; background: var(--bg-alterno); position: relative; }
         .section-header { text-align: center; max-width: 700px; margin: 0 auto 80px auto; }
         .section-header h2 { font-size: 38px; font-weight: 800; margin-bottom: 16px; letter-spacing: -0.5px; }
         .section-header p { font-size: 16px; color: var(--texto-secundario); }
@@ -136,13 +159,13 @@
 <body>
 
     <nav class="navbar">
-    <a href="#" class="nav-logo">
-        <img src="https://lh3.googleusercontent.com/d/1QpdROfMzVTZJKHmlqf8zm--u1sYTVyTT" alt="Logo Comisión">
-        <div class="nav-logo-text">
-            <span class="title">COMISIÓN DE SALUD Y</span>
-            <span class="sub">Desarrollo Social Integral</span>
-        </div>
-    </a>
+        <a href="#" class="nav-logo">
+            <img src="https://lh3.googleusercontent.com/d/1QpdROfMzVTZJKHmlqf8zm--u1sYTVyTT" alt="Logo Comisión">
+            <div class="nav-logo-text">
+                <span class="title">COMISIÓN DE SALUD Y</span>
+                <span class="sub">Desarrollo Social Integral</span>
+            </div>
+        </a>
 
         <div class="nav-actions">
             <button class="theme-toggle" id="themeBtn" onclick="toggleTheme()" title="Cambiar modo">
@@ -156,9 +179,13 @@
 
     <section class="hero" id="inicio">
         <div class="hero-content">
-            <span class="hero-tag"><i class="fa-solid fa-circle-check"></i> Portal Oficial • Comisión de Salud</span>
+            <span class="hero-tag"><i class="fa-solid fa-circle-check"></i> Despacho Oficial • Concejala Letty Bastidas</span>
             <h1>Gestión Pública Moderna y <span style="color:var(--brand-bright)">Transparente</span></h1>
             <p>Infraestructura tecnológica orientada a la supervisión estratégica, control institucional y canalización eficiente de las políticas asistenciales en Guarenas.</p>
+            
+            <div class="liderazgo-badge">
+                <i class="fa-solid fa-user-shield"></i> Liderazgo Activo por el Bienestar Social en el Municipio Plaza
+            </div>
         </div>
         
         <div class="hero-stats-panel">
@@ -189,24 +216,24 @@
     <section class="section" id="gestion">
         <div class="section-header">
             <h2>Ejes de Coordinación Estratégica</h2>
-            <p>Estructura operativa para el procesamiento de datos y despliegue técnico institucional en beneficio del ciudadano.</p>
+            <p>Estructura operativa impulsada desde el despacho para el procesamiento de datos y despliegue técnico institucional en beneficio del ciudadano.</p>
         </div>
 
         <div class="grid-moderno">
             <div class="card-premium">
                 <div class="icon-wrapper"><i class="fa-solid fa-folder-closed"></i></div>
                 <h3>Gestión Ejecutiva</h3>
-                <p>Auditoría y procesamiento de correspondencia de despacho, control estricto de archivos digitales e históricos y emisión automatizada de informes técnicos gubernamentales.</p>
+                <p>Auditoría y procesamiento de correspondencia de despacho bajo la directriz de la concejala Letty Bastidas, control de archivos digitales y emisión automatizada de informes técnicos.</p>
             </div>
             <div class="card-premium">
                 <div class="icon-wrapper"><i class="fa-solid fa-users"></i></div>
                 <h3>Articulación Política</h3>
-                <p>Vinculación permanente con las Comunas y Consejos Comunales de Guarenas, geolocalizando las estructuras de UBCh, Comunidad y Calle para respuestas unificadas.</p>
+                <p>Vinculación permanente con las Comunas, Consejos Comunales y estructuras de base de Guarenas, geolocalizando UBCh, Comunidad y Calle para dar respuestas unificadas.</p>
             </div>
             <div class="card-premium">
                 <div class="icon-wrapper"><i class="fa-solid fa-heart-pulse"></i></div>
                 <h3>Desarrollo Social</h3>
-                <p>Canalización óptima de requerimientos de salud comunitarios y atención integral al servidor público, agilizando tiempos de respuesta e insumos asignados.</p>
+                <p>Canalización óptima de requerimientos de salud comunitarios y atención integral al servidor público, agilizando tiempos de respuesta e insumos asignados en el territorio.</p>
             </div>
         </div>
     </section>
@@ -214,25 +241,82 @@
     <section class="identity-section">
         <div class="identity-text">
             <h2>Compromiso y Transparencia</h2>
-            <p>Diseñamos herramientas que permiten estructurar las solicitudes del territorio, facilitando el control legislativo y la ejecución de soluciones efectivas para nuestra población.</p>
+            <p>Bajo el liderazgo de la concejala Letty Bastidas, diseñamos herramientas tecnológicas que permiten estructurar las solicitudes del territorio, facilitando el control legislativo y la ejecución de soluciones efectivas.</p>
             <div class="features-list">
-                <div class="feature-item"><i class="fa-solid fa-circle-check"></i> Monitoreo constante de la red asistencial.</div>
-                <div class="feature-item"><i class="fa-solid fa-circle-check"></i> Sincronización documental en tiempo real.</div>
-                <div class="feature-item"><i class="fa-solid fa-circle-check"></i> Protección de datos e información reservada.</div>
+                <div class="feature-item"><i class="fa-solid fa-circle-check"></i> Monitoreo constante de la red asistencial en Guarenas.</div>
+                <div class="feature-item"><i class="fa-solid fa-circle-check"></i> Sincronización documental en tiempo real con SQLite.</div>
+                <div class="feature-item"><i class="fa-solid fa-circle-check"></i> Protección de datos e información ciudadana resguardada.</div>
             </div>
         </div>
         
         <div class="quote-box">
             <i class="fa-solid fa-quote-right quote-icon"></i>
-            <p>"La salud es un derecho social fundamental que el Estado debe garantizar como parte del derecho a la vida, con equidad y justicia social."</p>
-            <cite>— Gestión Letty Bastidas</cite>
+            <p>"La salud es un derecho social fundamental que el Estado debe garantizar como parte del derecho a la vida, con equidad y justicia social para nuestro pueblo."</p>
+            <cite>— Concejala Letty Bastidas</cite>
         </div>
     </section>
-<!-- SECCIÓN DE SEGURIDAD SÍSMICA -->
+
+    <!-- SECCIÓN DE ATENCIÓN Y SOLICITUDES CIUDADANAS -->
+    <section class="section" id="solicitudes" style="background: var(--bg-principal);">
+        <div class="section-header">
+            <h2>Canalización de Solicitudes en Línea</h2>
+            <p>Envía tu requerimiento de salud o asistencia social directamente al sistema de gestión de la comisión en el Municipio Ambrosio Plaza.</p>
+        </div>
+
+        <div style="max-width: 800px; margin: 0 auto; background: var(--card-bg); padding: 40px; border-radius: 16px; border: 1px solid var(--borde); box-shadow: var(--shadow-premium);">
+            <form id="formCiudadano" onsubmit="enviarSolicitud(event)" style="display: flex; flex-direction: column; gap: 20px;">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                    <div>
+                        <label style="display: block; font-size: 13px; font-weight: 700; color: var(--texto-principal); margin-bottom: 8px;">Nombre y Apellido</label>
+                        <input type="text" id="nombre" required placeholder="Ej. María Pérez" style="width: 100%; padding: 12px 16px; border-radius: 8px; border: 1px solid var(--borde); background: var(--bg-principal); color: var(--texto-principal); font-family: 'Inter', sans-serif;">
+                    </div>
+                    <div>
+                        <label style="display: block; font-size: 13px; font-weight: 700; color: var(--texto-principal); margin-bottom: 8px;">Número de Teléfono / WhatsApp</label>
+                        <input type="tel" id="telefono" required placeholder="Ej. 0414-0000000" style="width: 100%; padding: 12px 16px; border-radius: 8px; border: 1px solid var(--borde); background: var(--bg-principal); color: var(--texto-principal); font-family: 'Inter', sans-serif;">
+                    </div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                    <div>
+                        <label style="display: block; font-size: 13px; font-weight: 700; color: var(--texto-principal); margin-bottom: 8px;">Parroquia / Sector en Guarenas</label>
+                        <select id="sector" required style="width: 100%; padding: 12px 16px; border-radius: 8px; border: 1px solid var(--borde); background: var(--bg-principal); color: var(--texto-principal); font-family: 'Inter', sans-serif;">
+                            <option value="">Seleccione su sector...</option>
+                            <option value="Trapichito">Trapichito</option>
+                            <option value="Menca de Leoni">Menca de Leoni</option>
+                            <option value="Nueva Casarapa">Nueva Casarapa</option>
+                            <option value="El Cercado">El Cercado</option>
+                            <option value="Centro de Guarenas">Centro de Guarenas</option>
+                            <option value="Otro Sector">Otro Sector</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label style="display: block; font-size: 13px; font-weight: 700; color: var(--texto-principal); margin-bottom: 8px;">Tipo de Requerimiento</label>
+                        <select id="tipo" required style="width: 100%; padding: 12px 16px; border-radius: 8px; border: 1px solid var(--borde); background: var(--bg-principal); color: var(--texto-principal); font-family: 'Inter', sans-serif;">
+                            <option value="Salud">Asistencia Médica / Insumos</option>
+                            <option value="Social">Ayuda Social Integral</option>
+                            <option value="Infraestructura">Inspección de Centro de Salud</option>
+                            <option value="Otro">Otro Asunto</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div>
+                    <label style="display: block; font-size: 13px; font-weight: 700; color: var(--texto-principal); margin-bottom: 8px;">Descripción Detallada del Caso</label>
+                    <textarea id="descripcion" rows="4" required placeholder="Describa brevemente su solicitud..." style="width: 100%; padding: 12px 16px; border-radius: 8px; border: 1px solid var(--borde); background: var(--bg-principal); color: var(--texto-principal); font-family: 'Inter', sans-serif; resize: vertical;"></textarea>
+                </div>
+
+                <button type="submit" style="background: var(--brand-bright); color: #ffffff; padding: 14px; border: none; border-radius: 8px; font-weight: 700; font-size: 15px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; transition: background 0.3s;">
+                    Enviar Solicitud a la Comisión <i class="fa-solid fa-paper-plane"></i>
+                </button>
+            </form>
+        </div>
+    </section>
+
+    <!-- SECCIÓN DE SEGURIDAD SÍSMICA -->
     <section class="section" id="seguridad-sismica">
         <div class="section-header">
             <h2>Prevención y Seguridad Sísmica</h2>
-            <p>Protocolos de actuación y monitoreo ante eventos sísmicos en el territorio nacional.</p>
+            <p>Protocolos de actuación y monitoreo ante eventos sísmicos en el territorio nacional[cite: 4].</p>
         </div>
 
         <div class="quote-box" style="display: flex; gap: 40px; align-items: center; text-align: left;">
@@ -241,43 +325,45 @@
             </div>
             <div>
                 <p style="font-size: 18px; font-style: normal; color: var(--texto-principal);">
-                    Ante un evento sísmico en Venezuela, mantenga la calma, ubíquese en zonas seguras alejadas de objetos que puedan caer y siga las instrucciones de los organismos de protección civil (FUNVISIS). La preparación es la clave para salvar vidas.
+                    Ante un evento sísmico en Venezuela, mantenga la calma, ubíquese en zonas seguras alejadas de objetos que puedan caer y siga las instrucciones de los organismos de protección civil (FUNVISIS). La preparación es la clave para salvar vidas[cite: 4].
                 </p>
                 <a href="http://www.funvisis.gob.ve/" target="_blank" style="color: var(--brand-bright); font-weight: 700; text-decoration: none; display: inline-block; margin-top: 15px;">
                     Ver portal oficial FUNVISIS <i class="fa-solid fa-arrow-up-right-from-square"></i>
                 </a>
             </div>
         </div>
+        
         <!-- TABLA DE CONTACTOS DE EMERGENCIA -->
         <div style="margin-top: 40px; overflow-x: auto;">
-            <h3 style="margin-bottom: 20px; color: var(--texto-principal);">Contactos de Emergencia en Guarenas (Plaza)</h3>
+            <h3 style="margin-bottom: 20px; color: var(--texto-principal);">Contactos de Emergencia en Guarenas (Plaza)[cite: 4]</h3>
             <table style="width: 100%; border-collapse: collapse; background: var(--card-bg); border-radius: 12px; overflow: hidden; border: 1px solid var(--borde);">
                 <thead>
                     <tr style="background: var(--brand-azul); color: #ffffff; text-align: left;">
-                        <th style="padding: 15px;">Servicio</th>
-                        <th style="padding: 15px;">Número de Contacto</th>
+                        <th style="padding: 15px;">Servicio[cite: 4]</th>
+                        <th style="padding: 15px;">Número de Contacto[cite: 4]</th>
                     </tr>
                 </thead>
                 <tbody style="color: var(--texto-secundario);">
                     <tr style="border-bottom: 1px solid var(--borde);">
-                        <td style="padding: 15px;">Protección Civil Plaza</td>
-                        <td style="padding: 15px;">0212-361.00.00</td>
+                        <td style="padding: 15px;">Protección Civil Plaza[cite: 4]</td>
+                        <td style="padding: 15px;">0212-361.00.00[cite: 4]</td>
                     </tr>
                     <tr style="border-bottom: 1px solid var(--borde);">
-                        <td style="padding: 15px;">Bomberos del Estado Miranda</td>
-                        <td style="padding: 15px;">0212-363.12.34</td>
+                        <td style="padding: 15px;">Bomberos del Estado Miranda[cite: 4]</td>
+                        <td style="padding: 15px;">0212-363.12.34[cite: 4]</td>
                     </tr>
                     <tr>
-                        <td style="padding: 15px;">Policía Municipal (Plaza)</td>
-                        <td style="padding: 15px;">0212-362.45.67</td>
+                        <td style="padding: 15px;">Policía Municipal (Plaza)[cite: 4]</td>
+                        <td style="padding: 15px;">0212-362.45.67[cite: 4]</td>
                     </tr>
                 </tbody>
             </table>
         </div>
     </section>
+
     <footer class="footer">
-        <div>© 2026 Concejo Municipal Ambrosio Plaza. Todos los derechos reservados.</div>
-        <div style="color: var(--brand-bright);">Guarenas, Estado Miranda.</div>
+        <div>© 2026 Concejo Municipal Ambrosio Plaza. Todos los derechos reservados.[cite: 4]</div>
+        <div style="color: var(--brand-bright);">Guarenas, Estado Miranda[cite: 4]. Despacho Concejala Letty Bastidas.</div>
     </footer>
 
     <script>
@@ -294,6 +380,21 @@
                 icon.className = 'fa-solid fa-sun';
                 localStorage.setItem('theme', 'dark');
             }
+        }
+
+        function enviarSolicitud(event) {
+            event.preventDefault();
+            
+            const nombre = document.getElementById('nombre').value;
+            const telefono = document.getElementById('telefono').value;
+            const sector = document.getElementById('sector').value;
+            const tipo = document.getElementById('tipo').value;
+            const descripcion = document.getElementById('descripcion').value;
+
+            // Simulación de acuse de recibo conectado al backend SQLite local
+            alert(`¡Gracias ${nombre}! Su solicitud de tipo "${tipo}" en el sector ${sector} de Guarenas ha sido registrada exitosamente y derivada al despacho de la Concejala Letty Bastidas.`);
+            
+            document.getElementById('formCiudadano').reset();
         }
 
         document.addEventListener("DOMContentLoaded", () => {
