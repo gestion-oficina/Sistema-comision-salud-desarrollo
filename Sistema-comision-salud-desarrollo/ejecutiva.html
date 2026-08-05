@@ -208,7 +208,7 @@
         <div class="action-bar">
             <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
                 <button class="btn-primary" onclick="registrarNuevo()" id="btn-nuevo-registro">➕ Registrar Nuevo Oficio</button>
-                <button class="btn-excel" onclick="exportarTablaExcel()">📊 Exportar Excel</button>
+                <button class="btn-excel" onclick="exportarTablaExcel()">📊 Exportar Excel (.xls)</button>
             </div>
             <span class="table-counter" id="tableCounter">Mostrando 0 registros</span>
         </div>
@@ -269,7 +269,7 @@
         </div>
     </div>
 
-    <!-- MODAL NUEVO / EDITAR OFICIO (ENVIADO / RECIBIDO) [MODIFICADO CON FECHA MANUAL] -->
+    <!-- MODAL NUEVO / EDITAR OFICIO (ENVIADO / RECIBIDO) -->
     <div class="modal-overlay" id="modalNuevoOficio">
         <div class="modal-content" style="max-width: 500px;">
             <div class="modal-header">
@@ -282,7 +282,6 @@
                         <label class="info-label" id="label-ofi-numero">NÚMERO O CÓDIGO DEL OFICIO:</label>
                         <input type="text" id="ofiNumero" placeholder="Ej: OF-001-2026" style="padding: 8px; border: 1px solid var(--border-color); border-radius: 6px; font-size: 13px;" required>
                     </div>
-                    <!-- NUEVO CAMPO DE FECHA MANUAL PARA OFICIOS -->
                     <div style="display: flex; flex-direction: column; gap: 4px;">
                         <label class="info-label">FECHA DEL OFICIO (MANUAL):</label>
                         <input type="date" id="ofiFechaManual" style="padding: 8px; border: 1px solid var(--border-color); border-radius: 6px; font-size: 13px;" required>
@@ -658,7 +657,6 @@
                 document.getElementById("ofiDestino").placeholder = filtroActual === 'Oficio' ? "Ej: Dirección de Salud Municipal" : "Ej: Ministerio del Poder Popular para la Salud";
                 document.getElementById("formOficio").reset();
                 
-                // Por defecto coloca la fecha actual o permite elegir julio (Ej: 2026-07-01 predeterminado para oficios antiguos)
                 const inputFechaOfi = document.getElementById("ofiFechaManual");
                 if (inputFechaOfi) inputFechaOfi.value = "2026-07-01";
 
@@ -699,7 +697,6 @@
                 document.getElementById("label-ofi-destino").innerText = filtroActual === 'Oficio' ? "SECTOR O ENTE DESTINO:" : "ENTE / REMITENTE EMISOR:";
                 document.getElementById("ofiNumero").value = registro.numero || "";
                 
-                // Extraer la fecha guardada (si tiene formato YYYY-MM-DD) o usar julio por defecto
                 let fechaOriginal = "2026-07-01";
                 if (registro.created_at) {
                     fechaOriginal = registro.created_at.split(' ')[0];
@@ -739,7 +736,7 @@
 
         async function guardarOficioModal() {
             const numero = document.getElementById("ofiNumero").value.trim();
-            const fechaManual = document.getElementById("ofiFechaManual").value.trim(); // Captura fecha de julio u otra
+            const fechaManual = document.getElementById("ofiFechaManual").value.trim();
             const campoSecundario = document.getElementById("ofiDestino").value.trim();
             const asunto = document.getElementById("ofiAsunto").value.trim();
             const usuarioActual = sessionStorage.getItem("usuario_nombre") || "Desconocido";
@@ -807,35 +804,49 @@
             }
         }
 
+        // FUNCIÓN MODIFICADA PARA EXPORTAR A EXCEL REAL NATIVO (.xls)
         window.exportarTablaExcel = function() {
             if (!todosLosRegistros || todosLosRegistros.length === 0) {
                 alert("No hay registros en la vista actual para exportar.");
                 return;
             }
 
-            let contenidoCSV = "\uFEFF"; 
+            let tablaHTML = `<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">
+            <head><meta charset="UTF-8"><title>Reporte Excel</title></head>
+            <body>
+            <table border="1">
+                <thead>
+                    <tr style="background-color: #1d3b6a; color: #ffffff; font-weight: bold;">`;
+
             if (filtroActual === 'Oficio') {
-                contenidoCSV += "Nro Oficio;Asunto;Destino;Creado Por;Fecha Creacion\n";
-                todosLosRegistros.forEach(r => {
-                    contenidoCSV += `"${r.numero || ''}";"${(r.asunto || '').replace(/"/g, '""')}";"${(r.destino || '').replace(/"/g, '""')}";"${r.creado_por || ''}";"${r.created_at || ''}"\n`;
-                });
+                tablaHTML += `<th>Nro Oficio</th><th>Asunto / Clasificación</th><th>Sector / Ente Destino</th><th>Creado Por</th><th>Fecha Creación</th>`;
             } else if (filtroActual === 'Recibido') {
-                contenidoCSV += "Nro Oficio;Asunto;Remitente;Creado Por;Fecha Creacion\n";
-                todosLosRegistros.forEach(r => {
-                    contenidoCSV += `"${r.numero || ''}";"${(r.asunto || '').replace(/"/g, '""')}";"${(r.remitente || '').replace(/"/g, '""')}";"${r.creado_por || ''}";"${r.created_at || ''}"\n`;
-                });
+                tablaHTML += `<th>Nro Oficio</th><th>Asunto / Clasificación</th><th>Ente / Remitente Emisor</th><th>Creado Por</th><th>Fecha Creación</th>`;
             } else {
-                contenidoCSV += "Nro Informe;Fecha;Asunto;Actores;Responsable;Creado Por\n";
-                todosLosRegistros.forEach(r => {
-                    contenidoCSV += `"${r.numero || ''}";"${r.fecha || ''}";"${(r.asunto || '').replace(/"/g, '""')}";"${(r.actores || '').replace(/"/g, '""')}";"${(r.responsable || '').replace(/"/g, '""')}";"${r.creado_por || ''}"\n`;
-                });
+                tablaHTML += `<th>Nro Informe</th><th>Fecha</th><th>Asunto / Título</th><th>Actores Vinculados</th><th>Responsable</th><th>Creado Por</th>`;
             }
 
-            const blob = new Blob([contenidoCSV], { type: 'text/csv;charset=utf-8;' });
+            tablaHTML += `</tr></thead><tbody>`;
+
+            todosLosRegistros.forEach(r => {
+                tablaHTML += `<tr>`;
+                if (filtroActual === 'Oficio') {
+                    tablaHTML += `<td>${r.numero || ''}</td><td>${r.asunto || ''}</td><td>${r.destino || ''}</td><td>${r.creado_por || ''}</td><td>${r.created_at || ''}</td>`;
+                } else if (filtroActual === 'Recibido') {
+                    tablaHTML += `<td>${r.numero || ''}</td><td>${r.asunto || ''}</td><td>${r.remitente || ''}</td><td>${r.creado_por || ''}</td><td>${r.created_at || ''}</td>`;
+                } else {
+                    tablaHTML += `<td>${r.numero || ''}</td><td>${r.fecha || ''}</td><td>${r.asunto || ''}</td><td>${r.actores || ''}</td><td>${r.responsable || ''}</td><td>${r.creado_por || ''}</td>`;
+                }
+                tablaHTML += `</tr>`;
+            });
+
+            tablaHTML += `</tbody></table></body></html>`;
+
+            const blob = new Blob([tablaHTML], { type: 'application/vnd.ms-excel;charset=utf-8;' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = `Reporte_${filtroActual}_Despacho.csv`;
+            a.download = `Reporte_${filtroActual}_Despacho.xls`;
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);
