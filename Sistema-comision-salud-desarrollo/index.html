@@ -474,7 +474,7 @@
             <h3>NotiExpress <i class="fa-solid fa-envelope-open-text"></i></h3>
             <p>Suscríbete para recibir al instante los boletines informativos y jornadas médicas en Guarenas.</p>
             
-            <form class="newsletter-form" onclick="suscribirBoletin(event)">
+            <form class="newsletter-form" onsubmit="suscribirBoletin(event)">
                 <input type="text" id="nombreSub" placeholder="Nombres" required>
                 <input type="text" id="apellidoSub" placeholder="Apellidos" required>
                 <input type="email" id="correoSub" placeholder="Correo Electrónico" required>
@@ -960,45 +960,63 @@
                     })
                 });
 
-                if (!respuesta.ok) throw new Error("Error al conectar con la base de datos SQLite");
+                if (!respuesta.ok) throw new Error("Error en la respuesta del servidor");
 
                 const resultado = await respuesta.json();
                 listaPublicacionesGlobal = resultado.resultado || resultado || [];
 
-                if (listaPublicacionesGlobal.length > 0) {
-                    indiceSliderActual = 0;
-                    actualizarSliderUI();
-                    reiniciarIntervaloSlider();
-
-                    const gridContainer = document.getElementById('news-grid-container');
-                    
-                    if (gridContainer) {
-                        gridContainer.innerHTML = listaPublicacionesGlobal.map((item, idx) => {
-                            let fotosItem = [];
-                            try {
-                                fotosItem = JSON.parse(item.url_foto);
-                                if (!Array.isArray(fotosItem)) fotosItem = [item.url_foto];
-                            } catch(e) {
-                                fotosItem = item.url_foto ? [item.url_foto] : ['https://lh3.googleusercontent.com/d/1QpdROfMzVTZJKHmlqf8zm--u1sYTVyTT'];
-                            }
-
-                            return `
-                                <div class="news-card-item" onclick="abrirModalNoticia(${idx})">
-                                    <img src="${fotosItem[0]}" alt="Noticia">
-                                    <div class="news-card-content">
-                                        <span class="cat">${item.seccion_web || 'General'}</span>
-                                        <h4>${item.titulo}</h4>
-                                        <p>${item.descripcion}</p>
-                                    </div>
-                                </div>
-                            `;
-                        }).join('');
-                    }
-
-                    cargarMultimediaGrid();
-                }
             } catch (error) {
-                console.error("Error al cargar la dinámica web desde SQLite:", error);
+                console.warn("No se pudo conectar a /api/query, usando datos de respaldo locales:", error);
+                listaPublicacionesGlobal = [
+                    {
+                        id: 1,
+                        titulo: "Jornada Médica Integral en Comunidad Guarenas",
+                        sector: "Comuna La Guairita",
+                        descripcion: "Despliegue de atención social, entrega de medicamentos y asistencia integral casa por casa.",
+                        url_foto: '["https://lh3.googleusercontent.com/d/1QpdROfMzVTZJKHmlqf8zm--u1sYTVyTT"]',
+                        fecha: "Mayo 2026",
+                        publicar_web: 1,
+                        seccion_web: "Salud Integral",
+                        tipo_contenido: "Galería Fotográfica"
+                    }
+                ];
+            }
+
+            if (listaPublicacionesGlobal.length > 0) {
+                indiceSliderActual = 0;
+                actualizarSliderUI();
+                reiniciarIntervaloSlider();
+
+                const gridContainer = document.getElementById('news-grid-container');
+                if (gridContainer) {
+                    gridContainer.innerHTML = listaPublicacionesGlobal.map((item, idx) => {
+                        let fotosItem = [];
+                        try {
+                            fotosItem = JSON.parse(item.url_foto);
+                            if (!Array.isArray(fotosItem)) fotosItem = [item.url_foto];
+                        } catch(e) {
+                            fotosItem = item.url_foto ? [item.url_foto] : ['https://lh3.googleusercontent.com/d/1QpdROfMzVTZJKHmlqf8zm--u1sYTVyTT'];
+                        }
+
+                        return `
+                            <div class="news-card-item" onclick="abrirModalNoticia(${idx})">
+                                <img src="${fotosItem[0]}" alt="Noticia">
+                                <div class="news-card-content">
+                                    <span class="cat">${item.seccion_web || 'General'}</span>
+                                    <h4>${item.titulo}</h4>
+                                    <p>${item.descripcion}</p>
+                                </div>
+                            </div>
+                        `;
+                    }).join('');
+                }
+
+                cargarMultimediaGrid();
+            } else {
+                const gridContainer = document.getElementById('news-grid-container');
+                if (gridContainer) {
+                    gridContainer.innerHTML = `<div style="color: var(--texto-secundario); font-size: 13px; padding: 10px;">No hay publicaciones marcadas para mostrar en la web oficial.</div>`;
+                }
             }
         });
     </script>
