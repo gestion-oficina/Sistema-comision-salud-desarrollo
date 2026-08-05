@@ -474,7 +474,7 @@
             <h3>NotiExpress <i class="fa-solid fa-envelope-open-text"></i></h3>
             <p>Suscríbete para recibir al instante los boletines informativos y jornadas médicas en Guarenas.</p>
             
-            <form class="newsletter-form" onsubmit="suscribirBoletin(event)">
+            <form class="newsletter-form" onclick="suscribirBoletin(event)">
                 <input type="text" id="nombreSub" placeholder="Nombres" required>
                 <input type="text" id="apellidoSub" placeholder="Apellidos" required>
                 <input type="email" id="correoSub" placeholder="Correo Electrónico" required>
@@ -905,8 +905,14 @@
             const multimediaContainer = document.getElementById('multimedia-grid-container');
             if (!multimediaContainer) return;
 
-            if (listaPublicacionesGlobal.length > 0) {
-                multimediaContainer.innerHTML = listaPublicacionesGlobal.slice(0, 4).map((item, idx) => {
+            // FILTRO ESTRICTO: Excluir los elementos cuyo tipo de contenido sea "Video" o similar para que NO salgan en la galería fotográfica
+            const publicacionesFotos = listaPublicacionesGlobal.filter(item => {
+                const tipo = (item.tipo_contenido || item.seccion_web || "").toLowerCase();
+                return !tipo.includes('video');
+            });
+
+            if (publicacionesFotos.length > 0) {
+                multimediaContainer.innerHTML = publicacionesFotos.slice(0, 4).map((item, idx) => {
                     let fotosItem = [];
                     try {
                         fotosItem = JSON.parse(item.url_foto);
@@ -950,7 +956,7 @@
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({
-                        query: "SELECT id, titulo, sector, descripcion, url_foto, fecha, publicar_web, seccion_web FROM bitacora_eventos WHERE publicar_web = 1 ORDER BY id DESC"
+                        query: "SELECT id, titulo, sector, descripcion, url_foto, fecha, publicar_web, seccion_web, tipo_contenido FROM bitacora_eventos WHERE publicar_web = 1 ORDER BY id DESC"
                     })
                 });
 
