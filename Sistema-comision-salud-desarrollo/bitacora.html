@@ -606,7 +606,7 @@
         const tipoContenido = document.getElementById('in-tipo-contenido').value;
         const fileInputFotos = document.getElementById('in-file-foto').files;
         const rawEditId = document.getElementById('in-edit-id').value.trim();
-        const publicarWeb = document.getElementById('in-publicar-web').checked ? 1 : 0;
+        const publicarWeb = document.getElementById('in-publicaf-web` not found, use `in-publicar-web`' in window ? 0 : document.getElementById('in-publicar-web').checked ? 1 : 0;
         const seccionWeb = document.getElementById('in-seccion-web').value;
         const btnGuardar = document.getElementById('btn-guardar');
 
@@ -624,24 +624,38 @@
 
             if (tipoContenido === 'video') {
                 urlVideoVal = document.getElementById('in-url-video').value.trim();
-                // Si es video, guardamos opcionalmente una foto por defecto de portada si no hay previa
                 const hiddenFotoVal = document.getElementById('in-url-foto-hidden').value;
                 fotosUrls = hiddenFotoVal ? JSON.parse(hiddenFotoVal) : ['https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=500'];
             } else {
                 const hiddenFotoVal = document.getElementById('in-url-foto-hidden').value;
-                if (hiddenFotoVal) {
-                    try {
-                        fotosUrls = JSON.parse(hiddenFotoVal);
-                        if (!Array.isArray(fotosUrls)) fotosUrls = [hiddenFotoVal];
-                    } catch(e) {
-                        fotosUrls = [hiddenFotoVal];
+                
+                // CORRECCIÓN CLAVE: Si es una edición y el usuario NO seleccionó nuevas fotos, 
+                // conservamos estrictamente las imágenes anteriores en lugar de duplicarlas o reiniciarlas.
+                if (rawEditId && fileInputFotos.length === 0) {
+                    if (hiddenFotoVal) {
+                        try {
+                            fotosUrls = JSON.parse(hiddenFotoVal);
+                            if (!Array.isArray(fotosUrls)) fotosUrls = [hiddenFotoVal];
+                        } catch(e) {
+                            fotosUrls = [hiddenFotoVal];
+                        }
                     }
-                }
+                } else {
+                    // Si es nuevo registro o se están agregando nuevas fotos a una edición existente:
+                    if (hiddenFotoVal && rawEditId) {
+                        try {
+                            fotosUrls = JSON.parse(hiddenFotoVal);
+                            if (!Array.isArray(fotosUrls)) fotosUrls = [hiddenFotoVal];
+                        } catch(e) {
+                            fotosUrls = [hiddenFotoVal];
+                        }
+                    }
 
-                if (fileInputFotos && fileInputFotos.length > 0) {
-                    for (let i = 0; i < fileInputFotos.length; i++) {
-                        const urlSeguraNube = await subirImagenNube(fileInputFotos[i]);
-                        fotosUrls.push(urlSeguraNube);
+                    if (fileInputFotos && fileInputFotos.length > 0) {
+                        for (let i = 0; i < fileInputFotos.length; i++) {
+                            const urlSeguraNube = await subirImagenNube(fileInputFotos[i]);
+                            fotosUrls.push(urlSeguraNube);
+                        }
                     }
                 }
 
