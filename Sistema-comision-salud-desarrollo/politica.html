@@ -284,6 +284,9 @@
                     <span>🔍</span>
                     <input type="text" id="searchInput" placeholder="Buscar registro..." oninput="filtrarPorTexto()">
                 </div>
+                <button class="btn-export" onclick="enviarReporteComunaWhatsApp()" title="Enviar resumen por WhatsApp al equipo">
+                    <span>💬</span> Reporte Comunal
+                </button>
             </div>
         </div>
 
@@ -728,6 +731,36 @@
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
+        }
+
+        function enviarReporteComunaWhatsApp() {
+            const comunaSeleccionada = document.getElementById("filtroComunaSelect")?.value || "General";
+            const datosPoliticos = todosLosRegistros.filter(r => (r.coordinacion && r.coordinacion.toLowerCase() === 'politica') || r.tipo === 'Liderazgo' || r.tipo === 'Comuna');
+            
+            let filtrados = datosPoliticos;
+            if (comunaSeleccionada) {
+                filtrados = datosPoliticos.filter(item => {
+                    const sectorVal = String(item.sector || '').toLowerCase();
+                    const nombreVal = String(item.nombre || '').toLowerCase();
+                    return sectorVal.includes(comunaSeleccionada.toLowerCase()) || nombreVal.includes(comunaSeleccionada.toLowerCase());
+                });
+            }
+
+            let mensaje = `📋 *REPORTE TERRITORIAL - CONCEJALA LETTY BASTIDAS*\n`;
+            mensaje += `📍 *Filtro / Comuna:* ${comunaSeleccionada}\n`;
+            mensaje += `👥 *Total Registros:* ${filtrados.length}\n\n`;
+            
+            filtrados.slice(0, 10).forEach((item, idx) => {
+                mensaje += `${idx + 1}. *${item.nombre || 'Sin nombre'}* (${item.tipo || 'Liderazgo'})\n`;
+                mensaje += `   📞 Tel: ${item.telefono || 'N/A'} | 📍 Sector: ${item.sector || 'N/A'}\n`;
+            });
+
+            if (filtrados.length > 10) {
+                mensaje += `\n_...y ${filtrados.length - 10} registros más._`;
+            }
+
+            const urlWap = `https://wa.me/?text=${encodeURIComponent(mensaje)}`;
+            window.open(urlWap, '_blank');
         }
 
         async function logout() { 
