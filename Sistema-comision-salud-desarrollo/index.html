@@ -495,13 +495,13 @@
         </div>
     </section>
 
-    <!-- SECCIÓN DE VIDEOS (DEBAJO DE BITÁCORA DE EVENTOS / NOTICIAS) -->
+    <!-- SECCIÓN DE VIDEOS INSTITUCIONALES DINÁMICOS -->
     <section class="videos-section" id="videos">
         <div class="section-title-bar">
             <h3>Videos Institucionales y Redes</h3>
         </div>
         <div class="video-grid-3" id="videos-grid-container">
-            <div style="color: var(--texto-secundario); font-size: 13px; padding: 10px;">Cargando videos de Instagram y TikTok...</div>
+            <div style="color: var(--texto-secundario); font-size: 13px; padding: 10px;">Cargando videos institucionales...</div>
         </div>
     </section>
 
@@ -718,7 +718,7 @@
             }
         }
 
-        function abrirModalVideo(index) {
+        function abrirModalVideoDesdeGrid(index) {
             const item = listaVideosGlobal[index];
             if (!item) return;
 
@@ -859,7 +859,7 @@
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({
-                        query: "SELECT id, titulo, descripcion, url_video, url_portada, plataforma, fecha FROM videos_institucionales ORDER BY id DESC"
+                        query: "SELECT id, titulo, descripcion, url_video, url_foto, fecha FROM bitacora_eventos WHERE publicar_web = 1 AND url_video IS NOT NULL AND url_video != '' ORDER BY id DESC"
                     })
                 });
 
@@ -870,17 +870,29 @@
 
                 if (listaVideosGlobal.length > 0) {
                     videosContainer.innerHTML = listaVideosGlobal.map((item, idx) => {
-                        let portada = item.url_portada || 'https://lh3.googleusercontent.com/d/1QpdROfMzVTZJKHmlqf8zm--u1sYTVyTT';
-                        let plat = item.plataforma || 'Video';
-                        let iconoPlat = 'fa-solid fa-video';
-                        if (plat.toLowerCase().includes('instagram')) iconoPlat = 'fa-brands fa-instagram';
-                        if (plat.toLowerCase().includes('tiktok')) iconoPlat = 'fa-brands fa-tiktok';
+                        let urlVideoVal = item.url_video ? item.url_video.trim() : '';
+                        let plataforma = "Video Institucional";
+                        let iconoPlataforma = "fa-solid fa-video";
+                        
+                        if (urlVideoVal.includes("instagram.com")) {
+                            plataforma = "Instagram Reel";
+                            iconoPlataforma = "fa-brands fa-instagram";
+                        } else if (urlVideoVal.includes("tiktok.com")) {
+                            plataforma = "TikTok";
+                            iconoPlataforma = "fa-brands fa-tiktok";
+                        }
+
+                        let portada = item.url_foto || 'https://lh3.googleusercontent.com/d/1QpdROfMzVTZJKHmlqf8zm--u1sYTVyTT';
+                        try {
+                            let parsed = JSON.parse(item.url_foto);
+                            if (Array.isArray(parsed) && parsed.length > 0) portada = parsed[0];
+                        } catch(e) {}
 
                         return `
-                            <div class="video-card-item" onclick="abrirModalVideo(${idx})">
+                            <div class="video-card-item" onclick="abrirModalVideoDesdeGrid(${idx})">
                                 <div class="video-thumbnail-wrapper">
                                     <img src="${portada}" alt="${item.titulo}">
-                                    <span class="video-platform-tag"><i class="${iconoPlat}"></i> ${plat}</span>
+                                    <span class="video-platform-tag"><i class="${iconoPlataforma}"></i> ${plataforma}</span>
                                     <div class="video-play-badge">
                                         <i class="fa-solid fa-play"></i>
                                     </div>
@@ -893,7 +905,7 @@
                         `;
                     }).join('');
                 } else {
-                    videosContainer.innerHTML = `<div style="color: var(--texto-secundario); font-size: 13px; padding: 10px;">No hay videos registrados en el sistema todavía.</div>`;
+                    videosContainer.innerHTML = `<div style="color: var(--texto-secundario); font-size: 13px; padding: 10px;">No hay videos institucionales registrados en el sistema todavía.</div>`;
                 }
             } catch (error) {
                 console.error("Error cargando los videos:", error);
@@ -950,7 +962,7 @@
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({
-                        query: "SELECT id, titulo, sector, descripcion, url_foto, fecha, publicar_web, seccion_web FROM bitacora_eventos WHERE publicar_web = 1 ORDER BY id DESC"
+                        query: "SELECT id, titulo, sector, descripcion, url_foto, url_video, fecha, publicar_web, seccion_web FROM bitacora_eventos WHERE publicar_web = 1 AND (url_video IS NULL OR url_video = '') ORDER BY id DESC"
                     })
                 });
 
