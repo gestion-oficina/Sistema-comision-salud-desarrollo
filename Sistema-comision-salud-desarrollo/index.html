@@ -149,7 +149,7 @@
         .news-card-content p { font-size: 12.5px; color: var(--texto-secundario); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
 
         /* MAPA TERRITORIAL REAL E INTERACTIVO */
-        .sectores-section { max-width: 1240px; margin: 20px auto 45px auto; padding: 0 20px; }
+        .sectores-section { max-width: 1240px; margin: 20px auto; padding: 0 20px; }
         
         .mapa-modern-banner {
             background: linear-gradient(135deg, var(--brand-azul) 0%, #112240 100%);
@@ -164,7 +164,6 @@
         
         .mapa-badge-stat { background: rgba(197, 155, 39, 0.15); border: 1px solid var(--brand-gold); color: var(--brand-gold); padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 700; display: inline-flex; align-items: center; gap: 6px; }
 
-        /* Contenedor del Mapa Leaflet y Grid lateral */
         .mapa-layout-grid {
             display: grid;
             grid-template-columns: 2fr 1fr;
@@ -203,6 +202,30 @@
         }
         .sector-card-info h5 { font-family: 'Poppins', sans-serif; font-size: 13px; font-weight: 600; color: #ffffff; line-height: 1.2; }
         .sector-card-info span { font-size: 11px; color: var(--brand-gold); font-weight: 500; }
+
+        /* NUEVA SECCIÓN: GALERÍA MULTIMEDIA E INSTITUCIONAL */
+        .multimedia-section { max-width: 1240px; margin: 30px auto 45px auto; padding: 0 20px; }
+        .multimedia-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 2px solid var(--brand-gold); padding-bottom: 8px; flex-wrap: wrap; gap: 10px; }
+        .multimedia-header h3 { font-family: 'Poppins', sans-serif; font-size: 18px; font-weight: 700; color: var(--texto-principal); text-transform: uppercase; letter-spacing: 0.5px; display: flex; align-items: center; gap: 10px; }
+        .multimedia-header h3 i { color: var(--brand-gold); }
+
+        .media-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; }
+        .media-card {
+            background: var(--bg-card); border-radius: 8px; border: 1px solid var(--borde); overflow: hidden;
+            box-shadow: var(--shadow); display: flex; flex-direction: column; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s;
+            position: relative;
+        }
+        .media-card:hover { transform: translateY(-3px); box-shadow: 0 12px 30px rgba(0,0,0,0.12); }
+        .media-thumb-container { position: relative; width: 100%; height: 180px; background: #000; overflow: hidden; }
+        .media-thumb-container img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.3s; }
+        .media-card:hover .media-thumb-container img { transform: scale(1.04); }
+        .media-play-overlay {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.35);
+            display: flex; align-items: center; justify-content: center; color: #fff; font-size: 32px;
+        }
+        .media-card-body { padding: 15px; display: flex; flex-direction: column; gap: 6px; }
+        .media-card-body span { font-size: 10.5px; font-weight: 700; color: var(--brand-bright); text-transform: uppercase; }
+        .media-card-body h4 { font-family: 'Poppins', sans-serif; font-size: 14px; font-weight: 700; color: var(--texto-principal); line-height: 1.3; }
 
         @media (max-width: 992px) {
             .mapa-layout-grid { grid-template-columns: 1fr; }
@@ -287,6 +310,7 @@
             <li><a href="#gestion">Salud Integral</a></li>
             <li><a href="#gestion">Gestión Municipal</a></li>
             <li><a href="#sectores">Comunidades</a></li>
+            <li><a href="#multimedia">Multimedia</a></li>
             <li><a href="#contacto">Contacto Ciudadano</a></li>
         </ul>
     </header>
@@ -354,14 +378,22 @@
             </div>
             
             <div class="mapa-layout-grid">
-                <!-- Mapa Interactivo Real -->
                 <div id="territorialMap"></div>
-
-                <!-- Lista lateral sincronizada de sectores -->
                 <div class="sectores-sidebar-list" id="sectores-grid-container">
                     <div style="color: #94a3b8; font-size: 13px; padding: 10px;">Cargando sectores y comunidades...</div>
                 </div>
             </div>
+        </div>
+    </section>
+
+    <!-- GALERÍA MULTIMEDIA E INSTITUCIONAL -->
+    <section class="multimedia-section" id="multimedia">
+        <div class="multimedia-header">
+            <h3><i class="fa-solid fa-photo-film"></i> Videoteca y Galería Multimedia</h3>
+        </div>
+        <div class="media-grid" id="multimedia-grid-container">
+            <!-- Contenido dinámico cargado desde las publicaciones existentes -->
+            <div style="color: var(--texto-secundario); font-size: 13px; padding: 10px;">Cargando contenido multimedia...</div>
         </div>
     </section>
 
@@ -396,6 +428,7 @@
                     <li><a href="#">Salud Integral</a></li>
                     <li><a href="#gestion">Gestión Municipal</a></li>
                     <li><a href="#sectores">Comunidades</a></li>
+                    <li><a href="#multimedia">Multimedia</a></li>
                 </ul>
             </div>
             <div class="footer-links-col">
@@ -534,20 +567,17 @@
         }
 
         function inicializarMapaTerritorial() {
-            // Coordenadas aproximadas de Guarenas, Municipio Ambrosio Plaza
             const guarenasCoords = [10.4636, -66.6293];
             map = L.map('territorialMap', {
                 zoomControl: true,
                 scrollWheelZoom: false
             }).setView(guarenasCoords, 14);
 
-            // Capa de mapa base elegante
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                 maxZoom: 19,
-                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                attribution: '&copy; OpenStreetMap contributors'
             }).addTo(map);
 
-            // Marcador institucional central (Plaza Bolívar / Comisión)
             const iconoInstitucional = L.divIcon({
                 className: 'custom-map-pin',
                 html: '<div style="background-color: #c59b27; width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #0a192f; border: 2px solid #fff; box-shadow: 0 3px 10px rgba(0,0,0,0.4);"><i class="fa-solid fa-landmark" style="font-size: 13px;"></i></div>',
@@ -578,14 +608,11 @@
                 if (container && listaSectores.length > 0) {
                     container.innerHTML = listaSectores.map((item, idx) => {
                         const nombreSector = item.sector || "Comunidad Guarenas";
-                        
-                        // Generar una variación leve de coordenadas alrededor de Guarenas para simular puntos en el mapa
                         const latOffset = (Math.sin(idx) * 0.012);
                         const lonOffset = (Math.cos(idx) * 0.012);
                         const latCoord = 10.4636 + latOffset;
                         const lonCoord = -66.6293 + lonOffset;
 
-                        // Agregar marcador al mapa Leaflet
                         if (map) {
                             const marker = L.marker([latCoord, lonCoord]).addTo(map)
                                 .bindPopup(`<b>Sector: ${nombreSector}</b><br>Atención Social y Legislativa Activa.`);
@@ -618,16 +645,47 @@
             }
         }
 
+        function cargarMultimediaGrid() {
+            const multimediaContainer = document.getElementById('multimedia-grid-container');
+            if (!multimediaContainer) return;
+
+            if (listaPublicacionesGlobal.length > 0) {
+                multimediaContainer.innerHTML = listaPublicacionesGlobal.slice(0, 4).map((item, idx) => {
+                    let fotosItem = [];
+                    try {
+                        fotosItem = JSON.parse(item.url_foto);
+                        if (!Array.isArray(fotosItem)) fotosItem = [item.url_foto];
+                    } catch(e) {
+                        fotosItem = item.url_foto ? [item.url_foto] : ['https://lh3.googleusercontent.com/d/1QpdROfMzVTZJKHmlqf8zm--u1sYTVyTT'];
+                    }
+
+                    return `
+                        <div class="media-card" onclick="abrirModalNoticia(${idx})">
+                            <div class="media-thumb-container">
+                                <img src="${fotosItem[0]}" alt="Multimedia">
+                                <div class="media-play-overlay">
+                                    <i class="fa-solid fa-circle-play"></i>
+                                </div>
+                            </div>
+                            <div class="media-card-body">
+                                <span>${item.seccion_web || 'Despliegue'} • ${item.sector || 'Guarenas'}</span>
+                                <h4>${item.titulo}</h4>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            } else {
+                multimediaContainer.innerHTML = `<div style="color: var(--texto-secundario); font-size: 13px; padding: 10px;">No hay registros multimedia disponibles.</div>`;
+            }
+        }
+
         document.addEventListener("DOMContentLoaded", async () => {
             if (localStorage.getItem('theme') === 'dark') {
                 document.body.setAttribute('data-theme', 'dark');
                 document.querySelector('#themeBtn i').className = 'fa-solid fa-sun';
             }
 
-            // Inicializar el mapa territorial
             inicializarMapaTerritorial();
-
-            // Cargar sectores desde la BD y agregarlos al mapa
             await cargarSectoresAtendidos();
 
             try {
@@ -651,7 +709,7 @@
 
                     const gridContainer = document.getElementById('news-grid-container');
                     
-                    if (gridContainer && listaPublicacionesGlobal.length > 0) {
+                    if (gridContainer) {
                         gridContainer.innerHTML = listaPublicacionesGlobal.map((item, idx) => {
                             let fotosItem = [];
                             try {
@@ -672,9 +730,10 @@
                                 </div>
                             `;
                         }).join('');
-                    } else if (gridContainer) {
-                        gridContainer.innerHTML = `<div style="color: var(--texto-secundario); font-size: 13px; padding: 10px;">No hay noticias registradas para la web.</div>`;
                     }
+
+                    // Cargar sección multimedia automáticamente con los datos del servidor externo
+                    cargarMultimediaGrid();
                 }
             } catch (error) {
                 console.error("Error al cargar la dinámica web desde SQLite:", error);
