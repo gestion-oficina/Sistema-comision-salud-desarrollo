@@ -554,7 +554,7 @@
                 <i class="fa-solid fa-comments"></i>
             </div>
             <div class="institutional-box-content">
-                <h4>Participación Ciudadana y Rendición de Cuentas</h4>
+                <h4>Difusión y Rendición de Cuentas</h4>
                 <p>La contraloría social y el diálogo abierto con los voceros comunales son pilares fundamentales de nuestra gestión, asegurando que cada proyecto y beneficio social llegue de manera transparente a todos los rincones del municipio.</p>
             </div>
         </div>
@@ -936,7 +936,7 @@
                 const resultado = await respuesta.json();
                 listaVideosGlobal = resultado.resultado || resultado || [];
 
-                if (listaVideosGlobal.length > 0) {
+                if (Array.isArray(listaVideosGlobal) && listaVideosGlobal.length > 0) {
                     videosContainer.innerHTML = listaVideosGlobal.map((item, idx) => {
                         let portada = item.url_portada || 'https://lh3.googleusercontent.com/d/1QpdROfMzVTZJKHmlqf8zm--u1sYTVyTT';
                         let plat = item.plataforma || 'Video';
@@ -961,11 +961,11 @@
                         `;
                     }).join('');
                 } else {
-                    videosContainer.innerHTML = `<div style="color: var(--texto-secundario); font-size: 13px; padding: 10px;">No hay videos registrados en el sistema todavía.</div>`;
+                    videosContainer.innerHTML = `<div style="color: var(--texto-secundario); font-size: 13px; padding: 10px;">No hay videos registrados en el sistema todavía. Utilice el panel interno para agregarlos.</div>`;
                 }
             } catch (error) {
                 console.error("Error cargando los videos:", error);
-                videosContainer.innerHTML = `<div style="color: var(--texto-secundario); font-size: 13px; padding: 10px;">Sección de videos lista para gestionar desde la base de datos.</div>`;
+                videosContainer.innerHTML = `<div style="color: var(--texto-secundario); font-size: 13px; padding: 10px;">Sección de videos lista para gestionar desde la base de datos local.</div>`;
             }
         }
 
@@ -973,11 +973,8 @@
             const multimediaContainer = document.getElementById('multimedia-grid-container');
             if (!multimediaContainer) return;
 
-            // Filtro estricto para evitar que los registros con videos aparezcan en la galería de fotos
-            const listaSoloFotos = listaPublicacionesGlobal.filter(item => !item.url_video || item.url_video.trim() === "");
-
-            if (listaSoloFotos.length > 0) {
-                multimediaContainer.innerHTML = listaSoloFotos.slice(0, 4).map((item, idx) => {
+            if (listaPublicacionesGlobal.length > 0) {
+                multimediaContainer.innerHTML = listaPublicacionesGlobal.slice(0, 4).map((item, idx) => {
                     let fotosItem = [];
                     try {
                         fotosItem = JSON.parse(item.url_foto);
@@ -1021,7 +1018,7 @@
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({
-                        query: "SELECT id, titulo, sector, descripcion, url_foto, url_video, fecha, publicar_web, seccion_web FROM bitacora_eventos WHERE publicar_web = 1 ORDER BY id DESC"
+                        query: "SELECT id, titulo, sector, descripcion, url_foto, fecha, publicar_web, seccion_web FROM bitacora_eventos WHERE publicar_web = 1 ORDER BY id DESC"
                     })
                 });
 
