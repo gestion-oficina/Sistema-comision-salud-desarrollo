@@ -75,43 +75,23 @@
 
         .portal-container { max-width: 1240px; margin: 0 auto; padding: 25px 20px; display: grid; grid-template-columns: 2.3fr 1fr; gap: 25px; }
 
-        /* HERO CARRUSEL */
         .hero-featured-news {
             background: var(--bg-card); border-radius: 8px; border: 1px solid var(--borde); overflow: hidden;
             box-shadow: var(--shadow); display: flex; flex-direction: column; position: relative;
         }
-        .carousel-track-container { position: relative; width: 100%; height: 420px; overflow: hidden; background: #0a192f; }
-        .carousel-track { display: flex; width: 100%; height: 100%; transition: transform 0.5s ease-in-out; }
-        .carousel-slide { min-width: 100%; height: 100%; position: relative; cursor: pointer; flex-shrink: 0; }
-        .carousel-slide img { width: 100%; height: 100%; object-fit: contain; padding: 10px; }
-
+        .hero-image-container { position: relative; width: 100%; height: 420px; overflow: hidden; background: #0a192f; cursor: pointer; }
+        .hero-image-container img { width: 100%; height: 100%; object-fit: contain; padding: 10px; transition: transform 0.3s; }
+        .hero-image-container:hover img { transform: scale(1.02); }
+        
         .hero-image-overlay {
             position: absolute; bottom: 0; left: 0; width: 100%; padding: 40px 30px 25px 30px;
             background: linear-gradient(180deg, transparent 0%, rgba(10,25,47,0.85) 60%, rgba(10,25,47,0.98) 100%);
             color: #ffffff; display: flex; flex-direction: column; gap: 8px; pointer-events: none;
         }
         .hero-image-overlay .tag { font-size: 11px; font-weight: 700; color: var(--brand-gold); text-transform: uppercase; letter-spacing: 1px; }
-        .hero-image-overlay h2 { font-family: 'Poppins', sans-serif; font-size: 22px; font-weight: 700; line-height: 1.25; color: #ffffff; }
+        .hero-image-overlay h2 { font-family: 'Poppins', sans-serif; font-size: 24px; font-weight: 700; line-height: 1.25; color: #ffffff; }
         .hero-image-overlay .meta-date { font-size: 12px; color: #94a3b8; font-weight: 500; }
         
-        /* Controles de Flechas y Puntos en el Carrusel */
-        .carousel-btn {
-            position: absolute; top: 45%; transform: translateY(-50%); background: rgba(0,0,0,0.5); color: #fff;
-            border: none; width: 40px; height: 40px; border-radius: 50%; cursor: pointer; z-index: 10;
-            display: flex; align-items: center; justify-content: center; font-size: 16px; transition: background 0.2s;
-        }
-        .carousel-btn:hover { background: rgba(0,0,0,0.8); color: var(--brand-gold); }
-        .carousel-btn.prev { left: 15px; }
-        .carousel-btn.next { right: 15px; }
-
-        .carousel-indicators {
-            position: absolute; top: 15px; right: 20px; display: flex; gap: 6px; z-index: 10;
-        }
-        .indicator-dot {
-            width: 8px; height: 8px; border-radius: 50%; background: rgba(255,255,255,0.4); cursor: pointer; transition: background 0.3s;
-        }
-        .indicator-dot.active { background: var(--brand-gold); width: 22px; border-radius: 4px; }
-
         .hero-bottom-actions {
             padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; background: var(--bg-card); border-top: 1px solid var(--borde);
         }
@@ -235,32 +215,22 @@
 
     <div class="portal-container">
         
-        <!-- HERO CARRUSEL (Muestra los últimos 5 artículos rotando automáticamente) -->
-        <main class="hero-featured-news">
-            <div class="carousel-track-container" id="carouselContainer">
-                <button class="carousel-btn prev" onclick="cambiarSlide(-1)"><i class="fa-solid fa-chevron-left"></i></button>
-                <button class="carousel-btn next" onclick="cambiarSlide(1)"><i class="fa-solid fa-chevron-right"></i></button>
-                <div class="carousel-indicators" id="carouselIndicators"></div>
-                
-                <div class="carousel-track" id="carouselTrack">
-                    <!-- Slide de Carga Inicial -->
-                    <div class="carousel-slide">
-                        <img src="https://lh3.googleusercontent.com/d/1QpdROfMzVTZJKHmlqf8zm--u1sYTVyTT" alt="Cargando">
-                        <div class="hero-image-overlay">
-                            <span class="tag">Despliegue Territorial • Guarenas</span>
-                            <h2>Cargando carrusel de noticias dinámicas...</h2>
-                            <span class="meta-date"><i class="fa-regular fa-clock"></i> Municipio Ambrosio Plaza, Edo. Miranda</span>
-                        </div>
-                    </div>
+        <!-- NOTICIA PRINCIPAL HERO -->
+        <main class="hero-featured-news" id="hero-container">
+            <div class="hero-image-container" onclick="abrirNoticiaPrincipal()">
+                <img src="https://lh3.googleusercontent.com/d/1QpdROfMzVTZJKHmlqf8zm--u1sYTVyTT" alt="Despliegue Comunitario">
+                <div class="hero-image-overlay">
+                    <span class="tag">Despliegue Territorial • Guarenas</span>
+                    <h2>Cargando contenido dinámico...</h2>
+                    <span class="meta-date"><i class="fa-regular fa-clock"></i> Municipio Ambrosio Plaza, Edo. Miranda</span>
                 </div>
             </div>
-
             <div class="hero-bottom-actions">
-                <div class="social-share" onclick="abrirModalNoticiaActual()">
+                <div class="social-share">
                     <i class="fa-solid fa-share-nodes" title="Compartir enlace"></i>
                     <i class="fa-regular fa-bookmark" title="Guardar nota"></i>
                 </div>
-                <button class="btn-leer-mas" onclick="abrirModalNoticiaActual()">
+                <button class="btn-leer-mas" onclick="abrirNoticiaPrincipal()">
                     Leer Noticia Completa <i class="fa-solid fa-arrow-right"></i>
                 </button>
             </div>
@@ -342,8 +312,7 @@
 
     <script>
         let listaPublicacionesGlobal = [];
-        let slideIndex = 0;
-        let autoSlideTimer = null;
+        let publicacionActualModal = null;
 
         function toggleTheme() {
             const body = document.body;
@@ -367,49 +336,11 @@
             event.target.reset();
         }
 
-        // Control del Carrusel Hero
-        function mostrarSlide(n) {
-            const track = document.getElementById('carouselTrack');
-            const slides = track.children;
-            if (slides.length === 0) return;
-
-            if (n >= slides.length) slideIndex = 0;
-            if (n < 0) slideIndex = slides.length - 1;
-
-            track.style.transform = `translateX(-${slideIndex * 100}%)`;
-
-            // Actualizar indicadores (puntos)
-            const dots = document.querySelectorAll('.indicator-dot');
-            dots.forEach((dot, idx) => {
-                dot.classList.toggle('active', idx === slideIndex);
-            });
-        }
-
-        function cambiarSlide(n) {
-            clearInterval(autoSlideTimer);
-            slideIndex += n;
-            mostrarSlide(slideIndex);
-            iniciarAutoSlide();
-        }
-
-        function irASlide(n) {
-            clearInterval(autoSlideTimer);
-            slideIndex = n;
-            mostrarSlide(slideIndex);
-            iniciarAutoSlide();
-        }
-
-        function iniciarAutoSlide() {
-            autoSlideTimer = setInterval(() => {
-                slideIndex++;
-                mostrarSlide(slideIndex);
-            }, 6000); // Rota cada 6 segundos
-        }
-
         // Abrir Modal de Lectura Completa
         function abrirModalNoticia(index) {
             const item = listaPublicacionesGlobal[index];
             if (!item) return;
+            publicacionActualModal = item;
 
             let fotos = [];
             try {
@@ -428,8 +359,10 @@
             document.getElementById('newsModal').style.display = 'flex';
         }
 
-        function abrirModalNoticiaActual() {
-            abrirModalNoticia(slideIndex);
+        function abrirNoticiaPrincipal() {
+            if (listaPublicacionesGlobal.length > 0) {
+                abrirModalNoticia(0);
+            }
         }
 
         function cerrarModal() {
@@ -442,6 +375,7 @@
             }
         }
 
+        // Lightbox para imagen grande
         function abrirLightbox(src) {
             document.getElementById('lightboxImg').src = src;
             document.getElementById('lightboxOverlay').style.display = 'flex';
@@ -473,53 +407,46 @@
                 listaPublicacionesGlobal = resultado.resultado || resultado || [];
 
                 if (listaPublicacionesGlobal.length > 0) {
-                    // 1. Renderizar Carrusel Hero con los últimos 5 artículos
-                    const heroArticulos = listaPublicacionesGlobal.slice(0, 5);
-                    const track = document.getElementById('carouselTrack');
-                    const indicators = document.getElementById('carouselIndicators');
+                    // 1. Renderizar Hero Principal
+                    const principal = listaPublicacionesGlobal[0];
+                    let fotosPrincipal = [];
+                    try {
+                        fotosPrincipal = JSON.parse(principal.url_foto);
+                        if (!Array.isArray(fotosPrincipal)) fotosPrincipal = [principal.url_foto];
+                    } catch(e) {
+                        fotosPrincipal = principal.url_foto ? [principal.url_foto] : ['https://lh3.googleusercontent.com/d/1QpdROfMzVTZJKHmlqf8zm--u1sYTVyTT'];
+                    }
 
-                    track.innerHTML = '';
-                    indicators.innerHTML = '';
-
-                    heroArticulos.forEach((item, idx) => {
-                        let fotos = [];
-                        try {
-                            fotos = JSON.parse(item.url_foto);
-                            if (!Array.isArray(fotos)) fotos = [item.url_foto];
-                        } catch(e) {
-                            fotos = item.url_foto ? [item.url_foto] : ['https://lh3.googleusercontent.com/d/1QpdROfMzVTZJKHmlqf8zm--u1sYTVyTT'];
-                        }
-
-                        // Crear Slide
-                        const slide = document.createElement('div');
-                        slide.className = 'carousel-slide';
-                        slide.onclick = () => abrirModalNoticia(idx);
-                        slide.innerHTML = `
-                            <img src="${fotos[0]}" alt="${item.titulo}">
-                            <div class="hero-image-overlay">
-                                <span class="tag">${item.seccion_web ? item.seccion_web.toUpperCase() : 'GESTIÓN'} • ${item.sector || 'Guarenas'}</span>
-                                <h2>${item.titulo}</h2>
-                                <span class="meta-date"><i class="fa-regular fa-clock"></i> ${item.fecha || 'Reciente'} • Municipio Ambrosio Plaza, Edo. Miranda</span>
+                    const heroContainer = document.getElementById('hero-container');
+                    if (heroContainer) {
+                        heroContainer.innerHTML = `
+                            <div class="hero-image-container" onclick="abrirModalNoticia(0)">
+                                <img src="${fotosPrincipal[0]}" alt="${principal.titulo}" title="Haz clic para ver detalles y ampliar imagen">
+                                <div class="hero-image-overlay">
+                                    <span class="tag">${principal.seccion_web ? principal.seccion_web.toUpperCase() : 'GESTIÓN'} • ${principal.sector || 'Guarenas'}</span>
+                                    <h2>${principal.titulo}</h2>
+                                    <span class="meta-date"><i class="fa-regular fa-clock"></i> ${principal.fecha || 'Reciente'} • Municipio Ambrosio Plaza, Edo. Miranda</span>
+                                </div>
+                            </div>
+                            <div class="hero-bottom-actions">
+                                <div class="social-share" onclick="abrirModalNoticia(0)">
+                                    <i class="fa-solid fa-share-nodes" title="Compartir"></i>
+                                    <i class="fa-regular fa-bookmark" title="Guardar"></i>
+                                </div>
+                                <button class="btn-leer-mas" onclick="abrirModalNoticia(0)">
+                                    Leer Noticia Completa <i class="fa-solid fa-arrow-right"></i>
+                                </button>
                             </div>
                         `;
-                        track.appendChild(slide);
+                    }
 
-                        // Crear Indicador Punto
-                        const dot = document.createElement('div');
-                        dot.className = `indicator-dot ${idx === 0 ? 'active' : ''}`;
-                        dot.onclick = () => irASlide(idx);
-                        indicators.appendChild(dot);
-                    });
-
-                    iniciarAutoSlide();
-
-                    // 2. Renderizar Grilla Secundaria (Desde el índice 5 en adelante, o bien el resto)
-                    const secundarias = listaPublicacionesGlobal.slice(5, 9);
+                    // 2. Renderizar Grilla Secundaria (Índices 1 en adelante)
+                    const secundarias = listaPublicacionesGlobal.slice(1, 5);
                     const gridContainer = document.getElementById('news-grid-container');
                     
                     if (gridContainer && secundarias.length > 0) {
                         gridContainer.innerHTML = secundarias.map((item, idx) => {
-                            const realIndex = idx + 5;
+                            const realIndex = idx + 1; // Ajuste por el slice
                             let fotosItem = [];
                             try {
                                 fotosItem = JSON.parse(item.url_foto);
