@@ -219,6 +219,48 @@
         .sector-card-info h5 { font-family: 'Poppins', sans-serif; font-size: 13px; font-weight: 600; color: #ffffff; line-height: 1.2; }
         .sector-card-info span { font-size: 11px; color: #38bdf8; font-weight: 500; }
 
+        /* SECCIÓN DE VIDEOS */
+        .videos-section { max-width: 1240px; margin: 20px auto; padding: 0 20px; }
+        .video-grid-3 {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+        }
+        .video-card-item {
+            background: var(--bg-card); border-radius: 10px; border: 1px solid var(--borde);
+            overflow: hidden; box-shadow: var(--shadow); display: flex; flex-direction: column; cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .video-card-item:hover { transform: translateY(-3px); box-shadow: 0 12px 30px rgba(0,0,0,0.12); }
+        .video-thumbnail-wrapper {
+            position: relative; aspect-ratio: 9/16; max-height: 380px; width: 100%; background: #0a192f; overflow: hidden;
+        }
+        .video-thumbnail-wrapper img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.3s; }
+        .video-card-item:hover .video-thumbnail-wrapper img { transform: scale(1.05); filter: brightness(0.85); }
+        .video-play-badge {
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            width: 60px; height: 60px; background: rgba(0, 86, 179, 0.85); backdrop-filter: blur(4px);
+            border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #ffffff;
+            font-size: 22px; border: 2px solid #ffffff; box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            transition: transform 0.2s, background 0.2s;
+        }
+        .video-thumbnail-wrapper:hover .video-play-badge { transform: translate(-50%, -50%) scale(1.1); background: var(--brand-bright); }
+        .video-platform-tag {
+            position: absolute; top: 12px; left: 12px; background: rgba(10, 25, 47, 0.85); backdrop-filter: blur(4px);
+            color: #38bdf8; font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 20px;
+            display: flex; align-items: center; gap: 6px; border: 1px solid rgba(56, 189, 248, 0.3);
+        }
+        .video-card-details { padding: 16px; display: flex; flex-direction: column; gap: 6px; }
+        .video-card-details h4 { font-family: 'Poppins', sans-serif; font-size: 14.5px; font-weight: 700; color: var(--texto-principal); line-height: 1.3; }
+        .video-card-details p { font-size: 12.5px; color: var(--texto-secundario); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+
+        @media (max-width: 992px) {
+            .video-grid-3 { grid-template-columns: repeat(2, 1fr); }
+        }
+        @media (max-width: 600px) {
+            .video-grid-3 { grid-template-columns: 1fr; }
+        }
+
         /* GALERÍA DE FOTOS ESTILO MOSAICO */
         .multimedia-section { max-width: 1240px; margin: 20px auto 40px auto; padding: 0 20px; }
         .multimedia-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 2px solid var(--brand-bright); padding-bottom: 8px; flex-wrap: wrap; gap: 10px; }
@@ -413,6 +455,7 @@
             <li><a href="#" class="active">Inicio</a></li>
             <li><a href="#gestion">Salud Integral</a></li>
             <li><a href="#gestion">Gestión Municipal</a></li>
+            <li><a href="#videos">Videos</a></li>
             <li><a href="#sectores">Comunidades</a></li>
             <li><a href="#multimedia">Multimedia</a></li>
             <li><a href="#contacto">Contacto Ciudadano</a></li>
@@ -494,6 +537,29 @@
         </div>
     </div>
 
+    <!-- SECCIÓN DE VIDEOS (DEBAJO DE BITÁCORA DE EVENTOS / NOTICIAS) -->
+    <section class="videos-section" id="videos">
+        <div class="section-title-bar">
+            <h3>Videos Institucionales y Redes</h3>
+        </div>
+        <div class="video-grid-3" id="videos-grid-container">
+            <div style="color: var(--texto-secundario); font-size: 13px; padding: 10px;">Cargando videos de Instagram y TikTok...</div>
+        </div>
+    </section>
+
+    <!-- BLOQUE INSTITUCIONAL 3: PARTICIPACIÓN CIUDADANA Y TRANSPARENCIA -->
+    <div class="institutional-banner-text">
+        <div class="institutional-box">
+            <div class="institutional-box-icon">
+                <i class="fa-solid fa-comments"></i>
+            </div>
+            <div class="institutional-box-content">
+                <h4>Participación Ciudadana y Rendición de Cuentas</h4>
+                <p>La contraloría social y el diálogo abierto con los voceros comunales son pilares fundamentales de nuestra gestión, asegurando que cada proyecto y beneficio social llegue de manera transparente a todos los rincones del municipio.</p>
+            </div>
+        </div>
+    </div>
+
     <!-- MAPA TERRITORIAL REAL E INTERACTIVO -->
     <section class="sectores-section" id="sectores">
         <div class="mapa-modern-banner">
@@ -515,6 +581,19 @@
             </div>
         </div>
     </section>
+
+    <!-- BLOQUE INSTITUCIONAL 4: BIENESTAR Y FUTURO PARA LAS FAMILIAS -->
+    <div class="institutional-banner-text">
+        <div class="institutional-box">
+            <div class="institutional-box-icon">
+                <i class="fa-solid fa-seedling"></i>
+            </div>
+            <div class="institutional-box-content">
+                <h4>Construyendo Futuro y Bienestar Colectivo</h4>
+                <p>Apostamos por el desarrollo integral de nuestras familias, promoviendo programas de asistencia social, deporte, cultura y salud preventiva que fortalezcan el tejido humano y la convivencia solidaria en Guarenas.</p>
+            </div>
+        </div>
+    </div>
 
     <!-- GALERÍA MULTIMEDIA ESTILO MOSAICO FOTOGRÁFICO -->
     <section class="multimedia-section" id="multimedia">
@@ -541,6 +620,25 @@
         </div>
     </div>
 
+    <div class="modal-overlay" id="videoModal" onclick="cerrarModalVideoFuera(event)">
+        <div class="modal-content" style="max-width: 500px;">
+            <div class="modal-header-bar">
+                <h3 id="modalVideoPlataforma">Reproductor de Video</h3>
+                <button class="modal-close" onclick="cerrarModalVideo()">&times;</button>
+            </div>
+            <div class="modal-body-content" style="align-items: center; text-align: center;">
+                <div id="modalVideoContainer" style="width: 100%; aspect-ratio: 9/16; background: #000; border-radius: 8px; overflow: hidden; display: flex; align-items: center; justify-content: center;">
+                    <!-- Contenido embebido del video -->
+                </div>
+                <h2 id="modalVideoTitulo" style="font-size: 18px; margin-top: 10px;">Título del video</h2>
+                <p id="modalVideoDesc" style="font-size: 13px;">Descripción del video institucional.</p>
+                <a id="modalVideoEnlaceOriginal" href="#" target="_blank" class="btn-leer-mas" style="margin: 0 auto; justify-content: center;">
+                    Ver en plataforma original <i class="fa-solid fa-external-link-alt"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+
     <div class="lightbox-overlay" id="lightboxOverlay" onclick="cerrarLightbox()">
         <img id="lightboxImg" src="" alt="Vista Previa de Imagen">
     </div>
@@ -556,6 +654,7 @@
                 <ul>
                     <li><a href="#">Salud Integral</a></li>
                     <li><a href="#gestion">Gestión Municipal</a></li>
+                    <li><a href="#videos">Videos</a></li>
                     <li><a href="#sectores">Comunidades</a></li>
                     <li><a href="#multimedia">Multimedia</a></li>
                 </ul>
@@ -580,6 +679,7 @@
 
     <script>
         let listaPublicacionesGlobal = [];
+        let listaVideosGlobal = [];
         let indiceSliderActual = 0;
         let intervaloSlider = null;
         let map = null;
@@ -686,6 +786,50 @@
             }
         }
 
+        function abrirModalVideo(index) {
+            const item = listaVideosGlobal[index];
+            if (!item) return;
+
+            const urlVideo = item.url_video || "";
+            let plataforma = "Video Institucional";
+            let iconoPlat = "fa-solid fa-video";
+            let embedHTML = "";
+
+            if (urlVideo.includes("instagram.com")) {
+                plataforma = "Instagram Reel";
+                iconoPlat = "fa-brands fa-instagram";
+                let cleanUrl = urlVideo.split('?')[0];
+                if (!cleanUrl.endsWith('/')) cleanUrl += '/';
+                embedHTML = `<iframe src="${cleanUrl}embed/" width="100%" height="100%" frameborder="0" scrolling="no" allowtransparency="true"></iframe>`;
+            } else if (urlVideo.includes("tiktok.com")) {
+                plataforma = "TikTok Video";
+                iconoPlat = "fa-brands fa-tiktok";
+                embedHTML = `<div style="display:flex; align-items:center; justify-content:center; height:100%; color:#fff; text-align:center; padding:20px;">
+                    <div><i class="fa-brands fa-tiktok" style="font-size:48px; color:#38bdf8; margin-bottom:10px;"></i><br>Reproducción integrada de TikTok. Haga clic abajo para ver en la app.</div></div>`;
+            } else {
+                embedHTML = `<video src="${urlVideo}" controls autoplay style="width:100%; height:100%; object-fit:contain;"></video>`;
+            }
+
+            document.getElementById('modalVideoPlataforma').innerHTML = `<i class="${iconoPlat}"></i> ${plataforma}`;
+            document.getElementById('modalVideoContainer').innerHTML = embedHTML;
+            document.getElementById('modalVideoTitulo').innerText = item.titulo;
+            document.getElementById('modalVideoDesc').innerText = item.descripcion || 'Despliegue social y comunitario en el Municipio Ambrosio Plaza.';
+            document.getElementById('modalVideoEnlaceOriginal').href = urlVideo;
+
+            document.getElementById('videoModal').style.display = 'flex';
+        }
+
+        function cerrarModalVideo() {
+            document.getElementById('videoModal').style.display = 'none';
+            document.getElementById('modalVideoContainer').innerHTML = '';
+        }
+
+        function cerrarModalVideoFuera(event) {
+            if (event.target.id === 'videoModal') {
+                cerrarModalVideo();
+            }
+        }
+
         function abrirLightbox(src) {
             document.getElementById('lightboxImg').src = src;
             document.getElementById('lightboxOverlay').style.display = 'flex';
@@ -774,6 +918,57 @@
             }
         }
 
+        async function cargarVideosInstitucionales() {
+            const videosContainer = document.getElementById('videos-grid-container');
+            if (!videosContainer) return;
+
+            try {
+                const respuesta = await fetch("/api/query", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        query: "SELECT id, titulo, descripcion, url_video, url_portada, plataforma, fecha FROM videos_institucionales ORDER BY id DESC"
+                    })
+                });
+
+                if (!respuesta.ok) throw new Error("Error al consultar videos");
+
+                const resultado = await respuesta.json();
+                listaVideosGlobal = resultado.resultado || resultado || [];
+
+                if (listaVideosGlobal.length > 0) {
+                    videosContainer.innerHTML = listaVideosGlobal.map((item, idx) => {
+                        let portada = item.url_portada || 'https://lh3.googleusercontent.com/d/1QpdROfMzVTZJKHmlqf8zm--u1sYTVyTT';
+                        let plat = item.plataforma || 'Video';
+                        let iconoPlat = 'fa-solid fa-video';
+                        if (plat.toLowerCase().includes('instagram')) iconoPlat = 'fa-brands fa-instagram';
+                        if (plat.toLowerCase().includes('tiktok')) iconoPlat = 'fa-brands fa-tiktok';
+
+                        return `
+                            <div class="video-card-item" onclick="abrirModalVideo(${idx})">
+                                <div class="video-thumbnail-wrapper">
+                                    <img src="${portada}" alt="${item.titulo}">
+                                    <span class="video-platform-tag"><i class="${iconoPlat}"></i> ${plat}</span>
+                                    <div class="video-play-badge">
+                                        <i class="fa-solid fa-play"></i>
+                                    </div>
+                                </div>
+                                <div class="video-card-details">
+                                    <h4>${item.titulo}</h4>
+                                    <p>${item.descripcion || 'Registro audiovisual de la comisión.'}</p>
+                                </div>
+                            </div>
+                        `;
+                    }).join('');
+                } else {
+                    videosContainer.innerHTML = `<div style="color: var(--texto-secundario); font-size: 13px; padding: 10px;">No hay videos registrados en el sistema todavía.</div>`;
+                }
+            } catch (error) {
+                console.error("Error cargando los videos:", error);
+                videosContainer.innerHTML = `<div style="color: var(--texto-secundario); font-size: 13px; padding: 10px;">Sección de videos lista para gestionar desde la base de datos.</div>`;
+            }
+        }
+
         function cargarMultimediaGrid() {
             const multimediaContainer = document.getElementById('multimedia-grid-container');
             if (!multimediaContainer) return;
@@ -816,6 +1011,7 @@
 
             inicializarMapaTerritorial();
             await cargarSectoresAtendidos();
+            await cargarVideosInstitucionales();
 
             try {
                 const respuesta = await fetch("/api/query", {
