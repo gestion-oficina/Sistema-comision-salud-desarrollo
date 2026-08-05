@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Comisión de Salud y Desarrollo Social - Guarenas</title>
     
-    <meta name="description" content="Portal informativo oficial de la Comisión Permanente de Salud y Desarrollo Social Integral del Concejo Municipal Ambrosio Plaza, liderado por la Concejala Letty Bastidas en Guarenas, Estado Miranda.">
+    <meta name="description" content="Portal informativo oficial de la Comisión Permanente de Salud y Desarrollo Social Integral del Concejo Municipal Ambrosio Plaza, liderado por la Concejala Letty Bastidas in Guarenas, Estado Miranda.">
     <meta name="geo.region" content="VE-M">
     <meta name="geo.placename" content="Guarenas">
 
@@ -203,7 +203,7 @@
         .sector-card-info h5 { font-family: 'Poppins', sans-serif; font-size: 13px; font-weight: 600; color: #ffffff; line-height: 1.2; }
         .sector-card-info span { font-size: 11px; color: var(--brand-gold); font-weight: 500; }
 
-        /* NUEVA SECCIÓN: GALERÍA MULTIMEDIA E INSTITUCIONAL */
+        /* SECCIÓN: GALERÍA MULTIMEDIA E INSTITUCIONAL */
         .multimedia-section { max-width: 1240px; margin: 30px auto 45px auto; padding: 0 20px; }
         .multimedia-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 2px solid var(--brand-gold); padding-bottom: 8px; flex-wrap: wrap; gap: 10px; }
         .multimedia-header h3 { font-family: 'Poppins', sans-serif; font-size: 18px; font-weight: 700; color: var(--texto-principal); text-transform: uppercase; letter-spacing: 0.5px; display: flex; align-items: center; gap: 10px; }
@@ -660,11 +660,11 @@
                     }
 
                     return `
-                        <div class="media-card" onclick="abrirModalNoticia(${idx})">
+                        <div class="media-card" onclick="abrirLightbox('${fotosItem[0]}')">
                             <div class="media-thumb-container">
                                 <img src="${fotosItem[0]}" alt="Multimedia">
                                 <div class="media-play-overlay">
-                                    <i class="fa-solid fa-circle-play"></i>
+                                    <i class="fa-solid fa-expand"></i>
                                 </div>
                             </div>
                             <div class="media-card-body">
@@ -732,7 +732,6 @@
                         }).join('');
                     }
 
-                    // Cargar sección multimedia automáticamente con los datos del servidor externo
                     cargarMultimediaGrid();
                 }
             } catch (error) {
