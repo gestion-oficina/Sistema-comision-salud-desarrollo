@@ -144,6 +144,18 @@
         .card-premium h3 { font-size: 20px; font-weight: 700; margin-bottom: 12px; }
         .card-premium p { font-size: 14.5px; color: var(--texto-secundario); line-height: 1.6; }
 
+        /* SECCIÓN GALERÍA INSTITUCIONAL / ACTIVIDADES (OPTIMIZADA PROFESIONALMENTE) */
+        .gallery-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px; }
+        .gallery-card {
+            background: var(--card-bg); border-radius: 14px; border: 1px solid var(--borde); overflow: hidden;
+            box-shadow: var(--shadow-premium); display: flex; flex-direction: column; position: relative;
+        }
+        .gallery-card img { width: 100%; height: 260px; object-fit: cover; border-bottom: 1px solid var(--borde); }
+        .gallery-card-content { padding: 22px; display: flex; flex-direction: column; gap: 8px; }
+        .gallery-card-content .tag { font-size: 11px; font-weight: 700; color: var(--brand-bright); text-transform: uppercase; letter-spacing: 0.5px; }
+        .gallery-card-content h4 { font-size: 16px; font-weight: 700; color: var(--texto-principal); }
+        .gallery-card-content p { font-size: 13.5px; color: var(--texto-secundario); }
+
         /* SECCIÓN IDENTIDAD INSTITUCIONAL / MENSAJE */
         .identity-section { padding: 100px 6%; background: var(--bg-principal); display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 70px; align-items: center; }
         .identity-text h2 { font-size: 36px; font-weight: 800; margin-bottom: 20px; letter-spacing: -0.5px; }
@@ -223,6 +235,7 @@
         <ul class="nav-links">
             <li><a href="#inicio">Inicio</a></li>
             <li><a href="#gestion">Ejes de Gestión</a></li>
+            <li><a href="#galeria">Galería Institucional</a></li>
             <li><a href="#solicitudes">Atención Ciudadana</a></li>
             <li><a href="#seguridad-sismica">Seguridad Sísmica</a></li>
         </ul>
@@ -296,12 +309,102 @@
             <div class="card-premium">
                 <div class="icon-wrapper"><i class="fa-solid fa-network-wired"></i></div>
                 <h3>Articulación Política y Comunal</h3>
-                <p>Vinculación permanente con las Comunas, Consejos Comunales y estructuras de base, mapeando territorialmente las UBCh, líderes de Comunidad y Calle para dar soluciones eficaces.</p>
+                <p>Vinculación permanente con las Comunas, Consejos Comunales y estructuras de base, mapeando territorialmente las UBCh, líderes de Comunidad y Calle para dar soluciones eficazes.</p>
             </div>
             <div class="card-premium">
                 <div class="icon-wrapper"><i class="fa-solid fa-hand-holding-medical"></i></div>
                 <h3>Desarrollo Social Integral</h3>
                 <p>Canalización óptima de requerimientos médicos prioritarios y asistencia social directa al pueblo de Guarenas, optimizando los tiempos de respuesta y dotación de insumos.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECCIÓN GALERÍA INSTITUCIONAL Y DE ACTIVIDADES -->
+    <section class="section" id="galeria" style="background: var(--bg-principal);">
+        <div class="section-header">
+            <h2>Galería de Gestión y Despliegue Territorial</h2>
+            <p>Registro visual de las jornadas de atención social, encuentros comunitarios y actos conmemorativos en el Municipio Ambrosio Plaza.</p>
+        </div>
+
+        <div class="gallery-grid">
+            <!-- Imagen 1: 430731.jpg -->
+            <div class="gallery-card">
+                <img src="430731.jpg" alt="Jornada de atención y entrega floral comunitaria">
+                <div class="gallery-card-content">
+                    <span class="tag">Atención Social</span>
+                    <h4>Despliegue Comunitario con el Pueblo</h4>
+                    <p>Encuentro directo con los líderes de calle y comunidad para la atención integral de las familias guareneras.</p>
+                </div>
+            </div>
+
+            <!-- Imagen 2: 430724.jpg -->
+            <div class="gallery-card">
+                <img src="430724.jpg" alt="Actividad institucional conmemorativa">
+                <div class="gallery-card-content">
+                    <span class="tag">Actividad Oficial</span>
+                    <h4>Compromiso Patriótico y Comunal</h4>
+                    <p>Jornada especial de articulación política e institucional reafirmando el trabajo conjunto en el municipio.</p>
+                </div>
+            </div>
+
+            <!-- Imagen 3: 416361.jpg -->
+            <div class="gallery-card">
+                <img src="416361.jpg" alt="Ofrenda floral en honor al Libertador Simón Bolívar">
+                <div class="gallery-card-content">
+                    <span class="tag">Homenaje Cívico</span>
+                    <h4>Ofrenda Protocolar al Libertador Simón Bolívar</h4>
+                    <p>Acto conmemorativo rindiendo tributo a la historia patria con la participación del equipo legislativo.</p>
+                </div>
+            </div>
+
+            <!-- Imagen 4: 415032.jpg -->
+            <div class="gallery-card">
+                <img src="415032.jpg" alt="Equipo de trabajo y comunidad frente al monumento">
+                <div class="gallery-card-content">
+                    <span class="tag">Equipo de Trabajo</span>
+                    <h4>Articulación Directa en Plazas y Comunidades</h4>
+                    <p>Reunión de trabajo y cohesión junto a cultores, vecinos y fuerzas vivas de la localidad.</p>
+                </div>
+            </div>
+
+            <!-- Imagen 5: 336485.jpg -->
+            <div class="gallery-card">
+                <img src="336485.jpg" alt="Encuentro cultural y celebraciones locales">
+                <div class="gallery-card-content">
+                    <span class="tag">Cultura y Tradición</span>
+                    <h4>Servicio de Celebración y Encuentro Comunitario</h4>
+                    <p>Participación activa en las festividades y expresiones culturales tradicionales del municipio.</p>
+                </div>
+            </div>
+
+            <!-- Imagen 6: 336263.jpg -->
+            <div class="gallery-card">
+                <img src="336263.jpg" alt="Reunión institucional en recinto municipal">
+                <div class="gallery-card-content">
+                    <span class="tag">Sesión Legislativa</span>
+                    <h4>Revisión de Políticas y Concurrencia Ciudadana</h4>
+                    <p>Asamblea y mesas de trabajo orientadas a la optimización de los servicios públicos y sociales.</p>
+                </div>
+            </div>
+
+            <!-- Imagen 7: 279269.jpg -->
+            <div class="gallery-card">
+                <img src="279269.jpg" alt="Calidez humana y cercanía con los adultos mayores">
+                <div class="gallery-card-content">
+                    <span class="tag">Bienestar Social</span>
+                    <h4>Atención Humana y Cercanía con el Adulto Mayor</h4>
+                    <p>Momentos de afecto y respaldo institucional dedicados a honrar a nuestros abuelos y abuelas.</p>
+                </div>
+            </div>
+
+            <!-- Imagen 8: 274476.jpg -->
+            <div class="gallery-card">
+                <img src="274476.jpg" alt="Inspección y dotación en red asistencial de salud">
+                <div class="gallery-card-content">
+                    <span class="tag">Salud Integral</span>
+                    <h4>Supervisión de Centros Asistenciales</h4>
+                    <p>Verificación técnica de insumos y servicios médicos dentro de la red de atención primaria del municipio.</p>
+                </div>
             </div>
         </div>
     </section>
@@ -326,7 +429,7 @@
     </section>
 
     <!-- SECCIÓN DE ATENCIÓN Y SOLICITUDES CIUDADANAS -->
-    <section class="section" id="solicitudes" style="background: var(--bg-principal);">
+    <section class="section" id="solicitudes" style="background: var(--bg-alterno);">
         <div class="section-header">
             <h2>Canalización de Solicitudes Ciudadanas</h2>
             <p>Plataforma digital para el registro y procesamiento de requerimientos de salud o asistencia social en el Municipio Ambrosio Plaza.</p>
@@ -385,16 +488,16 @@
     <section class="section" id="seguridad-sismica">
         <div class="section-header">
             <h2>Prevención y Seguridad Sísmica</h2>
-            <p>Protocolos de actuación institucional, orientaciones preventivas y directorio de emergencia ante eventos sísmicos en el territorio nacional[cite: 4].</p>
+            <p>Protocolos de actuación institucional, orientaciones preventivas y directorio de emergencia ante eventos sísmicos en el territorio nacional.</p>
         </div>
 
         <div class="quote-box" style="display: flex; gap: 30px; align-items: center; text-align: left; max-width: 1000px; margin: 0 auto 40px auto; border-top: 4px solid var(--brand-bright);">
-<div>
+            <div>
                 <i class="fa-solid fa-house-chimney-crack" style="font-size: 42px; color: var(--brand-bright);"></i>
             </div>
             <div>
                 <p style="font-size: 16.5px; font-style: normal; color: var(--texto-principal);">
-                    Ante un evento sísmico en Venezuela, conserve la calma, ubiquese en zonas de seguridad preestablecidas y siga estrictamente las pautas oficiales de FUNVISIS y Protección Civil. La prevención es tarea de todos[cite: 4].
+                    Ante un evento sísmico en Venezuela, conserve la calma, ubiquese en zonas de seguridad preestablecidas y siga estrictamente las pautas oficiales de FUNVISIS y Protección Civil. La prevención es tarea de todos.
                 </p>
                 <a href="http://www.funvisis.gob.ve/" target="_blank" style="color: var(--brand-bright); font-weight: 700; text-decoration: none; display: inline-block; margin-top: 10px; font-size: 14px;">
                     Portal Oficial FUNVISIS <i class="fa-solid fa-arrow-up-right-from-square"></i>
@@ -404,26 +507,26 @@
         
         <!-- TABLA DE CONTACTOS DE EMERGENCIA -->
         <div style="max-width: 1000px; margin: 0 auto; overflow-x: auto;">
-            <h3 style="margin-bottom: 15px; color: var(--texto-principal); font-size: 18px;">Directorio de Emergencia - Municipio Ambrosio Plaza (Guarenas)[cite: 4]</h3>
+            <h3 style="margin-bottom: 15px; color: var(--texto-principal); font-size: 18px;">Directorio de Emergencia - Municipio Ambrosio Plaza (Guarenas)</h3>
             <table style="width: 100%; border-collapse: collapse; background: var(--card-bg); border-radius: 10px; overflow: hidden; border: 1px solid var(--borde); font-size: 14px;">
                 <thead>
                     <tr style="background: var(--brand-azul); color: #ffffff; text-align: left;">
-                        <th style="padding: 14px 20px;">Dependencia / Servicio[cite: 4]</th>
-                        <th style="padding: 14px 20px;">Línea de Contacto Institucional[cite: 4]</th>
+                        <th style="padding: 14px 20px;">Dependencia / Servicio</th>
+                        <th style="padding: 14px 20px;">Línea de Contacto Institucional</th>
                     </tr>
                 </thead>
                 <tbody style="color: var(--texto-secundario);">
                     <tr style="border-bottom: 1px solid var(--borde);">
-                        <td style="padding: 14px 20px; font-weight: 600; color: var(--texto-principal);">Protección Civil Plaza[cite: 4]</td>
-                        <td style="padding: 14px 20px;">0212-361.00.00[cite: 4]</td>
+                        <td style="padding: 14px 20px; font-weight: 600; color: var(--texto-principal);">Protección Civil Plaza</td>
+                        <td style="padding: 14px 20px;">0212-361.00.00</td>
                     </tr>
                     <tr style="border-bottom: 1px solid var(--borde);">
-                        <td style="padding: 14px 20px; font-weight: 600; color: var(--texto-principal);">Bomberos del Estado Miranda[cite: 4]</td>
-                        <td style="padding: 14px 20px;">0212-363.12.34[cite: 4]</td>
+                        <td style="padding: 14px 20px; font-weight: 600; color: var(--texto-principal);">Bomberos del Estado Miranda</td>
+                        <td style="padding: 14px 20px;">0212-363.12.34</td>
                     </tr>
                     <tr>
-                        <td style="padding: 14px 20px; font-weight: 600; color: var(--texto-principal);">Policía Municipal (Plaza)[cite: 4]</td>
-                        <td style="padding: 14px 20px;">0212-362.45.67[cite: 4]</td>
+                        <td style="padding: 14px 20px; font-weight: 600; color: var(--texto-principal);">Policía Municipal (Plaza)</td>
+                        <td style="padding: 14px 20px;">0212-362.45.67</td>
                     </tr>
                 </tbody>
             </table>
@@ -432,8 +535,8 @@
 
     <!-- FOOTER INSTITUCIONAL -->
     <footer class="footer">
-        <div>© 2026 Concejo Municipal Ambrosio Plaza. Todos los derechos reservados.[cite: 4]</div>
-        <div style="color: var(--brand-bright); font-weight: 600;">Guarenas, Estado Miranda[cite: 4] • Despacho Concejala Letty Bastidas</div>
+        <div>© 2026 Concejo Municipal Ambrosio Plaza. Todos los derechos reservados.</div>
+        <div style="color: var(--brand-bright); font-weight: 600;">Guarenas, Estado Miranda • Despacho Concejala Letty Bastidas</div>
     </footer>
 
     <script>
