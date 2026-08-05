@@ -264,11 +264,11 @@
                     </select>
                 </div>
 
-                <!-- CONTENEDOR FOTOS -->
+                <!-- CONTENEDOR FOTOS / PORTADA -->
                 <div class="form-group" id="grupo-fotos-container">
-                    <label>Fotos de Evidencia (Puedes seleccionar varias)</label>
+                    <label id="lbl-foto-texto">Fotos de Evidencia (Puedes seleccionar varias)</label>
                     <input type="file" id="in-file-foto" accept="image/*" multiple style="border:none; padding:3px 0;">
-                    <small style="color: #64748b; font-size: 11px;">Si editas y seleccionas nuevas fotos, se agregarán a las anteriores.</small>
+                    <small style="color: #64748b; font-size: 11px;">Para videos, esta imagen funcionará como la portada o miniatura visible.</small>
                 </div>
 
                 <!-- CONTENEDOR VIDEO -->
@@ -355,15 +355,15 @@
     }
 
     function alternarCamposMediaModal(tipo) {
-        const grupoFotos = document.getElementById('grupo-fotos-container');
         const grupoVideo = document.getElementById('grupo-video-container');
+        const lblFoto = document.getElementById('lbl-foto-texto');
         
         if (tipo === 'video') {
-            grupoFotos.style.display = 'none';
             grupoVideo.style.display = 'flex';
+            lblFoto.innerText = "Imagen de Portada / Miniatura del Video";
         } else {
-            grupoFotos.style.display = 'flex';
             grupoVideo.style.display = 'none';
+            lblFoto.innerText = "Fotos de Evidencia (Puedes seleccionar varias)";
         }
     }
 
@@ -397,10 +397,6 @@
                     fotosArray = ev.url_foto ? [ev.url_foto] : [];
                 }
 
-                if (fotosArray.length === 0) {
-                    fotosArray = ['https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=500'];
-                }
-
                 let contenidoVisualHTML = '';
                 let urlVideoVal = ev.url_video ? ev.url_video.trim() : '';
 
@@ -414,7 +410,9 @@
                         plat = "TikTok";
                         iconoPlat = "fa-brands fa-tiktok";
                     }
-                    let portada = fotosArray[0];
+                    
+                    // Si tiene foto propia la usa, sino muestra una miniatura limpia sin reciclar la genérica de salud si no corresponde
+                    let portada = (fotosArray.length > 0 && fotosArray[0]) ? fotosArray[0] : 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=500';
 
                     contenidoVisualHTML = `
                         <div class="video-card-wrapper" onclick="window.open('${urlVideoVal}', '_blank')" title="Hacer clic para ver video">
@@ -424,6 +422,9 @@
                         </div>
                     `;
                 } else {
+                    if (fotosArray.length === 0) {
+                        fotosArray = ['https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=500'];
+                    }
                     const isSingle = fotosArray.length === 1;
                     const fotosJsonEscaped = JSON.stringify(fotosArray).replace(/'/g, "&apos;").replace(/"/g, "&quot;");
                     contenidoVisualHTML = `
@@ -606,7 +607,7 @@
         const tipoContenido = document.getElementById('in-tipo-contenido').value;
         const fileInputFotos = document.getElementById('in-file-foto').files;
         const rawEditId = document.getElementById('in-edit-id').value.trim();
-        const publicarWeb = document.getElementById('in-publicaf-web` not found, use `in-publicar-web`' in window ? 0 : document.getElementById('in-publicar-web').checked ? 1 : 0;
+        const publicarWeb = document.getElementById('in-publicar-web').checked ? 1 : 0;
         const seccionWeb = document.getElementById('in-seccion-web').value;
         const btnGuardar = document.getElementById('btn-guardar');
 
@@ -621,16 +622,24 @@
         try {
             let fotosUrls = [];
             let urlVideoVal = "";
+            const hiddenFotoVal = document.getElementById('in-url-foto-hidden').value;
 
             if (tipoContenido === 'video') {
                 urlVideoVal = document.getElementById('in-url-video').value.trim();
-                const hiddenFotoVal = document.getElementById('in-url-foto-hidden').value;
-                fotosUrls = hiddenFotoVal ? JSON.parse(hiddenFotoVal) : ['https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=500'];
-            } else {
-                const hiddenFotoVal = document.getElementById('in-url-foto-hidden').value;
                 
-                // CORRECCIÓN CLAVE: Si es una edición y el usuario NO seleccionó nuevas fotos, 
-                // conservamos estrictamente las imágenes anteriores en lugar de duplicarlas o reiniciarlas.
+                // Si subes una imagen específica como miniatura para el video, la usa
+                if (fileInputFotos && fileInputFotos.length > 0) {
+                    const urlSeguraNube = await subirImagenNube(fileInputFotos[0]);
+                    fotosUrls.push(urlSeguraNube);
+                } else if (hiddenFotoVal) {
+                    try {
+                        fotosUrls = JSON.parse(hiddenFotoVal);
+                        if (!Array.isArray(fotosUrls)) fotosUrls = [hiddenFotoVal];
+                    } catch(e) {
+                        fotosUrls = [hiddenFotoVal];
+                    }
+                }
+            } else {
                 if (rawEditId && fileInputFotos.length === 0) {
                     if (hiddenFotoVal) {
                         try {
@@ -641,7 +650,6 @@
                         }
                     }
                 } else {
-                    // Si es nuevo registro o se están agregando nuevas fotos a una edición existente:
                     if (hiddenFotoVal && rawEditId) {
                         try {
                             fotosUrls = JSON.parse(hiddenFotoVal);
@@ -657,10 +665,6 @@
                             fotosUrls.push(urlSeguraNube);
                         }
                     }
-                }
-
-                if (fotosUrls.length === 0) {
-                    fotosUrls.push('https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=500');
                 }
             }
 
