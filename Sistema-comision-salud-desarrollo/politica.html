@@ -273,9 +273,17 @@
                 <button class="tab-btn active" id="tab-lideres" onclick="switchData('liderazgos')">🚩 Voceros de Salud</button>
                 <button class="tab-btn" id="tab-comunas" onclick="switchData('comunas')">☖ Comunas y Consejos</button>
             </div>
-            <div class="search-box">
-                <span>🔍</span>
-                <input type="text" id="searchInput" placeholder="Buscar registro..." oninput="filtrarPorTexto()">
+            
+            <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+                <div class="form-group" style="margin: 0;">
+                    <select id="filtroComunaSelect" onchange="filtrarPorTexto()" style="padding: 9px 14px; border-radius: 8px; border: 1px solid var(--border-color); font-size: 13px; background: white; outline: none;">
+                        <option value="">🌐 Todas las Comunas / Ejes</option>
+                    </select>
+                </div>
+                <div class="search-box">
+                    <span>🔍</span>
+                    <input type="text" id="searchInput" placeholder="Buscar registro..." oninput="filtrarPorTexto()">
+                </div>
             </div>
         </div>
 
@@ -346,11 +354,26 @@
                 const registros = await window.sqlClient`SELECT * FROM casos_salud ORDER BY id DESC`;
                 todosLosRegistros = Array.from(registros);
                 actualizarKPIs(todosLosRegistros);
+                poblarSelectorComunas(todosLosRegistros);
                 renderizarDatos();
             } catch (err) {
                 console.error("Error de conexión:", err);
                 container.innerHTML = `<div class="empty-state" style="color:var(--danger-color);">Error en SQLite Cloud: ${err.message}</div>`;
             }
+        }
+
+        function poblarSelectorComunas(registros) {
+            const select = document.getElementById("filtroComunaSelect");
+            if (!select) return;
+
+            const valorSeleccionado = select.value;
+            const politicos = registros.filter(r => (r.coordinacion && r.coordinacion.toLowerCase() === 'politica') || r.tipo === 'Liderazgo' || r.tipo === 'Comuna');
+            const comunasUnicas = [...new Set(politicos.map(r => r.sector || r.nombre).filter(Boolean))].sort();
+
+            select.innerHTML = `<option value="">🌐 Todas las Comunas / Ejes</option>` + 
+                comunasUnicas.map(c => `<option value="${c}">${c}</option>`).join("");
+
+            select.value = valorSeleccionado;
         }
 
         function actualizarKPIs(registros) {
@@ -368,6 +391,7 @@
         function renderizarDatos() {
             const container = document.getElementById("cardsGridContainer");
             const termino = document.getElementById("searchInput").value.toLowerCase();
+            const comunaSeleccionada = document.getElementById("filtroComunaSelect")?.value.toLowerCase() || "";
 
             const datosPoliticos = todosLosRegistros.filter(r => (r.coordinacion && r.coordinacion.toLowerCase() === 'politica') || r.tipo === 'Liderazgo' || r.tipo === 'Comuna');
 
@@ -378,6 +402,14 @@
                 filtrados = datosPoliticos.filter(r => r.tipo === 'Comuna');
             }
 
+            if (comunaSeleccionada) {
+                filtrados = filtrados.filter(item => {
+                    const sectorVal = String(item.sector || '').toLowerCase();
+                    const nombreVal = String(item.nombre || '').toLowerCase();
+                    return sectorVal.includes(comunaSeleccionada) || nombreVal.includes(comunaSeleccionada);
+                });
+            }
+
             if (termino) {
                 filtrados = filtrados.filter(item => {
                     return Object.values(item).some(val => String(val || '').toLowerCase().includes(termino));
@@ -385,7 +417,7 @@
             }
 
             if (filtrados.length === 0) {
-                container.innerHTML = `<div class="empty-state">No se encontraron registros en esta sección.</div>`;
+                container.innerHTML = `<div class="empty-state">No se encontraron registros con los filtros seleccionados.</div>`;
                 return;
             }
 
