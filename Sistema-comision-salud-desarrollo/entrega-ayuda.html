@@ -284,7 +284,7 @@
         </div>
     </div>
 
-    <!-- SCRIPT DE CONEXIÓN, AUTO-MIGRACIÓN Y EXPORTACIÓN A WORD (LOGO DERECHO AMPLIADO Y PIE DE PÁGINA NATIVO DE WORD) -->
+    <!-- SCRIPT DE CONEXIÓN, AUTO-MIGRACIÓN Y EXPORTACIÓN A WORD (LOGO DERECHO IGUALADO Y PIE DE PÁGINA NATIVO CORREGIDO) -->
     <script>
         async function consultarBaseDatos(query, params = []) {
             try {
@@ -566,7 +566,7 @@
                     <style>${estilosWord}</style>
                 </head>
                 <body>
-                    <!-- Encabezado con logotipo izquierdo a 70px y logotipo derecho ampliado a 90px (para equilibrar visualmente) -->
+                    <!-- Encabezado con ambos logotipos idénticos a 70px para mantener perfecta simetría -->
                     <table class="header-table">
                         <tr>
                             <td class="header-logo-left">
@@ -579,7 +579,7 @@
                                 <p><b>Comisión Permanente de Salud y Desarrollo Social Integral</b></p>
                             </td>
                             <td class="header-logo-right">
-                                ${logoComisionBase64 ? `<img src="${logoComisionBase64}" width="90" height="90" alt="Logo Comisión" style="width: 90px; height: 90px; max-width: 90px;">` : ''}
+                                ${logoComisionBase64 ? `<img src="${logoComisionBase64}" width="70" height="70" alt="Logo Comisión" style="width: 70px; height: 70px; max-width: 70px;">` : ''}
                             </td>
                         </tr>
                     </table>
@@ -651,7 +651,7 @@
                         </tr>
                     </table>
 
-                    <!-- Pie de página nativo de Microsoft Word -->
+                    <!-- Pie de página nativo real configurado dentro de la sección de Word -->
                     <div style="mso-element:footer" id="f1">
                         <p style="margin: 0; font-size: 9pt; color: #555; text-align: center; font-family: 'Arial', sans-serif;">
                             Democracia Socialista y Liberación Nacional — Hacia la consolidación del Estado Mayor de Salud Municipal<br>
