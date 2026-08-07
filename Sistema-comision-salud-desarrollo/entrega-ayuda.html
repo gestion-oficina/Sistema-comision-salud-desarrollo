@@ -1,463 +1,322 @@
 <!DOCTYPE html>
 <html lang="es">
-
 <head>
     <meta charset="UTF-8">
-    <script>
-        const sesion = sessionStorage.getItem('usuario_logueado');
-        if (!sesion && window.location.pathname !== "/login.html") {
-            window.location.replace("login.html");
-        } else {
-            document.addEventListener("DOMContentLoaded", () => {
-                document.body.style.display = "block";
-            });
-        }
-    </script>
-    <meta name="viewport" content="width=device-width,initial-scale=1">
-    <title>Gestión Social - Registro de Entrega de Ayuda</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Control de Entregas de Ayudas Sociales - Sistema Municipal</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        :root { 
-            --bg-main: #f4f6f9; 
-            --sidebar-bg: #1d3b6a; 
-            --sidebar-active: #0066cc; 
-            --sidebar-text-sub: #4ba3e3; 
-            --menu-text: #ffffff; 
-            --text-dark-title: #0f2547; 
-            --border-color: #cbd5e1; 
-            --danger-color: #dc2626; 
-            --success-color: #16a34a;
+        body {
+            background-color: #f4f6f9;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
-        * { margin:0; padding:0; box-sizing:border-box; font-family: 'Inter', sans-serif; }
-        body { background: var(--bg-main); color:#334155; }
-        .layout { display:grid; grid-template-columns:280px 1fr; min-height:100vh; }
-        
-        .mobile-menu-toggle {
-            display: none;
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            background: var(--sidebar-bg);
+        .sidebar {
+            background-color: #0f172a;
+            min-height: 100vh;
+            color: #fff;
+        }
+        .sidebar a {
+            color: #94a3b8;
+            text-decoration: none;
+            padding: 10px 15px;
+            display: block;
+            border-radius: 5px;
+            margin-bottom: 5px;
+        }
+        .sidebar a:hover, .sidebar a.active {
+            background-color: #1e3a8a;
+            color: #ffffff;
+        }
+        .main-content {
+            padding: 30px;
+        }
+        .card-header-custom {
+            background-color: #1e3a8a;
             color: white;
-            border: none;
-            border-radius: 50%;
-            width: 56px;
-            height: 56px;
-            font-size: 24px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-            z-index: 10000;
-            cursor: pointer;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .sidebar { background: var(--sidebar-bg); padding:24px 0; display: flex; flex-direction: column; transition: transform 0.3s ease; }
-        .sidebar-brand { display: flex; flex-direction: column; align-items: center; text-align: center; padding: 0 16px 20px 16px; border-bottom: 1px solid rgba(255, 255, 255, 0.1); margin-bottom: 10px; }
-        .sidebar-brand h2 { font-size: 11px; color: #ffffff; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; line-height: 1.4; margin-top: 5px; }
-        .menu-category { font-size: 10.5px; font-weight: 700; color: var(--sidebar-text-sub); text-transform: uppercase; letter-spacing: 0.5px; padding: 16px 20px 6px 20px; }
-        .menu { display: block; padding: 8px 36px; color: var(--menu-text); cursor: pointer; font-size: 13.5px; font-weight: 500; text-decoration: none; transition: all 0.2s ease; opacity: 0.9; }
-        .menu:hover { opacity: 1; background: rgba(255, 255, 255, 0.05); }
-        .menu.active-page { background: var(--sidebar-active); color: #ffffff; font-weight: 600; border-radius: 6px; margin: 2px 14px; padding: 10px 20px; opacity: 1; box-shadow: inset 0 1px 0 rgba(255,255,255,0.15); }
-        
-        .main { padding:40px; overflow-x: hidden; display: flex; flex-direction: column; min-height: 100vh; }
-        .main h2 { font-size: 26px; color: var(--text-dark-title); font-weight: 700; margin-bottom: 6px; }
-        .subtitle-concejala { font-size: 13px; color: #64748b; margin-bottom: 24px; font-weight: 500; }
-        
-        .filters-bar { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; align-items: center; background: white; padding: 12px 16px; border-radius: 8px; border: 1px solid #e2e8f0; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
-        .form-control { padding: 8px 12px; border: 1px solid var(--border-color); border-radius: 6px; font-size: 12px; color: #334155; outline: none; width: 100%; }
-        .form-control:focus { border-color: var(--sidebar-active); }
-        
-        .action-bar { margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
-        .table-counter { font-size: 12px; font-weight: 600; color: #64748b; }
-        
-        .table-container { background: white; border: 1px solid #e2e8f0; border-radius: 8px; overflow-x: auto; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02); }
-        table { width:100%; border-collapse:collapse; min-width: 900px; }
-        th, td { padding:14px 18px; border-bottom:1px solid #f1f5f9; text-align:left; font-size:13px; }
-        th { background:#f8fafc; color: var(--sidebar-bg); font-weight: 700; text-transform: uppercase; font-size: 11px; letter-spacing: 0.5px; }
-        
-        .btn-primary { padding:11px 20px; border:none; border-radius:6px; cursor:pointer; background: var(--sidebar-active); color:white; font-size:13px; font-weight: 600; width: auto; text-align: center; }
-        .btn-success { padding:6px 12px; border:none; border-radius:4px; cursor:pointer; background: var(--success-color); color:white; font-size:11px; font-weight: 600; }
-        .action-buttons { display: flex; gap: 6px; align-items: center; flex-wrap: nowrap; }
-        .btn-wa { background: #e2e8f0; color: #1e293b; padding: 6px 12px; border: none; border-radius: 4px; font-size: 11px; font-weight:600; cursor: pointer; }
-        .btn-del { background: var(--danger-color); color: white; padding: 6px 12px; border: none; border-radius: 4px; font-size: 11px; font-weight:600; cursor: pointer; }
-        
-        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 37, 71, 0.6); backdrop-filter: blur(3px); display: none; align-items: center; justify-content: center; z-index: 9999; opacity: 0; transition: opacity 0.25s ease; padding: 16px; }
-        .modal-overlay.open { opacity: 1; display: flex !important; }
-        .modal-content { background: white; width: 100%; max-width: 600px; border-radius: 12px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.15); overflow: hidden; transform: translateY(-20px); transition: transform 0.25s ease; max-height: 90vh; display: flex; flex-direction: column; }
-        .modal-overlay.open .modal-content { transform: translateY(0); }
-        .modal-header { background: var(--sidebar-bg); color: white; padding: 18px 24px; display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; }
-        .modal-header h3 { font-size: 16px; font-weight: 600; }
-        .close-modal { background: transparent; border: none; color: white; font-size: 20px; cursor: pointer; opacity: 0.8; }
-        
-        .modal-flex-form { display: flex; flex-direction: column; flex: 1; overflow: hidden; margin: 0; padding: 0; }
-        .modal-body { padding: 24px; display: flex; flex-direction: column; gap: 14px; overflow-y: auto; flex: 1; }
-        .modal-footer { padding: 16px 24px; background: #f8fafc; border-top: 1px solid #e2e8f0; display: flex; justify-content: flex-end; flex-shrink: 0; gap: 8px; }
-
-        .main-footer { margin-top: auto; padding-top: 40px; text-align: center; width: 100%; }
-        .main-footer-flag { display: flex; height: 4px; width: 100%; margin-bottom: 10px; }
-        .main-footer-flag div { flex: 1; }
-        .main-footer p { font-size: 11px; color: #64748b; line-height: 1.3; margin: 1px 0; font-family: 'Inter', sans-serif; text-transform: uppercase; letter-spacing: 0.3px; }
-
-        @media (max-width: 900px) { 
-            .layout { grid-template-columns: 1fr; }
-            .mobile-menu-toggle { display: flex; }
-            .sidebar { position: fixed; top: 0; left: 0; width: 280px; height: 100vh; z-index: 9998; transform: translateX(-100%); box-shadow: 5px 0 15px rgba(0,0,0,0.2); }
-            .sidebar.mobile-open { transform: translateX(0); }
-            .main { padding: 20px 16px; }
-            .main h2 { font-size: 20px; }
         }
     </style>
 </head>
+<body>
 
-<body style="display: none;">
-
-    <button class="mobile-menu-toggle" id="menuToggleBtn" onclick="toggleMobileMenu()">☰</button>
-
-    <div class="layout">
+<div class="container-fluid">
+    <div class="row">
         <!-- Sidebar -->
-        <div class="sidebar" id="sidebarMenu">
-            <div class="sidebar-brand">
-                <h2>COMISIÓN PERMANENTE DE SALUD<br>Y DESARROLLO SOCIAL INTEGRAL</h2>
-            </div>
-            
-            <a class="menu" href="dashboard.html">Principal</a>
-            
-            <div class="menu-category">Coor. Ejecutiva</div>
-            <a class="menu" href="ejecutiva.html">Oficios e Informes</a>
-            <a class="menu" href="planificacion.html">Planificación Semanal</a>
-            
-            <div class="menu-category">Coor. Política</div>
-            <a class="menu" href="politica.html">Liderazgos y Comunas</a>
-            
-            <div class="menu-category">Coor. Social</div>
-            <a class="menu" href="social.html">Casos Sociales</a>
-            <a class="menu" href="red_salud.html">Red de Salud (CPT/CDI)</a>
-            
-            <div class="menu-category">Gestión Digital</div>
-            <a class="menu" href="bitacora.html">Bitácora de Eventos</a>
-            <a class="menu" href="reportes.html">📄 Reportes e Informes</a>
-            <a class="menu" href="formatos.html">📁 Formatos de Oficina</a>
+        <nav class="col-md-3 col-lg-2 d-md-block sidebar collapse p-3">
+            <h4 class="text-white text-center py-3">Comisión de Salud</h4>
+            <hr class="text-secondary">
+            <ul class="nav flex-column">
+                <li class="nav-item"><a href="principal.html"><i class="fas fa-home me-2"></i> Principal</a></li>
+                <li class="nav-item"><a href="oficios.html"><i class="fas fa-file-alt me-2"></i> Oficios e Informes</a></li>
+                <li class="nav-item"><a href="casos-sociales.html"><i class="fas fa-users me-2"></i> Casos Sociales</a></li>
+                <li class="nav-item"><a href="entrega-ayuda.html" class="active"><i class="fas fa-hand-holding-medical me-2"></i> Entregas y Ayudas</a></li>
+                <li class="nav-item"><a href="bitacora.html"><i class="fas fa-book me-2"></i> Bitácora de Eventos</a></li>
+            </ul>
+        </nav>
 
-            <div id="enlaceAuditoria" style="display: none;">
-                <a href="auditoria.html" class="menu">🛡️ Panel de Auditoría</a>
-            </div>
-            <div class="menu-category">Gestión Despacho</div>
-            <a class="menu" href="acciones.html" style="font-weight: 600; border-radius: 6px; margin: 2px 14px; padding: 10px 20px;">⭐ Acciones Concejala</a>
-            
-            <div style="margin-top: auto; padding: 24px 20px; border-top: 1px solid rgba(255,255,255,0.1);">
-                <div id="usuarioNombre" style="font-size:13px; color:#ffffff; font-weight:600; margin-bottom: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">Cargando...</div>
-                <div id="usuarioCoordinacion" style="font-size:10.5px; color:var(--sidebar-text-sub); font-weight: 500; margin-bottom: 16px; text-transform: uppercase;">Cargando...</div>
-                <a class="menu" onclick="logout()" style="cursor:pointer; font-size:12px; color:#f87171; padding: 8px 0; display: block; border-top: 1px solid rgba(255,255,255,0.05);">Cerrar sesión</a>
-            </div>
-        </div>
-
-        <!-- Contenido Principal -->
-        <div class="main">
-            <h2>Control de Entregas de Ayudas Sociales</h2>
-            <div class="subtitle-concejala">Despacho Concejala Letty Bastidas — Municipio Ambrosio Plaza</div>
-
-            <div class="filters-bar">
-                <span style="font-size: 12px; font-weight: 600; color: #475569;">Filtro Rápido:</span>
-                <input type="text" id="filter-busqueda" class="form-control" placeholder="🔍 Buscar por cédula, beneficiario o tipo de ayuda..." style="flex: 1; min-width: 250px;" onkeyup="renderTablaEntregas()">
-            </div>
-
-            <div class="action-bar">
-                <button class="btn-primary" onclick="abrirModalEntrega()">➕ Registrar Nueva Entrega</button>
-                <span class="table-counter" id="tableCounter">Mostrando 0 registros</span>
-            </div>
-
-            <div class="table-container">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Fecha</th>
-                            <th>Cédula</th>
-                            <th>Beneficiario</th>
-                            <th>Tipo de Ayuda</th>
-                            <th>Descripción / Insumo</th>
-                            <th>Responsable</th>
-                            <th style="width: 120px;">Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody id="tbodyEntregas">
-                        <tr><td colspan="7" style="text-align:center; color:#94a3b8; padding: 25px;">Conectando con la base de datos SQLite...</td></tr>
-                    </tbody>
-                </table>
-            </div>
-
-            <footer class="main-footer">
-                <div class="main-footer-flag">
-                    <div style="background-color: #ffde00;"></div>
-                    <div style="background-color: #003da5;"></div>
-                    <div style="background-color: #d12421;"></div>
+        <!-- Main Content -->
+        <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 main-content">
+            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                <h2>Control de Entregas de Ayudas Sociales</h2>
+                <div class="btn-toolbar mb-2 mb-md-0">
+                    <button type="button" class="btn btn-primary me-2" data-bs-toggle="modal" data-bs-target="#modalRegistrarAyuda">
+                        <i class="fas fa-plus-circle me-1"></i> Registrar Nueva Entrega
+                    </button>
+                    <button type="button" class="btn btn-success" onclick="exportarAWord()">
+                        <i class="fas fa-file-word me-1"></i> Exportar a Word
+                    </button>
                 </div>
-                <p>Sistema de Gestión de la Comisión Permanente de Salud y Desarrollo Social Integral — Municipio Ambrosio Plaza</p>
-            </footer>
-        </div>
-    </div>
-
-    <!-- MODAL REGISTRO / EDICIÓN DE ENTREGA -->
-    <div class="modal-overlay" id="modalEntrega">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3 id="modalTitleEntrega">Registrar Entrega de Ayuda</h3>
-                <button class="close-modal" onclick="cerrarModalEntrega()">&times;</button>
             </div>
-            <form id="formEntrega" class="modal-flex-form" onsubmit="guardarEntrega(event)">
-                <div class="modal-body">
-                    <input type="hidden" id="entregaId">
 
-                    <div style="display: flex; flex-direction: column; gap: 4px;">
-                        <label class="info-label" style="font-size: 11px; font-weight: 700; color: #64748b;">CÉDULA DEL BENEFICIARIO:</label>
-                        <input type="text" id="cedulaBeneficiario" class="form-control" placeholder="Ej: V-12345678" required>
+            <!-- Filtros de Búsqueda -->
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <input type="text" id="inputFiltro" class="form-control" placeholder="Buscar por cédula, beneficiario o tipo de ayuda..." onkeyup="filtrarTabla()">
+                </div>
+            </div>
+
+            <!-- Tabla de Datos -->
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-striped table-hover align-middle" id="tabla-entregas">
+                            <thead class="table-dark">
+                                ID
+                                <th>Cédula</th>
+                                <th>Beneficiario</th>
+                                <th>Tipo de Ayuda</th>
+                                <th>Descripción</th>
+                                <th>Cantidad</th>
+                                <th>Fecha</th>
+                                <th>Responsable</th>
+                                <th>Observaciones</th>
+                                <th>Acciones</th>
+                            </thead>
+                            <tbody id="tabla-cuerpo">
+                                <!-- Los registros se cargan dinámicamente -->
+                            </tbody>
+                        </table>
                     </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
 
-                    <div style="display: flex; flex-direction: column; gap: 4px;">
-                        <label class="info-label" style="font-size: 11px; font-weight: 700; color: #64748b;">NOMBRE Y APELLIDO:</label>
-                        <input type="text" id="nombreBeneficiario" class="form-control" placeholder="Escriba el nombre y apellido del beneficiario..." required>
+<!-- Modal Registrar Nueva Entrega -->
+<div class="modal fade" id="modalRegistrarAyuda" tabindex="-1" aria-labelledby="modalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header card-header-custom">
+                <h5 class="modal-title" id="modalLabel"><i class="fas fa-hand-holding-medical me-2"></i> Registrar Nueva Entrega de Ayuda</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="formRegistrarAyuda">
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Cédula del Beneficiario:</label>
+                            <input type="text" class="form-control" id="cedula" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Nombre y Apellido:</label>
+                            <input type="text" class="form-control" id="beneficiario" required>
+                        </div>
                     </div>
-
-                    <div style="display: flex; gap: 10px;">
-                        <div style="flex: 1; display: flex; flex-direction: column; gap: 4px;">
-                            <label class="info-label" style="font-size: 11px; font-weight: 700; color: #64748b;">TIPO DE AYUDA:</label>
-                            <select id="tipoAyuda" class="form-control" required>
-                                <option value="">Seleccione...</option>
-                                <option value="Medicina">Medicamentos</option>
-                                <option value="Ayuda Tecnica">Ayuda Técnica</option>
-                                <option value="Alimento">Alimentos</option>
-                                <option value="Insumo Medico">Insumo Médico-Quirúrgico</option>
-                                <option value="Otro">Otro</option>
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Tipo de Ayuda:</label>
+                            <select class="form-select" id="tipo_ayuda" required>
+                                <option value="Medicamentos">Medicamentos</option>
+                                <option value="Alimentos">Alimentos</option>
+                                <option value="Insumos Médicos">Insumos Médicos</option>
+                                <option value="Ayuda Técnica">Ayuda Técnica</option>
                             </select>
                         </div>
-                        <div style="flex: 1; display: flex; flex-direction: column; gap: 4px;">
-                            <label class="info-label" style="font-size: 11px; font-weight: 700; color: #64748b;">FECHA DE ENTREGA:</label>
-                            <input type="date" id="fechaEntrega" class="form-control" required>
+                        <div class="col-md-6">
+                            <label class="form-label">Fecha de Entrega:</label>
+                            <input type="date" class="form-control" id="fecha_entrega" required>
                         </div>
                     </div>
-
-                    <div style="display: flex; gap: 10px;">
-                        <div style="flex: 2; display: flex; flex-direction: column; gap: 4px;">
-                            <label class="info-label" style="font-size: 11px; font-weight: 700; color: #64748b;">DESCRIPCIÓN DEL INSUMO:</label>
-                            <input type="text" id="descripcionInsumo" class="form-control" placeholder="Ej: Silla de ruedas / Glibenclamida" required>
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Descripción del Insumo:</label>
+                            <input type="text" class="form-control" id="descripcion" required>
                         </div>
-                        <div style="flex: 1; display: flex; flex-direction: column; gap: 4px;">
-                            <label class="info-label" style="font-size: 11px; font-weight: 700; color: #64748b;">CANTIDAD:</label>
-                            <input type="number" id="cantidadAyuda" class="form-control" min="1" value="1" required>
+                        <div class="col-md-6">
+                            <label class="form-label">Cantidad:</label>
+                            <input type="number" class="form-control" id="cantidad" value="1" min="1" required>
                         </div>
                     </div>
-
-                    <div style="display: flex; flex-direction: column; gap: 4px;">
-                        <label class="info-label" style="font-size: 11px; font-weight: 700; color: #64748b;">RESPONSABLE DE LA ENTREGA:</label>
-                        <input type="text" id="responsableEntrega" class="form-control" placeholder="Funcionario a cargo" required>
+                    <div class="mb-3">
+                        <label class="form-label">Responsable de la Entrega:</label>
+                        <input type="text" class="form-control" id="responsable" required>
                     </div>
-
-                    <div style="display: flex; flex-direction: column; gap: 4px;">
-                        <label class="info-label" style="font-size: 11px; font-weight: 700; color: #64748b;">OBSERVACIONES / ACTA:</label>
-                        <textarea id="observacionesEntrega" rows="2" class="form-control" placeholder="Detalles o número de acta..." style="resize: vertical;"></textarea>
+                    <div class="mb-3">
+                        <label class="form-label">Observaciones / Acta:</label>
+                        <textarea class="form-control" id="observaciones" rows="3"></textarea>
                     </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn-wa" onclick="cerrarModalEntrega()">Cancelar</button>
-                    <button type="submit" class="btn-primary">Guardar Registro</button>
-                </div>
-            </form>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn btn-primary">Guardar Registro</button>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
+</div>
 
-    <!-- SCRIPT DE CONEXIÓN CON API SQLite -->
-    <script>
-        async function consultarBaseDatos(query, params = []) {
+<!-- Bootstrap JS Bundle -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        cargarEntregas();
+        
+        // Establecer fecha actual por defecto en el formulario
+        document.getElementById('fecha_entrega').valueAsDate = new Date();
+
+        // Manejar el envío del formulario
+        document.getElementById('formRegistrarAyuda').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const datos = {
+                cedula: document.getElementById('cedula').value,
+                beneficiario: document.getElementById('beneficiario').value,
+                tipo_ayuda: document.getElementById('tipo_ayuda').value,
+                descripcion: document.getElementById('descripcion').value,
+                cantidad: parseInt(document.getElementById('cantidad').value),
+                fecha_entrega: document.getElementById('fecha_entrega').value,
+                responsable: document.getElementById('responsable').value,
+                observaciones: document.getElementById('observaciones').value,
+                creado_por: "Usuario Sistema"
+            };
+
+            const query = `INSERT INTO entregas_ayuda (cedula, beneficiario, tipo_ayuda, descripcion, cantidad, fecha_entrega, responsable, observaciones, creado_por) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+            const params = [datos.cedula, datos.beneficiario, datos.tipo_ayuda, datos.descripcion, datos.cantidad, datos.fecha_entrega, datos.responsable, datos.observaciones, datos.creado_por];
+
             try {
                 const response = await fetch("/api/query", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ query, params })
                 });
-                if (!response.ok) throw new Error(`Error ${response.status}`);
-                return await response.json();
+
+                if (!response.ok) throw new Error("Error al guardar el registro en el servidor.");
+
+                alert("¡Registro guardado con éxito!");
+                document.getElementById('formRegistrarAyuda').reset();
+                document.getElementById('fecha_entrega').valueAsDate = new Date();
+                
+                // Cerrar modal
+                const modalEl = document.getElementById('modalRegistrarAyuda');
+                const modal = bootstrap.Modal.getInstance(modalEl);
+                modal.hide();
+
+                cargarEntregas();
             } catch (error) {
                 console.error(error);
-                throw error;
+                alert("Error al guardar el registro: Error 500 o fallo de conexión.");
             }
-        }
-
-        if (sessionStorage.getItem("usuario_rol") === "admin") {
-            const el = document.getElementById("enlaceAuditoria");
-            if (el) el.style.display = "block";
-        }
-
-        let listaEntregas = [];
-        let idEnEdicion = null;
-
-        window.addEventListener("DOMContentLoaded", async () => {
-            const nombre = sessionStorage.getItem("usuario_nombre");
-            const coord = sessionStorage.getItem("usuario_coordinacion");
-            if (nombre) document.getElementById("usuarioNombre").textContent = nombre;
-            if (coord) document.getElementById("usuarioCoordinacion").textContent = coord;
-
-            await verificarOCrearTabla();
-            await cargarEntregas();
         });
+    });
 
-        window.toggleMobileMenu = function() {
-            const sidebar = document.getElementById("sidebarMenu");
-            const btn = document.getElementById("menuToggleBtn");
-            sidebar.classList.toggle("mobile-open");
-            btn.innerText = sidebar.classList.contains("mobile-open") ? "✕" : "☰";
-        }
-
-        async function verificarOCrearTabla() {
-            try {
-                await consultarBaseDatos(`
-                    CREATE TABLE IF NOT EXISTS entregas_ayuda (
-                        id INTEGER PRIMARY KEY AUTOINCREMENT,
-                        cedula TEXT,
-                        beneficiario TEXT,
-                        tipo_ayuda TEXT,
-                        descripcion TEXT,
-                        cantidad INTEGER,
-                        fecha_entrega TEXT,
-                        responsable TEXT,
-                        observaciones TEXT,
-                        creado_por TEXT,
-                        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-                    )
-                `);
-            } catch (e) {
-                console.error("Nota de inicialización de tabla:", e);
-            }
-        }
-
-        async function cargarEntregas() {
-            try {
-                listaEntregas = await consultarBaseDatos("SELECT * FROM entregas_ayuda ORDER BY id DESC");
-                renderTablaEntregas();
-            } catch (err) {
-                document.getElementById("tbodyEntregas").innerHTML = `<tr><td colspan="7" style="text-align:center; color:#dc2626; padding:20px;">⚠️ Error al cargar registros: ${err.message}</td></tr>`;
-            }
-        }
-
-        window.renderTablaEntregas = function() {
-            const tbody = document.getElementById("tbodyEntregas");
-            const filtro = document.getElementById("filter-busqueda").value.toLowerCase().trim();
-
-            const filtrados = listaEntregas.filter(item => {
-                const ced = (item.cedula || "").toLowerCase();
-                const ben = (item.beneficiario || "").toLowerCase();
-                const tip = (item.tipo_ayuda || "").toLowerCase();
-                const des = (item.descripcion || "").toLowerCase();
-                return ced.includes(filtro) || ben.includes(filtro) || tip.includes(filtro) || des.includes(filtro);
+    async function cargarEntregas() {
+        try {
+            const response = await fetch("/api/query", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ query: "SELECT * FROM entregas_ayuda ORDER BY id DESC" })
             });
+            const resultado = await response.json();
+            const tbody = document.getElementById('tabla-cuerpo');
+            tbody.innerHTML = "";
 
-            document.getElementById("tableCounter").innerText = `Mostrando ${filtrados.length} registro(s)`;
-
-            if (filtrados.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; color:#94a3b8; padding:30px;">No se encontraron entregas registradas.</td></tr>`;
-                return;
+            const filas = resultado.rows || resultado;
+            if (Array.isArray(filas)) {
+                filas.forEach(row => {
+                    tbody.innerHTML += `
+                        <tr>
+                            <td>${row.id}</td>
+                            <td>${row.cedula || ''}</td>
+                            <td>${row.beneficiario || ''}</td>
+                            <td>${row.tipo_ayuda || ''}</td>
+                            <td>${row.descripcion || ''}</td>
+                            <td>${row.cantidad || ''}</td>
+                            <td>${row.fecha_entrega || ''}</td>
+                            <td>${row.responsable || ''}</td>
+                            <td>${row.observaciones || ''}</td>
+                            <td>
+                                <button class="btn btn-sm btn-danger" onclick="eliminarEntrega(${row.id})"><i class="fas fa-trash"></i></button>
+                            </td>
+                        </tr>
+                    `;
+                });
             }
+        } catch (error) {
+            console.error("Error cargando los datos:", error);
+        }
+    }
 
-            tbody.innerHTML = filtrados.map(item => `
-                <tr>
-                    <td><b>${item.fecha_entrega || 'N/D'}</b></td>
-                    <td><code>${item.cedula || 'N/D'}</code></td>
-                    <td style="color: var(--text-dark-title); font-weight: 600;">${item.beneficiario || 'Sin nombre'}</td>
-                    <td><span style="background:#e0f2fe; color:#0369a1; padding:3px 8px; border-radius:4px; font-size:11px; font-weight:700;">${item.tipo_ayuda}</span></td>
-                    <td>${item.descripcion} (Cant: ${item.cantidad})</td>
-                    <td style="color:#475569;">${item.responsable}</td>
-                    <td>
-                        <div class="action-buttons">
-                            <button class="btn-success" onclick="editarEntrega(${item.id})">Editar</button>
-                            <button class="btn-del" onclick="eliminarEntrega(${item.id})">Borrar</button>
-                        </div>
-                    </td>
-                </tr>
-            `).join("");
+    async function eliminarEntrega(id) {
+        if (!confirm("¿Desea eliminar este registro?")) return;
+        try {
+            await fetch("/api/query", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ query: "DELETE FROM entregas_ayuda WHERE id = ?", params: [id] })
+            });
+            cargarEntregas();
+        } catch (error) {
+            console.error("Error al eliminar:", error);
+        }
+    }
+
+    function filtrarTabla() {
+        const filtro = document.getElementById('inputFiltro').value.toLowerCase();
+        const filas = document.querySelectorAll('#tabla-cuerpo tr');
+        filas.forEach(fila => {
+            const texto = fila.innerText.toLowerCase();
+            fila.style.display = texto.includes(filtro) ? "" : "none";
+        });
+    }
+
+    function exportarAWord() {
+        const tabla = document.getElementById("tabla-entregas");
+        if (!tabla) {
+            alert("No se encontró la tabla para exportar.");
+            return;
         }
 
-        window.abrirModalEntrega = function() {
-            idEnEdicion = null;
-            document.getElementById("modalTitleEntrega").innerText = "Registrar Nueva Entrega de Ayuda";
-            document.getElementById("formEntrega").reset();
-            document.getElementById("entregaId").value = "";
-            document.getElementById("fechaEntrega").valueAsDate = new Date();
-            document.getElementById("modalEntrega").classList.add("open");
-        }
+        const estilos = `
+            body { font-family: Arial, sans-serif; }
+            table { border-collapse: collapse; width: 100%; }
+            th, td { border: 1px solid #999; padding: 6px; text-align: left; font-size: 10pt; }
+            th { background-color: #1e3a8a; color: #ffffff; }
+        `;
 
-        window.cerrarModalEntrega = function() {
-            idEnEdicion = null;
-            document.getElementById("modalEntrega").classList.remove("open");
-        }
+        const contenido = `
+            <html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
+            <head><meta charset='utf-8'><style>${estilos}</style></head>
+            <body>
+                <h2 style="text-align:center; color:#1e3a8a;">Control de Entregas de Ayudas Sociales</h2>
+                <p><b>Fecha de emisión:</b> ${new Date().toLocaleDateString()}</p>
+                ${tabla.outerHTML}
+            </body>
+            </html>
+        `;
 
-        window.guardarEntrega = async function(e) {
-            e.preventDefault();
+        const blob = new Blob(['\ufeff' + contenido], { type: 'application/msword' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `Reporte_Entregas_Ayuda_${new Date().toISOString().slice(0, 10)}.doc`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+    }
+</script>
 
-            const cedula = document.getElementById("cedulaBeneficiario").value.trim();
-            const beneficiario = document.getElementById("nombreBeneficiario").value.trim();
-            const tipoAyuda = document.getElementById("tipoAyuda").value;
-            const fechaEntrega = document.getElementById("fechaEntrega").value;
-            const descripcion = document.getElementById("descripcionInsumo").value.trim();
-            const cantidad = Number(document.getElementById("cantidadAyuda").value);
-            const responsable = document.getElementById("responsableEntrega").value.trim();
-            const observaciones = document.getElementById("observacionesEntrega").value.trim();
-            const usuarioActual = sessionStorage.getItem("usuario_nombre") || "Desconocido";
-
-            try {
-                let sql, params;
-                if (idEnEdicion) {
-                    sql = `UPDATE entregas_ayuda SET cedula = ?, beneficiario = ?, tipo_ayuda = ?, descripcion = ?, cantidad = ?, fecha_entrega = ?, responsable = ?, observaciones = ? WHERE id = ?`;
-                    params = [cedula, beneficiario, tipoAyuda, descripcion, cantidad, fechaEntrega, responsable, observaciones, idEnEdicion];
-                } else {
-                    sql = `INSERT INTO entregas_ayuda (cedula, beneficiario, tipo_ayuda, descripcion, cantidad, fecha_entrega, responsable, observaciones, creado_por) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`;
-                    params = [cedula, beneficiario, tipoAyuda, descripcion, cantidad, fechaEntrega, responsable, observaciones, usuarioActual];
-                }
-
-                await consultarBaseDatos(sql, params);
-
-                alert(idEnEdicion ? "¡Entrega actualizada correctamente!" : "¡Entrega registrada con éxito!");
-                cerrarModalEntrega();
-                await cargarEntregas();
-            } catch (err) {
-                alert("Error al guardar el registro: " + err.message);
-            }
-        }
-
-        window.editarEntrega = function(id) {
-            const item = listaEntregas.find(r => Number(r.id) === Number(id));
-            if (!item) return;
-
-            idEnEdicion = item.id;
-            document.getElementById("modalTitleEntrega").innerText = "Editar Registro de Entrega";
-            document.getElementById("entregaId").value = item.id;
-            document.getElementById("cedulaBeneficiario").value = item.cedula || "";
-            document.getElementById("nombreBeneficiario").value = item.beneficiario || "";
-            document.getElementById("tipoAyuda").value = item.tipo_ayuda || "";
-            document.getElementById("fechaEntrega").value = item.fecha_entrega || "";
-            document.getElementById("descripcionInsumo").value = item.descripcion || "";
-            document.getElementById("cantidadAyuda").value = item.cantidad || 1;
-            document.getElementById("responsableEntrega").value = item.responsable || "";
-            document.getElementById("observacionesEntrega").value = item.observaciones || "";
-
-            document.getElementById("modalEntrega").classList.add("open");
-        }
-
-        window.eliminarEntrega = async function(id) {
-            if (!confirm("¿Está seguro de que desea eliminar este registro de entrega?")) return;
-
-            try {
-                await consultarBaseDatos("DELETE FROM entregas_ayuda WHERE id = ?", [id]);
-                alert("Registro eliminado con éxito.");
-                await cargarEntregas();
-            } catch (e) {
-                alert("Error al eliminar: " + e.message);
-            }
-        }
-
-        window.logout = function() { 
-            sessionStorage.clear();
-            window.location.href = "index.html"; 
-        }
-    </script>
-    <script src="js/session-manager.js"></script>
 </body>
 </html>
