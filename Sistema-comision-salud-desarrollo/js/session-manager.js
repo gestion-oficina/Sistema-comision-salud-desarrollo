@@ -4,7 +4,7 @@
 // ======================================
 
 // Tiempo máximo de inactividad
-const TIEMPO_INACTIVIDAD = 60000; // 1 minuto
+const TIEMPO_INACTIVIDAD = 1600000; // 1 minuto
 
 let temporizadorSesion;
 
