@@ -21,7 +21,7 @@ async function consultarBaseDatos(query, params = []) {
 }
 // --- SISTEMA DE CIERRE POR INACTIVIDAD (5 MINUTOS) ---
 let temporizadorInactividad;
-const tiempoLimiteInactividad = 5 * 60 * 1000; // 5 minutos
+const tiempoLimiteInactividad = 30 * 60 * 1000; // 5 minutos
 
 function reiniciarTemporizadorInactividad() {
     clearTimeout(temporizadorInactividad);
