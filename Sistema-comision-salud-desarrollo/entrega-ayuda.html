@@ -179,7 +179,7 @@
                             <th>Solicitante</th>
                             <th>Tipo de Solicitud</th>
                             <th>Estatus</th>
-                            <th>Teléfono</th>
+                            <th>Celular</th>
                             <th style="width: 200px;">Acciones</th>
                         </tr>
                     </thead>
@@ -213,31 +213,40 @@
 
                     <div style="display: flex; gap: 10px;">
                         <div style="flex: 1; display: flex; flex-direction: column; gap: 4px;">
-                            <label class="info-label" style="font-size: 11px; font-weight: 700; color: #64748b;">CÉDULA:</label>
+                            <label class="info-label" style="font-size: 11px; font-weight: 700; color: #64748b;">C.I.:</label>
                             <input type="text" id="cedulaSolicitante" class="form-control" placeholder="Ej: V-12345678" required>
                         </div>
                         <div style="flex: 1; display: flex; flex-direction: column; gap: 4px;">
-                            <label class="info-label" style="font-size: 11px; font-weight: 700; color: #64748b;">TELÉFONO DE CONTACTO:</label>
-                            <input type="text" id="telefonoSolicitante" class="form-control" placeholder="Ej: 04141234567" required>
+                            <label class="info-label" style="font-size: 11px; font-weight: 700; color: #64748b;">FECHA:</label>
+                            <input type="date" id="fechaCaso" class="form-control" required>
                         </div>
                     </div>
 
                     <div style="display: flex; flex-direction: column; gap: 4px;">
-                        <label class="info-label" style="font-size: 11px; font-weight: 700; color: #64748b;">NOMBRE Y APELLIDO DEL SOLICITANTE:</label>
+                        <label class="info-label" style="font-size: 11px; font-weight: 700; color: #64748b;">NOMBRE Y APELLIDO:</label>
                         <input type="text" id="nombreSolicitante" class="form-control" placeholder="Escriba el nombre completo..." required>
+                    </div>
+
+                    <div style="display: flex; flex-direction: column; gap: 4px;">
+                        <label class="info-label" style="font-size: 11px; font-weight: 700; color: #64748b;">DOMICILIO:</label>
+                        <input type="text" id="domicilioCaso" class="form-control" placeholder="Ej: Las Clavellinas, Guarenas" required>
                     </div>
 
                     <div style="display: flex; gap: 10px;">
                         <div style="flex: 1; display: flex; flex-direction: column; gap: 4px;">
-                            <label class="info-label" style="font-size: 11px; font-weight: 700; color: #64748b;">TIPO DE SOLICITUD:</label>
-                            <select id="tipoSolicitud" class="form-control" required>
-                                <option value="">Seleccione...</option>
-                                <option value="Saluda / Medicamentos">Salud / Medicamentos</option>
-                                <option value="Ayuda Técnica">Ayuda Técnica</option>
-                                <option value="Alimentación">Alimentación</option>
-                                <option value="Atención Social">Atención Social</option>
-                                <option value="Otro">Otro</option>
-                            </select>
+                            <label class="info-label" style="font-size: 11px; font-weight: 700; color: #64748b;">CELULAR:</label>
+                            <input type="text" id="celularSolicitante" class="form-control" placeholder="Ej: 04141234567" required>
+                        </div>
+                        <div style="flex: 1; display: flex; flex-direction: column; gap: 4px;">
+                            <label class="info-label" style="font-size: 11px; font-weight: 700; color: #64748b;">LOCAL:</label>
+                            <input type="text" id="localSolicitante" class="form-control" placeholder="Ej: 02121234567">
+                        </div>
+                    </div>
+
+                    <div style="display: flex; gap: 10px;">
+                        <div style="flex: 1; display: flex; flex-direction: column; gap: 4px;">
+                            <label class="info-label" style="font-size: 11px; font-weight: 700; color: #64748b;">CORREO:</label>
+                            <input type="email" id="correoSolicitante" class="form-control" placeholder="correo@ejemplo.com">
                         </div>
                         <div style="flex: 1; display: flex; flex-direction: column; gap: 4px;">
                             <label class="info-label" style="font-size: 11px; font-weight: 700; color: #64748b;">ESTATUS DEL CASO:</label>
@@ -251,18 +260,19 @@
                     </div>
 
                     <div style="display: flex; flex-direction: column; gap: 4px;">
-                        <label class="info-label" style="font-size: 11px; font-weight: 700; color: #64748b;">COMUNIDAD / SECTOR:</label>
-                        <input type="text" id="comunidadCaso" class="form-control" placeholder="Ej: Las Clavellinas, Guarenas" required>
+                        <label class="info-label" style="font-size: 11px; font-weight: 700; color: #64748b;">SOLICITUD:</label>
+                        <textarea id="solicitudCaso" rows="3" class="form-control" placeholder="Describa la solicitud..." style="resize: vertical;" required></textarea>
                     </div>
 
-                    <div style="display: flex; flex-direction: column; gap: 4px;">
-                        <label class="info-label" style="font-size: 11px; font-weight: 700; color: #64748b;">DESCRIPCIÓN DETALLADA DEL CASO:</label>
-                        <textarea id="descripcionCaso" rows="3" class="form-control" placeholder="Describa la necesidad o planteamiento..." style="resize: vertical;" required></textarea>
-                    </div>
-
-                    <div style="display: flex; flex-direction: column; gap: 4px;">
-                        <label class="info-label" style="font-size: 11px; font-weight: 700; color: #64748b;">FECHA DE REGISTRO:</label>
-                        <input type="date" id="fechaCaso" class="form-control" required>
+                    <div style="display: flex; gap: 10px;">
+                        <div style="flex: 1; display: flex; flex-direction: column; gap: 4px;">
+                            <label class="info-label" style="font-size: 11px; font-weight: 700; color: #64748b;">ENTREGADO POR:</label>
+                            <input type="text" id="entregadoPor" class="form-control" placeholder="Nombre de quien entrega">
+                        </div>
+                        <div style="flex: 1; display: flex; flex-direction: column; gap: 4px;">
+                            <label class="info-label" style="font-size: 11px; font-weight: 700; color: #64748b;">RECIBIDO POR:</label>
+                            <input type="text" id="recibidoPor" class="form-control" placeholder="Nombre de quien recibe">
+                        </div>
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -321,13 +331,16 @@
                     CREATE TABLE IF NOT EXISTS casos_sociales (
                         id INTEGER PRIMARY KEY AUTOINCREMENT,
                         cedula TEXT,
-                        nombre TEXT,
-                        telefono TEXT,
-                        tipo_solicitud TEXT,
-                        estatus TEXT,
-                        comunidad TEXT,
-                        descripcion TEXT,
                         fecha TEXT,
+                        nombre TEXT,
+                        domicilio TEXT,
+                        celular TEXT,
+                        local TEXT,
+                        correo TEXT,
+                        estatus TEXT,
+                        solicitud TEXT,
+                        entregado_por TEXT,
+                        recibido_por TEXT,
                         creado_por TEXT,
                         created_at DATETIME DEFAULT CURRENT_TIMESTAMP
                     )
@@ -353,9 +366,9 @@
             const filtrados = listaCasos.filter(item => {
                 const ced = (item.cedula || "").toLowerCase();
                 const nom = (item.nombre || "").toLowerCase();
-                const tip = (item.tipo_solicitud || "").toLowerCase();
-                const com = (item.comunidad || "").toLowerCase();
-                return ced.includes(filtro) || nom.includes(filtro) || tip.includes(filtro) || com.includes(filtro);
+                const sol = (item.solicitud || "").toLowerCase();
+                const dom = (item.domicilio || "").toLowerCase();
+                return ced.includes(filtro) || nom.includes(filtro) || sol.includes(filtro) || dom.includes(filtro);
             });
 
             document.getElementById("tableCounter").innerText = `Mostrando ${filtrados.length} registro(s)`;
@@ -367,20 +380,20 @@
 
             tbody.innerHTML = filtrados.map(item => {
                 const colorEstatus = item.estatus === 'Atendido / Completado' ? '#16a34a' : (item.estatus === 'En Proceso' ? '#0284c7' : '#d97706');
-                const telefonoLimpio = (item.telefono || '').replace(/\D/g, '');
-                const mensajeWa = encodeURIComponent(`Estimado/a ${item.nombre}, nos comunicamos desde la Comisión Permanente de Salud y Desarrollo Social Integral (Concejalía Letty Bastidas) en relación a su caso social de ${item.tipo_solicitud}. Estatus actual: ${item.estatus}.`);
+                const celularLimpio = (item.celular || '').replace(/\D/g, '');
+                const mensajeWa = encodeURIComponent(`Estimado/a ${item.nombre}, nos comunicamos desde la Comisión Permanente de Salud y Desarrollo Social Integral (Concejalía Letty Bastidas) en relación a su solicitud. Estatus actual: ${item.estatus}.`);
 
                 return `
                     <tr>
                         <td><b>${item.fecha || 'N/D'}</b></td>
                         <td><code>${item.cedula || 'N/D'}</code></td>
                         <td style="color: var(--text-dark-title); font-weight: 600;">${item.nombre || 'Sin nombre'}</td>
-                        <td><span style="background:#e0f2fe; color:#0369a1; padding:3px 8px; border-radius:4px; font-size:11px; font-weight:700;">${item.tipo_solicitud}</span></td>
+                        <td><span style="background:#e0f2fe; color:#0369a1; padding:3px 8px; border-radius:4px; font-size:11px; font-weight:700;">${item.solicitud ? (item.solicitud.substring(0, 30) + '...') : 'N/D'}</span></td>
                         <td><span style="color: ${colorEstatus}; font-weight: 700; font-size: 11px;">● ${item.estatus}</span></td>
-                        <td>${item.telefono || 'N/D'}</td>
+                        <td>${item.celular || 'N/D'}</td>
                         <td>
                             <div class="action-buttons">
-                                <a class="btn-wa" href="https://wa.me/${telefonoLimpio}?text=${mensajeWa}" target="_blank" title="Enviar WhatsApp">💬 WhatsApp</a>
+                                <a class="btn-wa" href="https://wa.me/${celularLimpio}?text=${mensajeWa}" target="_blank" title="Enviar WhatsApp">💬 WhatsApp</a>
                                 <button class="btn-word" onclick="exportarCasoIndividualWord(${item.id})" title="Exportar este caso a Word">📄 Word</button>
                                 <button class="btn-success" onclick="editarCaso(${item.id})" title="Editar">Editar</button>
                                 <button class="btn-del" onclick="eliminarCaso(${item.id})" title="Borrar">Borrar</button>
@@ -393,7 +406,7 @@
 
         window.abrirModalCaso = function() {
             idEnEdicion = null;
-            document.getElementById("modalTitleCaso").innerText = "Registrar Nuevo Caso Social";
+            document.getElementById("modalTitleCaso").innerText = "Registrar Nota de Entrega / Caso Social";
             document.getElementById("formCaso").reset();
             document.getElementById("casoId").value = "";
             document.getElementById("fechaCaso").valueAsDate = new Date();
@@ -409,32 +422,35 @@
             e.preventDefault();
 
             const cedula = document.getElementById("cedulaSolicitante").value.trim();
-            const nombre = document.getElementById("nombreSolicitante").value.trim();
-            const telefono = document.getElementById("telefonoSolicitante").value.trim();
-            const tipoSolicitud = document.getElementById("tipoSolicitud").value;
-            const estatus = document.getElementById("estatusCaso").value;
-            const comunidad = document.getElementById("comunidadCaso").value.trim();
-            const descripcion = document.getElementById("descripcionCaso").value.trim();
             const fecha = document.getElementById("fechaCaso").value;
+            const nombre = document.getElementById("nombreSolicitante").value.trim();
+            const domicilio = document.getElementById("domicilioCaso").value.trim();
+            const celular = document.getElementById("celularSolicitante").value.trim();
+            const local = document.getElementById("localSolicitante").value.trim();
+            const correo = document.getElementById("correoSolicitante").value.trim();
+            const estatus = document.getElementById("estatusCaso").value;
+            const solicitud = document.getElementById("solicitudCaso").value.trim();
+            const entregadoPor = document.getElementById("entregadoPor").value.trim();
+            const recibidoPor = document.getElementById("recibidoPor").value.trim();
             const usuarioActual = sessionStorage.getItem("usuario_nombre") || "Desconocido";
 
             try {
                 let sql, params;
                 if (idEnEdicion) {
-                    sql = `UPDATE casos_sociales SET cedula = ?, nombre = ?, telefono = ?, tipo_solicitud = ?, estatus = ?, comunidad = ?, descripcion = ?, fecha = ? WHERE id = ?`;
-                    params = [cedula, nombre, telefono, tipoSolicitud, estatus, comunidad, descripcion, fecha, idEnEdicion];
+                    sql = `UPDATE casos_sociales SET cedula = ?, fecha = ?, nombre = ?, domicilio = ?, celular = ?, local = ?, correo = ?, estatus = ?, solicitud = ?, entregado_por = ?, recibido_por = ? WHERE id = ?`;
+                    params = [cedula, fecha, nombre, domicilio, celular, local, correo, estatus, solicitud, entregadoPor, recibidoPor, idEnEdicion];
                 } else {
-                    sql = `INSERT INTO casos_sociales (cedula, nombre, telefono, tipo_solicitud, estatus, comunidad, descripcion, fecha, creado_por) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`;
-                    params = [cedula, nombre, telefono, tipoSolicitud, estatus, comunidad, descripcion, fecha, usuarioActual];
+                    sql = `INSERT INTO casos_sociales (cedula, fecha, nombre, domicilio, celular, local, correo, estatus, solicitud, entregado_por, recibido_por, creado_por) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+                    params = [cedula, fecha, nombre, domicilio, celular, local, correo, estatus, solicitud, entregadoPor, recibidoPor, usuarioActual];
                 }
 
                 await consultarBaseDatos(sql, params);
 
-                alert(idEnEdicion ? "¡Caso social actualizado correctamente!" : "¡Caso social registrado con éxito!");
+                alert(idEnEdicion ? "¡Registro actualizado correctamente!" : "¡Nota de entrega registrada con éxito!");
                 cerrarModalCaso();
                 await cargarCasos();
             } catch (err) {
-                alert("Error al guardar el caso: " + err.message);
+                alert("Error al guardar el registro: " + err.message);
             }
         }
 
@@ -443,26 +459,29 @@
             if (!item) return;
 
             idEnEdicion = item.id;
-            document.getElementById("modalTitleCaso").innerText = "Editar Caso Social";
+            document.getElementById("modalTitleCaso").innerText = "Editar Nota de Entrega / Caso Social";
             document.getElementById("casoId").value = item.id;
             document.getElementById("cedulaSolicitante").value = item.cedula || "";
-            document.getElementById("nombreSolicitante").value = item.nombre || "";
-            document.getElementById("telefonoSolicitante").value = item.telefono || "";
-            document.getElementById("tipoSolicitud").value = item.tipo_solicitud || "";
-            document.getElementById("estatusCaso").value = item.estatus || "En Revisión";
-            document.getElementById("comunidadCaso").value = item.comunidad || "";
-            document.getElementById("descripcionCaso").value = item.descripcion || "";
             document.getElementById("fechaCaso").value = item.fecha || "";
+            document.getElementById("nombreSolicitante").value = item.nombre || "";
+            document.getElementById("domicilioCaso").value = item.domicilio || "";
+            document.getElementById("celularSolicitante").value = item.celular || "";
+            document.getElementById("localSolicitante").value = item.local || "";
+            document.getElementById("correoSolicitante").value = item.correo || "";
+            document.getElementById("estatusCaso").value = item.estatus || "En Revisión";
+            document.getElementById("solicitudCaso").value = item.solicitud || "";
+            document.getElementById("entregadoPor").value = item.entregado_por || "";
+            document.getElementById("recibidoPor").value = item.recibido_por || "";
 
             document.getElementById("modalCaso").classList.add("open");
         }
 
         window.eliminarCaso = async function(id) {
-            if (!confirm("¿Está seguro de que desea eliminar este caso social?")) return;
+            if (!confirm("¿Está seguro de que desea eliminar este registro?")) return;
 
             try {
                 await consultarBaseDatos("DELETE FROM casos_sociales WHERE id = ?", [id]);
-                alert("Caso eliminado con éxito.");
+                alert("Registro eliminado con éxito.");
                 await cargarCasos();
             } catch (e) {
                 alert("Error al eliminar: " + e.message);
@@ -472,90 +491,109 @@
         window.exportarCasoIndividualWord = function(id) {
             const item = listaCasos.find(r => Number(r.id) === Number(id));
             if (!item) {
-                alert("No se encontró la información del caso.");
+                alert("No se encontró la información del registro.");
                 return;
             }
 
             const estilosWord = `
-                body { font-family: 'Arial', sans-serif; line-height: 1.6; color: #333; margin: 40px; }
-                .header { text-align: center; border-bottom: 2px solid #1d3b6a; padding-bottom: 15px; margin-bottom: 20px; }
-                .header h2 { color: #1d3b6a; margin: 0; font-size: 16pt; text-transform: uppercase; }
-                .header p { color: #555; font-size: 10pt; margin: 5px 0 0 0; }
-                .titulo-reporte { text-align: center; font-size: 14pt; font-weight: bold; color: #0f2547; margin-bottom: 20px; text-transform: uppercase; }
-                .seccion { margin-bottom: 15px; }
-                .seccion-title { background-color: #f1f5f9; color: #1d3b6a; font-size: 11pt; font-weight: bold; padding: 6px 10px; border-left: 4px solid #1d3b6a; margin-bottom: 10px; }
-                table { width: 100%; border-collapse: collapse; margin-bottom: 15px; }
-                th, td { border: 1px solid #cbd5e1; padding: 8px 12px; font-size: 10pt; vertical-align: top; }
-                th { background-color: #f8fafc; color: #1d3b6a; text-align: left; width: 30%; }
-                .footer-doc { margin-top: 40px; text-align: center; font-size: 9pt; color: #64748b; border-top: 1px solid #e2e8f0; padding-top: 15px; }
+                body { font-family: 'Arial', sans-serif; line-height: 1.5; color: #000; margin: 30px; font-size: 11pt; }
+                .header { text-align: center; border-bottom: 2px solid #1d3b6a; padding-bottom: 10px; margin-bottom: 15px; }
+                .header h2 { color: #1d3b6a; margin: 0; font-size: 14pt; text-transform: uppercase; }
+                .header p { color: #333; font-size: 9pt; margin: 3px 0; }
+                .nota-titulo { text-align: center; font-size: 13pt; font-weight: bold; margin: 15px 0; text-transform: uppercase; letter-spacing: 1px; }
+                .fecha-container { text-align: right; font-weight: bold; margin-bottom: 15px; }
+                .campo-linea { margin-bottom: 10px; border-bottom: 1px dotted #666; padding-bottom: 3px; }
+                .etiqueta { font-weight: bold; text-transform: uppercase; font-size: 10pt; color: #1d3b6a; }
+                .valor { font-size: 11pt; color: #000; margin-left: 5px; }
+                .firmas-container { margin-top: 50px; display: table; width: 100%; }
+                .firma-box { display: table-cell; width: 50%; text-align: center; padding: 20px; }
+                .linea-firma { border-top: 1px solid #000; width: 80%; margin: 40px auto 5px auto; }
+                .footer-doc { margin-top: 40px; text-align: center; font-size: 8pt; color: #555; border-top: 1px solid #ccc; padding-top: 10px; }
             `;
 
             const contenidoHtml = `
                 <html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
                 <head>
                     <meta charset='utf-8'>
-                    <title>Reporte de Caso Social - ${item.nombre || 'Solicitante'}</title>
+                    <title>Nota de Entrega - ${item.nombre || 'Solicitante'}</title>
                     <style>${estilosWord}</style>
                 </head>
                 <body>
                     <div class="header">
-                        <h2>Concejo Municipal Ambrosio Plaza</h2>
-                        <p>Comisión Permanente de Salud y Desarrollo Social Integral — Despacho Concejala Letty Bastidas</p>
+                        <h2>República Bolivariana de Venezuela</h2>
+                        <p>Estado Bolivariano de Miranda</p>
+                        <p>Concejo del Municipio "Ambrosio Plaza"</p>
+                        <p><b>Comisión Permanente de Salud y Desarrollo Social Integral</b></p>
                     </div>
 
-                    <div class="titulo-reporte">Ficha Individual de Caso Social # ${item.id}</div>
+                    <div class="fecha-container">FECHA: ${item.fecha || 'N/D'}</div>
 
-                    <div class="seccion">
-                        <div class="seccion-title">I. Datos del Solicitante</div>
-                        <table>
-                            <tr>
-                                <th>Nombre y Apellido:</th>
-                                <td><b>${item.nombre || 'N/D'}</b></td>
-                            </tr>
-                            <tr>
-                                <th>Cédula de Identidad:</th>
-                                <td>${item.cedula || 'N/D'}</td>
-                            </tr>
-                            <tr>
-                                <th>Teléfono de Contacto:</th>
-                                <td>${item.telefono || 'N/D'}</td>
-                            </tr>
-                            <tr>
-                                <th>Comunidad / Sector:</th>
-                                <td>${item.comunidad || 'N/D'}</td>
-                            </tr>
-                        </table>
+                    <div class="nota-titulo">NOTA DE ENTREGA</div>
+
+                    <div class="campo-linea">
+                        <span class="etiqueta">NOMBRE Y APELLIDO:</span>
+                        <span class="valor"><b>${item.nombre || 'N/D'}</b></span>
                     </div>
 
-                    <div class="seccion">
-                        <div class="seccion-title">II. Detalles del Planteamiento</div>
-                        <table>
-                            <tr>
-                                <th>Tipo de Solicitud:</th>
-                                <td><b>${item.tipo_solicitud || 'N/D'}</b></td>
-                            </tr>
-                            <tr>
-                                <th>Estatus Actual:</th>
-                                <td><span style="font-weight: bold; color: #1d3b6a;">${item.estatus || 'N/D'}</span></td>
-                            </tr>
-                            <tr>
-                                <th>Fecha de Registro:</th>
-                                <td>${item.fecha || 'N/D'}</td>
-                            </tr>
-                            <tr>
-                                <th>Descripción del Caso:</th>
-                                <td>${item.descripcion || 'Sin descripción detallada.'}</td>
-                            </tr>
-                            <tr>
-                                <th>Registrado por:</th>
-                                <td>${item.creado_por || 'Sistema'}</td>
-                            </tr>
-                        </table>
+                    <div class="campo-linea">
+                        <span class="etiqueta">C.I.:</span>
+                        <span class="valor">${item.cedula || 'N/D'}</span>
                     </div>
+
+                    <div class="campo-linea">
+                        <span class="etiqueta">DOMICILIO:</span>
+                        <span class="valor">${item.domicilio || 'N/D'}</span>
+                    </div>
+
+                    <table style="width: 100%; border: none; margin-bottom: 10px;">
+                        <tr>
+                            <td style="border: none; padding: 0; width: 50%;">
+                                <div class="campo-linea" style="border-bottom: 1px dotted #666; padding-bottom: 3px; margin-right: 10px;">
+                                    <span class="etiqueta">CELULAR:</span>
+                                    <span class="valor">${item.celular || 'N/D'}</span>
+                                </div>
+                            </td>
+                            <td style="border: none; padding: 0; width: 50%;">
+                                <div class="campo-linea" style="border-bottom: 1px dotted #666; padding-bottom: 3px; margin-left: 10px;">
+                                    <span class="etiqueta">LOCAL:</span>
+                                    <span class="valor">${item.local || 'N/D'}</span>
+                                </div>
+                            </td>
+                        </tr>
+                    </table>
+
+                    <div class="campo-linea">
+                        <span class="etiqueta">CORREO:</span>
+                        <span class="valor">${item.correo || 'N/D'}</span>
+                    </div>
+
+                    <div class="campo-linea" style="min-height: 60px;">
+                        <span class="etiqueta">SOLICITUD:</span>
+                        <span class="valor">${item.solicitud || 'N/D'}</span>
+                    </div>
+
+                    <div style="margin-top: 15px; font-size: 9.5pt; color: #334155;">
+                        <b>Estatus Actual:</b> ${item.estatus || 'En Revisión'}
+                    </div>
+
+                    <table style="width: 100%; border: none; margin-top: 40px;">
+                        <tr>
+                            <td style="border: none; text-align: center; width: 50%; vertical-align: top;">
+                                <div style="border-top: 1px solid #000; width: 80%; margin: 50px auto 5px auto;"></div>
+                                <b>Entregado por:</b><br>
+                                <span>${item.entregado_por || '____________________'}</span>
+                            </td>
+                            <td style="border: none; text-align: center; width: 50%; vertical-align: top;">
+                                <div style="border-top: 1px solid #000; width: 80%; margin: 50px auto 5px auto;"></div>
+                                <b>Recibido Por:</b><br>
+                                <span>${item.recibido_por || '____________________'}</span>
+                            </td>
+                        </tr>
+                    </table>
 
                     <div class="footer-doc">
-                        <p>Documento generado oficialmente desde el Sistema de Gestión de la Comisión Permanente de Salud y Desarrollo Social Integral</p>
-                        <p>Municipio Ambrosio Plaza — Guarenas, Estado Miranda</p>
+                        <p>Democracia Socialista y Liberación Nacional — Hacia la consolidación del Estado Mayor de Salud Municipal</p>
+                        <p>Dirección: Calle Bolívar con Monagas, diagonal al Hospitalito Francisco Rafael García. Guarenas, Estado Bolivariano de Miranda.</p>
                     </div>
                 </body>
                 </html>
@@ -565,7 +603,7 @@
             const url = URL.createObjectURL(blob);
             const enlace = document.createElement('a');
             enlace.href = url;
-            enlace.download = `Caso_Social_${(item.nombre || 'Solicitante').replace(/\s+/g, '_')}_${item.id}.doc`;
+            enlace.download = `Nota_Entrega_${(item.nombre || 'Solicitante').replace(/\s+/g, '_')}_${item.id}.doc`;
             document.body.appendChild(enlace);
             enlace.click();
             document.body.removeChild(enlace);
