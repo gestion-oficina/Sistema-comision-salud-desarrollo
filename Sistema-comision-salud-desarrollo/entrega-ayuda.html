@@ -163,12 +163,15 @@
             </div>
 
             <div class="action-bar">
-                <button class="btn-primary" onclick="abrirModalEntrega()">➕ Registrar Nueva Entrega</button>
+                <div style="display: flex; gap: 10px;">
+                    <button class="btn-primary" onclick="abrirModalEntrega()">➕ Registrar Nueva Entrega</button>
+                    <button class="btn-success" onclick="exportarAWord()" style="background-color: #1e3a8a; font-size: 13px; padding: 11px 20px; border-radius: 6px; font-weight: 600;"><i class="fas fa-file-word"></i> 📄 Exportar a Word</button>
+                </div>
                 <span class="table-counter" id="tableCounter">Mostrando 0 registros</span>
             </div>
 
             <div class="table-container">
-                <table>
+                <table id="tablaEntregasDoc">
                     <thead>
                         <tr>
                             <th>Fecha</th>
@@ -177,7 +180,7 @@
                             <th>Tipo de Ayuda</th>
                             <th>Descripción / Insumo</th>
                             <th>Responsable</th>
-                            <th style="width: 120px;">Acciones</th>
+                            <th style="width: 120px;" class="no-export">Acciones</th>
                         </tr>
                     </thead>
                     <tbody id="tbodyEntregas">
@@ -265,7 +268,7 @@
         </div>
     </div>
 
-    <!-- SCRIPT DE CONEXIÓN CON API SQLite -->
+    <!-- SCRIPT DE CONEXIÓN CON API SQLite Y EXPORTACIÓN A WORD -->
     <script>
         async function consultarBaseDatos(query, params = []) {
             try {
@@ -451,6 +454,54 @@
             } catch (e) {
                 alert("Error al eliminar: " + e.message);
             }
+        }
+
+        window.exportarAWord = function() {
+            const tablaOriginal = document.getElementById("tablaEntregasDoc");
+            if (!tablaOriginal) {
+                alert("No se encontró la tabla de datos.");
+                return;
+            }
+
+            // Clonamos la tabla para limpiar la columna de botones de acción antes de exportar
+            const tablaClon = tablaOriginal.cloneNode(true);
+            const celdasAccion = tablaClon.querySelectorAll("th:nth-child(7), td:nth-child(7)");
+            celdasAccion.forEach(el => el.remove());
+
+            const estilosWord = `
+                body { font-family: Arial, sans-serif; }
+                h2 { text-align: center; color: #1d3b6a; }
+                p { font-size: 11pt; color: #333; }
+                table { border-collapse: collapse; width: 100%; margin-top: 20px; }
+                th, td { border: 1px solid #999; padding: 8px; text-align: left; font-size: 10pt; }
+                th { background-color: #1d3b6a; color: #ffffff; }
+            `;
+
+            const contenidoHtml = `
+                <html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
+                <head>
+                    <meta charset='utf-8'>
+                    <title>Control de Entregas de Ayudas Sociales</title>
+                    <style>${estilosWord}</style>
+                </head>
+                <body>
+                    <h2>Control de Entregas de Ayudas Sociales</h2>
+                    <p><b>Despacho Concejala Letty Bastidas — Municipio Ambrosio Plaza</b></p>
+                    <p><b>Fecha de emisión:</b> ${new Date().toLocaleDateString()}</p>
+                    ${tablaClon.outerHTML}
+                </body>
+                </html>
+            `;
+
+            const blob = new Blob(['\ufeff' + contenidoHtml], { type: 'application/msword' });
+            const url = URL.createObjectURL(blob);
+            const enlace = document.createElement('a');
+            enlace.href = url;
+            enlace.download = `Reporte_Entregas_Ayuda_${new Date().toISOString().slice(0, 10)}.doc`;
+            document.body.appendChild(enlace);
+            enlace.click();
+            document.body.removeChild(enlace);
+            URL.revokeObjectURL(url);
         }
 
         window.logout = function() { 
