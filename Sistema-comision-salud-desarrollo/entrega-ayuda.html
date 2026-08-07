@@ -1,324 +1,60 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Control de Entregas de Ayudas Sociales - Sistema Municipal</title>
-    <!-- Bootstrap 5 CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- FontAwesome Icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        body {
-            background-color: #f4f6f9;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+function exportarAWord() {
+    // Selecciona la tabla que contiene los datos de las entregas
+    const tabla = document.getElementById("tabla-entregas"); // Asegúrate de que el id de tu tabla sea este o cámbialo
+    
+    if (!tabla) {
+        alert("No se encontró la tabla de datos para exportar.");
+        return;
+    }
+
+    // Estilos básicos para que el documento mantenga formato en Word
+    const estiloMime = 'data:application/vnd.ms-word;charset=utf-8,';
+    const plantillaHtml = `
+        html, body, table, th, td { 
+            font-family: Arial, sans-serif; 
+            font-size: 11pt; 
         }
-        .sidebar {
-            background-color: #0f172a;
-            min-height: 100vh;
-            color: #fff;
+        table { 
+            border-collapse: collapse; 
+            width: 100%; 
         }
-        .sidebar a {
-            color: #94a3b8;
-            text-decoration: none;
-            padding: 10px 15px;
-            display: block;
-            border-radius: 5px;
-            margin-bottom: 5px;
+        th, td { 
+            border: 1px solid #d3d3d3; 
+            padding: 8px; 
+            text-align: left; 
         }
-        .sidebar a:hover, .sidebar a.active {
-            background-color: #1e3a8a;
-            color: #ffffff;
+        th { 
+            background-color: #1e3a8a; 
+            color: #ffffff; 
         }
-        .main-content {
-            padding: 30px;
-        }
-        .card-header-custom {
-            background-color: #1e3a8a;
-            color: white;
-        }
-    </style>
-</head>
-<body>
+    `;
 
-<div class="container-fluid">
-    <div class="row">
-        <!-- Sidebar -->
-        <nav class="col-md-3 col-lg-2 d-md-block sidebar collapse p-3">
-            <h4 class="text-white text-center py-3">Comisión de Salud</h4>
-            <hr class="text-secondary">
-            <ul class="nav flex-column">
-                <li class="nav-item"><a href="principal.html"><i class="fas fa-home me-2"></i> Principal</a></li>
-                <li class="nav-item"><a href="oficios.html"><i class="fas fa-file-alt me-2"></i> Oficios e Informes</a></li>
-                <li class="nav-item"><a href="casos-sociales.html"><i class="fas fa-users me-2"></i> Casos Sociales</a></li>
-                <li class="nav-item"><a href="entrega-ayuda.html" class="active"><i class="fas fa-hand-holding-medical me-2"></i> Entregas y Ayudas</a></li>
-                <li class="nav-item"><a href="bitacora.html"><i class="fas fa-book me-2"></i> Bitácora de Eventos</a></li>
-            </ul>
-        </nav>
+    const contenidoCompleto = `
+        <html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
+        <head>
+            <meta charset='utf-8'>
+            <title>Reporte de Entregas de Ayuda</title>
+            <style>${plantillaHtml}</style>
+        </head>
+        <body>
+            <h2 style="text-align: center; color: #1e3a8a;">Control de Entregas de Ayudas Sociales</h2>
+            <p><b>Fecha de generación:</b> ${new Date().toLocaleDateString()}</p>
+            ${tabla.outerHTML}
+        </body>
+        </html>
+    `;
 
-        <!-- Main Content -->
-        <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 main-content">
-            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-                <h2>Control de Entregas de Ayudas Sociales</h2>
-                <div class="btn-toolbar mb-2 mb-md-0">
-                    <button type="button" class="btn btn-primary me-2" data-bs-toggle="modal" data-bs-target="#modalRegistrarAyuda">
-                        <i class="fas fa-plus-circle me-1"></i> Registrar Nueva Entrega
-                    </button>
-                    <button type="button" class="btn btn-success" onclick="exportarAWord()">
-                        <i class="fas fa-file-word me-1"></i> Exportar a Word
-                    </button>
-                </div>
-            </div>
-
-            <!-- Filtros de Búsqueda -->
-            <div class="row mb-3">
-                <div class="col-md-6">
-                    <input type="text" id="inputFiltro" class="form-control" placeholder="Buscar por cédula, beneficiario o tipo de ayuda..." onkeyup="filtrarTabla()">
-                </div>
-            </div>
-
-            <!-- Tabla de Datos -->
-            <div class="card shadow-sm">
-                <div class="card-body">
-                    <div class="table-responsive">
-                        <table class="table table-striped table-hover align-middle" id="tabla-entregas">
-                            <thead class="table-dark">
-                                <tr>
-                                    <th>ID</th>
-                                    <th>Cédula</th>
-                                    <th>Beneficiario</th>
-                                    <th>Tipo de Ayuda</th>
-                                    <th>Descripción</th>
-                                    <th>Cantidad</th>
-                                    <th>Fecha</th>
-                                    <th>Responsable</th>
-                                    <th>Observaciones</th>
-                                    <th>Acciones</th>
-                                </tr>
-                            </thead>
-                            <tbody id="tabla-cuerpo">
-                                <!-- Los registros se cargan dinámicamente -->
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-        </main>
-    </div>
-</div>
-
-<!-- Modal Registrar Nueva Entrega -->
-<div class="modal fade" id="modalRegistrarAyuda" tabindex="-1" aria-labelledby="modalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header card-header-custom">
-                <h5 class="modal-title" id="modalLabel"><i class="fas fa-hand-holding-medical me-2"></i> Registrar Nueva Entrega de Ayuda</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <form id="formRegistrarAyuda">
-                    <div class="row mb-3">
-                        <div class="col-md-6">
-                            <label class="form-label">Cédula del Beneficiario:</label>
-                            <input type="text" class="form-control" id="cedula" required>
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label">Nombre y Apellido:</label>
-                            <input type="text" class="form-control" id="beneficiario" required>
-                        </div>
-                    </div>
-                    <div class="row mb-3">
-                        <div class="col-md-6">
-                            <label class="form-label">Tipo de Ayuda:</label>
-                            <select class="form-select" id="tipo_ayuda" required>
-                                <option value="Medicamentos">Medicamentos</option>
-                                <option value="Alimentos">Alimentos</option>
-                                <option value="Insumos Médicos">Insumos Médicos</option>
-                                <option value="Ayuda Técnica">Ayuda Técnica</option>
-                            </select>
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label">Fecha de Entrega:</label>
-                            <input type="date" class="form-control" id="fecha_entrega" required>
-                        </div>
-                    </div>
-                    <div class="row mb-3">
-                        <div class="col-md-6">
-                            <label class="form-label">Descripción del Insumo:</label>
-                            <input type="text" class="form-control" id="descripcion" required>
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label">Cantidad:</label>
-                            <input type="number" class="form-control" id="cantidad" value="1" min="1" required>
-                        </div>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Responsable de la Entrega:</label>
-                        <input type="text" class="form-control" id="responsable" required>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Observaciones / Acta:</label>
-                        <textarea class="form-control" id="observaciones" rows="3"></textarea>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                        <button type="submit" class="btn btn-primary">Guardar Registro</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Bootstrap JS Bundle -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-<script>
-    document.addEventListener("DOMContentLoaded", () => {
-        cargarEntregas();
-        
-        // Establecer fecha actual por defecto en el formulario
-        document.getElementById('fecha_entrega').valueAsDate = new Date();
-
-        // Manejar el envío del formulario
-        document.getElementById('formRegistrarAyuda').addEventListener('submit', async function(e) {
-            e.preventDefault();
-            
-            const datos = {
-                cedula: document.getElementById('cedula').value,
-                beneficiario: document.getElementById('beneficiario').value,
-                tipo_ayuda: document.getElementById('tipo_ayuda').value,
-                descripcion: document.getElementById('descripcion').value,
-                cantidad: parseInt(document.getElementById('cantidad').value),
-                fecha_entrega: document.getElementById('fecha_entrega').value,
-                responsable: document.getElementById('responsable').value,
-                observaciones: document.getElementById('observaciones').value,
-                creado_por: "Usuario Sistema"
-            };
-
-            const query = `INSERT INTO entregas_ayuda (cedula, beneficiario, tipo_ayuda, descripcion, cantidad, fecha_entrega, responsable, observaciones, creado_por) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`;
-            const params = [datos.cedula, datos.beneficiario, datos.tipo_ayuda, datos.descripcion, datos.cantidad, datos.fecha_entrega, datos.responsable, datos.observaciones, datos.creado_por];
-
-            try {
-                const response = await fetch("/api/query", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ query, params })
-                });
-
-                if (!response.ok) throw new Error("Error al guardar el registro en el servidor.");
-
-                alert("¡Registro guardado con éxito!");
-                document.getElementById('formRegistrarAyuda').reset();
-                document.getElementById('fecha_entrega').valueAsDate = new Date();
-                
-                // Cerrar modal
-                const modalEl = document.getElementById('modalRegistrarAyuda');
-                const modal = bootstrap.Modal.getInstance(modalEl);
-                modal.hide();
-
-                cargarEntregas();
-            } catch (error) {
-                console.error(error);
-                alert("Error al guardar el registro: Error 500 o fallo de conexión.");
-            }
-        });
+    // Crea un enlace virtual de descarga
+    const blob = new Blob(['\ufeff' + contenidoCompleto], {
+        type: 'application/msword'
     });
-
-    async function cargarEntregas() {
-        try {
-            const response = await fetch("/api/query", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ query: "SELECT * FROM entregas_ayuda ORDER BY id DESC" })
-            });
-            const resultado = await response.json();
-            const tbody = document.getElementById('tabla-cuerpo');
-            tbody.innerHTML = "";
-
-            const filas = resultado.rows || resultado;
-            if (Array.isArray(filas)) {
-                filas.forEach(row => {
-                    tbody.innerHTML += `
-                        <tr>
-                            <td>${row.id}</td>
-                            <td>${row.cedula || ''}</td>
-                            <td>${row.beneficiario || ''}</td>
-                            <td>${row.tipo_ayuda || ''}</td>
-                            <td>${row.descripcion || ''}</td>
-                            <td>${row.cantidad || ''}</td>
-                            <td>${row.fecha_entrega || ''}</td>
-                            <td>${row.responsable || ''}</td>
-                            <td>${row.observaciones || ''}</td>
-                            <td>
-                                <button class="btn btn-sm btn-danger" onclick="eliminarEntrega(${row.id})"><i class="fas fa-trash"></i></button>
-                            </td>
-                        </tr>
-                    `;
-                });
-            }
-        } catch (error) {
-            console.error("Error cargando los datos:", error);
-        }
-    }
-
-    async function eliminarEntrega(id) {
-        if (!confirm("¿Desea eliminar este registro?")) return;
-        try {
-            await fetch("/api/query", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ query: "DELETE FROM entregas_ayuda WHERE id = ?", params: [id] })
-            });
-            cargarEntregas();
-        } catch (error) {
-            console.error("Error al eliminar:", error);
-        }
-    }
-
-    function filtrarTabla() {
-        const filtro = document.getElementById('inputFiltro').value.toLowerCase();
-        const filas = document.querySelectorAll('#tabla-cuerpo tr');
-        filas.forEach(fila => {
-            const texto = fila.innerText.toLowerCase();
-            fila.style.display = texto.includes(filtro) ? "" : "none";
-        });
-    }
-
-    function exportarAWord() {
-        const tabla = document.getElementById("tabla-entregas");
-        if (!tabla) {
-            alert("No se encontró la tabla para exportar.");
-            return;
-        }
-
-        const estilos = `
-            body { font-family: Arial, sans-serif; }
-            table { border-collapse: collapse; width: 100%; }
-            th, td { border: 1px solid #999; padding: 6px; text-align: left; font-size: 10pt; }
-            th { background-color: #1e3a8a; color: #ffffff; }
-        `;
-
-        const contenido = `
-            <html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
-            <head><meta charset='utf-8'><style>${estilos}</style></head>
-            <body>
-                <h2 style="text-align:center; color:#1e3a8a;">Control de Entregas de Ayudas Sociales</h2>
-                <p><b>Fecha de emisión:</b> ${new Date().toLocaleDateString()}</p>
-                ${tabla.outerHTML}
-            </body>
-            </html>
-        `;
-
-        const blob = new Blob(['\ufeff' + contenido], { type: 'application/msword' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `Reporte_Entregas_Ayuda_${new Date().toISOString().slice(0, 10)}.doc`;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-    }
-</script>
-
-</body>
-</html>
+    
+    const url = URL.createObjectURL(blob);
+    const etiquetaDescarga = document.createElement('a');
+    etiquetaDescarga.href = url;
+    etiquetaDescarga.download = `Reporte_Entregas_Ayuda_${new Date().toISOString().slice(0, 10)}.doc`;
+    
+    document.body.appendChild(etiquetaDescarga);
+    etiquetaDescarga.click();
+    document.body.removeChild(etiquetaDescarga);
+}
