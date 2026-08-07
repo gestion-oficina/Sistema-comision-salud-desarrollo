@@ -284,7 +284,7 @@
         </div>
     </div>
 
-    <!-- SCRIPT DE CONEXIÓN, AUTO-MIGRACIÓN DE TABLA Y EXPORTACIÓN A WORD CON TAMAÑO DE LOGOS FORZADO Y FUENTE ARIAL 12PT -->
+    <!-- SCRIPT DE CONEXIÓN, AUTO-MIGRACIÓN Y EXPORTACIÓN A WORD (LOGO DERECHO AMPLIADO Y PIE DE PÁGINA NATIVO DE WORD) -->
     <script>
         async function consultarBaseDatos(query, params = []) {
             try {
@@ -535,7 +535,13 @@
             const logoComisionBase64 = await convertirImagenABase64("img/logo_comision.png");
 
             const estilosWord = `
-                body { font-family: 'Arial', sans-serif; line-height: 1.5; color: #000; margin: 30px; font-size: 12pt; }
+                @page {
+                    size: auto;
+                    margin: 2.5cm;
+                    mso-page-orientation: portrait;
+                    @mso-footer: f1;
+                }
+                body { font-family: 'Arial', sans-serif; line-height: 1.5; color: #000; font-size: 12pt; }
                 p, span, div, td, th { font-family: 'Arial', sans-serif; font-size: 12pt; }
                 .header-table { width: 100%; border-collapse: collapse; border: none; margin-bottom: 5px; }
                 .header-table td { border: none; vertical-align: middle; font-family: 'Arial', sans-serif; }
@@ -549,7 +555,7 @@
                 .campo-linea { margin-bottom: 10px; border-bottom: 1px dotted #666; padding-bottom: 3px; font-family: 'Arial', sans-serif; }
                 .etiqueta { font-weight: bold; text-transform: uppercase; font-size: 11pt; color: #1d3b6a; font-family: 'Arial', sans-serif; }
                 .valor { font-size: 12pt; color: #000; margin-left: 5px; font-family: 'Arial', sans-serif; }
-                .footer-doc { margin-top: 40px; text-align: center; font-size: 9pt; color: #555; border-top: 1px solid #ccc; padding-top: 10px; font-family: 'Arial', sans-serif; }
+                div.f1 { mso-element: footer; text-align: center; font-size: 9pt; color: #555; font-family: 'Arial', sans-serif; border-top: 1px solid #ccc; padding-top: 8px; }
             `;
 
             const contenidoHtml = `
@@ -560,11 +566,11 @@
                     <style>${estilosWord}</style>
                 </head>
                 <body>
-                    <!-- Encabezado con tamaños ajustados: Logo izquierdo 65px y logo derecho aumentado a 78px, fuente Arial 12pt general -->
+                    <!-- Encabezado con logotipo izquierdo a 70px y logotipo derecho ampliado a 90px (para equilibrar visualmente) -->
                     <table class="header-table">
                         <tr>
                             <td class="header-logo-left">
-                                ${logoConcejoBase64 ? `<img src="${logoConcejoBase64}" width="65" height="65" alt="Logo Concejo" style="width: 65px; height: 65px; max-width: 65px;">` : ''}
+                                ${logoConcejoBase64 ? `<img src="${logoConcejoBase64}" width="70" height="70" alt="Logo Concejo" style="width: 70px; height: 70px; max-width: 70px;">` : ''}
                             </td>
                             <td class="header-center">
                                 <h2>República Bolivariana de Venezuela</h2>
@@ -573,7 +579,7 @@
                                 <p><b>Comisión Permanente de Salud y Desarrollo Social Integral</b></p>
                             </td>
                             <td class="header-logo-right">
-                                ${logoComisionBase64 ? `<img src="${logoComisionBase64}" width="78" height="78" alt="Logo Comisión" style="width: 78px; height: 78px; max-width: 78px;">` : ''}
+                                ${logoComisionBase64 ? `<img src="${logoComisionBase64}" width="90" height="90" alt="Logo Comisión" style="width: 90px; height: 90px; max-width: 90px;">` : ''}
                             </td>
                         </tr>
                     </table>
@@ -645,9 +651,12 @@
                         </tr>
                     </table>
 
-                    <div class="footer-doc">
-                        <p>Democracia Socialista y Liberación Nacional — Hacia la consolidación del Estado Mayor de Salud Municipal</p>
-                        <p>Dirección: Calle Bolívar con Monagas, diagonal al Hospitalito Francisco Rafael García. Guarenas, Estado Bolivariano de Miranda.</p>
+                    <!-- Pie de página nativo de Microsoft Word -->
+                    <div style="mso-element:footer" id="f1">
+                        <p style="margin: 0; font-size: 9pt; color: #555; text-align: center; font-family: 'Arial', sans-serif;">
+                            Democracia Socialista y Liberación Nacional — Hacia la consolidación del Estado Mayor de Salud Municipal<br>
+                            Dirección: Calle Bolívar con Monagas, diagonal al Hospitalito Francisco Rafael García. Guarenas, Estado Bolivariano de Miranda.
+                        </p>
                     </div>
                 </body>
                 </html>
