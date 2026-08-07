@@ -115,7 +115,7 @@
     <button class="mobile-menu-toggle" id="menuToggleBtn" onclick="toggleMobileMenu()">☰</button>
 
     <div class="layout">
-        <!-- Sidebar idéntico a ejecutiva_2.html -->
+        <!-- Sidebar -->
         <div class="sidebar" id="sidebarMenu">
             <div class="sidebar-brand">
                 <h2>COMISIÓN PERMANENTE DE SALUD<br>Y DESARROLLO SOCIAL INTEGRAL</h2>
@@ -181,7 +181,7 @@
                         </tr>
                     </thead>
                     <tbody id="tbodyEntregas">
-                        <tr><td colspan="7" style="text-align:center; color:#94a3b8; padding: 25px;">Cectando con la base de datos SQLite...</td></tr>
+                        <tr><td colspan="7" style="text-align:center; color:#94a3b8; padding: 25px;">Conectando con la base de datos SQLite...</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -207,19 +207,15 @@
             <form id="formEntrega" class="modal-flex-form" onsubmit="guardarEntrega(event)">
                 <div class="modal-body">
                     <input type="hidden" id="entregaId">
-                    <input type="hidden" id="entregaIdCaso">
 
                     <div style="display: flex; flex-direction: column; gap: 4px;">
                         <label class="info-label" style="font-size: 11px; font-weight: 700; color: #64748b;">CÉDULA DEL BENEFICIARIO:</label>
-                        <div style="display: flex; gap: 8px;">
-                            <input type="text" id="cedulaBeneficiario" class="form-control" placeholder="Ej: V-12345678" required>
-                            <button type="button" class="btn-wa" onclick="buscarCasoPorCedula()">Buscar</button>
-                        </div>
+                        <input type="text" id="cedulaBeneficiario" class="form-control" placeholder="Ej: V-12345678" required>
                     </div>
 
                     <div style="display: flex; flex-direction: column; gap: 4px;">
                         <label class="info-label" style="font-size: 11px; font-weight: 700; color: #64748b;">NOMBRE Y APELLIDO:</label>
-                        <input type="text" id="nombreBeneficiario" class="form-control" readonly required placeholder="Use el buscador de cédula...">
+                        <input type="text" id="nombreBeneficiario" class="form-control" placeholder="Escriba el nombre y apellido del beneficiario..." required>
                     </div>
 
                     <div style="display: flex; gap: 10px;">
@@ -316,7 +312,6 @@
                 await consultarBaseDatos(`
                     CREATE TABLE IF NOT EXISTS entregas_ayuda (
                         id INTEGER PRIMARY KEY AUTOINCREMENT,
-                        id_caso INTEGER,
                         cedula TEXT,
                         beneficiario TEXT,
                         tipo_ayuda TEXT,
@@ -385,7 +380,6 @@
             document.getElementById("modalTitleEntrega").innerText = "Registrar Nueva Entrega de Ayuda";
             document.getElementById("formEntrega").reset();
             document.getElementById("entregaId").value = "";
-            document.getElementById("entregaIdCaso").value = "";
             document.getElementById("fechaEntrega").valueAsDate = new Date();
             document.getElementById("modalEntrega").classList.add("open");
         }
@@ -395,41 +389,9 @@
             document.getElementById("modalEntrega").classList.remove("open");
         }
 
-        window.buscarCasoPorCedula = async function() {
-            const cedula = document.getElementById("cedulaBeneficiario").value.trim();
-            if (!cedula) {
-                alert("Por favor ingrese un número de cédula.");
-                return;
-            }
-
-            try {
-                // Intenta buscar en la tabla general de casos sociales (puedes ajustar el nombre de tu tabla según tu base de datos)
-                const resultado = await consultarBaseDatos(
-                    "SELECT id, nombres, apellidos FROM casos_salud WHERE cedula = ? LIMIT 1",
-                    [cedula]
-                );
-
-                if (resultado && resultado.length > 0) {
-                    const caso = resultado[0];
-                    document.getElementById("entregaIdCaso").value = caso.id;
-                    document.getElementById("nombreBeneficiario").value = `${caso.nombres} ${caso.apellidos}`;
-                    alert("¡Beneficiario encontrado y asociado con éxito!");
-                } else {
-                    alert("No se encontró un expediente con esa cédula en Casos Sociales. Puede escribir el nombre o registrar el caso previamente.");
-                    document.getElementById("entregaIdCaso").value = "";
-                    document.getElementById("nombreBeneficiario").removeAttribute("readonly");
-                    document.getElementById("nombreBeneficiario").placeholder = "Escriba el nombre del beneficiario...";
-                }
-            } catch (e) {
-                console.error(e);
-                alert("Error al realizar la consulta del beneficiario.");
-            }
-        }
-
         window.guardarEntrega = async function(e) {
             e.preventDefault();
 
-            const idCaso = document.getElementById("entregaIdCaso").value || null;
             const cedula = document.getElementById("cedulaBeneficiario").value.trim();
             const beneficiario = document.getElementById("nombreBeneficiario").value.trim();
             const tipoAyuda = document.getElementById("tipoAyuda").value;
@@ -443,27 +405,14 @@
             try {
                 let sql, params;
                 if (idEnEdicion) {
-                    sql = `UPDATE entregas_ayuda SET id_caso = ?, cedula = ?, beneficiario = ?, tipo_ayuda = ?, descripcion = ?, cantidad = ?, fecha_entrega = ?, responsable = ?, observaciones = ? WHERE id = ?`;
-                    params = [idCaso, cedula, beneficiario, tipoAyuda, descripcion, cantidad, fechaEntrega, responsable, observaciones, idEnEdicion];
+                    sql = `UPDATE entregas_ayuda SET cedula = ?, beneficiario = ?, tipo_ayuda = ?, descripcion = ?, cantidad = ?, fecha_entrega = ?, responsable = ?, observaciones = ? WHERE id = ?`;
+                    params = [cedula, beneficiario, tipoAyuda, descripcion, cantidad, fechaEntrega, responsable, observaciones, idEnEdicion];
                 } else {
-                    sql = `INSERT INTO entregas_ayuda (id_caso, cedula, beneficiario, tipo_ayuda, descripcion, cantidad, fecha_entrega, responsable, observaciones, creado_por) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
-                    params = [idCaso, cedula, beneficiario, tipoAyuda, descripcion, cantidad, fechaEntrega, responsable, observaciones, usuarioActual];
+                    sql = `INSERT INTO entregas_ayuda (cedula, beneficiario, tipo_ayuda, descripcion, cantidad, fecha_entrega, responsable, observaciones, creado_por) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+                    params = [cedula, beneficiario, tipoAyuda, descripcion, cantidad, fechaEntrega, responsable, observaciones, usuarioActual];
                 }
 
                 await consultarBaseDatos(sql, params);
-
-                // Si está asociado a un caso social, actualiza opcionalmente su bitácora
-                if (idCaso) {
-                    try {
-                        const notaBitacora = `[${fechaEntrega}] Entrega registrada: ${cantidad}x ${tipoAyuda} (${descripcion}) por ${responsable}. Obs: ${observaciones}`;
-                        const casoActual = await consultarBaseDatos("SELECT seguimiento_bitacora FROM casos_salud WHERE id = ?", [Number(idCaso)]);
-                        const bitacoraAnt = casoActual[0]?.seguimiento_bitacora || "";
-                        const bitacoraNueva = bitacoraAnt ? `${bitacoraAnt}\n${notaBitacora}` : notaBitacora;
-                        await consultarBaseDatos("UPDATE casos_salud SET seguimiento_bitacora = ? WHERE id = ?", [bitacoraNueva, Number(idCaso)]);
-                    } catch (errBit) {
-                        console.error("No se pudo actualizar la bitácora del caso social automáticamente:", errBit);
-                    }
-                }
 
                 alert(idEnEdicion ? "¡Entrega actualizada correctamente!" : "¡Entrega registrada con éxito!");
                 cerrarModalEntrega();
@@ -480,7 +429,6 @@
             idEnEdicion = item.id;
             document.getElementById("modalTitleEntrega").innerText = "Editar Registro de Entrega";
             document.getElementById("entregaId").value = item.id;
-            document.getElementById("entregaIdCaso").value = item.id_caso || "";
             document.getElementById("cedulaBeneficiario").value = item.cedula || "";
             document.getElementById("nombreBeneficiario").value = item.beneficiario || "";
             document.getElementById("tipoAyuda").value = item.tipo_ayuda || "";
