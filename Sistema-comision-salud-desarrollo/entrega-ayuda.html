@@ -284,7 +284,7 @@
         </div>
     </div>
 
-    <!-- SCRIPT DE CONEXIÓN, AUTO-MIGRACIÓN DE TABLA Y EXPORTACIÓN A WORD CON IMÁGENES INCRUSTADAS -->
+    <!-- SCRIPT DE CONEXIÓN, AUTO-MIGRACIÓN DE TABLA Y EXPORTACIÓN A WORD CON TAMAÑO DE LOGOS CONTROLADO -->
     <script>
         async function consultarBaseDatos(query, params = []) {
             try {
@@ -510,7 +510,6 @@
             }
         }
 
-        // Función auxiliar para convertir una imagen local a Base64 y garantizar que aparezca en Word
         async function convertirImagenABase64(url) {
             try {
                 const response = await fetch(url);
@@ -521,7 +520,7 @@
                     reader.readAsDataURL(blob);
                 });
             } catch (e) {
-                return ""; // Si falla la carga, devuelve vacío para no romper el documento
+                return "";
             }
         }
 
@@ -532,7 +531,6 @@
                 return;
             }
 
-            // Convertir las imágenes institucionales a Base64 antes de generar el archivo
             const logoConcejoBase64 = await convertirImagenABase64("img/logo_concejo.png");
             const logoComisionBase64 = await convertirImagenABase64("img/logo_comision.png");
 
@@ -561,11 +559,11 @@
                     <style>${estilosWord}</style>
                 </head>
                 <body>
-                    <!-- Encabezado con Logos incrustados en Base64 -->
+                    <!-- Encabezado con Logos incrustados y tamaño estrictamente controlado -->
                     <table class="header-table">
                         <tr>
                             <td class="header-logo-left">
-                                ${logoConcejoBase64 ? `<img src="${logoConcejoBase64}" alt="Logo Concejo" style="width: 70px; height: auto;">` : ''}
+                                ${logoConcejoBase64 ? `<img src="${logoConcejoBase64}" alt="Logo Concejo" style="width: 65px; height: auto; max-width: 65px;">` : ''}
                             </td>
                             <td class="header-center">
                                 <h2>República Bolivariana de Venezuela</h2>
@@ -574,7 +572,7 @@
                                 <p><b>Comisión Permanente de Salud y Desarrollo Social Integral</b></p>
                             </td>
                             <td class="header-logo-right">
-                                ${logoComisionBase64 ? `<img src="${logoComisionBase64}" alt="Logo Comisión" style="width: 70px; height: auto;">` : ''}
+                                ${logoComisionBase64 ? `<img src="${logoComisionBase64}" alt="Logo Comisión" style="width: 65px; height: auto; max-width: 65px;">` : ''}
                             </td>
                         </tr>
                     </table>
