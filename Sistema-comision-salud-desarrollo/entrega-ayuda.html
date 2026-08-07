@@ -14,7 +14,7 @@
         }
     </script>
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <title>Gestión Social - Registro de Entrega de Ayuda</title>
+    <title>Gestión Social - Casos Sociales</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
     <style>
@@ -79,7 +79,8 @@
         .btn-primary { padding:11px 20px; border:none; border-radius:6px; cursor:pointer; background: var(--sidebar-active); color:white; font-size:13px; font-weight: 600; width: auto; text-align: center; }
         .btn-success { padding:6px 12px; border:none; border-radius:4px; cursor:pointer; background: var(--success-color); color:white; font-size:11px; font-weight: 600; }
         .action-buttons { display: flex; gap: 6px; align-items: center; flex-wrap: nowrap; }
-        .btn-wa { background: #e2e8f0; color: #1e293b; padding: 6px 12px; border: none; border-radius: 4px; font-size: 11px; font-weight:600; cursor: pointer; }
+        .btn-wa { background: #25d366; color: white; padding: 6px 12px; border: none; border-radius: 4px; font-size: 11px; font-weight:600; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; gap: 4px; }
+        .btn-word { background: #1e3a8a; color: white; padding: 6px 12px; border: none; border-radius: 4px; font-size: 11px; font-weight:600; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; }
         .btn-del { background: var(--danger-color); color: white; padding: 6px 12px; border: none; border-radius: 4px; font-size: 11px; font-weight:600; cursor: pointer; }
         
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 37, 71, 0.6); backdrop-filter: blur(3px); display: none; align-items: center; justify-content: center; z-index: 9999; opacity: 0; transition: opacity 0.25s ease; padding: 16px; }
@@ -131,7 +132,7 @@
             <a class="menu" href="politica.html">Liderazgos y Comunas</a>
             
             <div class="menu-category">Coor. Social</div>
-            <a class="menu" href="social.html">Casos Sociales</a>
+            <a class="menu active-page" href="social.html">Casos Sociales</a>
             <a class="menu" href="red_salud.html">Red de Salud (CPT/CDI)</a>
             
             <div class="menu-category">Gestión Digital</div>
@@ -143,7 +144,7 @@
                 <a href="auditoria.html" class="menu">🛡️ Panel de Auditoría</a>
             </div>
             <div class="menu-category">Gestión Despacho</div>
-            <a class="menu" href="acciones.html" style="font-weight: 600; border-radius: 6px; margin: 2px 14px; padding: 10px 20px;">⭐ Acciones Concejala</a>
+            <a class="menu" href="acciones.html">⭐ Acciones Concejala</a>
             
             <div style="margin-top: auto; padding: 24px 20px; border-top: 1px solid rgba(255,255,255,0.1);">
                 <div id="usuarioNombre" style="font-size:13px; color:#ffffff; font-weight:600; margin-bottom: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">Cargando...</div>
@@ -154,36 +155,35 @@
 
         <!-- Contenido Principal -->
         <div class="main">
-            <h2>Control de Entregas de Ayudas Sociales</h2>
+            <h2>Gestión de Casos Sociales</h2>
             <div class="subtitle-concejala">Despacho Concejala Letty Bastidas — Municipio Ambrosio Plaza</div>
 
             <div class="filters-bar">
                 <span style="font-size: 12px; font-weight: 600; color: #475569;">Filtro Rápido:</span>
-                <input type="text" id="filter-busqueda" class="form-control" placeholder="🔍 Buscar por cédula, beneficiario o tipo de ayuda..." style="flex: 1; min-width: 250px;" onkeyup="renderTablaEntregas()">
+                <input type="text" id="filter-busqueda" class="form-control" placeholder="🔍 Buscar por cédula, solicitante o tipo de solicitud..." style="flex: 1; min-width: 250px;" onkeyup="renderTablaCasos()">
             </div>
 
             <div class="action-bar">
                 <div style="display: flex; gap: 10px;">
-                    <button class="btn-primary" onclick="abrirModalEntrega()">➕ Registrar Nueva Entrega</button>
-                    <button class="btn-success" onclick="exportarAWord()" style="background-color: #1e3a8a; font-size: 13px; padding: 11px 20px; border-radius: 6px; font-weight: 600;"><i class="fas fa-file-word"></i> 📄 Exportar a Word</button>
+                    <button class="btn-primary" onclick="abrirModalCaso()">➕ Registrar Nuevo Caso Social</button>
                 </div>
                 <span class="table-counter" id="tableCounter">Mostrando 0 registros</span>
             </div>
 
             <div class="table-container">
-                <table id="tablaEntregasDoc">
+                <table>
                     <thead>
                         <tr>
                             <th>Fecha</th>
                             <th>Cédula</th>
-                            <th>Beneficiario</th>
-                            <th>Tipo de Ayuda</th>
-                            <th>Descripción / Insumo</th>
-                            <th>Responsable</th>
-                            <th style="width: 120px;" class="no-export">Acciones</th>
+                            <th>Solicitante</th>
+                            <th>Tipo de Solicitud</th>
+                            <th>Estatus</th>
+                            <th>Teléfono</th>
+                            <th style="width: 200px;">Acciones</th>
                         </tr>
                     </thead>
-                    <tbody id="tbodyEntregas">
+                    <tbody id="tbodyCasos">
                         <tr><td colspan="7" style="text-align:center; color:#94a3b8; padding: 25px;">Conectando con la base de datos SQLite...</td></tr>
                     </tbody>
                 </table>
@@ -200,75 +200,80 @@
         </div>
     </div>
 
-    <!-- MODAL REGISTRO / EDICIÓN DE ENTREGA -->
-    <div class="modal-overlay" id="modalEntrega">
+    <!-- MODAL REGISTRO / EDICIÓN DE CASO -->
+    <div class="modal-overlay" id="modalCaso">
         <div class="modal-content">
             <div class="modal-header">
-                <h3 id="modalTitleEntrega">Registrar Entrega de Ayuda</h3>
-                <button class="close-modal" onclick="cerrarModalEntrega()">&times;</button>
+                <h3 id="modalTitleCaso">Registrar Nuevo Caso Social</h3>
+                <button class="close-modal" onclick="cerrarModalCaso()">&times;</button>
             </div>
-            <form id="formEntrega" class="modal-flex-form" onsubmit="guardarEntrega(event)">
+            <form id="formCaso" class="modal-flex-form" onsubmit="guardarCaso(event)">
                 <div class="modal-body">
-                    <input type="hidden" id="entregaId">
+                    <input type="hidden" id="casoId">
 
-                    <div style="display: flex; flex-direction: column; gap: 4px;">
-                        <label class="info-label" style="font-size: 11px; font-weight: 700; color: #64748b;">CÉDULA DEL BENEFICIARIO:</label>
-                        <input type="text" id="cedulaBeneficiario" class="form-control" placeholder="Ej: V-12345678" required>
+                    <div style="display: flex; gap: 10px;">
+                        <div style="flex: 1; display: flex; flex-direction: column; gap: 4px;">
+                            <label class="info-label" style="font-size: 11px; font-weight: 700; color: #64748b;">CÉDULA:</label>
+                            <input type="text" id="cedulaSolicitante" class="form-control" placeholder="Ej: V-12345678" required>
+                        </div>
+                        <div style="flex: 1; display: flex; flex-direction: column; gap: 4px;">
+                            <label class="info-label" style="font-size: 11px; font-weight: 700; color: #64748b;">TELÉFONO DE CONTACTO:</label>
+                            <input type="text" id="telefonoSolicitante" class="form-control" placeholder="Ej: 04141234567" required>
+                        </div>
                     </div>
 
                     <div style="display: flex; flex-direction: column; gap: 4px;">
-                        <label class="info-label" style="font-size: 11px; font-weight: 700; color: #64748b;">NOMBRE Y APELLIDO:</label>
-                        <input type="text" id="nombreBeneficiario" class="form-control" placeholder="Escriba el nombre y apellido del beneficiario..." required>
+                        <label class="info-label" style="font-size: 11px; font-weight: 700; color: #64748b;">NOMBRE Y APELLIDO DEL SOLICITANTE:</label>
+                        <input type="text" id="nombreSolicitante" class="form-control" placeholder="Escriba el nombre completo..." required>
                     </div>
 
                     <div style="display: flex; gap: 10px;">
                         <div style="flex: 1; display: flex; flex-direction: column; gap: 4px;">
-                            <label class="info-label" style="font-size: 11px; font-weight: 700; color: #64748b;">TIPO DE AYUDA:</label>
-                            <select id="tipoAyuda" class="form-control" required>
+                            <label class="info-label" style="font-size: 11px; font-weight: 700; color: #64748b;">TIPO DE SOLICITUD:</label>
+                            <select id="tipoSolicitud" class="form-control" required>
                                 <option value="">Seleccione...</option>
-                                <option value="Medicina">Medicamentos</option>
-                                <option value="Ayuda Tecnica">Ayuda Técnica</option>
-                                <option value="Alimento">Alimentos</option>
-                                <option value="Insumo Medico">Insumo Médico-Quirúrgico</option>
+                                <option value="Saluda / Medicamentos">Salud / Medicamentos</option>
+                                <option value="Ayuda Técnica">Ayuda Técnica</option>
+                                <option value="Alimentación">Alimentación</option>
+                                <option value="Atención Social">Atención Social</option>
                                 <option value="Otro">Otro</option>
                             </select>
                         </div>
                         <div style="flex: 1; display: flex; flex-direction: column; gap: 4px;">
-                            <label class="info-label" style="font-size: 11px; font-weight: 700; color: #64748b;">FECHA DE ENTREGA:</label>
-                            <input type="date" id="fechaEntrega" class="form-control" required>
-                        </div>
-                    </div>
-
-                    <div style="display: flex; gap: 10px;">
-                        <div style="flex: 2; display: flex; flex-direction: column; gap: 4px;">
-                            <label class="info-label" style="font-size: 11px; font-weight: 700; color: #64748b;">DESCRIPCIÓN DEL INSUMO:</label>
-                            <input type="text" id="descripcionInsumo" class="form-control" placeholder="Ej: Silla de ruedas / Glibenclamida" required>
-                        </div>
-                        <div style="flex: 1; display: flex; flex-direction: column; gap: 4px;">
-                            <label class="info-label" style="font-size: 11px; font-weight: 700; color: #64748b;">CANTIDAD:</label>
-                            <input type="number" id="cantidadAyuda" class="form-control" min="1" value="1" required>
+                            <label class="info-label" style="font-size: 11px; font-weight: 700; color: #64748b;">ESTATUS DEL CASO:</label>
+                            <select id="estatusCaso" class="form-control" required>
+                                <option value="En Revisión">En Revisión</option>
+                                <option value="En Proceso">En Proceso</option>
+                                <option value="Atendido / Completado">Atendido / Completado</option>
+                                <option value="Archivado">Archivado</option>
+                            </select>
                         </div>
                     </div>
 
                     <div style="display: flex; flex-direction: column; gap: 4px;">
-                        <label class="info-label" style="font-size: 11px; font-weight: 700; color: #64748b;">RESPONSABLE DE LA ENTREGA:</label>
-                        <input type="text" id="responsableEntrega" class="form-control" placeholder="Funcionario a cargo" required>
+                        <label class="info-label" style="font-size: 11px; font-weight: 700; color: #64748b;">COMUNIDAD / SECTOR:</label>
+                        <input type="text" id="comunidadCaso" class="form-control" placeholder="Ej: Las Clavellinas, Guarenas" required>
                     </div>
 
                     <div style="display: flex; flex-direction: column; gap: 4px;">
-                        <label class="info-label" style="font-size: 11px; font-weight: 700; color: #64748b;">OBSERVACIONES / ACTA:</label>
-                        <textarea id="observacionesEntrega" rows="2" class="form-control" placeholder="Detalles o número de acta..." style="resize: vertical;"></textarea>
+                        <label class="info-label" style="font-size: 11px; font-weight: 700; color: #64748b;">DESCRIPCIÓN DETALLADA DEL CASO:</label>
+                        <textarea id="descripcionCaso" rows="3" class="form-control" placeholder="Describa la necesidad o planteamiento..." style="resize: vertical;" required></textarea>
+                    </div>
+
+                    <div style="display: flex; flex-direction: column; gap: 4px;">
+                        <label class="info-label" style="font-size: 11px; font-weight: 700; color: #64748b;">FECHA DE REGISTRO:</label>
+                        <input type="date" id="fechaCaso" class="form-control" required>
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn-wa" onclick="cerrarModalEntrega()">Cancelar</button>
-                    <button type="submit" class="btn-primary">Guardar Registro</button>
+                    <button type="button" class="btn-wa" style="background:#e2e8f0; color:#1e293b;" onclick="cerrarModalCaso()">Cancelar</button>
+                    <button type="submit" class="btn-primary">Guardar Caso</button>
                 </div>
             </form>
         </div>
     </div>
 
-    <!-- SCRIPT DE CONEXIÓN CON API SQLite Y EXPORTACIÓN A WORD -->
+    <!-- SCRIPT DE CONEXIÓN CON API SQLite Y EXPORTACIÓN INDIVIDUAL A WORD -->
     <script>
         async function consultarBaseDatos(query, params = []) {
             try {
@@ -290,7 +295,7 @@
             if (el) el.style.display = "block";
         }
 
-        let listaEntregas = [];
+        let listaCasos = [];
         let idEnEdicion = null;
 
         window.addEventListener("DOMContentLoaded", async () => {
@@ -299,8 +304,8 @@
             if (nombre) document.getElementById("usuarioNombre").textContent = nombre;
             if (coord) document.getElementById("usuarioCoordinacion").textContent = coord;
 
-            await verificarOCrearTabla();
-            await cargarEntregas();
+            await verificarOCrearTablaCasos();
+            await cargarCasos();
         });
 
         window.toggleMobileMenu = function() {
@@ -310,185 +315,248 @@
             btn.innerText = sidebar.classList.contains("mobile-open") ? "✕" : "☰";
         }
 
-        async function verificarOCrearTabla() {
+        async function verificarOCrearTablaCasos() {
             try {
                 await consultarBaseDatos(`
-                    CREATE TABLE IF NOT EXISTS entregas_ayuda (
+                    CREATE TABLE IF NOT EXISTS casos_sociales (
                         id INTEGER PRIMARY KEY AUTOINCREMENT,
                         cedula TEXT,
-                        beneficiario TEXT,
-                        tipo_ayuda TEXT,
+                        nombre TEXT,
+                        telefono TEXT,
+                        tipo_solicitud TEXT,
+                        estatus TEXT,
+                        comunidad TEXT,
                         descripcion TEXT,
-                        cantidad INTEGER,
-                        fecha_entrega TEXT,
-                        responsable TEXT,
-                        observaciones TEXT,
+                        fecha TEXT,
                         creado_por TEXT,
                         created_at DATETIME DEFAULT CURRENT_TIMESTAMP
                     )
                 `);
             } catch (e) {
-                console.error("Nota de inicialización de tabla:", e);
+                console.error("Nota de inicialización de tabla de casos:", e);
             }
         }
 
-        async function cargarEntregas() {
+        async function cargarCasos() {
             try {
-                listaEntregas = await consultarBaseDatos("SELECT * FROM entregas_ayuda ORDER BY id DESC");
-                renderTablaEntregas();
+                listaCasos = await consultarBaseDatos("SELECT * FROM casos_sociales ORDER BY id DESC");
+                renderTablaCasos();
             } catch (err) {
-                document.getElementById("tbodyEntregas").innerHTML = `<tr><td colspan="7" style="text-align:center; color:#dc2626; padding:20px;">⚠️ Error al cargar registros: ${err.message}</td></tr>`;
+                document.getElementById("tbodyCasos").innerHTML = `<tr><td colspan="7" style="text-align:center; color:#dc2626; padding:20px;">⚠️ Error al cargar registros: ${err.message}</td></tr>`;
             }
         }
 
-        window.renderTablaEntregas = function() {
-            const tbody = document.getElementById("tbodyEntregas");
+        window.renderTablaCasos = function() {
+            const tbody = document.getElementById("tbodyCasos");
             const filtro = document.getElementById("filter-busqueda").value.toLowerCase().trim();
 
-            const filtrados = listaEntregas.filter(item => {
+            const filtrados = listaCasos.filter(item => {
                 const ced = (item.cedula || "").toLowerCase();
-                const ben = (item.beneficiario || "").toLowerCase();
-                const tip = (item.tipo_ayuda || "").toLowerCase();
-                const des = (item.descripcion || "").toLowerCase();
-                return ced.includes(filtro) || ben.includes(filtro) || tip.includes(filtro) || des.includes(filtro);
+                const nom = (item.nombre || "").toLowerCase();
+                const tip = (item.tipo_solicitud || "").toLowerCase();
+                const com = (item.comunidad || "").toLowerCase();
+                return ced.includes(filtro) || nom.includes(filtro) || tip.includes(filtro) || com.includes(filtro);
             });
 
             document.getElementById("tableCounter").innerText = `Mostrando ${filtrados.length} registro(s)`;
 
             if (filtrados.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; color:#94a3b8; padding:30px;">No se encontraron entregas registradas.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; color:#94a3b8; padding:30px;">No se encontraron casos sociales registrados.</td></tr>`;
                 return;
             }
 
-            tbody.innerHTML = filtrados.map(item => `
-                <tr>
-                    <td><b>${item.fecha_entrega || 'N/D'}</b></td>
-                    <td><code>${item.cedula || 'N/D'}</code></td>
-                    <td style="color: var(--text-dark-title); font-weight: 600;">${item.beneficiario || 'Sin nombre'}</td>
-                    <td><span style="background:#e0f2fe; color:#0369a1; padding:3px 8px; border-radius:4px; font-size:11px; font-weight:700;">${item.tipo_ayuda}</span></td>
-                    <td>${item.descripcion} (Cant: ${item.cantidad})</td>
-                    <td style="color:#475569;">${item.responsable}</td>
-                    <td>
-                        <div class="action-buttons">
-                            <button class="btn-success" onclick="editarEntrega(${item.id})">Editar</button>
-                            <button class="btn-del" onclick="eliminarEntrega(${item.id})">Borrar</button>
-                        </div>
-                    </td>
-                </tr>
-            `).join("");
+            tbody.innerHTML = filtrados.map(item => {
+                const colorEstatus = item.estatus === 'Atendido / Completado' ? '#16a34a' : (item.estatus === 'En Proceso' ? '#0284c7' : '#d97706');
+                const telefonoLimpio = (item.telefono || '').replace(/\D/g, '');
+                const mensajeWa = encodeURIComponent(`Estimado/a ${item.nombre}, nos comunicamos desde la Comisión Permanente de Salud y Desarrollo Social Integral (Concejalía Letty Bastidas) en relación a su caso social de ${item.tipo_solicitud}. Estatus actual: ${item.estatus}.`);
+
+                return `
+                    <tr>
+                        <td><b>${item.fecha || 'N/D'}</b></td>
+                        <td><code>${item.cedula || 'N/D'}</code></td>
+                        <td style="color: var(--text-dark-title); font-weight: 600;">${item.nombre || 'Sin nombre'}</td>
+                        <td><span style="background:#e0f2fe; color:#0369a1; padding:3px 8px; border-radius:4px; font-size:11px; font-weight:700;">${item.tipo_solicitud}</span></td>
+                        <td><span style="color: ${colorEstatus}; font-weight: 700; font-size: 11px;">● ${item.estatus}</span></td>
+                        <td>${item.telefono || 'N/D'}</td>
+                        <td>
+                            <div class="action-buttons">
+                                <a class="btn-wa" href="https://wa.me/${telefonoLimpio}?text=${mensajeWa}" target="_blank" title="Enviar WhatsApp">💬 WhatsApp</a>
+                                <button class="btn-word" onclick="exportarCasoIndividualWord(${item.id})" title="Exportar este caso a Word">📄 Word</button>
+                                <button class="btn-success" onclick="editarCaso(${item.id})" title="Editar">Editar</button>
+                                <button class="btn-del" onclick="eliminarCaso(${item.id})" title="Borrar">Borrar</button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }).join("");
         }
 
-        window.abrirModalEntrega = function() {
+        window.abrirModalCaso = function() {
             idEnEdicion = null;
-            document.getElementById("modalTitleEntrega").innerText = "Registrar Nueva Entrega de Ayuda";
-            document.getElementById("formEntrega").reset();
-            document.getElementById("entregaId").value = "";
-            document.getElementById("fechaEntrega").valueAsDate = new Date();
-            document.getElementById("modalEntrega").classList.add("open");
+            document.getElementById("modalTitleCaso").innerText = "Registrar Nuevo Caso Social";
+            document.getElementById("formCaso").reset();
+            document.getElementById("casoId").value = "";
+            document.getElementById("fechaCaso").valueAsDate = new Date();
+            document.getElementById("modalCaso").classList.add("open");
         }
 
-        window.cerrarModalEntrega = function() {
+        window.cerrarModalCaso = function() {
             idEnEdicion = null;
-            document.getElementById("modalEntrega").classList.remove("open");
+            document.getElementById("modalCaso").classList.remove("open");
         }
 
-        window.guardarEntrega = async function(e) {
+        window.guardarCaso = async function(e) {
             e.preventDefault();
 
-            const cedula = document.getElementById("cedulaBeneficiario").value.trim();
-            const beneficiario = document.getElementById("nombreBeneficiario").value.trim();
-            const tipoAyuda = document.getElementById("tipoAyuda").value;
-            const fechaEntrega = document.getElementById("fechaEntrega").value;
-            const descripcion = document.getElementById("descripcionInsumo").value.trim();
-            const cantidad = Number(document.getElementById("cantidadAyuda").value);
-            const responsable = document.getElementById("responsableEntrega").value.trim();
-            const observaciones = document.getElementById("observacionesEntrega").value.trim();
+            const cedula = document.getElementById("cedulaSolicitante").value.trim();
+            const nombre = document.getElementById("nombreSolicitante").value.trim();
+            const telefono = document.getElementById("telefonoSolicitante").value.trim();
+            const tipoSolicitud = document.getElementById("tipoSolicitud").value;
+            const estatus = document.getElementById("estatusCaso").value;
+            const comunidad = document.getElementById("comunidadCaso").value.trim();
+            const descripcion = document.getElementById("descripcionCaso").value.trim();
+            const fecha = document.getElementById("fechaCaso").value;
             const usuarioActual = sessionStorage.getItem("usuario_nombre") || "Desconocido";
 
             try {
                 let sql, params;
                 if (idEnEdicion) {
-                    sql = `UPDATE entregas_ayuda SET cedula = ?, beneficiario = ?, tipo_ayuda = ?, descripcion = ?, cantidad = ?, fecha_entrega = ?, responsable = ?, observaciones = ? WHERE id = ?`;
-                    params = [cedula, beneficiario, tipoAyuda, descripcion, cantidad, fechaEntrega, responsable, observaciones, idEnEdicion];
+                    sql = `UPDATE casos_sociales SET cedula = ?, nombre = ?, telefono = ?, tipo_solicitud = ?, estatus = ?, comunidad = ?, descripcion = ?, fecha = ? WHERE id = ?`;
+                    params = [cedula, nombre, telefono, tipoSolicitud, estatus, comunidad, descripcion, fecha, idEnEdicion];
                 } else {
-                    sql = `INSERT INTO entregas_ayuda (cedula, beneficiario, tipo_ayuda, descripcion, cantidad, fecha_entrega, responsable, observaciones, creado_por) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`;
-                    params = [cedula, beneficiario, tipoAyuda, descripcion, cantidad, fechaEntrega, responsable, observaciones, usuarioActual];
+                    sql = `INSERT INTO casos_sociales (cedula, nombre, telefono, tipo_solicitud, estatus, comunidad, descripcion, fecha, creado_por) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+                    params = [cedula, nombre, telefono, tipoSolicitud, estatus, comunidad, descripcion, fecha, usuarioActual];
                 }
 
                 await consultarBaseDatos(sql, params);
 
-                alert(idEnEdicion ? "¡Entrega actualizada correctamente!" : "¡Entrega registrada con éxito!");
-                cerrarModalEntrega();
-                await cargarEntregas();
+                alert(idEnEdicion ? "¡Caso social actualizado correctamente!" : "¡Caso social registrado con éxito!");
+                cerrarModalCaso();
+                await cargarCasos();
             } catch (err) {
-                alert("Error al guardar el registro: " + err.message);
+                alert("Error al guardar el caso: " + err.message);
             }
         }
 
-        window.editarEntrega = function(id) {
-            const item = listaEntregas.find(r => Number(r.id) === Number(id));
+        window.editarCaso = function(id) {
+            const item = listaCasos.find(r => Number(r.id) === Number(id));
             if (!item) return;
 
             idEnEdicion = item.id;
-            document.getElementById("modalTitleEntrega").innerText = "Editar Registro de Entrega";
-            document.getElementById("entregaId").value = item.id;
-            document.getElementById("cedulaBeneficiario").value = item.cedula || "";
-            document.getElementById("nombreBeneficiario").value = item.beneficiario || "";
-            document.getElementById("tipoAyuda").value = item.tipo_ayuda || "";
-            document.getElementById("fechaEntrega").value = item.fecha_entrega || "";
-            document.getElementById("descripcionInsumo").value = item.descripcion || "";
-            document.getElementById("cantidadAyuda").value = item.cantidad || 1;
-            document.getElementById("responsableEntrega").value = item.responsable || "";
-            document.getElementById("observacionesEntrega").value = item.observaciones || "";
+            document.getElementById("modalTitleCaso").innerText = "Editar Caso Social";
+            document.getElementById("casoId").value = item.id;
+            document.getElementById("cedulaSolicitante").value = item.cedula || "";
+            document.getElementById("nombreSolicitante").value = item.nombre || "";
+            document.getElementById("telefonoSolicitante").value = item.telefono || "";
+            document.getElementById("tipoSolicitud").value = item.tipo_solicitud || "";
+            document.getElementById("estatusCaso").value = item.estatus || "En Revisión";
+            document.getElementById("comunidadCaso").value = item.comunidad || "";
+            document.getElementById("descripcionCaso").value = item.descripcion || "";
+            document.getElementById("fechaCaso").value = item.fecha || "";
 
-            document.getElementById("modalEntrega").classList.add("open");
+            document.getElementById("modalCaso").classList.add("open");
         }
 
-        window.eliminarEntrega = async function(id) {
-            if (!confirm("¿Está seguro de que desea eliminar este registro de entrega?")) return;
+        window.eliminarCaso = async function(id) {
+            if (!confirm("¿Está seguro de que desea eliminar este caso social?")) return;
 
             try {
-                await consultarBaseDatos("DELETE FROM entregas_ayuda WHERE id = ?", [id]);
-                alert("Registro eliminado con éxito.");
-                await cargarEntregas();
+                await consultarBaseDatos("DELETE FROM casos_sociales WHERE id = ?", [id]);
+                alert("Caso eliminado con éxito.");
+                await cargarCasos();
             } catch (e) {
                 alert("Error al eliminar: " + e.message);
             }
         }
 
-        window.exportarAWord = function() {
-            const tablaOriginal = document.getElementById("tablaEntregasDoc");
-            if (!tablaOriginal) {
-                alert("No se encontró la tabla de datos.");
+        window.exportarCasoIndividualWord = function(id) {
+            const item = listaCasos.find(r => Number(r.id) === Number(id));
+            if (!item) {
+                alert("No se encontró la información del caso.");
                 return;
             }
 
-            // Clonamos la tabla para limpiar la columna de botones de acción antes de exportar
-            const tablaClon = tablaOriginal.cloneNode(true);
-            const celdasAccion = tablaClon.querySelectorAll("th:nth-child(7), td:nth-child(7)");
-            celdasAccion.forEach(el => el.remove());
-
             const estilosWord = `
-                body { font-family: Arial, sans-serif; }
-                h2 { text-align: center; color: #1d3b6a; }
-                p { font-size: 11pt; color: #333; }
-                table { border-collapse: collapse; width: 100%; margin-top: 20px; }
-                th, td { border: 1px solid #999; padding: 8px; text-align: left; font-size: 10pt; }
-                th { background-color: #1d3b6a; color: #ffffff; }
+                body { font-family: 'Arial', sans-serif; line-height: 1.6; color: #333; margin: 40px; }
+                .header { text-align: center; border-bottom: 2px solid #1d3b6a; padding-bottom: 15px; margin-bottom: 20px; }
+                .header h2 { color: #1d3b6a; margin: 0; font-size: 16pt; text-transform: uppercase; }
+                .header p { color: #555; font-size: 10pt; margin: 5px 0 0 0; }
+                .titulo-reporte { text-align: center; font-size: 14pt; font-weight: bold; color: #0f2547; margin-bottom: 20px; text-transform: uppercase; }
+                .seccion { margin-bottom: 15px; }
+                .seccion-title { background-color: #f1f5f9; color: #1d3b6a; font-size: 11pt; font-weight: bold; padding: 6px 10px; border-left: 4px solid #1d3b6a; margin-bottom: 10px; }
+                table { width: 100%; border-collapse: collapse; margin-bottom: 15px; }
+                th, td { border: 1px solid #cbd5e1; padding: 8px 12px; font-size: 10pt; vertical-align: top; }
+                th { background-color: #f8fafc; color: #1d3b6a; text-align: left; width: 30%; }
+                .footer-doc { margin-top: 40px; text-align: center; font-size: 9pt; color: #64748b; border-top: 1px solid #e2e8f0; padding-top: 15px; }
             `;
 
             const contenidoHtml = `
                 <html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
                 <head>
                     <meta charset='utf-8'>
-                    <title>Control de Entregas de Ayudas Sociales</title>
+                    <title>Reporte de Caso Social - ${item.nombre || 'Solicitante'}</title>
                     <style>${estilosWord}</style>
                 </head>
                 <body>
-                    <h2>Control de Entregas de Ayudas Sociales</h2>
-                    <p><b>Despacho Concejala Letty Bastidas — Municipio Ambrosio Plaza</b></p>
-                    <p><b>Fecha de emisión:</b> ${new Date().toLocaleDateString()}</p>
-                    ${tablaClon.outerHTML}
+                    <div class="header">
+                        <h2>Concejo Municipal Ambrosio Plaza</h2>
+                        <p>Comisión Permanente de Salud y Desarrollo Social Integral — Despacho Concejala Letty Bastidas</p>
+                    </div>
+
+                    <div class="titulo-reporte">Ficha Individual de Caso Social # ${item.id}</div>
+
+                    <div class="seccion">
+                        <div class="seccion-title">I. Datos del Solicitante</div>
+                        <table>
+                            <tr>
+                                <th>Nombre y Apellido:</th>
+                                <td><b>${item.nombre || 'N/D'}</b></td>
+                            </tr>
+                            <tr>
+                                <th>Cédula de Identidad:</th>
+                                <td>${item.cedula || 'N/D'}</td>
+                            </tr>
+                            <tr>
+                                <th>Teléfono de Contacto:</th>
+                                <td>${item.telefono || 'N/D'}</td>
+                            </tr>
+                            <tr>
+                                <th>Comunidad / Sector:</th>
+                                <td>${item.comunidad || 'N/D'}</td>
+                            </tr>
+                        </table>
+                    </div>
+
+                    <div class="seccion">
+                        <div class="seccion-title">II. Detalles del Planteamiento</div>
+                        <table>
+                            <tr>
+                                <th>Tipo de Solicitud:</th>
+                                <td><b>${item.tipo_solicitud || 'N/D'}</b></td>
+                            </tr>
+                            <tr>
+                                <th>Estatus Actual:</th>
+                                <td><span style="font-weight: bold; color: #1d3b6a;">${item.estatus || 'N/D'}</span></td>
+                            </tr>
+                            <tr>
+                                <th>Fecha de Registro:</th>
+                                <td>${item.fecha || 'N/D'}</td>
+                            </tr>
+                            <tr>
+                                <th>Descripción del Caso:</th>
+                                <td>${item.descripcion || 'Sin descripción detallada.'}</td>
+                            </tr>
+                            <tr>
+                                <th>Registrado por:</th>
+                                <td>${item.creado_por || 'Sistema'}</td>
+                            </tr>
+                        </table>
+                    </div>
+
+                    <div class="footer-doc">
+                        <p>Documento generado oficialmente desde el Sistema de Gestión de la Comisión Permanente de Salud y Desarrollo Social Integral</p>
+                        <p>Municipio Ambrosio Plaza — Guarenas, Estado Miranda</p>
+                    </div>
                 </body>
                 </html>
             `;
@@ -497,7 +565,7 @@
             const url = URL.createObjectURL(blob);
             const enlace = document.createElement('a');
             enlace.href = url;
-            enlace.download = `Reporte_Entregas_Ayuda_${new Date().toISOString().slice(0, 10)}.doc`;
+            enlace.download = `Caso_Social_${(item.nombre || 'Solicitante').replace(/\s+/g, '_')}_${item.id}.doc`;
             document.body.appendChild(enlace);
             enlace.click();
             document.body.removeChild(enlace);
