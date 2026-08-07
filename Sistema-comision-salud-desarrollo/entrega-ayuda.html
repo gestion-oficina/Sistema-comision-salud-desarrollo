@@ -132,7 +132,8 @@
             <a class="menu" href="politica.html">Liderazgos y Comunas</a>
             
             <div class="menu-category">Coor. Social</div>
-            <a class="menu active-page" href="social.html">Casos Sociales</a>
+            <a class="menu" href="social.html">Casos Sociales</a>
+            <a class="menu active-page" href="entrega-ayuda.html">Reporte Ayuda</a>
             <a class="menu" href="red_salud.html">Red de Salud (CPT/CDI)</a>
             
             <div class="menu-category">Gestión Digital</div>
@@ -519,25 +520,26 @@
             const estilosWord = `
                 @page {
                     size: letter;
-                    margin: 2cm 2cm 2.5cm 2cm;
-                    mso-page-orientation: portrait;
-                    @mso-footer: f1;
+                    margin: 20mm;
+                    @bottom-center {
+                        content: "Democracia Socialista y Liberación Nacional — Hacia la consolidación del Estado Mayor de Salud Municipal\\A Dirección: Calle Bolívar con Monagas, diagonal al Hospitalito Francisco Rafael García. Guarenas, Estado Bolivariano de Miranda.";
+                        white-space: pre-wrap;
+                        font-family: 'Arial', sans-serif;
+                        font-size: 8pt;
+                        color: #555;
+                        text-align: center;
+                        border-top: 1px solid #ccc;
+                        padding-top: 5px;
+                    }
                 }
-                body { font-family: 'Arial', sans-serif; line-height: 1.4; color: #000; font-size: 11pt; }
-                .header { text-align: center; border-bottom: 2px solid #1d3b6a; padding-bottom: 8px; margin-bottom: 12px; }
-                .header table { width: 100%; border: none; border-collapse: collapse; }
-                .header td { border: none; vertical-align: middle; padding: 0; }
-                .logo-cell { width: 15%; text-align: center; }
-                .logo-cell img { max-height: 50px; width: auto; }
-                .title-cell { width: 70%; text-align: center; }
-                .title-cell h2 { color: #1d3b6a; margin: 0; font-size: 12pt; text-transform: uppercase; }
-                .title-cell p { color: #333; font-size: 8.5pt; margin: 2px 0; }
+                body { font-family: 'Arial', sans-serif; line-height: 1.4; color: #000; margin: 0; font-size: 10.5pt; }
+                .header { border-bottom: 2px solid #1d3b6a; padding-bottom: 8px; margin-bottom: 15px; }
                 .nota-titulo { text-align: center; font-size: 12pt; font-weight: bold; margin: 12px 0; text-transform: uppercase; letter-spacing: 1px; }
                 .fecha-container { text-align: right; font-weight: bold; margin-bottom: 12px; font-size: 10pt; }
                 .campo-linea { margin-bottom: 8px; border-bottom: 1px dotted #666; padding-bottom: 2px; }
                 .etiqueta { font-weight: bold; text-transform: uppercase; font-size: 9.5pt; color: #1d3b6a; }
                 .valor { font-size: 10.5pt; color: #000; margin-left: 5px; }
-                div.f1 { mso-element: footer; text-align: center; font-size: 7.5pt; color: #555; border-top: 1px solid #ccc; padding-top: 8px; font-family: 'Arial', sans-serif; }
+                .footer-doc { display: none; }
             `;
 
             const contenidoHtml = `
@@ -548,25 +550,20 @@
                     <style>${estilosWord}</style>
                 </head>
                 <body>
-                    <div style="mso-element:footer" id="f1" class="f1">
-                        Democracia Socialista y Liberación Nacional — Hacia la consolidación del Estado Mayor de Salud Municipal<br>
-                        Dirección: Calle Bolívar con Monagas, diagonal al Hospitalito Francisco Rafael García. Guarenas, Estado Bolivariano de Miranda.
-                    </div>
-
                     <div class="header">
-                        <table>
+                        <table style="width: 100%; border-collapse: collapse; border: none;">
                             <tr>
-                                <td class="logo-cell">
-                                    <span style="font-size: 8pt; color: #1d3b6a; font-weight: bold;">ALCALDÍA / CONCEJO</span>
+                                <td style="width: 15%; text-align: left; vertical-align: middle; border: none;">
+                                    <img src="img/logo_concejo.png" alt="Logo Concejo" style="width: 75px; height: 75px; object-fit: contain;">
                                 </td>
-                                <td class="title-cell">
-                                    <h2>República Bolivariana de Venezuela</h2>
-                                    <p>Estado Bolivariano de Miranda</p>
-                                    <p>Concejo del Municipio "Ambrosio Plaza"</p>
-                                    <p><b>Comisión Permanente de Salud y Desarrollo Social Integral</b></p>
+                                <td style="width: 70%; text-align: center; vertical-align: middle; border: none;">
+                                    <h2 style="color: #1d3b6a; margin: 0; font-size: 11pt; text-transform: uppercase;">República Bolivariana de Venezuela</h2>
+                                    <p style="color: #333; font-size: 8.5pt; margin: 2px 0;">Estado Bolivariano de Miranda</p>
+                                    <p style="color: #333; font-size: 8.5pt; margin: 2px 0;">Concejo del Municipio "Ambrosio Plaza"</p>
+                                    <p style="color: #1d3b6a; font-size: 9pt; margin: 2px 0; font-weight: bold;">Comisión Permanente de Salud y Desarrollo Social Integral</p>
                                 </td>
-                                <td class="logo-cell">
-                                    <span style="font-size: 8pt; color: #d12421; font-weight: bold;">COMISIÓN</span>
+                                <td style="width: 15%; text-align: right; vertical-align: middle; border: none;">
+                                    <img src="img/logo_comision.png" alt="Logo Comisión" style="width: 75px; height: 75px; object-fit: contain;">
                                 </td>
                             </tr>
                         </table>
@@ -591,16 +588,16 @@
                         <span class="valor">${item.domicilio || 'N/D'}</span>
                     </div>
 
-                    <table style="width: 100%; border: none; margin-bottom: 8px; border-collapse: collapse;">
+                    <table style="width: 100%; border: none; margin-bottom: 10px;">
                         <tr>
                             <td style="border: none; padding: 0; width: 50%;">
-                                <div class="campo-linea" style="margin-right: 8px;">
+                                <div class="campo-linea" style="border-bottom: 1px dotted #666; padding-bottom: 2px; margin-right: 10px;">
                                     <span class="etiqueta">CELULAR:</span>
                                     <span class="valor">${item.celular || 'N/D'}</span>
                                 </div>
                             </td>
                             <td style="border: none; padding: 0; width: 50%;">
-                                <div class="campo-linea" style="margin-left: 8px;">
+                                <div class="campo-linea" style="border-bottom: 1px dotted #666; padding-bottom: 2px; margin-left: 10px;">
                                     <span class="etiqueta">LOCAL:</span>
                                     <span class="valor">${item.local || 'N/D'}</span>
                                 </div>
@@ -618,24 +615,29 @@
                         <span class="valor">${item.solicitud || 'N/D'}</span>
                     </div>
 
-                    <div style="margin-top: 10px; font-size: 9.5pt; color: #334155;">
+                    <div style="margin-top: 15px; font-size: 9.5pt; color: #334155;">
                         <b>Estatus Actual:</b> ${item.estatus || 'En Revisión'}
                     </div>
 
-                    <table style="width: 100%; border: none; margin-top: 35px; border-collapse: collapse;">
+                    <table style="width: 100%; border: none; margin-top: 40px;">
                         <tr>
                             <td style="border: none; text-align: center; width: 50%; vertical-align: top;">
-                                <div style="border-top: 1px solid #000; width: 75%; margin: 40px auto 4px auto;"></div>
+                                <div style="border-top: 1px solid #000; width: 80%; margin: 40px auto 5px auto;"></div>
                                 <b style="font-size: 9.5pt;">Entregado por:</b><br>
                                 <span style="font-size: 9.5pt;">${item.entregado_por || '____________________'}</span>
                             </td>
                             <td style="border: none; text-align: center; width: 50%; vertical-align: top;">
-                                <div style="border-top: 1px solid #000; width: 75%; margin: 40px auto 4px auto;"></div>
+                                <div style="border-top: 1px solid #000; width: 80%; margin: 40px auto 5px auto;"></div>
                                 <b style="font-size: 9.5pt;">Recibido Por:</b><br>
                                 <span style="font-size: 9.5pt;">${item.recibido_por || '____________________'}</span>
                             </td>
                         </tr>
                     </table>
+
+                    <div class="footer-doc" style="margin-top: 30px; text-align: center; font-size: 8pt; color: #555; border-top: 1px solid #ccc; padding-top: 8px;">
+                        <p style="margin: 2px 0;"><b>Democracia Socialista y Liberación Nacional</b> — Hacia la consolidación del Estado Mayor de Salud Municipal</p>
+                        <p style="margin: 2px 0;">Dirección: Calle Bolívar con Monagas, diagonal al Hospitalito Francisco Rafael García. Guarenas, Estado Bolivariano de Miranda.</p>
+                    </div>
                 </body>
                 </html>
             `;
