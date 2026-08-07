@@ -132,8 +132,7 @@
             <a class="menu" href="politica.html">Liderazgos y Comunas</a>
             
             <div class="menu-category">Coor. Social</div>
-            <a class="menu" href="social.html">Casos Sociales</a>
-            <a class="menu active-page" href="entrega-ayuda.html">Reporte Ayuda</a>
+            <a class="menu active-page" href="social.html">Casos Sociales</a>
             <a class="menu" href="red_salud.html">Red de Salud (CPT/CDI)</a>
             
             <div class="menu-category">Gestión Digital</div>
@@ -161,12 +160,12 @@
 
             <div class="filters-bar">
                 <span style="font-size: 12px; font-weight: 600; color: #475569;">Filtro Rápido:</span>
-                <input type="text" id="filter-busqueda" class="form-control" placeholder="🔍 Buscar por cédula, solicitante o tipo de solicitud..." style="flex: 1; min-width: 250px;" onkeyup="renderTablaCasos()">
+                <input type="text" id="filter-busqueda" class="form-control" placeholder="🔍 Buscar por cédula, solicitante o solicitud..." style="flex: 1; min-width: 250px;" onkeyup="renderTablaCasos()">
             </div>
 
             <div class="action-bar">
                 <div style="display: flex; gap: 10px;">
-                    <button class="btn-primary" onclick="abrirModalCaso()">➕ Registrar Nuevo Caso Social</button>
+                    <button class="btn-primary" onclick="abrirModalCaso()">➕ Registrar Nota de Entrega</button>
                 </div>
                 <span class="table-counter" id="tableCounter">Mostrando 0 registros</span>
             </div>
@@ -176,9 +175,9 @@
                     <thead>
                         <tr>
                             <th>Fecha</th>
-                            <th>Cédula</th>
-                            <th>Solicitante</th>
-                            <th>Tipo de Solicitud</th>
+                            <th>C.I.</th>
+                            <th>Nombre y Apellido</th>
+                            <th>Solicitud</th>
                             <th>Estatus</th>
                             <th>Celular</th>
                             <th style="width: 200px;">Acciones</th>
@@ -205,7 +204,7 @@
     <div class="modal-overlay" id="modalCaso">
         <div class="modal-content">
             <div class="modal-header">
-                <h3 id="modalTitleCaso">Registrar Nuevo Caso Social</h3>
+                <h3 id="modalTitleCaso">Registrar Nota de Entrega / Caso Social</h3>
                 <button class="close-modal" onclick="cerrarModalCaso()">&times;</button>
             </div>
             <form id="formCaso" class="modal-flex-form" onsubmit="guardarCaso(event)">
@@ -215,7 +214,7 @@
                     <div style="display: flex; gap: 10px;">
                         <div style="flex: 1; display: flex; flex-direction: column; gap: 4px;">
                             <label class="info-label" style="font-size: 11px; font-weight: 700; color: #64748b;">C.I.:</label>
-                            <input type="text" id="cedulaSolicitante" class="form-control" placeholder="Ej: V-12345678" required>
+                            <input type="text" id="cedulaSolicitante" class="form-control" placeholder="Ej: 14972818" required>
                         </div>
                         <div style="flex: 1; display: flex; flex-direction: column; gap: 4px;">
                             <label class="info-label" style="font-size: 11px; font-weight: 700; color: #64748b;">FECHA:</label>
@@ -230,17 +229,17 @@
 
                     <div style="display: flex; flex-direction: column; gap: 4px;">
                         <label class="info-label" style="font-size: 11px; font-weight: 700; color: #64748b;">DOMICILIO:</label>
-                        <input type="text" id="domicilioCaso" class="form-control" placeholder="Ej: Las Clavellinas, Guarenas" required>
+                        <input type="text" id="domicilioCaso" class="form-control" placeholder="Ej: Guarenas..." required>
                     </div>
 
                     <div style="display: flex; gap: 10px;">
                         <div style="flex: 1; display: flex; flex-direction: column; gap: 4px;">
                             <label class="info-label" style="font-size: 11px; font-weight: 700; color: #64748b;">CELULAR:</label>
-                            <input type="text" id="celularSolicitante" class="form-control" placeholder="Ej: 04141234567" required>
+                            <input type="text" id="celularSolicitante" class="form-control" placeholder="Ej: 0414..." required>
                         </div>
                         <div style="flex: 1; display: flex; flex-direction: column; gap: 4px;">
                             <label class="info-label" style="font-size: 11px; font-weight: 700; color: #64748b;">LOCAL:</label>
-                            <input type="text" id="localSolicitante" class="form-control" placeholder="Ej: 02121234567">
+                            <input type="text" id="localSolicitante" class="form-control" placeholder="Ej: 0212...">
                         </div>
                     </div>
 
@@ -284,7 +283,7 @@
         </div>
     </div>
 
-    <!-- SCRIPT DE CONEXIÓN CON API SQLite Y EXPORTACIÓN INDIVIDUAL A WORD -->
+    <!-- SCRIPT DE CONEXIÓN, AUTO-MIGRACIÓN DE TABLA Y EXPORTACIÓN A WORD -->
     <script>
         async function consultarBaseDatos(query, params = []) {
             try {
@@ -293,7 +292,10 @@
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ query, params })
                 });
-                if (!response.ok) throw new Error(`Error ${response.status}`);
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    throw new Error(`Error ${response.status}: ${errorText}`);
+                }
                 return await response.json();
             } catch (error) {
                 console.error(error);
@@ -315,7 +317,7 @@
             if (nombre) document.getElementById("usuarioNombre").textContent = nombre;
             if (coord) document.getElementById("usuarioCoordinacion").textContent = coord;
 
-            await verificarOCrearTablaCasos();
+            await asegurarEstructuraTabla();
             await cargarCasos();
         });
 
@@ -326,8 +328,9 @@
             btn.innerText = sidebar.classList.contains("mobile-open") ? "✕" : "☰";
         }
 
-        async function verificarOCrearTablaCasos() {
+        async function asegurarEstructuraTabla() {
             try {
+                // Crear tabla si no existe con la estructura nueva completa
                 await consultarBaseDatos(`
                     CREATE TABLE IF NOT EXISTS casos_sociales (
                         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -346,8 +349,27 @@
                         created_at DATETIME DEFAULT CURRENT_TIMESTAMP
                     )
                 `);
+
+                // Intentar añadir columnas faltantes por si la tabla ya existía con esquema viejo
+                const columnasAAgregar = [
+                    "domicilio TEXT",
+                    "celular TEXT",
+                    "local TEXT",
+                    "correo TEXT",
+                    "solicitud TEXT",
+                    "entregado_por TEXT",
+                    "recibido_por TEXT"
+                ];
+
+                for (let colSql of columnasAAgregar) {
+                    try {
+                        await consultarBaseDatos(`ALTER TABLE casos_sociales ADD COLUMN ${colSql}`);
+                    } catch (ex) {
+                        // La columna ya existe, ignorar error de duplicado de columna
+                    }
+                }
             } catch (e) {
-                console.error("Nota de inicialización de tabla de casos:", e);
+                console.error("Nota de auto-migración de tabla:", e);
             }
         }
 
@@ -375,14 +397,14 @@
             document.getElementById("tableCounter").innerText = `Mostrando ${filtrados.length} registro(s)`;
 
             if (filtrados.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; color:#94a3b8; padding:30px;">No se encontraron casos sociales registrados.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; color:#94a3b8; padding:30px;">No se encontraron registros en el sistema.</td></tr>`;
                 return;
             }
 
             tbody.innerHTML = filtrados.map(item => {
                 const colorEstatus = item.estatus === 'Atendido / Completado' ? '#16a34a' : (item.estatus === 'En Proceso' ? '#0284c7' : '#d97706');
                 const celularLimpio = (item.celular || '').replace(/\D/g, '');
-                const mensajeWa = encodeURIComponent(`Estimado/a ${item.nombre}, nos comunicamos desde la Comisión Permanente de Salud y Desarrollo Social Integral (Concejalía Letty Bastidas) en relación a su solicitud. Estatus actual: ${item.estatus}.`);
+                const mensajeWa = encodeURIComponent(`Estimado/a ${item.nombre || ''}, nos comunicamos desde la Comisión Permanente de Salud y Desarrollo Social Integral (Concejalía Letty Bastidas) en relación a su solicitud. Estatus actual: ${item.estatus || 'En Revisión'}.`);
 
                 return `
                     <tr>
@@ -390,12 +412,12 @@
                         <td><code>${item.cedula || 'N/D'}</code></td>
                         <td style="color: var(--text-dark-title); font-weight: 600;">${item.nombre || 'Sin nombre'}</td>
                         <td><span style="background:#e0f2fe; color:#0369a1; padding:3px 8px; border-radius:4px; font-size:11px; font-weight:700;">${item.solicitud ? (item.solicitud.substring(0, 30) + '...') : 'N/D'}</span></td>
-                        <td><span style="color: ${colorEstatus}; font-weight: 700; font-size: 11px;">● ${item.estatus}</span></td>
+                        <td><span style="color: ${colorEstatus}; font-weight: 700; font-size: 11px;">● ${item.estatus || 'En Revisión'}</span></td>
                         <td>${item.celular || 'N/D'}</td>
                         <td>
                             <div class="action-buttons">
-                                <a class="btn-wa" href="https://wa.me/${celularLimpio}?text=${mensajeWa}" target="_blank" title="Enviar WhatsApp">💬 WhatsApp</a>
-                                <button class="btn-word" onclick="exportarCasoIndividualWord(${item.id})" title="Exportar este caso a Word">📄 Word</button>
+                                ${celularLimpio ? `<a class="btn-wa" href="https://wa.me/${celularLimpio}?text=${mensajeWa}" target="_blank" title="Enviar WhatsApp">💬 WA</a>` : ''}
+                                <button class="btn-word" onclick="exportarCasoIndividualWord(${item.id})" title="Exportar nota a Word">📄 Word</button>
                                 <button class="btn-success" onclick="editarCaso(${item.id})" title="Editar">Editar</button>
                                 <button class="btn-del" onclick="eliminarCaso(${item.id})" title="Borrar">Borrar</button>
                             </div>
@@ -499,16 +521,13 @@
             const estilosWord = `
                 body { font-family: 'Arial', sans-serif; line-height: 1.5; color: #000; margin: 30px; font-size: 11pt; }
                 .header { text-align: center; border-bottom: 2px solid #1d3b6a; padding-bottom: 10px; margin-bottom: 15px; }
-                .header h2 { color: #1d3b6a; margin: 0; font-size: 14pt; text-transform: uppercase; }
+                .header h2 { color: #1d3b6a; margin: 0; font-size: 13pt; text-transform: uppercase; }
                 .header p { color: #333; font-size: 9pt; margin: 3px 0; }
                 .nota-titulo { text-align: center; font-size: 13pt; font-weight: bold; margin: 15px 0; text-transform: uppercase; letter-spacing: 1px; }
                 .fecha-container { text-align: right; font-weight: bold; margin-bottom: 15px; }
                 .campo-linea { margin-bottom: 10px; border-bottom: 1px dotted #666; padding-bottom: 3px; }
                 .etiqueta { font-weight: bold; text-transform: uppercase; font-size: 10pt; color: #1d3b6a; }
                 .valor { font-size: 11pt; color: #000; margin-left: 5px; }
-                .firmas-container { margin-top: 50px; display: table; width: 100%; }
-                .firma-box { display: table-cell; width: 50%; text-align: center; padding: 20px; }
-                .linea-firma { border-top: 1px solid #000; width: 80%; margin: 40px auto 5px auto; }
                 .footer-doc { margin-top: 40px; text-align: center; font-size: 8pt; color: #555; border-top: 1px solid #ccc; padding-top: 10px; }
             `;
 
