@@ -284,7 +284,7 @@
         </div>
     </div>
 
-    <!-- SCRIPT DE CONEXIÓN, AUTO-MIGRACIÓN DE TABLA Y EXPORTACIÓN A WORD -->
+    <!-- SCRIPT DE CONEXIÓN, AUTO-MIGRACIÓN DE TABLA Y EXPORTACIÓN A WORD CON IMÁGENES INCRUSTADAS -->
     <script>
         async function consultarBaseDatos(query, params = []) {
             try {
@@ -510,12 +510,31 @@
             }
         }
 
-        window.exportarCasoIndividualWord = function(id) {
+        // Función auxiliar para convertir una imagen local a Base64 y garantizar que aparezca en Word
+        async function convertirImagenABase64(url) {
+            try {
+                const response = await fetch(url);
+                const blob = await response.blob();
+                return new Promise((resolve) => {
+                    const reader = new FileReader();
+                    reader.onloadend = () => resolve(reader.result);
+                    reader.readAsDataURL(blob);
+                });
+            } catch (e) {
+                return ""; // Si falla la carga, devuelve vacío para no romper el documento
+            }
+        }
+
+        window.exportarCasoIndividualWord = async function(id) {
             const item = listaCasos.find(r => Number(r.id) === Number(id));
             if (!item) {
                 alert("No se encontró la información del registro.");
                 return;
             }
+
+            // Convertir las imágenes institucionales a Base64 antes de generar el archivo
+            const logoConcejoBase64 = await convertirImagenABase64("img/logo_concejo.png");
+            const logoComisionBase64 = await convertirImagenABase64("img/logo_comision.png");
 
             const estilosWord = `
                 body { font-family: 'Arial', sans-serif; line-height: 1.5; color: #000; margin: 30px; font-size: 11pt; }
@@ -542,11 +561,11 @@
                     <style>${estilosWord}</style>
                 </head>
                 <body>
-                    <!-- Encabezado con Logos por ruta y sin franjas -->
+                    <!-- Encabezado con Logos incrustados en Base64 -->
                     <table class="header-table">
                         <tr>
                             <td class="header-logo-left">
-                                <img src="img/logo_concejo.png" alt="Logo Concejo" style="width: 70px; height: auto;">
+                                ${logoConcejoBase64 ? `<img src="${logoConcejoBase64}" alt="Logo Concejo" style="width: 70px; height: auto;">` : ''}
                             </td>
                             <td class="header-center">
                                 <h2>República Bolivariana de Venezuela</h2>
@@ -555,7 +574,7 @@
                                 <p><b>Comisión Permanente de Salud y Desarrollo Social Integral</b></p>
                             </td>
                             <td class="header-logo-right">
-                                <img src="img/logo_comision.png" alt="Logo Comisión" style="width: 70px; height: auto;">
+                                ${logoComisionBase64 ? `<img src="${logoComisionBase64}" alt="Logo Comisión" style="width: 70px; height: auto;">` : ''}
                             </td>
                         </tr>
                     </table>
