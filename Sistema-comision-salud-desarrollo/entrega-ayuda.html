@@ -284,7 +284,7 @@
         </div>
     </div>
 
-    <!-- SCRIPT DE CONEXIÓN, AUTO-MIGRACIÓN DE TABLA Y EXPORTACIÓN A WORD CON TAMAÑO DE LOGOS FORZADO -->
+    <!-- SCRIPT DE CONEXIÓN, AUTO-MIGRACIÓN DE TABLA Y EXPORTACIÓN A WORD CON TAMAÑO DE LOGOS FORZADO Y FUENTE ARIAL 12PT -->
     <script>
         async function consultarBaseDatos(query, params = []) {
             try {
@@ -535,20 +535,21 @@
             const logoComisionBase64 = await convertirImagenABase64("img/logo_comision.png");
 
             const estilosWord = `
-                body { font-family: 'Arial', sans-serif; line-height: 1.5; color: #000; margin: 30px; font-size: 11pt; }
+                body { font-family: 'Arial', sans-serif; line-height: 1.5; color: #000; margin: 30px; font-size: 12pt; }
+                p, span, div, td, th { font-family: 'Arial', sans-serif; font-size: 12pt; }
                 .header-table { width: 100%; border-collapse: collapse; border: none; margin-bottom: 5px; }
-                .header-table td { border: none; vertical-align: middle; }
+                .header-table td { border: none; vertical-align: middle; font-family: 'Arial', sans-serif; }
                 .header-logo-left { width: 20%; text-align: left; }
                 .header-logo-right { width: 20%; text-align: right; }
                 .header-center { width: 60%; text-align: center; }
-                .header-center h2 { color: #1d3b6a; margin: 0; font-size: 11pt; text-transform: uppercase; }
-                .header-center p { color: #333; font-size: 8pt; margin: 2px 0; }
-                .nota-titulo { text-align: center; font-size: 13pt; font-weight: bold; margin: 15px 0; text-transform: uppercase; letter-spacing: 1px; }
-                .fecha-container { text-align: right; font-weight: bold; margin-bottom: 15px; }
-                .campo-linea { margin-bottom: 10px; border-bottom: 1px dotted #666; padding-bottom: 3px; }
-                .etiqueta { font-weight: bold; text-transform: uppercase; font-size: 10pt; color: #1d3b6a; }
-                .valor { font-size: 11pt; color: #000; margin-left: 5px; }
-                .footer-doc { margin-top: 40px; text-align: center; font-size: 8pt; color: #555; border-top: 1px solid #ccc; padding-top: 10px; }
+                .header-center h2 { color: #1d3b6a; margin: 0; font-size: 12pt; text-transform: uppercase; font-family: 'Arial', sans-serif; }
+                .header-center p { color: #333; font-size: 9.5pt; margin: 2px 0; font-family: 'Arial', sans-serif; }
+                .nota-titulo { text-align: center; font-size: 14pt; font-weight: bold; margin: 15px 0; text-transform: uppercase; letter-spacing: 1px; font-family: 'Arial', sans-serif; }
+                .fecha-container { text-align: right; font-weight: bold; margin-bottom: 15px; font-size: 12pt; font-family: 'Arial', sans-serif; }
+                .campo-linea { margin-bottom: 10px; border-bottom: 1px dotted #666; padding-bottom: 3px; font-family: 'Arial', sans-serif; }
+                .etiqueta { font-weight: bold; text-transform: uppercase; font-size: 11pt; color: #1d3b6a; font-family: 'Arial', sans-serif; }
+                .valor { font-size: 12pt; color: #000; margin-left: 5px; font-family: 'Arial', sans-serif; }
+                .footer-doc { margin-top: 40px; text-align: center; font-size: 9pt; color: #555; border-top: 1px solid #ccc; padding-top: 10px; font-family: 'Arial', sans-serif; }
             `;
 
             const contenidoHtml = `
@@ -559,7 +560,7 @@
                     <style>${estilosWord}</style>
                 </head>
                 <body>
-                    <!-- Encabezado con tamaños de logos estrictamente forzados mediante atributos HTML y CSS -->
+                    <!-- Encabezado con tamaños ajustados: Logo izquierdo 65px y logo derecho aumentado a 78px, fuente Arial 12pt general -->
                     <table class="header-table">
                         <tr>
                             <td class="header-logo-left">
@@ -572,7 +573,7 @@
                                 <p><b>Comisión Permanente de Salud y Desarrollo Social Integral</b></p>
                             </td>
                             <td class="header-logo-right">
-                                ${logoComisionBase64 ? `<img src="${logoComisionBase64}" width="65" height="65" alt="Logo Comisión" style="width: 65px; height: 65px; max-width: 65px;">` : ''}
+                                ${logoComisionBase64 ? `<img src="${logoComisionBase64}" width="78" height="78" alt="Logo Comisión" style="width: 78px; height: 78px; max-width: 78px;">` : ''}
                             </td>
                         </tr>
                     </table>
@@ -600,13 +601,13 @@
 
                     <table style="width: 100%; border: none; margin-bottom: 10px;">
                         <tr>
-                            <td style="border: none; padding: 0; width: 50%;">
+                            <td style="border: none; padding: 0; width: 50%; font-family: 'Arial', sans-serif;">
                                 <div class="campo-linea" style="border-bottom: 1px dotted #666; padding-bottom: 3px; margin-right: 10px;">
                                     <span class="etiqueta">CELULAR:</span>
                                     <span class="valor">${item.celular || 'N/D'}</span>
                                 </div>
                             </td>
-                            <td style="border: none; padding: 0; width: 50%;">
+                            <td style="border: none; padding: 0; width: 50%; font-family: 'Arial', sans-serif;">
                                 <div class="campo-linea" style="border-bottom: 1px dotted #666; padding-bottom: 3px; margin-left: 10px;">
                                     <span class="etiqueta">LOCAL:</span>
                                     <span class="valor">${item.local || 'N/D'}</span>
@@ -625,18 +626,18 @@
                         <span class="valor">${item.solicitud || 'N/D'}</span>
                     </div>
 
-                    <div style="margin-top: 15px; font-size: 9.5pt; color: #334155;">
+                    <div style="margin-top: 15px; font-size: 12pt; color: #334155; font-family: 'Arial', sans-serif;">
                         <b>Estatus Actual:</b> ${item.estatus || 'En Revisión'}
                     </div>
 
                     <table style="width: 100%; border: none; margin-top: 40px;">
                         <tr>
-                            <td style="border: none; text-align: center; width: 50%; vertical-align: top;">
+                            <td style="border: none; text-align: center; width: 50%; vertical-align: top; font-family: 'Arial', sans-serif;">
                                 <div style="border-top: 1px solid #000; width: 80%; margin: 50px auto 5px auto;"></div>
                                 <b>Entregado por:</b><br>
                                 <span>${item.entregado_por || '____________________'}</span>
                             </td>
-                            <td style="border: none; text-align: center; width: 50%; vertical-align: top;">
+                            <td style="border: none; text-align: center; width: 50%; vertical-align: top; font-family: 'Arial', sans-serif;">
                                 <div style="border-top: 1px solid #000; width: 80%; margin: 50px auto 5px auto;"></div>
                                 <b>Recibido Por:</b><br>
                                 <span>${item.recibido_por || '____________________'}</span>
