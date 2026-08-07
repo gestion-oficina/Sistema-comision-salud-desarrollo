@@ -331,6 +331,7 @@
 
         async function asegurarEstructuraTabla() {
             try {
+                // Crear tabla si no existe con la estructura nueva completa
                 await consultarBaseDatos(`
                     CREATE TABLE IF NOT EXISTS casos_sociales (
                         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -350,6 +351,7 @@
                     )
                 `);
 
+                // Intentar añadir columnas faltantes por si la tabla ya existía con esquema viejo
                 const columnasAAgregar = [
                     "domicilio TEXT",
                     "celular TEXT",
@@ -364,7 +366,7 @@
                     try {
                         await consultarBaseDatos(`ALTER TABLE casos_sociales ADD COLUMN ${colSql}`);
                     } catch (ex) {
-                        // Columna existente
+                        // La columna ya existe, ignorar error de duplicado de columna
                     }
                 }
             } catch (e) {
@@ -518,28 +520,16 @@
             }
 
             const estilosWord = `
-                @page {
-                    size: letter;
-                    margin: 20mm;
-                    @bottom-center {
-                        content: "Democracia Socialista y Liberación Nacional — Hacia la consolidación del Estado Mayor de Salud Municipal\\A Dirección: Calle Bolívar con Monagas, diagonal al Hospitalito Francisco Rafael García. Guarenas, Estado Bolivariano de Miranda.";
-                        white-space: pre-wrap;
-                        font-family: 'Arial', sans-serif;
-                        font-size: 8pt;
-                        color: #555;
-                        text-align: center;
-                        border-top: 1px solid #ccc;
-                        padding-top: 5px;
-                    }
-                }
-                body { font-family: 'Arial', sans-serif; line-height: 1.4; color: #000; margin: 0; font-size: 10.5pt; }
-                .header { border-bottom: 2px solid #1d3b6a; padding-bottom: 8px; margin-bottom: 15px; }
-                .nota-titulo { text-align: center; font-size: 12pt; font-weight: bold; margin: 12px 0; text-transform: uppercase; letter-spacing: 1px; }
-                .fecha-container { text-align: right; font-weight: bold; margin-bottom: 12px; font-size: 10pt; }
-                .campo-linea { margin-bottom: 8px; border-bottom: 1px dotted #666; padding-bottom: 2px; }
-                .etiqueta { font-weight: bold; text-transform: uppercase; font-size: 9.5pt; color: #1d3b6a; }
-                .valor { font-size: 10.5pt; color: #000; margin-left: 5px; }
-                .footer-doc { display: none; }
+                body { font-family: 'Arial', sans-serif; line-height: 1.5; color: #000; margin: 30px; font-size: 11pt; }
+                .header { text-align: center; border-bottom: 2px solid #1d3b6a; padding-bottom: 10px; margin-bottom: 15px; }
+                .header h2 { color: #1d3b6a; margin: 0; font-size: 13pt; text-transform: uppercase; }
+                .header p { color: #333; font-size: 9pt; margin: 3px 0; }
+                .nota-titulo { text-align: center; font-size: 13pt; font-weight: bold; margin: 15px 0; text-transform: uppercase; letter-spacing: 1px; }
+                .fecha-container { text-align: right; font-weight: bold; margin-bottom: 15px; }
+                .campo-linea { margin-bottom: 10px; border-bottom: 1px dotted #666; padding-bottom: 3px; }
+                .etiqueta { font-weight: bold; text-transform: uppercase; font-size: 10pt; color: #1d3b6a; }
+                .valor { font-size: 11pt; color: #000; margin-left: 5px; }
+                .footer-doc { margin-top: 40px; text-align: center; font-size: 8pt; color: #555; border-top: 1px solid #ccc; padding-top: 10px; }
             `;
 
             const contenidoHtml = `
@@ -551,22 +541,10 @@
                 </head>
                 <body>
                     <div class="header">
-                        <table style="width: 100%; border-collapse: collapse; border: none;">
-                            <tr>
-                                <td style="width: 15%; text-align: left; vertical-align: middle; border: none;">
-                                    <img src="img/logo_concejo.png" alt="Logo Concejo" style="width: 75px; height: 75px; object-fit: contain;">
-                                </td>
-                                <td style="width: 70%; text-align: center; vertical-align: middle; border: none;">
-                                    <h2 style="color: #1d3b6a; margin: 0; font-size: 11pt; text-transform: uppercase;">República Bolivariana de Venezuela</h2>
-                                    <p style="color: #333; font-size: 8.5pt; margin: 2px 0;">Estado Bolivariano de Miranda</p>
-                                    <p style="color: #333; font-size: 8.5pt; margin: 2px 0;">Concejo del Municipio "Ambrosio Plaza"</p>
-                                    <p style="color: #1d3b6a; font-size: 9pt; margin: 2px 0; font-weight: bold;">Comisión Permanente de Salud y Desarrollo Social Integral</p>
-                                </td>
-                                <td style="width: 15%; text-align: right; vertical-align: middle; border: none;">
-                                    <img src="img/logo_comision.png" alt="Logo Comisión" style="width: 75px; height: 75px; object-fit: contain;">
-                                </td>
-                            </tr>
-                        </table>
+                        <h2>República Bolivariana de Venezuela</h2>
+                        <p>Estado Bolivariano de Miranda</p>
+                        <p>Concejo del Municipio "Ambrosio Plaza"</p>
+                        <p><b>Comisión Permanente de Salud y Desarrollo Social Integral</b></p>
                     </div>
 
                     <div class="fecha-container">FECHA: ${item.fecha || 'N/D'}</div>
@@ -591,13 +569,13 @@
                     <table style="width: 100%; border: none; margin-bottom: 10px;">
                         <tr>
                             <td style="border: none; padding: 0; width: 50%;">
-                                <div class="campo-linea" style="border-bottom: 1px dotted #666; padding-bottom: 2px; margin-right: 10px;">
+                                <div class="campo-linea" style="border-bottom: 1px dotted #666; padding-bottom: 3px; margin-right: 10px;">
                                     <span class="etiqueta">CELULAR:</span>
                                     <span class="valor">${item.celular || 'N/D'}</span>
                                 </div>
                             </td>
                             <td style="border: none; padding: 0; width: 50%;">
-                                <div class="campo-linea" style="border-bottom: 1px dotted #666; padding-bottom: 2px; margin-left: 10px;">
+                                <div class="campo-linea" style="border-bottom: 1px dotted #666; padding-bottom: 3px; margin-left: 10px;">
                                     <span class="etiqueta">LOCAL:</span>
                                     <span class="valor">${item.local || 'N/D'}</span>
                                 </div>
@@ -610,7 +588,7 @@
                         <span class="valor">${item.correo || 'N/D'}</span>
                     </div>
 
-                    <div class="campo-linea" style="min-height: 50px;">
+                    <div class="campo-linea" style="min-height: 60px;">
                         <span class="etiqueta">SOLICITUD:</span>
                         <span class="valor">${item.solicitud || 'N/D'}</span>
                     </div>
@@ -622,21 +600,21 @@
                     <table style="width: 100%; border: none; margin-top: 40px;">
                         <tr>
                             <td style="border: none; text-align: center; width: 50%; vertical-align: top;">
-                                <div style="border-top: 1px solid #000; width: 80%; margin: 40px auto 5px auto;"></div>
-                                <b style="font-size: 9.5pt;">Entregado por:</b><br>
-                                <span style="font-size: 9.5pt;">${item.entregado_por || '____________________'}</span>
+                                <div style="border-top: 1px solid #000; width: 80%; margin: 50px auto 5px auto;"></div>
+                                <b>Entregado por:</b><br>
+                                <span>${item.entregado_por || '____________________'}</span>
                             </td>
                             <td style="border: none; text-align: center; width: 50%; vertical-align: top;">
-                                <div style="border-top: 1px solid #000; width: 80%; margin: 40px auto 5px auto;"></div>
-                                <b style="font-size: 9.5pt;">Recibido Por:</b><br>
-                                <span style="font-size: 9.5pt;">${item.recibido_por || '____________________'}</span>
+                                <div style="border-top: 1px solid #000; width: 80%; margin: 50px auto 5px auto;"></div>
+                                <b>Recibido Por:</b><br>
+                                <span>${item.recibido_por || '____________________'}</span>
                             </td>
                         </tr>
                     </table>
 
-                    <div class="footer-doc" style="margin-top: 30px; text-align: center; font-size: 8pt; color: #555; border-top: 1px solid #ccc; padding-top: 8px;">
-                        <p style="margin: 2px 0;"><b>Democracia Socialista y Liberación Nacional</b> — Hacia la consolidación del Estado Mayor de Salud Municipal</p>
-                        <p style="margin: 2px 0;">Dirección: Calle Bolívar con Monagas, diagonal al Hospitalito Francisco Rafael García. Guarenas, Estado Bolivariano de Miranda.</p>
+                    <div class="footer-doc">
+                        <p>Democracia Socialista y Liberación Nacional — Hacia la consolidación del Estado Mayor de Salud Municipal</p>
+                        <p>Dirección: Calle Bolívar con Monagas, diagonal al Hospitalito Francisco Rafael García. Guarenas, Estado Bolivariano de Miranda.</p>
                     </div>
                 </body>
                 </html>
