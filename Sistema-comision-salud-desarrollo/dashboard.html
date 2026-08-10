@@ -133,6 +133,25 @@
         .btn-action-sys { background: #f8fafc; border: 1px solid #cbd5e1; color: #0f2547; padding: 8px 12px; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; text-decoration: none; display: flex; align-items: center; justify-content: center; gap: 6px; transition: all 0.2s; width: 100%; margin-top: 8px; }
         .btn-action-sys:hover { background: #f1f5f9; border-color: #94a3b8; }
 
+        /* Ajuste para el slider y evitar deformaciones en imágenes */
+        .slider-container, .carousel-item, .slider-image-wrapper {
+            position: relative;
+            width: 100%;
+            background-color: #0f2547;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .slider-container img, .carousel-item img, .slider-image {
+            width: 100%;
+            height: 100%;
+            max-height: 420px;
+            object-fit: contain;
+            object-position: center;
+        }
+
         @media (max-width: 1100px) {
             .dashboard-grid-advanced, .dashboard-grid-secondary { grid-template-columns: 1fr; }
         }
@@ -349,7 +368,6 @@ async function cargarDatosEjecutivosDashboard() {
             return;
         }
 
-        // Renderizar tabla con los 5 casos más recientes
         const ultimosCasos = registros.slice(-5).reverse();
         const tbody = document.getElementById("tabla-casos-recientes");
 
@@ -376,7 +394,6 @@ async function cargarDatosEjecutivosDashboard() {
             `;
         }).join("");
 
-        // Cálculo de Sectores Top 5
         const conteoSectores = {};
         registros.forEach(r => {
             if (r.sector && r.sector !== "NULL" && r.sector.trim() !== "") {
@@ -411,7 +428,6 @@ async function cargarDatosEjecutivosDashboard() {
             }).join("");
         }
 
-        // Inicializar Gráfico de Analítica con Chart.js
         const ctx = document.getElementById('chartRendimiento').getContext('2d');
         new Chart(ctx, {
             type: 'doughnut',
