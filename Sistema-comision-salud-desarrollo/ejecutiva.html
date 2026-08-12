@@ -1,199 +1,1023 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Oficios e Informes - Gestión Institucional</title>
-    
-    <!-- Carga de Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    
-    <!-- Carga de FontAwesome para los íconos -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
-    <!-- Configuración personalizada de Tailwind (opcional) -->
     <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        institucional: '#1e3a8a', // Azul institucional, puedes cambiarlo
-                    }
-                }
-            }
+        const sesion = sessionStorage.getItem('usuario_logueado');
+        if (!sesion && window.location.pathname !== "/login.html") {
+            window.location.replace("login.html");
+        } else {
+            document.addEventListener("DOMContentLoaded", () => {
+                document.body.style.display = "block";
+            });
         }
     </script>
-</head>
-<body class="flex h-screen bg-gray-100 font-sans text-gray-800 overflow-hidden">
-
-    <!-- Menú Lateral (Sidebar) -->
-    <aside class="w-72 bg-white shadow-xl flex flex-col h-full border-r border-gray-200">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Coordinación Ejecutiva - Oficios e Informes</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root { 
+            --bg-main: #f4f6f9; 
+            --sidebar-bg: #1d3b6a; 
+            --sidebar-active: #0066cc; 
+            --sidebar-text-sub: #4ba3e3; 
+            --menu-text: #ffffff; 
+            --text-dark-title: #0f2547; 
+            --border-color: #cbd5e1; 
+            --danger-color: #dc2626; 
+            --success-color: #16a34a;
+        }
+        * { margin:0; padding:0; box-sizing:border-box; font-family: 'Inter', sans-serif; }
+        body { background: var(--bg-main); color:#334155; }
+        .layout { display:grid; grid-template-columns:280px 1fr; min-height:100vh; }
         
-        <!-- Cabecera del Menú -->
-        <div class="p-5 border-b border-gray-200 text-center bg-gray-50">
-            <h2 class="text-sm font-bold text-gray-900 uppercase">Sistema de Gestión Institucional</h2>
-            <p class="text-xs text-gray-600 mt-2">Comisión Permanente de Salud y Desarrollo Social Integral</p>
-            <p class="text-xs text-institucional font-semibold mt-1">Oficina de la Concejala Letty Bastidas</p>
-            <p class="text-[10px] text-gray-500 mt-1 uppercase tracking-wider">Municipio Ambrosio Plaza</p>
+        .mobile-menu-toggle {
+            display: none;
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: var(--sidebar-bg);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 56px;
+            height: 56px;
+            font-size: 24px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            z-index: 10000;
+            cursor: pointer;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .sidebar { background: var(--sidebar-bg); padding:24px 0; display: flex; flex-direction: column; transition: transform 0.3s ease; }
+        .sidebar-brand { display: flex; flex-direction: column; align-items: center; text-align: center; padding: 0 16px 20px 16px; border-bottom: 1px solid rgba(255, 255, 255, 0.1); margin-bottom: 10px; }
+        .sidebar-brand h2 { font-size: 11px; color: #ffffff; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; line-height: 1.4; margin-top: 5px; }
+        .menu-category { font-size: 10.5px; font-weight: 700; color: var(--sidebar-text-sub); text-transform: uppercase; letter-spacing: 0.5px; padding: 16px 20px 6px 20px; }
+        .menu { display: block; padding: 8px 36px; color: var(--menu-text); cursor: pointer; font-size: 13.5px; font-weight: 500; text-decoration: none; transition: all 0.2s ease; opacity: 0.9; }
+        .menu:hover { opacity: 1; background: rgba(255, 255, 255, 0.05); }
+        .menu.active-page { background: var(--sidebar-active); color: #ffffff; font-weight: 600; border-radius: 6px; margin: 2px 14px; padding: 10px 20px; opacity: 1; box-shadow: inset 0 1px 0 rgba(255,255,255,0.15); }
+        
+        .main { padding:40px; overflow-x: hidden; display: flex; flex-direction: column; min-height: 100vh; }
+        .main h2 { font-size: 26px; color: var(--text-dark-title); font-weight: 700; margin-bottom: 6px; }
+        .subtitle-concejala { font-size: 13px; color: #64748b; margin-bottom: 24px; font-weight: 500; }
+        
+        .tabs-container { display: flex; background: #e2e8f0; padding: 6px; border-radius: 8px; max-width: 750px; margin-bottom: 20px; border: 1px solid #cbd5e1; gap: 4px; }
+        .tab-btn { flex: 1; padding: 10px 14px; border: none; background: transparent; color: #475569; font-size: 12px; font-weight: 600; cursor: pointer; border-radius: 6px; text-align: center; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 6px; }
+        .tab-btn.active { background: var(--sidebar-bg); color: white; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
+        .badge-count { background: rgba(255,255,255,0.2); color: inherit; padding: 1px 6px; border-radius: 10px; font-size: 10px; font-weight: 700; }
+        .tab-btn:not(.active) .badge-count { background: #cbd5e1; color: #334155; }
+
+        .filters-bar { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; align-items: center; background: white; padding: 12px 16px; border-radius: 8px; border: 1px solid #e2e8f0; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+        .form-control { padding: 8px 12px; border: 1px solid var(--border-color); border-radius: 6px; font-size: 12px; color: #334155; outline: none; }
+        .form-control:focus { border-color: var(--sidebar-active); }
+        
+        .action-bar { margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
+        .table-counter { font-size: 12px; font-weight: 600; color: #64748b; }
+        
+        .table-container { background: white; border: 1px solid #e2e8f0; border-radius: 8px; overflow-x: auto; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02); }
+        table { width:100%; border-collapse:collapse; min-width: 1000px; }
+        th, td { padding:14px 18px; border-bottom:1px solid #f1f5f9; text-align:left; font-size:13px; }
+        th { background:#f8fafc; color: var(--sidebar-bg); font-weight: 700; text-transform: uppercase; font-size: 11px; letter-spacing: 0.5px; }
+        
+        .btn-primary { padding:11px 20px; border:none; border-radius:6px; cursor:pointer; background: var(--sidebar-active); color:white; font-size:13px; font-weight: 600; width: auto; text-align: center; }
+        .btn-success { padding:6px 12px; border:none; border-radius:4px; cursor:pointer; background: var(--success-color); color:white; font-size:11px; font-weight: 600; }
+        .btn-success:hover { background: #15803d; }
+        .action-buttons { display: flex; gap: 6px; align-items: center; flex-wrap: nowrap; }
+        .btn-wa { background: #e2e8f0; color: #1e293b; padding: 6px 12px; border: none; border-radius: 4px; font-size: 11px; font-weight:600; cursor: pointer; }
+        .btn-wa:hover { background: #cbd5e1; }
+        .btn-del { background: var(--danger-color); color: white; padding: 6px 12px; border: none; border-radius: 4px; font-size: 11px; font-weight:600; cursor: pointer; }
+        .btn-del:hover { background: #b91c1c; }
+        .btn-word { background: #0284c7; color: white; padding: 6px 12px; border: none; border-radius: 4px; font-size: 11px; font-weight:600; cursor: pointer; }
+        .btn-word:hover { background: #0369a1; }
+        .btn-excel { background: #15803d; color: white; padding: 11px 16px; border: none; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; }
+        .btn-excel:hover { background: #166534; }
+        
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 37, 71, 0.6); backdrop-filter: blur(3px); display: none; align-items: center; justify-content: center; z-index: 9999; opacity: 0; transition: opacity 0.25s ease; padding: 16px; }
+        .modal-overlay.open { opacity: 1; display: flex !important; }
+        .modal-content { background: white; width: 100%; max-width: 550px; border-radius: 12px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.15); overflow: hidden; transform: translateY(-20px); transition: transform 0.25s ease; max-height: 90vh; display: flex; flex-direction: column; }
+        .modal-overlay.open .modal-content { transform: translateY(0); }
+        .modal-header { background: var(--sidebar-bg); color: white; padding: 18px 24px; display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; }
+        .modal-header h3 { font-size: 16px; font-weight: 600; }
+        .close-modal { background: transparent; border: none; color: white; font-size: 20px; cursor: pointer; opacity: 0.8; }
+        .close-modal:hover { opacity: 1; }
+        
+        .modal-flex-form { display: flex; flex-direction: column; flex: 1; overflow: hidden; margin: 0; padding: 0; }
+        .modal-body { padding: 24px; display: flex; flex-direction: column; gap: 14px; overflow-y: auto; flex: 1; }
+        
+        .info-group { display: flex; flex-direction: column; gap: 4px; border-bottom: 1px solid #f1f5f9; padding-bottom: 10px; }
+        .info-group:last-child { border-bottom: none; }
+        .info-label { font-size: 11px; text-transform: uppercase; color: #64748b; font-weight: 700; letter-spacing: 0.5px; }
+        .info-value { font-size: 14px; color: #1e293b; font-weight: 500; line-height: 1.5; }
+        .modal-footer { padding: 16px 24px; background: #f8fafc; border-top: 1px solid #e2e8f0; display: flex; justify-content: flex-end; flex-shrink: 0; gap: 8px; }
+
+        .main-footer { margin-top: auto; padding-top: 40px; text-align: center; width: 100%; }
+        .main-footer-flag { display: flex; height: 4px; width: 100%; margin-bottom: 10px; }
+        .main-footer-flag div { flex: 1; }
+        .main-footer p { font-size: 11px; color: #64748b; line-height: 1.3; margin: 1px 0; font-family: 'Inter', sans-serif; text-transform: uppercase; letter-spacing: 0.3px; }
+        
+        @media (max-width: 900px) { 
+            .layout { grid-template-columns: 1fr; }
+            .mobile-menu-toggle { display: flex; }
+            .sidebar { position: fixed; top: 0; left: 0; width: 280px; height: 100vh; z-index: 9998; transform: translateX(-100%); box-shadow: 5px 0 15px rgba(0,0,0,0.2); }
+            .sidebar.mobile-open { transform: translateX(0); }
+            .main { padding: 20px 16px; }
+            .main h2 { font-size: 20px; }
+            .tabs-container { max-width: 100%; }
+        }
+    </style>
+</head>
+
+<body style="display: none;">
+
+    <button class="mobile-menu-toggle" id="menuToggleBtn" onclick="toggleMobileMenu()">☰</button>
+
+    <div class="layout">
+    <div class="sidebar" id="sidebarMenu">
+        <div class="sidebar-brand">
+            <h2>COMISIÓN PERMANENTE DE SALUD<br>Y DESARROLLO SOCIAL INTEGRAL</h2>
         </div>
+        
+        <a class="menu" href="dashboard.html">Principal</a>
+        
+        <div class="menu-category">Coor. Ejecutiva</div>
+        <a class="menu active-page" href="ejecutiva.html">Oficios e Informes</a>
+        <a class="menu" href="planificacion.html">Planificación Semanal</a>
+        
+        <div class="menu-category">Coor. Política</div>
+        <a class="menu" href="politica.html">Liderazgos y Comunas</a>
+        
+        <div class="menu-category">Coor. Social</div>
+        <a class="menu" href="social.html">Casos Sociales</a>
+        <a class="menu" href="entrega-ayuda.html">Reporte Ayuda</a>
+        <a class="menu" href="red_salud.html">Red de Salud (CPT/CDI)</a>
+        
+        <div class="menu-category">Gestión Digital</div>
+        <a class="menu" href="bitacora.html">Bitácora de Eventos</a>
+        <a class="menu" href="reportes.html">📄 Reportes e Informes</a>
+        <a class="menu" href="formatos.html">📁 Formatos de Oficina</a>
 
-        <!-- Enlaces de Navegación -->
-        <nav class="flex-1 overflow-y-auto p-4 space-y-6 scrollbar-thin scrollbar-thumb-gray-300">
-            
-            <!-- Centro de Gestión -->
-            <div>
-                <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Centro de gestión</h3>
-                <ul class="space-y-1">
-                    <li>
-                        <a href="#" class="flex items-center p-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-institucional rounded-md transition-colors">
-                            <i class="fas fa-chart-line w-6 text-center"></i> Panel ejecutivo
-                        </a>
-                    </li>
-                </ul>
+        <div id="enlaceAuditoria" style="display: none;">
+            <a href="auditoria.html" class="menu">🛡️ Panel de Auditoría</a>
+        </div>
+        <div class="menu-category">Gestión Despacho</div>
+        <a class="menu" href="acciones.html" style="font-weight: 600; border-radius: 6px; margin: 2px 14px; padding: 10px 20px;">⭐ Acciones Concejala</a>
+        
+        <div style="margin-top: auto; padding: 24px 20px; border-top: 1px solid rgba(255,255,255,0.1);">
+            <div id="usuarioNombre" style="font-size:13px; color:#ffffff; font-weight:600; margin-bottom: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                Cargando...
             </div>
-
-            <!-- Coordinación Ejecutiva -->
-            <div>
-                <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Coordinación ejecutiva</h3>
-                <ul class="space-y-1">
-                    <li>
-                        <a href="#" class="flex items-center p-2 text-sm bg-blue-50 text-institucional font-medium rounded-md border-l-4 border-institucional">
-                            <i class="fas fa-file-signature w-6 text-center"></i> Oficios e informes
-                        </a>
-                    </li>
-                    <li>
-                        <a href="#" class="flex items-center p-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-institucional rounded-md transition-colors">
-                            <i class="fas fa-calendar-alt w-6 text-center"></i> Planificación semanal
-                        </a>
-                    </li>
-                </ul>
+            <div id="usuarioCoordinacion" style="font-size:10.5px; color:var(--sidebar-text-sub); font-weight: 500; margin-bottom: 16px; text-transform: uppercase; letter-spacing: 0.3px;">
+                Cargando...
             </div>
-
-            <!-- Coordinación Política -->
-            <div>
-                <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Coordinación política</h3>
-                <ul class="space-y-1">
-                    <li>
-                        <a href="#" class="flex items-center p-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-institucional rounded-md transition-colors">
-                            <i class="fas fa-users w-6 text-center"></i> Liderazgos y comunas
-                        </a>
-                    </li>
-                </ul>
-            </div>
-
-            <!-- Coordinación Social -->
-            <div>
-                <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Coordinación social</h3>
-                <ul class="space-y-1">
-                    <li>
-                        <a href="#" class="flex items-center p-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-institucional rounded-md transition-colors">
-                            <i class="fas fa-hands-helping w-6 text-center"></i> Casos sociales
-                        </a>
-                    </li>
-                    <li>
-                        <a href="#" class="flex items-center p-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-institucional rounded-md transition-colors">
-                            <i class="fas fa-hand-holding-medical w-6 text-center"></i> Reporte de ayudas
-                        </a>
-                    </li>
-                    <li>
-                        <a href="#" class="flex items-center p-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-institucional rounded-md transition-colors">
-                            <i class="fas fa-heartbeat w-6 text-center"></i> Red de salud
-                        </a>
-                    </li>
-                </ul>
-            </div>
-
-            <!-- Gestión Digital -->
-            <div>
-                <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Gestión digital</h3>
-                <ul class="space-y-1">
-                    <li>
-                        <a href="#" class="flex items-center p-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-institucional rounded-md transition-colors">
-                            <i class="fas fa-history w-6 text-center"></i> Bitácora de eventos
-                        </a>
-                    </li>
-                    <li>
-                        <a href="#" class="flex items-center p-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-institucional rounded-md transition-colors">
-                            <i class="fas fa-file-alt w-6 text-center"></i> Reportes e informes
-                        </a>
-                    </li>
-                    <li>
-                        <a href="#" class="flex items-center p-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-institucional rounded-md transition-colors">
-                            <i class="fas fa-folder-open w-6 text-center"></i> Formatos de oficina
-                        </a>
-                    </li>
-                </ul>
-            </div>
-
-            <!-- Despacho -->
-            <div>
-                <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Despacho</h3>
-                <ul class="space-y-1">
-                    <li>
-                        <a href="#" class="flex items-center p-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-institucional rounded-md transition-colors">
-                            <i class="fas fa-briefcase w-6 text-center"></i> Acciones de la Concejala
-                        </a>
-                    </li>
-                </ul>
-            </div>
-        </nav>
-
-        <!-- Perfil de Usuario (Footer del Sidebar) -->
-        <div class="p-4 border-t border-gray-200 bg-gray-50">
-            <div class="flex items-center justify-between mb-3">
-                <div class="flex items-center space-x-3">
-                    <!-- Avatar -->
-                    <div class="w-10 h-10 rounded-full bg-institucional text-white flex items-center justify-center font-bold">
-                        LB
-                    </div>
-                    <div>
-                        <p class="text-sm font-semibold text-gray-800">Cargando...</p>
-                        <p class="text-xs text-gray-500">Ejecutiva</p>
-                    </div>
-                </div>
-            </div>
-            <a href="#" class="block w-full text-center p-2 text-sm text-red-600 hover:bg-red-50 rounded-md transition-colors border border-red-100">
-                <i class="fas fa-sign-out-alt mr-2"></i> Cerrar sesión
+            <a class="menu" onclick="logout()" style="cursor:pointer; font-size:12px; color:#f87171; padding: 8px 0; display: block; border-top: 1px solid rgba(255,255,255,0.05);">
+                Cerrar sesión
             </a>
         </div>
-    </aside>
+    </div>
 
-    <!-- Área de Contenido Principal -->
-    <main class="flex-1 flex flex-col h-full overflow-hidden">
+    <div class="main">
+        <h2 id="page-title">Gestión de Oficios Institucionales</h2>
+        <div class="subtitle-concejala">Despacho Concejala Letty Bastidas — Municipio Ambrosio Plaza</div>
         
-        <!-- Header superior simple -->
-        <header class="bg-white shadow-sm border-b border-gray-200 p-4 flex justify-between items-center">
-            <h2 class="text-xl font-semibold text-gray-800">Coordinación Ejecutiva</h2>
-            <div class="text-sm text-gray-500">
-                <i class="fas fa-clock mr-1"></i> <span id="fecha-actual"></span>
+        <div class="tabs-container">
+            <button class="tab-btn active" id="tab-oficios" onclick="switchData('Oficio')">✉ Enviados <span class="badge-count" id="badge-oficios">0</span></button>
+            <button class="tab-btn" id="tab-recibidos" onclick="switchData('Recibido')">📥 Recibidos <span class="badge-count" id="badge-recibidos">0</span></button>
+            <button class="tab-btn" id="tab-informes" onclick="switchData('Informe')">📊 Informes <span class="badge-count" id="badge-informes">0</span></button>
+        </div>
+
+        <div class="filters-bar">
+            <span style="font-size: 12px; font-weight: 600; color: #475569;">Filtros:</span>
+            
+            <select id="filter-date" class="form-control" onchange="cambiarFiltroFecha()">
+                <option value="todos">Todas las Fechas</option>
+                <option value="semana">Última Semana</option>
+                <option value="quincena">Última Quincena</option>
+                <option value="mes">Último Mes</option>
+                <option value="personalizado">Período Específico...</option>
+            </select>
+
+            <input type="date" id="filter-date-from" class="form-control" style="display: none;" onchange="renderFilas()" placeholder="Desde">
+            <span id="filter-date-separator" style="display: none; font-size: 12px; color: #64748b;">al</span>
+            <input type="date" id="filter-date-to" class="form-control" style="display: none;" onchange="renderFilas()" placeholder="Hasta">
+            
+            <input type="text" id="filter-encargado" class="form-control" placeholder="🔍 Búsqueda inteligente en tiempo real..." style="flex: 1; min-width: 220px;" onkeyup="renderFilas()">
+        </div>
+
+        <div class="action-bar">
+            <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+                <button class="btn-primary" onclick="registrarNuevo()" id="btn-nuevo-registro">➕ Registrar Nuevo Oficio</button>
+                <button class="btn-excel" onclick="exportarTablaExcel()">📊 Exportar Excel (.xls)</button>
             </div>
-        </header>
+            <span class="table-counter" id="tableCounter">Mostrando 0 registros</span>
+        </div>
 
-        <!-- Contenedor del contenido -->
-        <div class="flex-1 overflow-y-auto p-8 bg-gray-100">
-            <div class="max-w-5xl mx-auto bg-white rounded-lg shadow-sm border border-gray-200 p-8">
-                
-                <div class="border-b border-gray-200 pb-4 mb-6">
-                    <h1 class="text-3xl font-bold text-gray-800">Oficios e Informes</h1>
-                    <p class="text-gray-500 mt-2">Bienvenido al módulo de gestión de oficios e informes de la oficina.</p>
+        <div class="table-container">
+            <table>
+                <thead id="thead-dinamico"></thead>
+                <tbody id="tbody">
+                    <tr><td colspan="5" style="text-align:center; color:#94a3b8; padding: 20px;">Conectando con la base de datos SQLite...</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <footer class="main-footer">
+            <div class="main-footer-flag">
+                <div style="background-color: #ffde00;"></div>
+                <div style="background-color: #003da5;"></div>
+                <div style="background-color: #d12421;"></div>
+            </div>
+            <p>Sistema de Gestión de la Comisión Permanente de Salud y Desarrollo Social Integral — Municipio Ambrosio Plaza | Despacho Concejala Letty Bastidas</p>
+        </footer>
+    </div>
+    </div>
+
+    <!-- MODAL DOCUMENTO (VER DETALLES) -->
+    <div class="modal-overlay" id="documentModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modal-title-doc">Detalles del Documento</h3>
+                <button class="close-modal" onclick="closeDocModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="info-group">
+                    <span class="info-label">Identificador del Registro</span>
+                    <span class="info-value" id="modal-id">#0</span>
                 </div>
-
-                <!-- Aquí irá tu tabla de base de datos o el formulario -->
-                <div class="bg-gray-50 rounded border border-dashed border-gray-300 p-12 text-center">
-                    <i class="fas fa-file-signature text-4xl text-gray-300 mb-3"></i>
-                    <h3 class="text-lg font-medium text-gray-600">Área de trabajo</h3>
-                    <p class="text-sm text-gray-500 mt-1">Aquí puedes incrustar la tabla de Supabase o SQLite para listar los oficios.</p>
+                <div class="info-group">
+                    <span class="info-label" id="modal-label-nombre">Contenido Estructurado</span>
+                    <span class="info-value" id="modal-nombre" style="font-weight: 500; color: var(--text-dark-title); white-space: pre-wrap; background: #f8fafc; padding: 12px; border-radius: 6px; border: 1px solid #e2e8f0; font-size: 13px; max-height: 250px; overflow-y: auto;">—</span>
                 </div>
-
+                <div class="info-group">
+                    <span class="info-label" id="modal-label-sector">Actores Vinculados</span>
+                    <span class="info-value" id="modal-sector">—</span>
+                </div>
+                <div class="info-group">
+                    <span class="info-label">Creado Por / Trazabilidad</span>
+                    <span class="info-value" id="modal-creador">—</span>
+                </div>
+                <div class="info-group">
+                    <span class="info-label">Estado en Sistema</span>
+                    <span class="info-value"><span style="background: #e0f2fe; color: #0369a1; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 700;">ACTIVO</span></span>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-word" id="btnDescargarWordModal" onclick="exportarRegistroAWord()">📥 Descargar Word</button>
+                <button class="btn-primary" style="padding: 8px 16px; font-size: 12px; background: var(--sidebar-bg);" onclick="closeDocModal()">Cerrar</button>
             </div>
         </div>
-    </main>
+    </div>
 
-    <!-- Script rápido para la fecha en el topbar -->
-    <script>
-        const opciones = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-        document.getElementById('fecha-actual').textContent = new Date().toLocaleDateString('es-ES', opciones);
+    <!-- MODAL NUEVO / EDITAR OFICIO (ENVIADO / RECIBIDO) -->
+    <div class="modal-overlay" id="modalNuevoOficio">
+        <div class="modal-content" style="max-width: 500px;">
+            <div class="modal-header">
+                <h3 id="modal-title-oficio">Registrar Nuevo Oficio</h3>
+                <button class="close-modal" onclick="cerrarFormOficio()">&times;</button>
+            </div>
+            <form id="formOficio" class="modal-flex-form">
+                <div class="modal-body">
+                    <div style="display: flex; flex-direction: column; gap: 4px;">
+                        <label class="info-label" id="label-ofi-numero">NÚMERO O CÓDIGO DEL OFICIO:</label>
+                        <input type="text" id="ofiNumero" placeholder="Ej: OF-001-2026" style="padding: 8px; border: 1px solid var(--border-color); border-radius: 6px; font-size: 13px;" required>
+                    </div>
+                    <div style="display: flex; flex-direction: column; gap: 4px;">
+                        <label class="info-label">FECHA DEL OFICIO (MANUAL):</label>
+                        <input type="date" id="ofiFechaManual" style="padding: 8px; border: 1px solid var(--border-color); border-radius: 6px; font-size: 13px;" required>
+                    </div>
+                    <div style="display: flex; flex-direction: column; gap: 4px;">
+                        <label class="info-label" id="label-ofi-destino">SECTOR O ENTE DESTINO:</label>
+                        <input type="text" id="ofiDestino" placeholder="Ej: Dirección de Salud Municipal" style="padding: 8px; border: 1px solid var(--border-color); border-radius: 6px; font-size: 13px;" required>
+                    </div>
+                    <div style="display: flex; flex-direction: column; gap: 4px;">
+                        <label class="info-label">ASUNTO / CLASIFICACIÓN:</label>
+                        <textarea id="ofiAsunto" rows="3" placeholder="Descripción breve del contenido del oficio..." style="padding: 8px; border: 1px solid var(--border-color); border-radius: 6px; font-size: 13px; resize: vertical;" required></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-wa" onclick="cerrarFormOficio()">Cancelar</button>
+                    <button type="submit" class="btn-primary" style="background: var(--sidebar-bg);">Guardar Oficio</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL NUEVO / EDITAR INFORME -->
+    <div class="modal-overlay" id="modalNuevoInforme">
+        <div class="modal-content" style="max-width: 650px;">
+            <div class="modal-header">
+                <h3 id="modal-title-informe">Generar Nuevo Informe de Gestión Legislativa</h3>
+                <button class="close-modal" onclick="cerrarFormInforme()">&times;</button>
+            </div>
+            <form id="formAutomatedInforme" class="modal-flex-form">
+                <div class="modal-body">
+                    <div style="display: flex; gap: 12px;">
+                        <div style="flex: 1; display: flex; flex-direction: column; gap: 4px;">
+                            <label class="info-label">INFORME Nº:</label>
+                            <input type="text" id="infNumero" placeholder="Ej: 001-2026" style="padding: 8px; border: 1px solid var(--border-color); border-radius: 6px; font-size: 13px;" required>
+                        </div>
+                        <div style="flex: 1; display: flex; flex-direction: column; gap: 4px;">
+                            <label class="info-label">FECHA:</label>
+                            <input type="date" id="infFecha" style="padding: 8px; border: 1px solid var(--border-color); border-radius: 6px; font-size: 13px;" required>
+                        </div>
+                    </div>
+
+                    <div style="display: flex; flex-direction: column; gap: 4px;">
+                        <label class="info-label">ASUNTO / TÍTULO:</label>
+                        <input type="text" id="infAsunto" placeholder="Ej: Plan Atención Médica integral" style="padding: 8px; border: 1px solid var(--border-color); border-radius: 6px; font-size: 13px;" required>
+                    </div>
+
+                    <div style="display: flex; flex-direction: column; gap: 4px;">
+                        <label class="info-label">ACTORES VINCULADOS:</label>
+                        <input type="text" id="infActores" placeholder="Ej: Poder Popular, Comisión de Salud" style="padding: 8px; border: 1px solid var(--border-color); border-radius: 6px; font-size: 13px;" required>
+                    </div>
+
+                    <div style="display: flex; flex-direction: column; gap: 4px;">
+                        <label class="info-label">RESPONSABLE DE ELABORACIÓN:</label>
+                        <input type="text" id="infResponsable" placeholder="Ej: Letty Bastidas / Coordinación Ejecutiva" style="padding: 8px; border: 1px solid var(--border-color); border-radius: 6px; font-size: 13px;" required>
+                    </div>
+
+                    <div style="display: flex; flex-direction: column; gap: 4px;">
+                        <label class="info-label">I. INTRODUCCIÓN:</label>
+                        <textarea id="infIntroduccion" rows="2" placeholder="Contexto o introducción del informe..." style="padding: 8px; border: 1px solid var(--border-color); border-radius: 6px; font-size: 13px; resize: vertical;" required></textarea>
+                    </div>
+
+                    <div style="display: flex; flex-direction: column; gap: 4px;">
+                        <label class="info-label">II. DE LOS HECHOS:</label>
+                        <textarea id="infHechos" rows="2" placeholder="Narración detallada de los acontecimientos..." style="padding: 8px; border: 1px solid var(--border-color); border-radius: 6px; font-size: 13px; resize: vertical;" required></textarea>
+                    </div>
+
+                    <div style="display: flex; flex-direction: column; gap: 4px;">
+                        <label class="info-label">III. METAS ALCANZADAS:</label>
+                        <textarea id="infMetas" rows="2" placeholder="Resultados logrados u objetivos cumplidos..." style="padding: 8px; border: 1px solid var(--border-color); border-radius: 6px; font-size: 13px; resize: vertical;" required></textarea>
+                    </div>
+
+                    <div style="display: flex; flex-direction: column; gap: 4px;">
+                        <label class="info-label">IV. ASPECTOS JURÍDICOS:</label>
+                        <textarea id="infJuridico" rows="2" placeholder="Base legal aplicable..." style="padding: 8px; border: 1px solid var(--border-color); border-radius: 6px; font-size: 13px; resize: vertical;"></textarea>
+                    </div>
+
+                    <div style="display: flex; flex-direction: column; gap: 4px;">
+                        <label class="info-label">V. CONCLUSIÓN Y RECOMENDACIONES:</label>
+                        <textarea id="infConclusiones" rows="2" placeholder="Conclusiones y sugerencias..." style="padding: 8px; border: 1px solid var(--border-color); border-radius: 6px; font-size: 13px; resize: vertical;" required></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-wa" onclick="cerrarFormInforme()">Cancelar</button>
+                    <button type="submit" class="btn-primary" style="background: var(--sidebar-bg);">Guardar Informe</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- SCRIPT DE CONTROL CONECTADO A /api/query -->
+    <script type="module">
+        async function consultarBaseDatos(query, params = []) {
+            try {
+                const response = await fetch("/api/query", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ query, params })
+                });
+                if (!response.ok) throw new Error(`Error ${response.status}`);
+                return await response.json();
+            } catch (error) {
+                console.error(error);
+                throw error;
+            }
+        }
+
+        if (sessionStorage.getItem("usuario_rol") === "admin") {
+            const el = document.getElementById("enlaceAuditoria");
+            if (el) el.style.display = "block";
+        }
+
+        let filtroActual = 'Oficio';
+        let todosLosRegistros = []; 
+        let idSeleccionadoActual = null;
+        let idEnEdicion = null;
+        let cacheConteo = { oficios: 0, recibidos: 0, informes: 0 };
+
+        window.iniciarApp = async function() {
+            const nombre = sessionStorage.getItem("usuario_nombre");
+            const coord = sessionStorage.getItem("usuario_coordinacion");
+            if (nombre) document.getElementById("usuarioNombre").textContent = nombre;
+            if (coord) document.getElementById("usuarioCoordinacion").textContent = coord;
+
+            await actualizarContadoresPestañas();
+            switchData('Oficio');
+            
+            const formInforme = document.getElementById('formAutomatedInforme');
+            if (formInforme && !formInforme.dataset.bound) {
+                formInforme.dataset.bound = "true";
+                formInforme.addEventListener('submit', async (e) => {
+                    e.preventDefault();
+                    await guardarInformeAutomatizado();
+                });
+            }
+
+            const formOficio = document.getElementById('formOficio');
+            if (formOficio && !formOficio.dataset.bound) {
+                formOficio.dataset.bound = "true";
+                formOficio.addEventListener('submit', async (e) => {
+                    e.preventDefault();
+                    await guardarOficioModal();
+                });
+            }
+        };
+
+        document.addEventListener("DOMContentLoaded", () => {
+            window.iniciarApp();
+        });
+
+        window.toggleMobileMenu = function() {
+            const sidebar = document.getElementById("sidebarMenu");
+            const btn = document.getElementById("menuToggleBtn");
+            sidebar.classList.toggle("mobile-open");
+            btn.innerText = sidebar.classList.contains("mobile-open") ? "✕" : "☰";
+        }
+
+        window.cambiarFiltroFecha = function() {
+            const val = document.getElementById("filter-date").value;
+            const from = document.getElementById("filter-date-from");
+            const to = document.getElementById("filter-date-to");
+            const sep = document.getElementById("filter-date-separator");
+            
+            if (val === 'personalizado') {
+                from.style.display = 'inline-block';
+                to.style.display = 'inline-block';
+                sep.style.display = 'inline-block';
+            } else {
+                from.style.display = 'none';
+                to.style.display = 'none';
+                sep.style.display = 'none';
+            }
+            renderFilas();
+        }
+
+        async function actualizarContadoresPestañas() {
+            try {
+                const [resO] = await consultarBaseDatos("SELECT COUNT(*) as total FROM oficios");
+                const [resR] = await consultarBaseDatos("SELECT COUNT(*) as total FROM oficios_recibidos");
+                const [resI] = await consultarBaseDatos("SELECT COUNT(*) as total FROM informes");
+                
+                cacheConteo.oficios = resO ? resO.total : 0;
+                cacheConteo.recibidos = resR ? resR.total : 0;
+                cacheConteo.informes = resI ? resI.total : 0;
+
+                document.getElementById("badge-oficios").innerText = cacheConteo.oficios;
+                document.getElementById("badge-recibidos").innerText = cacheConteo.recibidos;
+                document.getElementById("badge-informes").innerText = cacheConteo.informes;
+            } catch (e) {
+                console.error("Error al actualizar contadores", e);
+            }
+        }
+
+        async function loadData() {
+            const tbody = document.getElementById("tbody");
+            const thead = document.getElementById("thead-dinamico");
+
+            try {
+                let sql = "";
+                if (filtroActual === 'Oficio') {
+                    sql = "SELECT * FROM oficios ORDER BY created_at DESC";
+                } else if (filtroActual === 'Recibido') {
+                    sql = "SELECT * FROM oficios_recibidos ORDER BY created_at DESC";
+                } else {
+                    sql = "SELECT * FROM informes ORDER BY created_at DESC";
+                }
+
+                todosLosRegistros = await consultarBaseDatos(sql);
+                await actualizarContadoresPestañas();
+                
+                if (filtroActual === 'Oficio') {
+                    thead.innerHTML = `<tr><th style="width: 120px;">Nro Oficio</th><th>Asunto / Clasificación</th><th>Sector / Ente Destino</th><th>Estado</th><th style="width: 180px;">Acciones</th></tr>`;
+                } else if (filtroActual === 'Recibido') {
+                    thead.innerHTML = `<tr><th style="width: 120px;">Nro Oficio</th><th>Asunto / Clasificación</th><th>Ente / Remitente Emisor</th><th>Estado</th><th style="width: 180px;">Acciones</th></tr>`;
+                } else {
+                    thead.innerHTML = `<tr><th style="width: 120px;">Nro Informe</th><th>Título del Informe Legislativo</th><th>Área de Cobertura</th><th>Estado</th><th style="width: 180px;">Acciones</th></tr>`;
+                }
+                renderFilas();
+            } catch (err) {
+                tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:#dc2626; padding:30px;">⚠️ Error de conexión con la API: ${err.message}</td></tr>`;
+            }
+        }
+
+        window.renderFilas = function() {
+            const tbody = document.getElementById("tbody");
+            const dateVal = document.getElementById("filter-date").value;
+            const fromVal = document.getElementById("filter-date-from").value;
+            const toVal = document.getElementById("filter-date-to").value;
+            const textoBusqueda = document.getElementById("filter-encargado").value.toLowerCase().trim();
+            const usuarioActual = sessionStorage.getItem("usuario_nombre") || "";
+            const rolActual = sessionStorage.getItem("usuario_rol") || "";
+
+            const datosFiltrados = todosLosRegistros.filter(r => {
+                const campoNumero = (r.numero || "").toLowerCase();
+                const campoAsunto = (r.asunto || "").toLowerCase();
+                const campoDestino = (r.destino || r.remitente || r.actores || r.responsable || "").toLowerCase();
+                
+                if (textoBusqueda) {
+                    const matchNumero = campoNumero.includes(textoBusqueda);
+                    const matchAsunto = campoAsunto.includes(textoBusqueda);
+                    const matchDestino = campoDestino.includes(textoBusqueda);
+                    if (!matchNumero && !matchAsunto && !matchDestino) return false;
+                }
+
+                if (dateVal !== 'todos' && r.created_at) {
+                    const recordDate = new Date(r.created_at);
+                    const hoy = new Date();
+                    
+                    if (dateVal === 'semana') {
+                        const semanaAtras = new Date();
+                        semanaAtras.setDate(hoy.getDate() - 7);
+                        if (recordDate < semanaAtras) return false;
+                    } else if (dateVal === 'quincena') {
+                        const quincenaAtras = new Date();
+                        quincenaAtras.setDate(hoy.getDate() - 15);
+                        if (recordDate < quincenaAtras) return false;
+                    } else if (dateVal === 'mes') {
+                        const mesAtras = new Date();
+                        mesAtras.setMonth(hoy.getMonth() - 1);
+                        if (recordDate < mesAtras) return false;
+                    } else if (dateVal === 'personalizado') {
+                        if (fromVal) {
+                            const dDesde = new Date(fromVal);
+                            if (recordDate < dDesde) return false;
+                        }
+                        if (toVal) {
+                            const dHasta = new Date(toVal);
+                            dHasta.setHours(23, 59, 59, 999);
+                            if (recordDate > dHasta) return false;
+                        }
+                    }
+                }
+
+                return true;
+            });
+
+            document.getElementById("tableCounter").innerText = `Mostrando ${datosFiltrados.length} registro(s)`;
+
+            if (datosFiltrados.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:#94a3b8; padding:30px;">No se encontraron registros que coincidan con los filtros de búsqueda.</td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = datosFiltrados.map(r => {
+                let numeroDocumento = r.numero || `#${r.id}`;
+                let tituloColumna = filtroActual === 'Informe' ? (r.asunto || 'Sin título') : (r.asunto || 'Sin asunto');
+                let sectorColumna = '';
+                if (filtroActual === 'Oficio') {
+                    sectorColumna = r.destino || 'No especificado';
+                } else if (filtroActual === 'Recibido') {
+                    sectorColumna = r.remitente || 'No especificado';
+                } else {
+                    sectorColumna = `${r.actores || ''} (Resp: ${r.responsable || ''})`;
+                }
+
+                const esCreador = r.creado_por && r.creado_por.toLowerCase() === usuarioActual.toLowerCase();
+                const esAdmin = rolActual === 'admin';
+                
+                const botonEditarHTML = (esCreador || esAdmin)
+                    ? `<button class="btn-success" onclick="abrirEditarRegistro(${r.id})">Editar</button>`
+                    : ``;
+
+                const botonBorrarHTML = (esCreador || esAdmin) 
+                    ? `<button class="btn-del" onclick="eliminarRegistro(${r.id})">Borrar</button>` 
+                    : ``;
+
+                const badgeProtegido = (!esCreador && !esAdmin) 
+                    ? `<span style="font-size:10px; color:#94a3b8; font-style:italic;" title="Solo el creador o admin pueden modificarlo">🔒 Protegido</span>`
+                    : ``;
+
+                return `
+                    <tr>
+                        <td><code>${numeroDocumento}</code></td>
+                        <td><b style="color: var(--text-dark-title);">${tituloColumna}</b></td>
+                        <td style="color:#475569;">${sectorColumna}</td>
+                        <td><span style="background:#e0f2fe; color:#0369a1; padding:3px 8px; border-radius:4px; font-size:11px; font-weight:700;">ACTIVO</span></td>
+                        <td>
+                            <div class="action-buttons">
+                                <button class="btn-wa" onclick="verDetallesModal(${r.id})">Ver</button>
+                                ${botonEditarHTML}
+                                ${botonBorrarHTML}
+                                ${badgeProtegido}
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }).join("");
+        }
+
+        window.verDetallesModal = function(id) {
+            const idBuscado = Number(id);
+            idSeleccionadoActual = idBuscado;
+            
+            const registro = todosLosRegistros.find(r => Number(r.id) === idBuscado);
+            if (!registro) {
+                alert("No se encontró el registro para visualizar.");
+                return;
+            }
+
+            document.getElementById("modal-id").innerText = `${filtroActual === 'Recibido' ? 'Oficio Recibido' : filtroActual} Nº ${registro.numero || registro.id}`;
+            
+            if (filtroActual === 'Oficio' || filtroActual === 'Recibido') {
+                document.getElementById("modal-title-doc").innerText = filtroActual === 'Oficio' ? "Expediente de Oficio Enviado" : "Expediente de Oficio Recibido";
+                document.getElementById("modal-label-nombre").innerText = "Asunto del Oficio";
+                document.getElementById("modal-nombre").innerText = registro.asunto || "Sin asunto";
+                document.getElementById("modal-label-sector").innerText = filtroActual === 'Oficio' ? "Sector / Organismo Destinatario" : "Ente / Remitente Emisor";
+                document.getElementById("modal-sector").innerText = filtroActual === 'Oficio' ? (registro.destino || "No especificado") : (registro.remitente || "No especificado");
+                document.getElementById("btnDescargarWordModal").style.display = "none";
+            } else {
+                document.getElementById("modal-title-doc").innerText = "Expediente de Informe Legislativo";
+                document.getElementById("modal-label-nombre").innerText = "Contenido Estructurado del Informe";
+                
+                let textoCompletoInforme = `INFORME Nº: ${registro.numero}\nFECHA: ${registro.fecha}\nASUNTO: ${registro.asunto}\n\nI. INTRODUCCIÓN\n${registro.introduccion}\n\nII. DE LOS HECHOS\n${registro.hechos}\n\nIII. METAS ALCANZADAS\n${registro.metas}\n\nIV. ASPECTOS JURÍDICOS\n${registro.juridico || 'No especificados.'}\n\nV. CONCLUSIÓN Y RECOMENDACIONES\n${registro.conclusiones}\n\n--------------------------------------------------\nRESPONSABLE: ${registro.responsable}`;
+                
+                document.getElementById("modal-nombre").innerText = textoCompletoInforme;
+                document.getElementById("modal-label-sector").innerText = "Actores / Responsable";
+                document.getElementById("modal-sector").innerText = `${registro.actores || ''} (Resp: ${registro.responsable || ''})`;
+                document.getElementById("btnDescargarWordModal").style.display = "inline-block";
+            }
+
+            document.getElementById("modal-creador").innerText = `${registro.creado_por || "Desconocido"} (Registrado el: ${registro.created_at || 'N/D'})`;
+            document.getElementById("documentModal").classList.add("open");
+        }
+
+        window.closeDocModal = function() {
+            document.getElementById("documentModal").classList.remove("open");
+        }
+
+        window.registrarNuevo = function() {
+            idEnEdicion = null;
+            if (filtroActual === 'Oficio' || filtroActual === 'Recibido') {
+                document.getElementById("modal-title-oficio").innerText = filtroActual === 'Oficio' ? "Registrar Nuevo Oficio Enviado" : "Registrar Nuevo Oficio Recibido";
+                document.getElementById("label-ofi-destino").innerText = filtroActual === 'Oficio' ? "SECTOR O ENTE DESTINO:" : "ENTE / REMITENTE EMISOR:";
+                document.getElementById("ofiDestino").placeholder = filtroActual === 'Oficio' ? "Ej: Dirección de Salud Municipal" : "Ej: Ministerio del Poder Popular para la Salud";
+                document.getElementById("formOficio").reset();
+                
+                const inputFechaOfi = document.getElementById("ofiFechaManual");
+                if (inputFechaOfi) inputFechaOfi.value = "2026-07-01";
+
+                document.getElementById("modalNuevoOficio").classList.add("open");
+            } else {
+                document.getElementById("modal-title-informe").innerText = "Generar Nuevo Informe de Gestión Legislativa";
+                document.getElementById("formAutomatedInforme").reset();
+                const hoyStr = new Date().toISOString().split('T')[0];
+                const inputFecha = document.getElementById("infFecha");
+                if (inputFecha) inputFecha.value = hoyStr;
+                document.getElementById("modalNuevoInforme").classList.add("open");
+            }
+        }
+
+        window.abrirEditarRegistro = async function(id) {
+            const idBuscado = Number(id);
+            const registro = todosLosRegistros.find(r => Number(r.id) === idBuscado);
+            
+            if (!registro) {
+                alert("No se encontró el registro en la memoria local.");
+                return;
+            }
+
+            const usuarioActual = sessionStorage.getItem("usuario_nombre") || "";
+            const rolActual = sessionStorage.getItem("usuario_rol") || "";
+            const esCreador = registro.creado_por && registro.creado_por.toLowerCase() === usuarioActual.toLowerCase();
+            const esAdmin = rolActual === 'admin';
+
+            if (!esCreador && !esAdmin) {
+                alert("Acción no permitida. Solo el usuario que creó este registro o un administrador pueden editarlo.");
+                return;
+            }
+
+            idEnEdicion = idBuscado;
+
+            if (filtroActual === 'Oficio' || filtroActual === 'Recibido') {
+                document.getElementById("modal-title-oficio").innerText = filtroActual === 'Oficio' ? "Editar Oficio Enviado" : "Editar Oficio Recibido";
+                document.getElementById("label-ofi-destino").innerText = filtroActual === 'Oficio' ? "SECTOR O ENTE DESTINO:" : "ENTE / REMITENTE EMISOR:";
+                document.getElementById("ofiNumero").value = registro.numero || "";
+                
+                let fechaOriginal = "2026-07-01";
+                if (registro.created_at) {
+                    fechaOriginal = registro.created_at.split(' ')[0];
+                }
+                document.getElementById("ofiFechaManual").value = fechaOriginal;
+
+                document.getElementById("ofiDestino").value = (filtroActual === 'Oficio' ? registro.destino : registro.remitente) || "";
+                document.getElementById("ofiAsunto").value = registro.asunto || "";
+                document.getElementById("modalNuevoOficio").classList.add("open");
+            } else {
+                document.getElementById("modal-title-informe").innerText = "Editar Informe de Gestión Legislativa";
+                document.getElementById("infNumero").value = registro.numero || "";
+                document.getElementById("infFecha").value = registro.fecha || "";
+                document.getElementById("infAsunto").value = registro.asunto || "";
+                document.getElementById("infActores").value = registro.actores || "";
+                document.getElementById("infResponsable").value = registro.responsable || "";
+                document.getElementById("infIntroduccion").value = registro.introduccion || "";
+                document.getElementById("infHechos").value = registro.hechos || "";
+                document.getElementById("infMetas").value = registro.metas || "";
+                document.getElementById("infJuridico").value = registro.juridico || "";
+                document.getElementById("infConclusiones").value = registro.conclusiones || "";
+                document.getElementById("modalNuevoInforme").classList.add("open");
+            }
+        }
+
+        window.cerrarFormOficio = function() {
+            idEnEdicion = null;
+            document.getElementById("modalNuevoOficio").classList.remove("open");
+            document.getElementById("formOficio").reset();
+        }
+
+        window.cerrarFormInforme = function() {
+            idEnEdicion = null;
+            document.getElementById("modalNuevoInforme").classList.remove("open");
+            document.getElementById("formAutomatedInforme").reset();
+        }
+
+        async function guardarOficioModal() {
+            const numero = document.getElementById("ofiNumero").value.trim();
+            const fechaManual = document.getElementById("ofiFechaManual").value.trim();
+            const campoSecundario = document.getElementById("ofiDestino").value.trim();
+            const asunto = document.getElementById("ofiAsunto").value.trim();
+            const usuarioActual = sessionStorage.getItem("usuario_nombre") || "Desconocido";
+
+            try {
+                let sql, params;
+                if (filtroActual === 'Oficio') {
+                    if (idEnEdicion) {
+                        sql = "UPDATE oficios SET numero = ?, destino = ?, asunto = ?, created_at = ? WHERE id = ?";
+                        params = [numero, campoSecundario, asunto, fechaManual, idEnEdicion];
+                    } else {
+                        sql = "INSERT INTO oficios (numero, destino, asunto, creado_por, created_at) VALUES (?, ?, ?, ?, ?)";
+                        params = [numero, campoSecundario, asunto, usuarioActual, fechaManual];
+                    }
+                } else {
+                    if (idEnEdicion) {
+                        sql = "UPDATE oficios_recibidos SET numero = ?, remitente = ?, asunto = ?, created_at = ? WHERE id = ?";
+                        params = [numero, campoSecundario, asunto, fechaManual, idEnEdicion];
+                    } else {
+                        sql = "INSERT INTO oficios_recibidos (numero, remitente, asunto, creado_por, created_at) VALUES (?, ?, ?, ?, ?)";
+                        params = [numero, campoSecundario, asunto, usuarioActual, fechaManual];
+                    }
+                }
+
+                await consultarBaseDatos(sql, params);
+
+                alert(idEnEdicion ? "¡Registro actualizado con éxito!" : "¡Registro guardado con éxito!");
+                cerrarFormOficio();
+                loadData();
+            } catch (err) {
+                alert("Ocurrió un error al guardar el registro: " + err.message);
+            }
+        }
+
+        async function guardarInformeAutomatizado() {
+            const numero = document.getElementById("infNumero").value;
+            const fecha = document.getElementById("infFecha").value;
+            const asunto = document.getElementById("infAsunto").value;
+            const actores = document.getElementById("infActores").value;
+            const responsable = document.getElementById("infResponsable").value;
+            const introduccion = document.getElementById("infIntroduccion").value;
+            const hechos = document.getElementById("infHechos").value;
+            const metas = document.getElementById("infMetas").value;
+            const juridico = document.getElementById("infJuridico").value;
+            const conclusiones = document.getElementById("infConclusiones").value;
+            const usuarioActual = sessionStorage.getItem("usuario_nombre") || "Desconocido";
+
+            try {
+                let sql, params;
+                if (idEnEdicion) {
+                    sql = "UPDATE informes SET numero = ?, fecha = ?, asunto = ?, actores = ?, responsable = ?, introduccion = ?, hechos = ?, metas = ?, juridico = ?, conclusiones = ? WHERE id = ?";
+                    params = [numero, fecha, asunto, actores, responsable, introduccion, hechos, metas, juridico, conclusiones, idEnEdicion];
+                } else {
+                    sql = "INSERT INTO informes (numero, fecha, asunto, actores, responsable, introduccion, hechos, metas, juridico, conclusiones, creado_por, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'))";
+                    params = [numero, fecha, asunto, actores, responsable, introduccion, hechos, metas, juridico, conclusiones, usuarioActual];
+                }
+
+                await consultarBaseDatos(sql, params);
+
+                alert(idEnEdicion ? `¡Informe Nº ${numero} actualizado correctamente!` : `¡Informe de Gestión Nº ${numero} guardado con éxito!`);
+                cerrarFormInforme();
+                loadData();
+            } catch (err) {
+                alert("Ocurrió un error al guardar el informe: " + err.message);
+            }
+        }
+
+        // FUNCIÓN MODIFICADA PARA EXPORTAR A EXCEL REAL NATIVO (.xls)
+        window.exportarTablaExcel = function() {
+            if (!todosLosRegistros || todosLosRegistros.length === 0) {
+                alert("No hay registros en la vista actual para exportar.");
+                return;
+            }
+
+            let tablaHTML = `<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">
+            <head><meta charset="UTF-8"><title>Reporte Excel</title></head>
+            <body>
+            <table border="1">
+                <thead>
+                    <tr style="background-color: #1d3b6a; color: #ffffff; font-weight: bold;">`;
+
+            if (filtroActual === 'Oficio') {
+                tablaHTML += `<th>Nro Oficio</th><th>Asunto / Clasificación</th><th>Sector / Ente Destino</th><th>Creado Por</th><th>Fecha Creación</th>`;
+            } else if (filtroActual === 'Recibido') {
+                tablaHTML += `<th>Nro Oficio</th><th>Asunto / Clasificación</th><th>Ente / Remitente Emisor</th><th>Creado Por</th><th>Fecha Creación</th>`;
+            } else {
+                tablaHTML += `<th>Nro Informe</th><th>Fecha</th><th>Asunto / Título</th><th>Actores Vinculados</th><th>Responsable</th><th>Creado Por</th>`;
+            }
+
+            tablaHTML += `</tr></thead><tbody>`;
+
+            todosLosRegistros.forEach(r => {
+                tablaHTML += `<tr>`;
+                if (filtroActual === 'Oficio') {
+                    tablaHTML += `<td>${r.numero || ''}</td><td>${r.asunto || ''}</td><td>${r.destino || ''}</td><td>${r.creado_por || ''}</td><td>${r.created_at || ''}</td>`;
+                } else if (filtroActual === 'Recibido') {
+                    tablaHTML += `<td>${r.numero || ''}</td><td>${r.asunto || ''}</td><td>${r.remitente || ''}</td><td>${r.creado_por || ''}</td><td>${r.created_at || ''}</td>`;
+                } else {
+                    tablaHTML += `<td>${r.numero || ''}</td><td>${r.fecha || ''}</td><td>${r.asunto || ''}</td><td>${r.actores || ''}</td><td>${r.responsable || ''}</td><td>${r.creado_por || ''}</td>`;
+                }
+                tablaHTML += `</tr>`;
+            });
+
+            tablaHTML += `</tbody></table></body></html>`;
+
+            const blob = new Blob([tablaHTML], { type: 'application/vnd.ms-excel;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `Reporte_${filtroActual}_Despacho.xls`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        window.exportarRegistroAWord = function(idRegistro) {
+            const idTarget = idRegistro || idSeleccionadoActual;
+            const registro = todosLosRegistros.find(r => Number(r.id) === Number(idTarget));
+            if (!registro) {
+                alert("No se encontró el registro para exportar.");
+                return;
+            }
+
+            const nroInforme = registro.numero || "027-2026";
+            const fechaInforme = registro.fecha || "26 de mayo 2026";
+            const asuntoInforme = registro.asunto || "Plan Atención Médica integral";
+            const actoresVinculados = registro.actores || "Poder Popular, Comisión de Salud";
+
+            const parrafosHTML = `
+                <h2 style="font-family: 'Arial', sans-serif; font-size: 12pt; font-weight: bold; color: #000000; text-align: center; margin-top: 18pt; margin-bottom: 12pt; text-transform: uppercase;">I. INTRODUCCIÓN</h2>
+                <p style="font-family: 'Arial', sans-serif; font-size: 12pt; line-height: 1.25; color: #000000; margin: 0 0 10pt 0; text-align: justify;">${registro.introduccion || ''}</p>
+                
+                <h2 style="font-family: 'Arial', sans-serif; font-size: 12pt; font-weight: bold; color: #000000; text-align: center; margin-top: 18pt; margin-bottom: 12pt; text-transform: uppercase;">II. DE LOS HECHOS</h2>
+                <p style="font-family: 'Arial', sans-serif; font-size: 12pt; line-height: 1.25; color: #000000; margin: 0 0 10pt 0; text-align: justify;">${registro.hechos || ''}</p>
+                
+                <h2 style="font-family: 'Arial', sans-serif; font-size: 12pt; font-weight: bold; color: #000000; text-align: center; margin-top: 18pt; margin-bottom: 12pt; text-transform: uppercase;">III. METAS ALCANZADAS</h2>
+                <p style="font-family: 'Arial', sans-serif; font-size: 12pt; line-height: 1.25; color: #000000; margin: 0 0 10pt 0; text-align: justify;">${registro.metas || ''}</p>
+                
+                <h2 style="font-family: 'Arial', sans-serif; font-size: 12pt; font-weight: bold; color: #000000; text-align: center; margin-top: 18pt; margin-bottom: 12pt; text-transform: uppercase;">IV. ASPECTOS JURÍDICOS</h2>
+                <p style="font-family: 'Arial', sans-serif; font-size: 12pt; line-height: 1.25; color: #000000; margin: 0 0 10pt 0; text-align: justify;">${registro.juridico || 'No especificados.'}</p>
+                
+                <h2 style="font-family: 'Arial', sans-serif; font-size: 12pt; font-weight: bold; color: #000000; text-align: center; margin-top: 18pt; margin-bottom: 12pt; text-transform: uppercase;">V. CONCLUSIÓN Y RECOMENDACIONES</h2>
+                <p style="font-family: 'Arial', sans-serif; font-size: 12pt; line-height: 1.25; color: #000000; margin: 0 0 10pt 0; text-align: justify;">${registro.conclusiones || ''}</p>
+            `;
+
+            const plantillaWordHTML = `
+            <html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
+            <head><meta charset="UTF-8"><title>Informe de Gestión</title></head>
+            <body style="font-family: 'Arial', sans-serif; font-size: 12pt;">
+                <table border="0" cellspacing="0" cellpadding="0" style="width: 100%; border-collapse: collapse; margin-bottom: 5pt; font-family: 'Arial', sans-serif;">
+                    <tr>
+                         <td style="width: 14%; text-align: left; vertical-align: middle;"><img src="https://6tq1hvhd6i4nm9rm.public.blob.vercel-storage.com/logo-concejo.jpg" width="75" height="75" style="display:block;"></td>
+                        <td style="width: 70%; text-align: center; vertical-align: middle;">
+                            <p style="font-family: 'Arial', sans-serif; font-size: 12pt; margin: 0;">República Bolivariana de Venezuela</p>
+                            <p style="font-family: 'Arial', sans-serif; font-size: 12pt; margin: 0;">Estado Bolivariano de Miranda</p>
+                            <p style="font-family: 'Arial', sans-serif; font-size: 12pt; margin: 0;">Concejo del Municipio "Ambrosio Plaza"</p>
+                            <p style="font-family: 'Arial', sans-serif; font-size: 12pt; font-weight: bold; margin: 2pt 0 0 0;">Comisión Permanente de Salud y Desarrollo Social Integral</p>
+                        </td>
+                         <td style="width: 14%; text-align: right; vertical-align: middle;"><img src="https://6tq1hvhd6i4nm9rm.public.blob.vercel-storage.com/Logo-comision.png" width="100" height="100" style="display:block; margin-left: auto;"></td>
+                    </tr>
+                </table>
+                <div style="border-top: 4.5pt solid #ff6666; margin-bottom: 20pt; width: 100%;"></div>
+                <table border="0" cellspacing="0" cellpadding="0" style="width: 100%; border-collapse: collapse; margin-bottom: 12pt; font-family: 'Arial', sans-serif; font-size: 12pt;">
+                    <tr>
+                        <td style="width: 50%;"><p style="font-family: 'Arial', sans-serif; font-size: 12pt; margin: 0;"><b>INFORME:</b> ${nroInforme}</p></td>
+                        <td style="width: 50%; text-align: right;"><p style="font-family: 'Arial', sans-serif; font-size: 12pt; margin: 0;"><b>FECHA:</b> ${fechaInforme}</p></td>
+                    </tr>
+                </table>
+                <table border="0" cellspacing="0" cellpadding="0" style="width: 100%; border-collapse: collapse; margin-bottom: 15pt; font-family: 'Arial', sans-serif; font-size: 12pt;">
+                    <tr><td><p style="font-family: 'Arial', sans-serif; font-size: 12pt; margin: 0;"><b>ASUNTO:</b> ${asuntoInforme}</p></td></tr>
+                    <tr><td><p style="font-family: 'Arial', sans-serif; font-size: 12pt; margin: 0;"><b>ACTORES VINCULADOS:</b> ${actoresVinculados}</p></td></tr>
+                </table>
+                <div style="border-top: 0.75pt solid #000000; margin-bottom: 15pt; width: 100%;"></div>
+                <div style="margin-bottom: 35pt; font-family: 'Arial', sans-serif; font-size: 12pt;">${parrafosHTML}</div>
+                <div style="margin-top: 40pt; font-family: 'Arial', sans-serif;">
+                    <p style="font-family: 'Arial', sans-serif; font-size: 12pt; margin-bottom: 35pt; text-align: center;">Por la comisión permanente.</p>
+                    
+                    <table border="0" cellspacing="0" cellpadding="0" style="width: 100%; border-collapse: collapse; margin-bottom: 20pt; font-family: 'Arial', sans-serif;">
+                        <tr>
+                            <td style="text-align: center;">
+                                <p style="font-family: 'Arial', sans-serif; font-size: 12pt; font-weight: bold; margin: 0;">Concejala Abg. Letty Bastidas</p>
+                                <p style="font-family: 'Arial', sans-serif; font-size: 11pt; font-style: italic; margin: 0;">Presidente de la Comisión Permanente de Salud<br>y Desarrollo Social Integral</p>
+                            </td>
+                        </tr>
+                    </table>
+
+                    <table border="0" cellspacing="0" cellpadding="0" style="width: 100%; border-collapse: collapse; font-family: 'Arial', sans-serif;">
+                        <tr>
+                            <td style="width: 50%; text-align: center; vertical-align: top;">
+                                <p style="font-family: 'Arial', sans-serif; font-size: 12pt; font-weight: bold; margin: 0;">Concejala Mgs. Mirlys Hidalgo</p>
+                                <p style="font-family: 'Arial', sans-serif; font-size: 11pt; font-style: italic; margin: 0;">Vicepresidente de la Comisión<br>Permanente</p>
+                            </td>
+                            <td style="width: 50%; text-align: center; vertical-align: top;">
+                                <p style="font-family: 'Arial', sans-serif; font-size: 12pt; font-weight: bold; margin: 0;">Concejala Lic. Zulmy Orozco</p>
+                                <p style="font-family: 'Arial', sans-serif; font-size: 11pt; font-style: italic; margin: 0;">Vocal de la Comisión Permanente</p>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+
+                <div style="mso-element:footer; font-family: 'Arial', sans-serif;">
+                    <div style="border-top: 1pt solid #cbd5e1; padding-top: 8pt; text-align: center; font-family: 'Arial', sans-serif;">
+                        <table style="width: 100%; border-collapse: collapse; margin-bottom: 4pt;">
+                            <tr>
+                                <td style="background-color: #ffde00; height: 3px; width: 33%;"></td>
+                                <td style="background-color: #003da5; height: 3px; width: 34%;"></td>
+                                <td style="background-color: #d12421; height: 3px; width: 33%;"></td>
+                            </tr>
+                        </table>
+                        <p style="font-family: 'Arial', sans-serif; font-size: 10pt; font-style: italic; color: #475569; margin: 0 0 4pt 0;">Salud para Todos y Todas</p>
+                        <p style="font-family: 'Arial', sans-serif; font-size: 8.5pt; color: #64748b; margin: 0; line-height: 1.3;">
+                            Dirección: Calle Bolívar con Monagas, diagonal al Hospitalito Francisco Rafael García. Guarenas, Estado Bolivariano de Miranda. Nro. Telefónico: 0426-3147191 Correo Electrónico: <a href="mailto:Comisiondesaludgestion2025@gmail.com" style="color: #0066cc; text-decoration: underline;">Comisiondesaludgestion2025@gmail.com</a>
+                        </p>
+                    </div>
+                </div>
+            </body>
+            </html>`;
+
+            const blob = new Blob(['\ufeff' + plantillaWordHTML], { type: 'application/msword;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `Informe_${nroInforme.replace(/[^a-zA-Z0-9-_]/g, '_')}.doc`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        window.switchData = function(tipo) {
+            filtroActual = tipo;
+            document.getElementById("tab-oficios").classList.toggle("active", tipo === 'Oficio');
+            document.getElementById("tab-recibidos").classList.toggle("active", tipo === 'Recibido');
+            document.getElementById("tab-informes").classList.toggle("active", tipo === 'Informe');
+            
+            if (tipo === 'Oficio') {
+                document.getElementById("page-title").innerText = "Gestión de Oficios Institucionales";
+                document.getElementById("btn-nuevo-registro").innerText = "➕ Registrar Nuevo Oficio";
+            } else if (tipo === 'Recibido') {
+                document.getElementById("page-title").innerText = "Gestión de Oficios Recibidos";
+                document.getElementById("btn-nuevo-registro").innerText = "➕ Registrar Oficio Recibido";
+            } else {
+                document.getElementById("page-title").innerText = "Informes de Gestión Legislativa";
+                document.getElementById("btn-nuevo-registro").innerText = "➕ Generar Nuevo Informe";
+            }
+            
+            document.getElementById("filter-date").value = "todos";
+            document.getElementById("filter-encargado").value = "";
+            cambiarFiltroFecha();
+            loadData();
+        }
+
+        window.eliminarRegistro = async function(id) {
+            if (!confirm("¿Estás seguro de que deseas eliminar este registro?")) return;
+
+            let sql = "";
+            if (filtroActual === 'Oficio') {
+                sql = "DELETE FROM oficios WHERE id = ?";
+            } else if (filtroActual === 'Recibido') {
+                sql = "DELETE FROM oficios_recibidos WHERE id = ?";
+            } else {
+                sql = "DELETE FROM informes WHERE id = ?";
+            }
+
+            try {
+                await consultarBaseDatos(sql, [id]);
+                alert("Registro eliminado correctamente");
+                loadData();
+            } catch (e) {
+                console.error(e);
+                alert("ERROR AL ELIMINAR:\n\n" + e.message);
+            }
+        }
+
+        window.logout = function() { 
+            sessionStorage.clear();
+            window.location.href = "index.html"; 
+        }
     </script>
-
+    <script src="js/session-manager.js"></script>
 </body>
 </html>
