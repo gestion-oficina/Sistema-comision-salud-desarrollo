@@ -3,73 +3,197 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Coordinación Ejecutiva - Sistema de Gestión</title>
-    <!-- Asegúrate de enlazar aquí tus archivos CSS, Tailwind y FontAwesome tal como en dashboard.html -->
-    <link rel="stylesheet" href="style.css"> 
-    <script src="https://kit.fontawesome.com/tu-token-aqui.js" crossorigin="anonymous"></script>
+    <title>Oficios e Informes - Gestión Institucional</title>
+    
+    <!-- Carga de Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Carga de FontAwesome para los íconos -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Configuración personalizada de Tailwind (opcional) -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        institucional: '#1e3a8a', // Azul institucional, puedes cambiarlo
+                    }
+                }
+            }
+        }
+    </script>
 </head>
-<body>
+<body class="flex h-screen bg-gray-100 font-sans text-gray-800 overflow-hidden">
 
-    <div class="sidebar" id="sidebarMenu">
-        <!-- Brand / Header -->
-        <div class="brand">
-            <div class="brand-mark"><i class="fa-solid fa-building-columns"></i></div>
-            <div class="brand-kicker">Sistema de Gestión Institucional</div>
-            <div class="brand-title">Comisión Permanente de Salud y Desarrollo Social Integral</div>
-            <div class="brand-sub">Oficina de la Concejala Letty Bastidas<br>Municipio Ambrosio Plaza</div>
+    <!-- Menú Lateral (Sidebar) -->
+    <aside class="w-72 bg-white shadow-xl flex flex-col h-full border-r border-gray-200">
+        
+        <!-- Cabecera del Menú -->
+        <div class="p-5 border-b border-gray-200 text-center bg-gray-50">
+            <h2 class="text-sm font-bold text-gray-900 uppercase">Sistema de Gestión Institucional</h2>
+            <p class="text-xs text-gray-600 mt-2">Comisión Permanente de Salud y Desarrollo Social Integral</p>
+            <p class="text-xs text-institucional font-semibold mt-1">Oficina de la Concejala Letty Bastidas</p>
+            <p class="text-[10px] text-gray-500 mt-1 uppercase tracking-wider">Municipio Ambrosio Plaza</p>
         </div>
 
-        <!-- Navegación -->
-        <nav class="nav-scroll">
-            <div class="nav-label">Centro de gestión</div>
-            <a class="nav-item" href="dashboard.html"><i class="fa-solid fa-chart-pie"></i>Panel ejecutivo</a>
+        <!-- Enlaces de Navegación -->
+        <nav class="flex-1 overflow-y-auto p-4 space-y-6 scrollbar-thin scrollbar-thumb-gray-300">
+            
+            <!-- Centro de Gestión -->
+            <div>
+                <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Centro de gestión</h3>
+                <ul class="space-y-1">
+                    <li>
+                        <a href="#" class="flex items-center p-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-institucional rounded-md transition-colors">
+                            <i class="fas fa-chart-line w-6 text-center"></i> Panel ejecutivo
+                        </a>
+                    </li>
+                </ul>
+            </div>
 
-            <div class="nav-label">Coordinación ejecutiva</div>
-            <a class="nav-item active" href="ejecutiva.html"><i class="fa-solid fa-file-signature"></i>Oficios e informes</a>
-            <a class="nav-item" href="planificacion.html"><i class="fa-solid fa-calendar-days"></i>Planificación semanal</a>
+            <!-- Coordinación Ejecutiva -->
+            <div>
+                <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Coordinación ejecutiva</h3>
+                <ul class="space-y-1">
+                    <li>
+                        <a href="#" class="flex items-center p-2 text-sm bg-blue-50 text-institucional font-medium rounded-md border-l-4 border-institucional">
+                            <i class="fas fa-file-signature w-6 text-center"></i> Oficios e informes
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" class="flex items-center p-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-institucional rounded-md transition-colors">
+                            <i class="fas fa-calendar-alt w-6 text-center"></i> Planificación semanal
+                        </a>
+                    </li>
+                </ul>
+            </div>
 
-            <div class="nav-label">Coordinación política</div>
-            <a class="nav-item" href="politica.html"><i class="fa-solid fa-people-group"></i>Liderazgos y comunas</a>
+            <!-- Coordinación Política -->
+            <div>
+                <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Coordinación política</h3>
+                <ul class="space-y-1">
+                    <li>
+                        <a href="#" class="flex items-center p-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-institucional rounded-md transition-colors">
+                            <i class="fas fa-users w-6 text-center"></i> Liderazgos y comunas
+                        </a>
+                    </li>
+                </ul>
+            </div>
 
-            <div class="nav-label">Coordinación social</div>
-            <a class="nav-item" href="social.html"><i class="fa-solid fa-hand-holding-heart"></i>Casos sociales</a>
-            <a class="nav-item" href="entrega-ayuda.html"><i class="fa-solid fa-box-open"></i>Reporte de ayudas</a>
-            <a class="nav-item" href="red_salud.html"><i class="fa-solid fa-hospital"></i>Red de salud</a>
+            <!-- Coordinación Social -->
+            <div>
+                <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Coordinación social</h3>
+                <ul class="space-y-1">
+                    <li>
+                        <a href="#" class="flex items-center p-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-institucional rounded-md transition-colors">
+                            <i class="fas fa-hands-helping w-6 text-center"></i> Casos sociales
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" class="flex items-center p-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-institucional rounded-md transition-colors">
+                            <i class="fas fa-hand-holding-medical w-6 text-center"></i> Reporte de ayudas
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" class="flex items-center p-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-institucional rounded-md transition-colors">
+                            <i class="fas fa-heartbeat w-6 text-center"></i> Red de salud
+                        </a>
+                    </li>
+                </ul>
+            </div>
 
-            <div class="nav-label">Gestión digital</div>
-            <a class="nav-item" href="bitacora.html"><i class="fa-solid fa-book"></i>Bitácora de eventos</a>
-            <a class="nav-item" href="reportes.html"><i class="fa-solid fa-chart-column"></i>Reportes e informes</a>
-            <a class="nav-item" href="formatos.html"><i class="fa-solid fa-folder-open"></i>Formatos de oficina</a>
+            <!-- Gestión Digital -->
+            <div>
+                <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Gestión digital</h3>
+                <ul class="space-y-1">
+                    <li>
+                        <a href="#" class="flex items-center p-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-institucional rounded-md transition-colors">
+                            <i class="fas fa-history w-6 text-center"></i> Bitácora de eventos
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" class="flex items-center p-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-institucional rounded-md transition-colors">
+                            <i class="fas fa-file-alt w-6 text-center"></i> Reportes e informes
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" class="flex items-center p-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-institucional rounded-md transition-colors">
+                            <i class="fas fa-folder-open w-6 text-center"></i> Formatos de oficina
+                        </a>
+                    </li>
+                </ul>
+            </div>
 
-            <div class="nav-label">Despacho</div>
-            <a class="nav-item star" href="acciones.html"><i class="fa-solid fa-star"></i>Acciones de la Concejala</a>
+            <!-- Despacho -->
+            <div>
+                <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Despacho</h3>
+                <ul class="space-y-1">
+                    <li>
+                        <a href="#" class="flex items-center p-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-institucional rounded-md transition-colors">
+                            <i class="fas fa-briefcase w-6 text-center"></i> Acciones de la Concejala
+                        </a>
+                    </li>
+                </ul>
+            </div>
         </nav>
 
-        <!-- Perfil de Usuario -->
-        <div class="profile">
-            <div class="profile-row">
-                <div class="avatar" id="usuarioAvatar">LB</div>
-                <div>
-                    <div class="profile-name" id="usuarioNombre">Cargando...</div>
-                    <div class="profile-role" id="usuarioCoordinacion">Ejecutiva</div>
+        <!-- Perfil de Usuario (Footer del Sidebar) -->
+        <div class="p-4 border-t border-gray-200 bg-gray-50">
+            <div class="flex items-center justify-between mb-3">
+                <div class="flex items-center space-x-3">
+                    <!-- Avatar -->
+                    <div class="w-10 h-10 rounded-full bg-institucional text-white flex items-center justify-center font-bold">
+                        LB
+                    </div>
+                    <div>
+                        <p class="text-sm font-semibold text-gray-800">Cargando...</p>
+                        <p class="text-xs text-gray-500">Ejecutiva</p>
+                    </div>
                 </div>
             </div>
-            <div class="logout" onclick="logout()"><i class="fa-solid fa-right-from-bracket"></i>Cerrar sesión</div>
+            <a href="#" class="block w-full text-center p-2 text-sm text-red-600 hover:bg-red-50 rounded-md transition-colors border border-red-100">
+                <i class="fas fa-sign-out-alt mr-2"></i> Cerrar sesión
+            </a>
         </div>
-    </div>
+    </aside>
 
     <!-- Área de Contenido Principal -->
-    <main class="main-content">
-        <header class="top-bar">
-            <h1>Oficios e Informes</h1>
-        </header>
+    <main class="flex-1 flex flex-col h-full overflow-hidden">
         
-        <section class="container-fluid">
-            <!-- Aquí irá el contenido específico de tu coordinación ejecutiva -->
-            <p>Bienvenido al módulo de gestión de oficios e informes de la oficina.</p>
-        </section>
+        <!-- Header superior simple -->
+        <header class="bg-white shadow-sm border-b border-gray-200 p-4 flex justify-between items-center">
+            <h2 class="text-xl font-semibold text-gray-800">Coordinación Ejecutiva</h2>
+            <div class="text-sm text-gray-500">
+                <i class="fas fa-clock mr-1"></i> <span id="fecha-actual"></span>
+            </div>
+        </header>
+
+        <!-- Contenedor del contenido -->
+        <div class="flex-1 overflow-y-auto p-8 bg-gray-100">
+            <div class="max-w-5xl mx-auto bg-white rounded-lg shadow-sm border border-gray-200 p-8">
+                
+                <div class="border-b border-gray-200 pb-4 mb-6">
+                    <h1 class="text-3xl font-bold text-gray-800">Oficios e Informes</h1>
+                    <p class="text-gray-500 mt-2">Bienvenido al módulo de gestión de oficios e informes de la oficina.</p>
+                </div>
+
+                <!-- Aquí irá tu tabla de base de datos o el formulario -->
+                <div class="bg-gray-50 rounded border border-dashed border-gray-300 p-12 text-center">
+                    <i class="fas fa-file-signature text-4xl text-gray-300 mb-3"></i>
+                    <h3 class="text-lg font-medium text-gray-600">Área de trabajo</h3>
+                    <p class="text-sm text-gray-500 mt-1">Aquí puedes incrustar la tabla de Supabase o SQLite para listar los oficios.</p>
+                </div>
+
+            </div>
+        </div>
     </main>
 
-    <script src="script.js"></script>
+    <!-- Script rápido para la fecha en el topbar -->
+    <script>
+        const opciones = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+        document.getElementById('fecha-actual').textContent = new Date().toLocaleDateString('es-ES', opciones);
+    </script>
+
 </body>
 </html>
