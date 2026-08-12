@@ -334,77 +334,186 @@
             .video-grid-3 { grid-template-columns: 1fr; }
             .gallery-photo-grid { grid-template-columns: 1fr; }
         }
+
+        /* ===== REDISEÑO INSTITUCIONAL 2026 ===== */
+        :root{
+          --bg-principal:#f4f7fa; --bg-card:#fff; --texto-principal:#0b2038; --texto-secundario:#5b6b7d;
+          --brand-azul:#081f3a; --brand-bright:#078bc8; --brand-accent:#20b4df; --borde:#dbe4ec;
+          --gold:#c8a45d; --shadow:0 18px 45px rgba(8,31,58,.08); --shadow-hover:0 24px 55px rgba(8,31,58,.14);
+        }
+        body{padding-top:166px;background:linear-gradient(180deg,#eef3f7 0,#f7f9fb 420px,#f4f7fa 100%);}
+        .portal-header{background:rgba(7,25,46,.98);border-bottom:0;box-shadow:0 10px 35px rgba(7,25,46,.18);}
+        .gov-strip{height:27px;background:#05172b;border-bottom:1px solid rgba(255,255,255,.08);color:#8fa6bb;font-size:9px;letter-spacing:1.1px;font-weight:800;text-transform:uppercase;}
+        .gov-strip-inner{max-width:1400px;height:100%;margin:auto;padding:0 32px;display:flex;align-items:center;justify-content:space-between;}
+        .gov-strip i{color:#53c6e9;margin-right:6px;}
+        .portal-top-bar{max-width:1400px;margin:auto;padding:16px 32px;border-bottom:1px solid rgba(255,255,255,.09);}
+        .portal-logo-area{gap:14px;}
+        .logo-frame{width:53px;height:53px;border-radius:12px;background:#fff;display:flex;align-items:center;justify-content:center;padding:5px;box-shadow:0 6px 18px rgba(0,0,0,.18);}
+        .portal-logo-area img{height:43px;max-width:43px;object-fit:contain;filter:none;}
+        .portal-logo-text h1{font-size:16px;letter-spacing:.7px;line-height:1.1;}
+        .portal-logo-text span{font-size:9px;letter-spacing:1.5px;}
+        .portal-logo-text .brand-overline{display:block;color:#5dc9e9;font-size:8px;letter-spacing:2px;margin-bottom:4px;}
+        .header-contact{display:flex;align-items:center;gap:7px;color:#9fb3c7;font-size:10px;font-weight:600;margin-right:5px;}
+        .header-contact i{color:#51c4e6;}
+        .portal-actions-top{gap:12px;}
+        .btn-sistema-access{padding:10px 17px;border-radius:7px;font-size:10px;background:linear-gradient(135deg,#078bc8,#12a7d8);box-shadow:0 7px 20px rgba(7,139,200,.25);}
+        .theme-toggle-btn{width:38px;height:38px;border-radius:8px;}
+        .portal-nav-wrap{background:#0a2744;border-top:1px solid rgba(255,255,255,.05);}
+        .nav-inner{max-width:1400px;margin:auto;padding:0 32px;}
+        .portal-nav-categories{justify-content:flex-start;gap:0;padding:0;overflow-x:auto;}
+        .portal-nav-categories li a{display:flex;align-items:center;gap:7px;padding:13px 16px;font-size:9.5px;letter-spacing:.8px;border-right:1px solid rgba(255,255,255,.05);}
+        .portal-nav-categories li:first-child a{padding-left:3px;padding-right:18px;}
+        .portal-nav-categories a::after{bottom:0;height:3px;}
+        .portal-nav-categories a.active,.portal-nav-categories a:hover{color:#fff;background:rgba(255,255,255,.035);}
+        .institutional-intro{max-width:1320px;margin:26px auto 18px;padding:0 20px;display:flex;justify-content:space-between;align-items:flex-end;gap:25px;}
+        .institutional-intro .eyebrow{display:block;color:#078bc8;text-transform:uppercase;font-size:9px;font-weight:800;letter-spacing:1.8px;margin-bottom:7px;}
+        .institutional-intro h2{font-family:Outfit,sans-serif;color:#0b2038;font-size:29px;line-height:1.12;font-weight:800;max-width:700px;}
+        .intro-meta{display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end;}
+        .intro-meta span{padding:8px 11px;border:1px solid #d7e2ea;background:#fff;border-radius:7px;font-size:9px;color:#52677d;font-weight:800;}
+        .intro-meta i{color:#078bc8;margin-right:5px;}
+        .portal-container{max-width:1320px;padding:0 20px 24px;grid-template-columns:minmax(0,2.05fr) minmax(310px,.95fr);gap:22px;}
+        .hero-featured-news{border-radius:12px;border:1px solid #d9e2ea;box-shadow:var(--shadow);}
+        .hero-image-container{height:475px;background:#071a30;}
+        .hero-image-container img{filter:brightness(.82);}
+        .hero-image-container:hover img{filter:brightness(.9);}
+        .hero-kicker{position:absolute;z-index:5;left:24px;top:22px;display:flex;align-items:center;gap:8px;color:#fff;font-size:9px;text-transform:uppercase;letter-spacing:1px;font-weight:800;}
+        .hero-kicker span{background:#078bc8;padding:6px 9px;border-radius:4px;box-shadow:0 5px 15px rgba(0,0,0,.18);}
+        .hero-kicker b{background:rgba(5,20,36,.72);backdrop-filter:blur(5px);padding:6px 9px;border-radius:4px;border:1px solid rgba(255,255,255,.12);}
+        .hero-image-overlay{padding:70px 30px 32px;background:linear-gradient(180deg,transparent 0%,rgba(4,16,30,.75) 46%,rgba(4,16,30,.98) 100%);gap:9px;}
+        .hero-image-overlay .tag{font-size:8.5px;padding:5px 9px;letter-spacing:1.2px;}
+        .hero-image-overlay h2{font-size:31px;max-width:850px;}
+        .hero-image-overlay .meta-date{font-size:10px;}
+        .hero-progress{position:absolute;bottom:0;left:0;width:100%;height:3px;background:rgba(255,255,255,.14);z-index:8;}
+        .hero-progress span{display:block;width:36%;height:100%;background:#28b9df;box-shadow:0 0 10px rgba(40,185,223,.6);}
+        .slider-arrow{width:40px;height:40px;border-radius:7px;background:rgba(5,20,36,.75);font-size:13px;}
+        .slider-prev{left:18px}.slider-next{right:18px}
+        .hero-bottom-actions{padding:13px 18px;border-top:1px solid #e3e9ee;}
+        .hero-bottom-actions .social-share{font-size:13px;gap:12px;align-items:center;}
+        .hero-bottom-actions .social-share span{font-size:9px;font-weight:700;color:#8795a4;border-left:1px solid #dfe6ec;padding-left:11px;}
+        .btn-leer-mas{padding:9px 14px;border-radius:6px;font-size:9px;background:#078bc8;}
+        .sidebar-widget{border-radius:12px;border:1px solid #d9e2ea;padding:24px;box-shadow:var(--shadow);gap:13px;}
+        .sidebar-widget::before{height:3px;background:linear-gradient(90deg,#078bc8,#53cbe9,#c8a45d);}
+        .widget-label{display:flex;justify-content:space-between;align-items:center;font-size:8px;letter-spacing:1.3px;font-weight:800;color:#078bc8;}
+        .widget-label i{font-size:12px;}
+        .sidebar-widget h3{font-size:25px;line-height:1;color:#0b2038;}
+        .sidebar-widget p{font-size:11px;line-height:1.65;color:#68798a;}
+        .widget-divider{height:1px;background:#e5ebf0;margin:2px 0 1px;}
+        .newsletter-form{gap:9px;margin-top:1px;}
+        .newsletter-form label{font-size:8px;text-transform:uppercase;letter-spacing:.6px;font-weight:800;color:#65768a;}
+        .newsletter-form input{margin-top:5px;padding:11px 12px;border-radius:6px;font-size:10px;background:#f7f9fb;}
+        .btn-suscribir{padding:12px;border-radius:6px;font-size:9px;letter-spacing:.7px;display:flex;justify-content:center;align-items:center;gap:7px;}
+        .sidebar-widget small{font-size:8px;color:#8a98a6;line-height:1.5;}
+        .sidebar-widget small i{color:#078bc8;margin-right:4px;}
+        .impact-stats-section{max-width:1320px;margin:0 auto 36px;padding:0 20px;}
+        .stats-grid{grid-template-columns:repeat(4,1fr);gap:12px;padding:0;}
+        .stat-card{border-radius:9px;padding:16px 17px;gap:13px;box-shadow:0 8px 25px rgba(8,31,58,.06);position:relative;overflow:hidden;}
+        .stat-card::after{content:'';position:absolute;left:0;bottom:0;width:35%;height:2px;background:#078bc8;}
+        .stat-card:hover{transform:translateY(-2px);box-shadow:var(--shadow-hover);}
+        .stat-icon{width:42px;height:42px;border-radius:7px;font-size:17px;background:#edf8fc;border:1px solid #d5edf6;}
+        .stat-info h4{font-size:21px;}.stat-info p{font-size:8px;letter-spacing:.6px;}
+        .section-container{max-width:1320px;margin:50px auto;padding:0 20px;}
+        .section-title-bar{border-bottom:1px solid #d6e0e8;padding-bottom:11px;margin-bottom:17px;position:relative;}
+        .section-title-bar::after{content:'';position:absolute;left:0;bottom:-1px;width:80px;height:3px;background:#078bc8;}
+        .section-title-bar h3{font-family:Outfit,sans-serif;font-size:17px;color:#0b2038;letter-spacing:.2px;display:flex;align-items:center;gap:9px;}
+        .section-title-bar h3 i{color:#078bc8;font-size:14px;}
+        .news-grid-4{gap:15px;}
+        .news-card-item,.video-card-item,.photo-gallery-item{border-radius:9px;border:1px solid #dbe4ec;box-shadow:0 8px 22px rgba(8,31,58,.05);}
+        .news-card-item:hover,.video-card-item:hover,.photo-gallery-item:hover{box-shadow:var(--shadow-hover);transform:translateY(-3px);}
+        .news-card-details h4,.video-card-details h4{font-family:Outfit,sans-serif;color:#0b2038;}
+        .mapa-modern-banner{border-radius:12px;border:1px solid #dbe4ec;box-shadow:var(--shadow);padding:20px;background:#fff;}
+        .mapa-header-flex{padding:2px 3px 18px;border-bottom:1px solid #e5ebf0;margin-bottom:16px;}
+        .mapa-title-area h3{font-family:Outfit,sans-serif;color:#0b2038;font-size:19px;}
+        .mapa-title-area p{font-size:10px;color:#718196;margin-top:5px;}
+        .mapa-badge-stat{font-size:8px;padding:8px 10px;border-radius:6px;background:#edf9f5;color:#16845b;font-weight:800;}
+        #territorialMap{border-radius:8px;border:1px solid #d9e2ea;}
+        .sectores-sidebar-list{background:#f7f9fb;border:1px solid #e0e7ed;border-radius:8px;}
+        .portal-footer{background:#071b31;margin-top:70px;padding:45px 20px 20px;border-top:3px solid #078bc8;}
+        .portal-footer-content{max-width:1320px;}
+        .portal-footer-brand img{height:48px;background:#fff;border-radius:9px;padding:4px;}
+        .portal-footer-brand p{font-size:10px;line-height:1.7;color:#8ea2b6;max-width:400px;}
+        .footer-links-col h4{font-size:10px;letter-spacing:1px;text-transform:uppercase;color:#fff;margin-bottom:14px;}
+        .footer-links-col a{font-size:10px;}
+        .footer-bottom-bar{max-width:1320px;font-size:8.5px;color:#748ba1;}
+        .footer-bottom-bar div:last-child{color:#4ec6e7!important;}
+        [data-theme="dark"] .institutional-intro h2{color:#fff}.institutional-intro .eyebrow{color:#4dc7e9}.intro-meta span{background:#0b1329;color:#b8c7d7;border-color:#203249}
+        [data-theme="dark"] .institutional-intro{color:#fff}.widget-label{color:#25afd9}
+        @media(max-width:1024px){.header-contact{display:none}.institutional-intro{align-items:flex-start;flex-direction:column}.intro-meta{justify-content:flex-start}.portal-container{grid-template-columns:1fr}.hero-image-container{height:440px}.stats-grid{grid-template-columns:repeat(2,1fr)}}
+        @media(max-width:768px){body{padding-top:125px}.gov-strip{display:none}.portal-top-bar{padding:11px 16px}.logo-frame{width:44px;height:44px}.portal-logo-area img{height:35px}.portal-logo-text h1{font-size:12px}.portal-logo-text span{font-size:7px}.portal-actions-top .btn-sistema-access{padding:8px 10px;font-size:8px}.theme-toggle-btn{width:32px;height:32px}.nav-inner{padding:0 14px}.portal-nav-categories li a{font-size:8px;padding:11px 12px}.institutional-intro{margin-top:18px;padding:0 15px}.institutional-intro h2{font-size:23px}.portal-container,.impact-stats-section,.section-container{padding-left:15px;padding-right:15px}.hero-image-container{height:390px}.hero-image-overlay h2{font-size:24px}.hero-kicker b{display:none}.stats-grid{grid-template-columns:1fr}.section-container{margin:38px auto}.mapa-layout-grid{grid-template-columns:1fr}.portal-footer-content{grid-template-columns:1fr}.header-contact{display:none}}
+
     </style>
 </head>
 <body>
 
     <header class="portal-header">
+        <div class="gov-strip"><div class="gov-strip-inner"><span><i class="fa-solid fa-building-columns"></i> CONCEJO MUNICIPAL AMBROSIO PLAZA</span><span>GUARENAS · ESTADO MIRANDA</span></div></div>
         <div class="portal-top-bar">
             <a href="#" class="portal-logo-area">
-                <img src="https://lh3.googleusercontent.com/d/1QpdROfMzVTZJKHmlqf8zm--u1sYTVyTT" alt="Escudo Legislativo">
+                <span class="logo-frame"><img src="https://lh3.googleusercontent.com/d/1QpdROfMzVTZJKHmlqf8zm--u1sYTVyTT" alt="Escudo Legislativo"></span>
                 <div class="portal-logo-text">
-                    <h1>COMISIÓN DE SALUD</h1>
-                    <span>Despacho Concejala Letty Bastidas</span>
+                    <span class="brand-overline">PORTAL INSTITUCIONAL</span>
+                    <h1>COMISIÓN PERMANENTE DE SALUD</h1>
+                    <span>Desarrollo Social Integral · Despacho Concejala Letty Bastidas</span>
                 </div>
             </a>
-            
             <div class="portal-actions-top">
-                <a href="login.html" class="btn-sistema-access">
-                    <i class="fa-solid fa-right-to-bracket"></i> Acceder al Sistema
-                </a>
-                <button class="theme-toggle-btn" id="themeBtn" onclick="toggleTheme()" title="Cambiar modo claro/oscuro">
-                    <i class="fa-solid fa-moon"></i>
-                </button>
+                <div class="header-contact"><i class="fa-solid fa-location-dot"></i><span>Municipio Ambrosio Plaza</span></div>
+                <a href="login.html" class="btn-sistema-access"><i class="fa-solid fa-arrow-right-to-bracket"></i> Acceder al sistema</a>
+                <button class="theme-toggle-btn" id="themeBtn" onclick="toggleTheme()" title="Cambiar modo claro/oscuro"><i class="fa-solid fa-moon"></i></button>
             </div>
         </div>
-
-        <ul class="portal-nav-categories">
-            <li><a href="#" class="active">Inicio</a></li>
-            <li><a href="#gestion">Salud Integral</a></li>
-            <li><a href="#gestion">Gestión Municipal</a></li>
-            <li><a href="#videos">Videos</a></li>
-            <li><a href="#sectores">Comunidades</a></li>
-            <li><a href="#multimedia">Multimedia</a></li>
-            <li><a href="#contacto">Contacto Ciudadano</a></li>
-        </ul>
+        <nav class="portal-nav-wrap">
+            <div class="nav-inner">
+                <ul class="portal-nav-categories">
+                    <li><a href="#" class="active"><i class="fa-solid fa-house"></i> Inicio</a></li>
+                    <li><a href="#gestion">Salud Integral</a></li>
+                    <li><a href="#gestion">Gestión Municipal</a></li>
+                    <li><a href="#videos">Videos</a></li>
+                    <li><a href="#sectores">Comunidades</a></li>
+                    <li><a href="#multimedia">Multimedia</a></li>
+                    <li><a href="#contacto">Contacto Ciudadano</a></li>
+                </ul>
+            </div>
+        </nav>
     </header>
 
+    <div class="institutional-intro">
+        <div><span class="eyebrow">Gestión pública · información · atención ciudadana</span><h2>Salud, comunidad y gestión al servicio de Guarenas.</h2></div>
+        <div class="intro-meta"><span><i class="fa-solid fa-circle-check"></i> Portal oficial</span><span><i class="fa-regular fa-calendar"></i> Gestión 2026</span></div>
+    </div>
+
     <div class="portal-container">
-        
         <main class="hero-featured-news" id="hero-container">
             <div class="hero-image-container" onclick="abrirNoticiaPrincipalSlider()">
+                <div class="hero-kicker"><span>DESTACADO</span><b>Actualidad institucional</b></div>
                 <button class="slider-arrow slider-prev" onclick="event.stopPropagation(); cambiarSlide(-1)" title="Anterior"><i class="fa-solid fa-chevron-left"></i></button>
                 <img id="hero-img" src="https://lh3.googleusercontent.com/d/1QpdROfMzVTZJKHmlqf8zm--u1sYTVyTT" alt="Despliegue Comunitario">
                 <button class="slider-arrow slider-next" onclick="event.stopPropagation(); cambiarSlide(1)" title="Siguiente"><i class="fa-solid fa-chevron-right"></i></button>
                 <div class="hero-image-overlay">
-                    <span class="tag" id="hero-tag">Despliegue Territorial • Guarenas</span>
+                    <span class="tag" id="hero-tag">Despliegue Territorial · Guarenas</span>
                     <h2 id="hero-titulo">Cargando contenido dinámico de alto impacto...</h2>
                     <span class="meta-date"><i class="fa-regular fa-clock"></i> <span id="hero-fecha">Municipio Ambrosio Plaza, Edo. Miranda</span></span>
                 </div>
+                <div class="hero-progress"><span></span></div>
             </div>
             <div class="hero-bottom-actions">
-                <div class="social-share" onclick="abrirNoticiaPrincipalSlider()">
-                    <i class="fa-solid fa-share-nodes" title="Compartir enlace"></i>
-                    <i class="fa-regular fa-bookmark" title="Guardar nota"></i>
-                </div>
-                <button class="btn-leer-mas" onclick="abrirNoticiaPrincipalSlider()">
-                    Leer Noticia Completa <i class="fa-solid fa-arrow-right"></i>
-                </button>
+                <div class="social-share" onclick="abrirNoticiaPrincipalSlider"><i class="fa-solid fa-share-nodes" title="Compartir enlace"></i><i class="fa-regular fa-bookmark" title="Guardar nota"></i><span>Información institucional</span></div>
+                <button class="btn-leer-mas" onclick="abrirNoticiaPrincipalSlider()">Leer noticia <i class="fa-solid fa-arrow-right"></i></button>
             </div>
         </main>
 
         <aside class="sidebar-widget">
-            <h3>NotiExpress <i class="fa-solid fa-envelope-open-text"></i></h3>
-            <p>Suscríbete al boletín oficial para recibir notificaciones instantáneas de jornadas médicas y despliegues legislativos en tu sector.</p>
-            
+            <div class="widget-label"><span>COMUNICACIÓN CIUDADANA</span><i class="fa-solid fa-signal"></i></div>
+            <h3>NotiExpress</h3>
+            <p>Recibe en tu correo información oficial sobre jornadas de salud, programas sociales, actividades comunitarias y gestión legislativa.</p>
+            <div class="widget-divider"></div>
             <form class="newsletter-form" onsubmit="suscribirBoletin(event)">
-                <input type="text" id="nombreSub" placeholder="Nombres" required>
-                <input type="text" id="apellidoSub" placeholder="Apellidos" required>
-                <input type="email" id="correoSub" placeholder="Correo Electrónico" required>
-                <button type="submit" class="btn-suscribir">Suscribirme Ahora</button>
+                <label>Nombres<input type="text" id="nombreSub" placeholder="Ingresa tus nombres" required></label>
+                <label>Apellidos<input type="text" id="apellidoSub" placeholder="Ingresa tus apellidos" required></label>
+                <label>Correo electrónico<input type="email" id="correoSub" placeholder="correo@ejemplo.com" required></label>
+                <button type="submit" class="btn-suscribir">Suscribirme al boletín <i class="fa-solid fa-arrow-right"></i></button>
             </form>
+            <small><i class="fa-solid fa-lock"></i> Tus datos se utilizarán únicamente para comunicaciones institucionales.</small>
         </aside>
-
     </div>
 
     <!-- CONTADORES DE IMPACTO SOCIAL -->
