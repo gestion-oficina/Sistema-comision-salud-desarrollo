@@ -186,7 +186,7 @@
         .stat-info p { font-size: 8px; color: var(--texto-secundario); font-weight: 600; text-transform: uppercase; margin-top: 4px; letter-spacing: .6px; }
 
         /* SECCIONES Y TÍTULOS */
-        .section-container { max-width: 1320px; margin: 50px auto; padding: 0 20px; }
+        .section-container { max-width: 1320px; margin: 50px auto; padding: 0 20px; scroll-margin-top: 130px; }
         .section-title-bar { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 17px; border-bottom: 1px solid #d6e0e8; padding-bottom: 11px; position: relative; }
         .section-title-bar::after { content: ''; position: absolute; bottom: -1px; left: 0; width: 80px; height: 3px; background: #078bc8; }
         .section-title-bar h3 { font-family: 'Outfit', sans-serif; font-size: 17px; font-weight: 700; color: #0b2038; letter-spacing: .2px; display: flex; align-items: center; gap: 9px; }
@@ -328,7 +328,7 @@
         .lightbox-overlay img { max-width: 95%; max-height: 90vh; object-fit: contain; border-radius: 8px; box-shadow: 0 25px 50px rgba(0,0,0,0.8); }
 
         /* FOOTER DE ALTO IMPACTO */
-        .portal-footer { background: #071b31; color: #94a3b8; padding: 45px 20px 20px; border-top: 3px solid #078bc8; margin-top: 70px; }
+        .portal-footer { background: #071b31; color: #94a3b8; padding: 45px 20px 20px; border-top: 3px solid #078bc8; margin-top: 70px; scroll-margin-top: 130px; }
         .portal-footer-content { max-width: 1320px; margin: 0 auto; display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 40px; align-items: start; }
         .portal-footer-brand img { height: 48px; background: #fff; border-radius: 9px; padding: 4px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3)); }
         .portal-footer-brand p { font-size: 10px; margin-top: 15px; color: #8ea2b6; line-height: 1.7; max-width: 400px; }
@@ -382,7 +382,7 @@
         }
     </style>
 </head>
-<body>
+<body id="inicio">
 
     <header class="portal-header">
         <div class="gov-strip">
@@ -392,7 +392,7 @@
             </div>
         </div>
         <div class="portal-top-bar">
-            <a href="#" class="portal-logo-area">
+            <a href="#inicio" class="portal-logo-area">
                 <span class="logo-frame"><img src="https://lh3.googleusercontent.com/d/1QpdROfMzVTZJKHmlqf8zm--u1sYTVyTT" alt="Escudo Legislativo"></span>
                 <div class="portal-logo-text">
                     <span class="brand-overline">PORTAL INSTITUCIONAL</span>
@@ -409,8 +409,8 @@
         <nav class="portal-nav-wrap">
             <div class="nav-inner">
                 <ul class="portal-nav-categories">
-                    <li><a href="#" class="active"><i class="fa-solid fa-house"></i> Inicio</a></li>
-                    <li><a href="#gestion">Salud Integral</a></li>
+                    <li><a href="#inicio" class="active"><i class="fa-solid fa-house"></i> Inicio</a></li>
+                    <li><a href="#salud-integral">Salud Integral</a></li>
                     <li><a href="#gestion">Gestión Municipal</a></li>
                     <li><a href="#videos">Videos</a></li>
                     <li><a href="#sectores">Comunidades</a></li>
@@ -432,7 +432,8 @@
         </div>
     </div>
 
-    <div class="portal-container">
+    <!-- SECCIÓN: INICIO (HERO + NEWSLETTER) -->
+    <div class="portal-container" id="seccion-inicio">
         <main class="hero-featured-news" id="hero-container">
             <div class="hero-image-container" onclick="abrirNoticiaPrincipalSlider()">
                 <div class="hero-kicker"><span>DESTACADO</span><b>Actualidad institucional</b></div>
@@ -505,18 +506,46 @@
         </div>
     </div>
 
-    <!-- SECCIÓN DE ÚLTIMAS NOTICIAS Y JORNADAS -->
+    <!-- SECCIÓN: SALUD INTEGRAL -->
+    <section class="section-container" id="salud-integral">
+        <div class="section-title-bar">
+            <h3><i class="fa-solid fa-heart-pulse"></i> Programas de Salud Integral</h3>
+        </div>
+        <div class="news-grid-4">
+            <div class="news-card-item">
+                <div class="news-card-img-wrapper">
+                    <img src="https://lh3.googleusercontent.com/d/1QpdROfMzVTZJKHmlqf8zm--u1sYTVyTT" alt="Atención Médica">
+                </div>
+                <div class="news-card-content">
+                    <span class="cat">Prevención y Bienestar</span>
+                    <h4>Jornadas Médicas Comunitarias</h4>
+                    <p>Despliegue permanente de atención primaria, despistaje y entrega de medicamentos esenciales en los sectores priorizados del Municipio Ambrosio Plaza.</p>
+                </div>
+            </div>
+            <div class="news-card-item">
+                <div class="news-card-img-wrapper">
+                    <img src="https://lh3.googleusercontent.com/d/1QpdROfMzVTZJKHmlqf8zm--u1sYTVyTT" alt="Asistencia Social">
+                </div>
+                <div class="news-card-content">
+                    <span class="cat">Desarrollo Social</span>
+                    <h4>Atención a Casos Vulnerables</h4>
+                    <p>Gestión directa, evaluaciones socioeconómicas y acompañamiento integral a familias e individuos que requieren apoyo prioritario en salud.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECCIÓN: GESTIÓN MUNICIPAL -->
     <section class="section-container" id="gestion">
         <div class="section-title-bar">
-            <h3><i class="fa-solid fa-newspaper"></i> Últimas Noticias y Jornadas</h3>
+            <h3><i class="fa-solid fa-briefcase"></i> Gestión Municipal y Legislativa</h3>
         </div>
-
         <div class="news-grid-4" id="news-grid-container">
             <div style="color: var(--texto-secundario); font-size: 14px; padding: 15px;">Cargando registros municipales...</div>
         </div>
     </section>
 
-    <!-- SECCIÓN DE VIDEOS INSTITUCIONALES DINÁMICOS -->
+    <!-- SECCIÓN: VIDEOS -->
     <section class="section-container" id="videos">
         <div class="section-title-bar">
             <h3><i class="fa-solid fa-video"></i> Videos Institucionales y Redes</h3>
@@ -526,7 +555,7 @@
         </div>
     </section>
 
-    <!-- MAPA TERRITORIAL REAL E INTERACTIVO -->
+    <!-- SECCIÓN: COMUNIDADES (MAPA TERRITORIAL) -->
     <section class="section-container" id="sectores">
         <div class="mapa-modern-banner">
             <div class="mapa-header-flex">
@@ -548,7 +577,7 @@
         </div>
     </section>
 
-    <!-- GALERÍA MULTIMEDIA ESTILO MOSAICO FOTOGRÁFICO -->
+    <!-- SECCIÓN: MULTIMEDIA -->
     <section class="section-container" id="multimedia">
         <div class="section-title-bar">
             <h3><i class="fa-solid fa-images"></i> Galería Fotográfica de Campo</h3>
@@ -558,6 +587,7 @@
         </div>
     </section>
 
+    <!-- MODALES Y LIGHTBOX -->
     <div class="modal-overlay" id="newsModal" onclick="cerrarModalFuera(event)">
         <div class="modal-content">
             <div class="modal-header-bar">
@@ -596,6 +626,7 @@
         <img id="lightboxImg" src="" alt="Vista Previa de Imagen">
     </div>
 
+    <!-- SECCIÓN: CONTACTO CIUDADANO (FOOTER) -->
     <footer class="portal-footer" id="contacto">
         <div class="portal-footer-content">
             <div class="portal-footer-brand">
@@ -605,19 +636,19 @@
             <div class="footer-links-col">
                 <h4>Secciones</h4>
                 <ul>
-                    <li><a href="#">Salud Integral</a></li>
+                    <li><a href="#inicio">Inicio</a></li>
+                    <li><a href="#salud-integral">Salud Integral</a></li>
                     <li><a href="#gestion">Gestión Municipal</a></li>
                     <li><a href="#videos">Videos</a></li>
                     <li><a href="#sectores">Comunidades</a></li>
-                    <li><a href="#multimedia">Multimedia</a></li>
                 </ul>
             </div>
             <div class="footer-links-col">
-                <h4>Servicios</h4>
+                <h4>Atención Directa</h4>
                 <ul>
-                    <li><a href="login.html">Acceso Sistema Interno</a></li>
-                    <li><a href="#">Términos y Condiciones</a></li>
-                    <li><a href="#">Política de Privacidad</a></li>
+                    <li><a href="#contacto">Oficina de Enlace</a></li>
+                    <li><a href="login.html">Sistema Interno</a></li>
+                    <li><a href="#">Soporte Ciudadano</a></li>
                 </ul>
             </div>
         </div>
