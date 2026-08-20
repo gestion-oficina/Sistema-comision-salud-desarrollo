@@ -20,6 +20,10 @@
     <!-- LIBRERÍA SHEETJS PARA EXPORTAR A EXCEL REAL (.XLSX) -->
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 
+    <!-- LIBRERÍA HTML-DOCX PARA EXPORTAR A WORD (.DOCX) -->
+    <script src="https://cdn.jsdelivr.net/npm/html-docx-js@0.3.1/dist/html-docx.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+
     <!-- ARCHIVO DE CONEXIÓN CENTRALIZADO -->
     <script src="js/conexion.js"></script>
 
@@ -34,6 +38,7 @@
             --danger-color: #dc2626;
             --border-color: #cbd5e1;
             --success-color: #16a34a;
+            --word-color: #2b579a;
         }
         * { margin:0; padding:0; box-sizing:border-box; font-family: 'Inter', sans-serif; }
         body { background: var(--bg-main); color:#334155; }
@@ -78,6 +83,7 @@
         .btn-primary { padding: 11px 18px; border: none; border-radius: 6px; cursor: pointer; background: var(--sidebar-active); color: white; font-size: 13px; font-weight: 600; display: inline-flex; align-items: center; gap: 6px; }
         .btn-report { padding: 11px 16px; border: 1px solid var(--border-color); border-radius: 6px; cursor: pointer; background: white; color: #334155; font-size: 13px; font-weight: 600; display: inline-flex; align-items: center; gap: 6px; }
         .btn-excel { padding: 11px 16px; border: none; border-radius: 6px; cursor: pointer; background: var(--success-color); color: white; font-size: 13px; font-weight: 600; display: inline-flex; align-items: center; gap: 6px; }
+        .btn-word { padding: 11px 16px; border: none; border-radius: 6px; cursor: pointer; background: var(--word-color); color: white; font-size: 13px; font-weight: 600; display: inline-flex; align-items: center; gap: 6px; }
 
         .table-container { background: white; border: 1px solid #e2e8f0; border-radius: 8px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02); width: 100%; overflow-x: auto; }
         table { width:100%; border-collapse:collapse; min-width: 1250px; }
@@ -143,91 +149,20 @@
 
         .print-header, .print-footer { display: none; }
 
-        /* --- CONFIGURACIÓN DE IMPRESIÓN Y EXPORTACIÓN A WORD --- */
         @media print {
-            @page { 
-                size: letter portrait; 
-                margin: 20mm;          
-            }
-
-            body.printing-general .sidebar, 
-            body.printing-general .mobile-header, 
-            body.printing-general .kpi-container, 
-            body.printing-general .toolbar-flex, 
-            body.printing-general .actions-bar, 
-            body.printing-general .main > h2, 
-            body.printing-general .subtitle, 
-            body.printing-general .action-buttons, 
-            body.printing-general th:last-child, 
-            body.printing-general td:last-child, 
-            body.printing-general #resumenResponsablesBox { 
-                display: none !important; 
-            }
-
-            body.printing-general .main { 
-                position: absolute !important; 
-                left: 0 !important; 
-                top: 0 !important; 
-                width: 100% !important; 
-                padding: 0 !important; 
-                margin: 0 !important; 
-                box-shadow: none !important;
-                border: none !important;
-            }
-
-            body.printing-general .print-header { 
-                display: block !important; 
-                text-align: center !important; 
-                margin-bottom: 20px !important; 
-                border-bottom: 2px solid #0f2547 !important; 
-                padding-bottom: 10px !important; 
-            }
-
-            body.printing-general .table-container { 
-                box-shadow: none !important; 
-                border: 1px solid #cbd5e1 !important; 
-                overflow: visible !important; 
-            }
-
-            body.printing-general table { 
-                min-width: 100% !important; 
-                width: 100% !important; 
-                font-size: 10pt !important; 
-                border-collapse: collapse !important;
-            }
-
-            body.printing-general th {
-                background-color: #f1f5f9 !important;
-                color: #0f2547 !important;
-                border: 1px solid #cbd5e1 !important;
-                padding: 8px !important;
-            }
-
-            body.printing-general td {
-                border: 1px solid #cbd5e1 !important;
-                padding: 8px !important;
-                color: #334155 !important;
-            }
-
+            @page { size: portrait; margin: 6mm 10mm; }
+            body.printing-general .sidebar, body.printing-general .mobile-header, body.printing-general .kpi-container, body.printing-general .toolbar-flex, body.printing-general .actions-bar, body.printing-general .main > h2, body.printing-general .subtitle, body.printing-general .action-buttons, body.printing-general th:last-child, body.printing-general td:last-child, body.printing-general #resumenResponsablesBox { display: none !important; }
+            body.printing-general .main { position: absolute !important; left: 0 !important; top: 0 !important; width: 100% !important; padding: 0 !important; margin: 0 !important; }
+            body.printing-general .print-header { display: block !important; text-align: center; margin-bottom: 12px; border-bottom: 2px solid #1d3b6a; padding-bottom: 6px; }
+            body.printing-general .print-footer { display: block !important; position: fixed; bottom: 0; left: 0; width: 100%; text-align: center; font-size: 9px; color: #64748b; border-top: 1px solid #cbd5e1; padding-top: 2px; background: white; }
+            body.printing-general .table-container { box-shadow: none !important; border: none !important; overflow: visible !important; }
+            body.printing-general table { min-width: 100% !important; width: 100% !important; font-size: 11px !important; }
             body:not(.printing-general) .layout, body:not(.printing-general) .modal-overlay:not(#expedienteModal) { display: none !important; }
             body:not(.printing-general) #expedienteModal { position: absolute !important; left: 0 !important; top: 0 !important; width: 100% !important; background: white !important; display: block !important; padding: 0 !important; }
             body:not(.printing-general) #expedienteModal .modal-container { box-shadow: none !important; border: none !important; width: 100% !important; padding: 0 !important; }
             body:not(.printing-general) #expedienteModal .modal-header span, body:not(.printing-general) #expedienteModal .modal-footer, body:not(.printing-general) #expedienteModal div[style*="margin-top: 20px;"] { display: none !important; }
             body:not(.printing-general) #expedienteModal .print-header-ficha { display: block !important; margin-bottom: 8px !important; }
-            
-            body.printing-general .print-footer, body:not(.printing-general) .print-footer { 
-                display: block !important; 
-                position: fixed !important; 
-                bottom: 0 !important; 
-                left: 0 !important; 
-                width: 100% !important; 
-                text-align: center !important; 
-                font-size: 8pt !important; 
-                color: #64748b !important; 
-                border-top: 1px solid #cbd5e1 !important; 
-                padding-top: 5px !important; 
-                background: white !important; 
-            }
+            body:not(.printing-general) .print-footer { display: block !important; position: fixed !important; bottom: 0 !important; left: 0 !important; width: 100% !important; text-align: center !important; font-size: 9px !important; background: white !important; }
         }
 
         @media (max-width: 900px) {
@@ -638,8 +573,11 @@
             <button type="button" class="btn-submit" onclick="guardarSeguimientoTratamiento()" style="background: var(--success-color); width: 100%;">➕ Registrar Avance</button>
         </div>
 
-        <div class="modal-footer" style="margin-top: 12px; display: flex; justify-content: space-between; align-items: center;">
-            <button type="button" class="btn-report" onclick="window.print()">🖨️ Imprimir Ficha Individual</button>
+        <div class="modal-footer" style="margin-top: 12px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+            <div style="display: flex; gap: 8px;">
+                <button type="button" class="btn-report" onclick="window.print()">🖨️ Imprimir Ficha Individual</button>
+                <button type="button" class="btn-word" onclick="exportarFichaAWord()">📄 Descargar en Word (.docx)</button>
+            </div>
             <button type="button" class="btn-submit" onclick="cerrarModalExpediente()">Cerrar Ventana</button>
         </div>
     </div>
@@ -867,6 +805,153 @@
         let workbook = XLSX.utils.book_new();
         XLSX.utils.book_append_sheet(workbook, worksheet, "Casos Sociales");
         XLSX.writeFile(workbook, `Reporte_Casos_Sociales_${tipoFiltroActual.replace(/\s+/g, '_')}.xlsx`);
+    }
+
+    function exportarFichaAWord() {
+        const id = document.getElementById("seguimientoCasoId").value;
+        const item = listaCasosGlobal.find(c => Number(c.id) === Number(id));
+        if (!item) return;
+
+        let htmlContenido = `
+            <!DOCTYPE html>
+            <html lang="es">
+            <head>
+                <meta charset="UTF-8">
+                <style>
+                    body { font-family: 'Arial', sans-serif; color: #333; line-height: 1.4; font-size: 12px; }
+                    .header { text-align: center; border-bottom: 2px solid #1d3b6a; padding-bottom: 8px; margin-bottom: 15px; }
+                    .header h3 { font-size: 14px; color: #1d3b6a; margin: 0; text-transform: uppercase; }
+                    .header h4 { font-size: 12px; color: #334155; margin: 2px 0; text-transform: uppercase; }
+                    .header h5 { font-size: 11px; color: #0066cc; margin: 2px 0; text-transform: uppercase; }
+                    .titulo-ficha { font-size: 13px; font-weight: bold; color: #0f2547; margin-top: 5px; text-transform: uppercase; }
+                    table { width: 100%; border-collapse: collapse; margin-bottom: 10px; }
+                    th, td { border: 1px solid #cbd5e1; padding: 6px 8px; text-align: left; vertical-align: top; }
+                    th { background-color: #f1f5f9; color: #1d3b6a; font-size: 11px; text-transform: uppercase; }
+                    .section-title { background-color: #1d3b6a; color: white; padding: 6px; font-weight: bold; font-size: 11px; text-transform: uppercase; margin-top: 10px; margin-bottom: 5px; }
+                </style>
+            </head>
+            <body>
+                <div class="header">
+                    <h3>REPÚBLICA BOLIVARIANA DE VENEZUELA</h3>
+                    <h4>CONCEJO MUNICIPAL DEL MUNICIPIO AMBROSIO PLAZA</h4>
+                    <h5>COMISIÓN PERMANENTE DE SALUD Y DESARROLLO SOCIAL INTEGRAL — CONCEJALA LETTY BASTIDAS</h5>
+                    <div class="titulo-ficha">FICHA SOCIAL INTEGRAL DE CASO</div>
+                </div>
+
+                <div class="section-title">1. Datos Personales</div>
+                <table>
+                    <tr>
+                        <th width="35%">Nombre y Apellido</th>
+                        <td width="65%">${item.nombre || 'N/A'}</td>
+                    </tr>
+                    <tr>
+                        <th>Cédula de Identidad</th>
+                        <td>${item.cedula || 'N/A'}</td>
+                    </tr>
+                    <tr>
+                        <th>Edad / Sexo</th>
+                        <td>${item.edad || '?'} años (${item.genero || 'N/A'})</td>
+                    </tr>
+                    <tr>
+                        <th>Fecha de Nacimiento</th>
+                        <td>${item.fecha_nacimiento || 'N/A'}</td>
+                    </tr>
+                    <tr>
+                        <th>Estado Civil</th>
+                        <td>${item.estado_civil || 'N/A'}</td>
+                    </tr>
+                    <tr>
+                        <th>Número de Teléfono</th>
+                        <td>${item.telefono || 'N/A'}</td>
+                    </tr>
+                </table>
+
+                <div class="section-title">2. Datos Socioeconómicos</div>
+                <table>
+                    <tr>
+                        <th width="35%">¿Trabaja?</th>
+                        <td width="65%">${item.trabaja || 'N/A'}</td>
+                    </tr>
+                    <tr>
+                        <th>Sueldo Mensual</th>
+                        <td>$${item.sueldo_mensual || '0'}</td>
+                    </tr>
+                    <tr>
+                        <th>Dirección y Teléfono de Trabajo</th>
+                        <td>${item.direccion_trabajo || 'N/A'}</td>
+                    </tr>
+                    <tr>
+                        <th>Ingreso Familiar / Egreso</th>
+                        <td>Ingreso: $${item.ingreso_familiar || '0'} | Egreso: $${item.promedio_egreso || '0'}</td>
+                    </tr>
+                    <tr>
+                        <th>¿Cómo cubre sus gastos? (Si no trabaja)</th>
+                        <td>${item.como_cubre_gastos || 'N/A'}</td>
+                    </tr>
+                    <tr>
+                        <th>Grupo Familiar</th>
+                        <td>${item.numero_grupo_familiar || 'N/A'} — Detalle: ${item.detalle_grupo_familiar || 'N/A'}</td>
+                    </tr>
+                </table>
+
+                <div class="section-title">3. Vivienda y Comunidad</div>
+                <table>
+                    <tr>
+                        <th width="35%">Transporte / Tipo Vivienda</th>
+                        <td width="65%">Transp: ${item.transporte || 'N/A'} | Vivienda: ${item.tipo_vivienda || 'N/A'} (${item.tenencia_vivienda || 'N/A'})</td>
+                    </tr>
+                    <tr>
+                        <th>Comunidad / Sector</th>
+                        <td>${item.sector || 'N/A'}</td>
+                    </tr>
+                    <tr>
+                        <th>Características de la Vivienda</th>
+                        <td>${item.caracteristicas_vivienda || 'N/A'}</td>
+                    </tr>
+                    <tr>
+                        <th>Sala de Autogobierno / Comuna / UBCH</th>
+                        <td>Comuna: ${item.sala_autogobierno || 'N/A'} | UBCH: ${item.ubch || 'N/A'}</td>
+                    </tr>
+                </table>
+
+                <div class="section-title">4. Salud y Gestión del Caso</div>
+                <table>
+                    <tr>
+                        <th width="35%">Enfermedad / Discapacidad</th>
+                        <td width="65%">Enf: ${item.sufre_enfermedad || 'NO'} (${item.detalle_enfermedad || 'N/A'}) | Disc: ${item.presenta_discapacidad || 'NO'} (${item.detalle_discapacidad || 'N/A'})</td>
+                    </tr>
+                    <tr>
+                        <th>Servicio de Salud Habitual</th>
+                        <td>${item.servicio_salud_habitual || 'N/A'}</td>
+                    </tr>
+                    <tr>
+                        <th>Tipo de Ayuda / Prioridad / Estatus</th>
+                        <td><b>Ayuda:</b> ${item.tipo_ayuda || 'N/A'} | <b>Prioridad:</b> ${item.prioridad || 'Media'} | <b>Estatus:</b> ${item.estatus || 'En Espera'}</td>
+                    </tr>
+                    <tr>
+                        <th>Institución Remitida</th>
+                        <td>${item.institucion_remitida || 'Ninguna'}</td>
+                    </tr>
+                    <tr>
+                        <th>Responsable de la Comisión</th>
+                        <td>${item.responsable_comision || 'No asignado'} (Creado por: ${item.creado_por || 'N/A'})</td>
+                    </tr>
+                    <tr>
+                        <th>Diagnóstico / Observaciones</th>
+                        <td><i>${item.detalle || 'Sin observaciones'}</i></td>
+                    </tr>
+                    <tr>
+                        <th>Bitácora de Seguimiento</th>
+                        <td>${item.seguimiento_bitacora ? item.seguimiento_bitacora.replace(/\n/g, '<br>') : 'Sin avances registrados.'}</td>
+                    </tr>
+                </table>
+            </body>
+            </html>
+        `;
+
+        let converted = htmlDocx.asBlob(htmlContenido);
+        let nombreArchivo = `Ficha_Social_${(item.nombre || 'Caso').replace(/\s+/g, '_')}_${item.cedula || 'S_N'}.docx`;
+        saveAs(converted, nombreArchivo);
     }
 
     function abrirModalFormulario() {
