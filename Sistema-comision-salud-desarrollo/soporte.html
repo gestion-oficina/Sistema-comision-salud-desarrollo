@@ -1,138 +1,299 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Panel de Incidencias - Comisión de Salud</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        :root {
-            --primary: #0f2547;
-            --sidebar-width: 260px;
-            --bg-color: #f4f6f9;
-            --border-color: #e2e8f0;
-        }
-        * { box-sizing: border-box; }
-        body { background: var(--bg-color); font-family: 'Inter', sans-serif; margin: 0; display: flex; color: #334155; }
-        
-        /* Barra Lateral (Sidebar) idéntica al dashboard */
-        .sidebar { width: var(--sidebar-width); background: var(--primary); height: 100vh; position: fixed; color: white; display: flex; flex-direction: column; padding: 20px; }
-        .sidebar-brand { font-size: 14px; font-weight: 700; margin-bottom: 30px; display: flex; align-items: center; gap: 10px; }
-        .nav-item { padding: 12px 15px; color: #94a3b8; text-decoration: none; border-radius: 8px; margin-bottom: 5px; display: flex; align-items: center; gap: 10px; font-size: 13px; font-weight: 500; transition: all 0.2s; }
-        .nav-item:hover, .nav-item.active { background: rgba(255,255,255,0.1); color: white; }
-        
-        /* Contenido Principal */
-        .main { margin-left: var(--sidebar-width); flex: 1; padding: 30px; min-height: 100vh; }
-        .header-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
-        .page-title { font-size: 22px; font-weight: 700; color: var(--primary); }
-        
-        .panel { background: white; border-radius: 12px; border: 1px solid var(--border-color); overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
-        .panel-head { padding: 20px; background: #f8fafc; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; }
-        .panel-title { font-weight: 700; color: var(--primary); display: flex; align-items: center; gap: 10px; font-size: 15px; }
-        
-        .table-wrap { overflow-x: auto; }
-        .data-table { width: 100%; border-collapse: collapse; font-size: 13px; text-align: left; }
-        .data-table th { background: #f8fafc; padding: 12px 20px; color: #64748b; font-weight: 600; text-transform: uppercase; font-size: 10px; border-bottom: 1px solid var(--border-color); }
-        .data-table td { padding: 15px 20px; border-bottom: 1px solid #f1f5f9; }
-        
-        .badge-status { padding: 4px 10px; border-radius: 20px; font-weight: 600; font-size: 11px; background: #e0f2fe; color: #0369a1; display: inline-block; }
-        .form-select { padding: 6px 10px; border-radius: 6px; border: 1px solid #cbd5e1; cursor: pointer; font-size: 12px; background: white; }
-        .btn-action { background: #0f2547; color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: 500; display: inline-flex; align-items: center; gap: 6px; }
-        .btn-action:hover { background: #1e3a8a; }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Centro de Soporte Técnico — Comisión de Salud</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Montserrat:wght@600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<script>
+const sesion = sessionStorage.getItem('usuario_logueado');
+if (!sesion && window.location.pathname !== "/login.html") {
+    window.location.replace("login.html");
+} else {
+    document.addEventListener("DOMContentLoaded", () => {
+        document.body.style.display = "block";
+    });
+}
+</script>
+
+<style>
+:root {
+    --navy:#071b35;
+    --navy-2:#0b294d;
+    --blue:#1261a0;
+    --blue-2:#1976c9;
+    --cyan:#2ba7d6;
+    --ink:#12263f;
+    --muted:#65758b;
+    --line:#dfe7ef;
+    --surface:#ffffff;
+    --canvas:#f3f6fa;
+    --green:#16845b;
+    --amber:#b77908;
+    --red:#c83d3d;
+    --shadow:0 10px 30px rgba(7,27,53,.07);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Inter,Arial,sans-serif;background:var(--canvas);color:var(--ink);display:none}
+a{text-decoration:none;color:inherit}
+button{font-family:inherit}
+
+.app-shell{min-height:100vh;display:grid;grid-template-columns:278px 1fr}
+
+.sidebar{background:linear-gradient(180deg,#061a32 0%,#092849 58%,#0a315a 100%);color:#fff;display:flex;flex-direction:column;min-height:100vh;position:sticky;top:0;height:100vh;z-index:100}
+.brand{padding:26px 24px 22px;border-bottom:1px solid rgba(255,255,255,.1)}
+.brand-mark{width:48px;height:48px;border-radius:13px;background:linear-gradient(145deg,#2ba7d6,#1261a0);display:flex;align-items:center;justify-content:center;box-shadow:0 8px 20px rgba(43,167,214,.25);margin-bottom:15px}
+.brand-mark i{font-size:21px}
+.brand-kicker{font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:#79c7e8;font-weight:800}
+.brand-title{font-family:Montserrat,sans-serif;font-size:15px;line-height:1.35;font-weight:800;margin-top:5px}
+.brand-sub{font-size:10px;color:#9db1c7;margin-top:5px;line-height:1.5}
+
+.nav-scroll{padding:14px 12px;overflow:auto;flex:1}
+.nav-label{font-size:9px;letter-spacing:1.3px;color:#7290ad;font-weight:800;text-transform:uppercase;padding:14px 12px 7px}
+.nav-item{display:flex;align-items:center;gap:11px;padding:10px 12px;border-radius:9px;color:#cbd8e6;font-size:12px;font-weight:600;margin:2px 0;transition:.2s}
+.nav-item i{width:18px;text-align:center;color:#7fa4c5;font-size:12px}
+.nav-item:hover{background:rgba(255,255,255,.07);color:#fff}
+.nav-item:hover i,.nav-item.active i{color:#63c4e7}
+.nav-item.active{background:linear-gradient(90deg,rgba(25,118,201,.95),rgba(18,97,160,.85));color:#fff;box-shadow:inset 3px 0 0 #66d0ee,0 6px 16px rgba(0,0,0,.12)}
+.nav-item.star{color:#ffe9a3}
+.nav-item.star i{color:#f5c84b}
+
+.profile{border-top:1px solid rgba(255,255,255,.1);padding:16px 18px}
+.profile-row{display:flex;gap:10px;align-items:center}
+.avatar{width:34px;height:34px;border-radius:50%;background:#e5f4fb;color:#1261a0;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:12px}
+.profile-name{font-size:11px;font-weight:700;color:#fff}
+.profile-role{font-size:9px;color:#8da6bf;margin-top:2px}
+.logout{display:flex;align-items:center;gap:7px;margin-top:12px;font-size:10px;color:#ff9b9b;font-weight:700;cursor:pointer}
+
+.main{min-width:0}
+.topbar{height:72px;background:#fff;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 32px;position:sticky;top:0;z-index:50}
+.mobile-toggle{display:none;border:0;background:transparent;font-size:22px;color:var(--navy)}
+.breadcrumb{font-size:10px;color:#8090a2;font-weight:600}
+.top-title{font-family:Montserrat,sans-serif;font-size:17px;font-weight:800;color:var(--navy);margin-top:3px}
+.system-status{display:flex;align-items:center;gap:9px;background:#f0faf6;border:1px solid #cdeee0;color:#177653;padding:8px 12px;border-radius:9px;font-size:10px;font-weight:800}
+.status-dot{width:7px;height:7px;border-radius:50%;background:#24b47e;box-shadow:0 0 0 4px rgba(36,180,126,.12)}
+
+.content{padding:28px 32px 40px;max-width:1700px;margin:auto}
+
+.panel{background:#fff;border:1px solid var(--line);border-radius:13px;box-shadow:0 4px 16px rgba(7,27,53,.035);overflow:hidden}
+.panel-head{padding:16px 18px;border-bottom:1px solid #edf1f5;display:flex;align-items:center;justify-content:space-between;gap:10px}
+.panel-title{display:flex;align-items:center;gap:9px;font-family:Montserrat,sans-serif;font-size:11px;font-weight:800;color:var(--navy)}
+.panel-title i{color:var(--blue);font-size:12px}
+
+.table-wrap{overflow:auto}
+.data-table{width:100%;border-collapse:collapse;font-size:11px}
+.data-table th{padding:12px 16px;text-align:left;background:#f7f9fb;color:#68788b;font-size:9px;text-transform:uppercase;letter-spacing:.5px;font-weight:800;border-bottom:1px solid #e5ebf0}
+.data-table td{padding:14px 16px;border-bottom:1px solid #edf1f5;color:#354a61}
+.data-table tbody tr:hover{background:#f8fbfd}
+
+.form-select { padding: 6px 10px; border-radius: 6px; border: 1px solid #cbd5e1; cursor: pointer; font-size: 11px; background: white; font-weight: 600; color: var(--navy); outline: none; }
+.btn-action { background: #0f2547; color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 11px; font-weight: 600; display: inline-flex; align-items: center; gap: 6px; transition: .2s; }
+.btn-action:hover { background: #1261a0; }
+
+@media(max-width:900px){
+ .app-shell{grid-template-columns:1fr}
+ .sidebar{position:fixed;left:0;top:0;width:278px;transform:translateX(-100%);transition:.25s;box-shadow:10px 0 30px rgba(0,0,0,.18)}
+ .sidebar.open{transform:translateX(0)}
+ .mobile-toggle{display:block}
+ .topbar{padding:0 18px;height:62px}
+ .content{padding:18px}
+ .system-status{display:none}
+}
+</style>
 </head>
 
 <body>
-    <!-- Menú Lateral -->
-    <div class="sidebar">
-        <div class="sidebar-brand">
-            <i class="fa-solid fa-building-columns"></i> Comisión de Salud
-        </div>
-        <a class="nav-item" href="dashboard.html"><i class="fa-solid fa-chart-pie"></i> Panel ejecutivo</a>
-        <a class="nav-item" href="bitacora.html"><i class="fa-solid fa-folder-open"></i> Oficios e informes</a>
-        <a class="nav-item active" href="soporte.html"><i class="fa-solid fa-ticket"></i> Panel de Incidencias</a>
+<div class="app-shell">
+<aside class="sidebar" id="sidebarMenu">
+    <div class="brand">
+        <div class="brand-mark"><i class="fa-solid fa-building-columns"></i></div>
+        <div class="brand-kicker">Sistema de Gestión Institucional</div>
+        <div class="brand-title">Comisión Permanente de Salud y Desarrollo Social Integral</div>
+        <div class="brand-sub">Oficina de la Concejala Letty Bastidas<br>Municipio Ambrosio Plaza</div>
     </div>
 
-    <!-- Contenido -->
-    <div class="main">
-        <div class="header-top">
-            <div class="page-title">Centro de Soporte Técnico</div>
+    <nav class="nav-scroll">
+        <div class="nav-label">Centro de gestión</div>
+        <a class="nav-item" href="dashboard.html"><i class="fa-solid fa-chart-pie"></i>Panel ejecutivo</a>
+
+        <div class="nav-label">Coordinación ejecutiva</div>
+        <a class="nav-item" href="ejecutiva.html"><i class="fa-solid fa-file-signature"></i>Oficios e informes</a>
+        <a class="nav-item" href="planificacion.html"><i class="fa-solid fa-calendar-days"></i>Planificación semanal</a>
+
+        <div class="nav-label">Coordinación política</div>
+        <a class="nav-item" href="politica.html"><i class="fa-solid fa-people-group"></i>Liderazgos y comunas</a>
+
+        <div class="nav-label">Coordinación social</div>
+        <a class="nav-item" href="social.html"><i class="fa-solid fa-hand-holding-heart"></i>Casos sociales</a>
+        <a class="nav-item" href="entrega-ayuda.html"><i class="fa-solid fa-box-open"></i>Reporte de ayudas</a>
+        <a class="nav-item" href="red_salud.html"><i class="fa-solid fa-hospital"></i>Red de salud</a>
+
+        <div class="nav-label">Gestión digital</div>
+        <a class="nav-item" href="bitacora.html"><i class="fa-solid fa-book"></i>Bitácora de eventos</a>
+        <a class="nav-item" href="reportes.html"><i class="fa-solid fa-chart-column"></i>Reportes e informes</a>
+        <a class="nav-item" href="formatos.html"><i class="fa-solid fa-folder-open"></i>Formatos de oficina</a>
+        <a class="nav-item active" href="soporte.html"><i class="fa-solid fa-ticket"></i>Soporte / Incidencias</a>
+
+        <div id="enlaceAuditoria" style="display:none">
+            <a class="nav-item" href="auditoria.html"><i class="fa-solid fa-shield-halved"></i>Panel de auditoría</a>
         </div>
 
-        <section class="content">
-            <div class="panel">
-                <div class="panel-head">
-                    <div class="panel-title"><i class="fa-solid fa-list-check"></i> Listado y Seguimiento de Tickets</div>
-                </div>
-                <div class="table-wrap">
-                    <table class="data-table">
-                        <thead>
-                            <tr>
-                                <th>Fecha</th>
-                                <th>Título de la Incidencia</th>
-                                <th>Prioridad</th>
-                                <th>Estatus</th>
-                                <th>Acciones</th>
-                            </tr>
-                        </thead>
-                        <tbody id="lista-incidencias">
-                            <tr><td colspan="5" style="text-align:center; padding: 30px; color: #64748b;">Cargando incidencias...</td></tr>
-                        </tbody>
-                    </table>
-                </div>
+        <div class="nav-label">Despacho</div>
+        <a class="nav-item star" href="acciones.html"><i class="fa-solid fa-star"></i>Acciones de la Concejala</a>
+    </nav>
+
+    <div class="profile">
+        <div class="profile-row">
+            <div class="avatar" id="usuarioAvatar">LB</div>
+            <div>
+                <div class="profile-name" id="usuarioNombre">Cargando...</div>
+                <div class="profile-role" id="usuarioCoordinacion">Cargando...</div>
             </div>
-        </section>
+        </div>
+        <div class="logout" onclick="logout()"><i class="fa-solid fa-right-from-bracket"></i>Cerrar sesión</div>
     </div>
+</aside>
 
-    <script>
-        async function cargarIncidencias() {
-            try {
-                // Consulta a la base de datos de SQLite Cloud usando el cliente global
-                const resultado = await window.sqlClient.query("SELECT * FROM incidencias_sistema ORDER BY id DESC");
-                const datos = resultado.resultado || resultado || [];
-                const tbody = document.getElementById("lista-incidencias");
-                
-                if (datos.length === 0) {
-                    tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; padding: 30px; color: #64748b;">No hay incidencias reportadas en el sistema.</td></tr>`;
-                    return;
-                }
+<main class="main">
+    <header class="topbar">
+        <div style="display:flex;align-items:center;gap:12px">
+            <button class="mobile-toggle" onclick="toggleMobileMenu()"><i class="fa-solid fa-bars"></i></button>
+            <div>
+                <div class="breadcrumb">INICIO / SOPORTE TÉCNICO</div>
+                <div class="top-title">Centro de Seguimiento de Incidencias</div>
+            </div>
+        </div>
+        <div class="system-status"><span class="status-dot"></span> SISTEMA SINCRONIZADO</div>
+    </header>
 
-                tbody.innerHTML = datos.map(i => `
-                    <tr>
-                        <td>${i.fecha_creacion ? i.fecha_creacion.split(' ')[0] : 'S/F'}</td>
-                        <td><strong>${i.titulo}</strong></td>
-                        <td><span class="badge-status">${i.prioridad}</span></td>
-                        <td>
-                            <select onchange="actualizarEstatus(${i.id}, this.value)" class="form-select">
-                                <option value="abierto" ${i.estado=='abierto'?'selected':''}>Abierto</option>
-                                <option value="en_proceso" ${i.estado=='en_proceso'?'selected':''}>En Proceso</option>
-                                <option value="cerrado" ${i.estado=='cerrado'?'selected':''}>Cerrado</option>
-                            </select>
-                        </td>
-                        <td>
-                            <button class="btn-action" onclick="alert('Próximamente: Historial y detalles del ticket #${i.id}')">
-                                <i class="fa-solid fa-magnifying-glass"></i> Historial
-                            </button>
-                        </td>
-                    </tr>
-                `).join("");
-            } catch (e) {
-                console.error("Error al cargar incidencias:", e);
-                document.getElementById("lista-incidencias").innerHTML = `<tr><td colspan="5" style="text-align:center; color: #dc2626;">Error al conectar con la base de datos.</td></tr>`;
-            }
+    <section class="content">
+        <div class="panel">
+            <div class="panel-head">
+                <div class="panel-title"><i class="fa-solid fa-list-check"></i>Listado y Seguimiento de Tickets</div>
+            </div>
+            <div class="table-wrap">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Fecha</th>
+                            <th>Reportado por</th>
+                            <th>Título de la Incidencia / Descripción</th>
+                            <th>Prioridad</th>
+                            <th>Estatus</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="lista-incidencias">
+                        <tr><td colspan="6" style="text-align:center; color:#8a98a7; padding:30px;">Cargando registros de incidencias...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+</main>
+</div>
+
+<script>
+// Función estándar de conexión a la API del sistema
+window.consultarBaseDatos = async function(query, params = []) {
+    try {
+        const response = await fetch('/api/query', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ query, params })
+        });
+        const result = await response.json();
+        if (!response.ok || result.error) {
+            throw new Error(result.error || 'Error en la consulta');
+        }
+        return result;
+    } catch (err) {
+        console.error('Error al conectar con la API:', err);
+        throw err;
+    }
+};
+
+document.addEventListener("DOMContentLoaded", () => {
+    cargarIncidenciasSistema();
+    
+    // Carga de datos de sesión en el sidebar
+    const nombre = sessionStorage.getItem("usuario_nombre");
+    const coord = sessionStorage.getItem("usuario_coordinacion");
+    const enlace = document.getElementById("enlaceAuditoria");
+    
+    if (sessionStorage.getItem("usuario_rol") === "admin" && enlace) enlace.style.display = "block";
+    if (nombre) {
+        document.getElementById("usuarioNombre").textContent = nombre;
+        const initials = nombre.trim().split(/\s+/).slice(0,2).map(x => x[0]).join("").toUpperCase();
+        document.getElementById("usuarioAvatar").textContent = initials || "US";
+    }
+    if (coord) document.getElementById("usuarioCoordinacion").textContent = coord.toUpperCase();
+});
+
+function toggleMobileMenu() {
+    document.getElementById("sidebarMenu").classList.toggle("open");
+}
+
+async function cargarIncidenciasSistema() {
+    try {
+        const resultado = await window.consultarBaseDatos("SELECT * FROM incidencias_sistema ORDER BY id DESC");
+        const datos = resultado || [];
+        const tbody = document.getElementById("lista-incidencias");
+        
+        if (datos.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding: 30px; color: #64748b;">No hay incidencias reportadas en el sistema.</td></tr>`;
+            return;
         }
 
-        async function actualizarEstatus(id, nuevoEstatus) {
-            try {
-                await window.sqlClient.query("UPDATE incidencias_sistema SET estado = ? WHERE id = ?", [nuevoEstatus, id]);
-                cargarIncidencias();
-            } catch (e) {
-                alert("No se pudo actualizar el estatus.");
-            }
-        }
+        tbody.innerHTML = datos.map(i => `
+            <tr>
+                <td>${i.fecha_creacion ? i.fecha_creacion.split(' ')[0] : 'S/F'}</td>
+                <td><span style="font-weight:600; color:var(--navy);">${i.usuario_reporta || 'Personal'}</span></td>
+                <td>
+                    <strong style="color:var(--navy); display:block;">${i.titulo}</strong>
+                    <span style="font-size:10px; color:#64748b; display:block; margin-top:2px;">${i.descripcion || ''}</span>
+                </td>
+                <td><span style="font-weight:700; color:#1261a0;">${i.prioridad}</span></td>
+                <td>
+                    <select onchange="actualizarEstatusIncidencia(${i.id}, this.value)" class="form-select">
+                        <option value="Abierto" ${i.estatus=='Abierto'?'selected':''}>Abierto</option>
+                        <option value="En Proceso" ${i.estatus=='En Proceso'?'selected':''}>En Proceso</option>
+                        <option value="Resuelto" ${i.estatus=='Resuelto'?'selected':''}>Resuelto</option>
+                    </select>
+                </td>
+                <td>
+                    <button class="btn-action" onclick="alert('Ticket #${i.id} - Registrado correctamente en la base de datos.')">
+                        <i class="fa-solid fa-circle-info"></i> Detalle
+                    </button>
+                </td>
+            </tr>
+        `).join("");
+    } catch (e) {
+        console.error("Error al cargar incidencias:", e);
+        document.getElementById("lista-incidencias").innerHTML = `<tr><td colspan="6" style="text-align:center; color:#c83d3d; padding:30px;">Error al conectar con la base de datos local.</td></tr>`;
+    }
+}
 
-        document.addEventListener("DOMContentLoaded", cargarIncidencias);
-    </script>
+async function actualizarEstatusIncidencia(id, nuevoEstatus) {
+    try {
+        await window.consultarBaseDatos("UPDATE incidencias_sistema SET estatus = ? WHERE id = ?", [nuevoEstatus, id]);
+        cargarIncidenciasSistema();
+    } catch (e) {
+        alert("No se pudo actualizar el estatus de la incidencia.");
+    }
+}
+
+function logout(){
+    sessionStorage.clear();
+    location.href="login.html";
+}
+</script>
+
+<script src="js/session-manager.js"></script>
 </body>
 </html>
