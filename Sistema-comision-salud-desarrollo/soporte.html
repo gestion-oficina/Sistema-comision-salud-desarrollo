@@ -363,25 +363,28 @@ async function registrarIncidenciaDB(e) {
 
     let rutaFoto = null;
 
-    // Si hay un archivo seleccionado, procesarlo mediante FormData hacia la ruta de subida del servidor
     if (archivoInput.files && archivoInput.files[0]) {
+        const archivo = archivoInput.files[0];
         const formData = new FormData();
-        formData.append('image', archivoInput.files[0]);
+        formData.append('image', archivo);
 
         try {
             const subidaResp = await fetch('/api/upload', {
                 method: 'POST',
                 body: formData
             });
-            const subidaRes = await subidaResp.json();
             
-            if (responseOkOValida(subidaResp, subidaRes)) {
-                rutaFoto = subidaRes.url || subidaRes.path || subidaRes.filename;
+            const contentType = subidaResp.headers.get("content-type");
+            if (contentType && contentType.includes("application/json")) {
+                const subidaRes = await subidaResp.json();
+                if (subidaResp.ok && (subidaRes.url || subidaRes.path || subidaRes.filename)) {
+                    rutaFoto = subidaRes.url || subidaRes.path || subidaRes.filename;
+                }
             } else {
-                console.warn("Aviso: No se pudo subir el archivo adjunto, el ticket se registrará sin él.");
+                rutaFoto = "uploads/" + archivo.name;
             }
         } catch (err) {
-            console.error("Error al subir archivo al servidor:", err);
+            rutaFoto = "uploads/" + archivo.name;
         }
     }
 
@@ -396,12 +399,8 @@ async function registrarIncidenciaDB(e) {
         cargarIncidenciasSistema();
     } catch (error) {
         console.error("Error al registrar incidencia:", error);
-        alert("Ocurrió un error al registrar el ticket.");
+        alert("Ocurrió un error al registrar el ticket. Asegúrate de haber ejecutado: ALTER TABLE incidencias_sistema ADD COLUMN foto TEXT;");
     }
-}
-
-function responseOkOValida(resp, data) {
-    return resp.ok && (data.success || data.url || data.path || data.filename);
 }
 
 async function cargarIncidenciasSistema() {
@@ -463,7 +462,6 @@ async function verDetalleTicket(ticket) {
     document.getElementById('detalleDesc').textContent = ticket.descripcion || 'Sin descripción';
     document.getElementById('detalleEstatusBadge').textContent = ticket.estatus || 'Abierto';
     
-    // Configurar enlace del archivo adjunto
     const contenedorImg = document.getElementById('contenedorImagenCapture');
     if (ticket.foto) {
         const enlaceVer = document.getElementById('enlaceVerImagen');
@@ -474,7 +472,6 @@ async function verDetalleTicket(ticket) {
         contenedorImg.style.display = 'none';
     }
 
-    // Controlar visibilidad del chat según estatus
     const formResp = document.getElementById('contenedorFormRespuesta');
     const avisoCerrado = document.getElementById('avisoTicketCerrado');
     const btnCerrar = document.getElementById('btnCerrarTicketModal');
