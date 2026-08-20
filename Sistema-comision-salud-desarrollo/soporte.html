@@ -272,12 +272,20 @@ button{font-family:inherit}
                 <span><strong>Estatus:</strong> <span id="detalleEstatusBadge" style="font-weight:700;">---</span></span>
                 <span><strong>Fecha:</strong> <span id="detalleFecha">---</span></span>
             </div>
-            <div><strong>Descripción inicial:</strong> <p id="detalleDesc" style="color: #475569; margin-top: 2px;"></p></div>
+            <div style="margin-top: 6px;"><strong>Descripción inicial:</strong> <p id="detalleDesc" style="color: #475569; margin-top: 2px;"></p></div>
+            
+            <!-- Contenedor para la imagen subida al servidor -->
+            <div id="contenedorImagenCapture" style="margin-top: 10px; display: none;">
+                <strong>Captura de pantalla adjunta:</strong><br>
+                <a id="enlaceVerImagen" href="#" target="_blank" style="display: inline-block; margin-top: 4px;">
+                    <img id="miniaturaCaptura" src="" alt="Captura del sistema" style="max-height: 120px; border-radius: 6px; border: 1px solid #cbd5e1; cursor: pointer;">
+                </a>
+            </div>
         </div>
 
         <!-- Historial de Conversación / Chat -->
         <label style="font-size: 10px; font-weight: 800; text-transform: uppercase; color: #65758b; margin-bottom: 4px; display: block;">Historial de Conversación y Respuestas:</label>
-        <div id="historialMensajes" style="flex: 1; overflow-y: auto; background: #f1f5f9; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px; max-height: 250px; margin-bottom: 12px; display: flex; flex-direction: column; gap: 8px;">
+        <div id="historialMensajes" style="flex: 1; overflow-y: auto; background: #f1f5f9; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px; max-height: 220px; margin-bottom: 12px; display: flex; flex-direction: column; gap: 8px;">
             <!-- Los mensajes se inyectan aquí -->
         </div>
 
@@ -290,7 +298,7 @@ button{font-family:inherit}
             </form>
         </div>
         <div id="avisoTicketCerrado" style="display: none; text-align: center; background: #fef2f2; border: 1px solid #fecaca; color: #991b1b; padding: 10px; border-radius: 8px; font-size: 11px; font-weight: 700;">
-            <i class="fa-solid lock"></i> Este ticket se encuentra cerrado (Resuelto). Ya no se permiten más respuestas.
+            <i class="fa-solid fa-lock"></i> Este ticket se encuentra cerrado (Resuelto). Ya no se permiten más respuestas.
         </div>
     </div>
 </div>
@@ -349,13 +357,37 @@ async function registrarIncidenciaDB(e) {
     const titulo = document.getElementById('incTitle').value;
     const prioridad = document.getElementById('incPriority').value;
     const descripcion = document.getElementById('incDesc').value;
+    const archivoInput = document.getElementById('incFoto');
     const usuario = sessionStorage.getItem('usuario_nombre') || 'Personal Institucional';
     const fechaActual = new Date().toISOString().split('T')[0];
 
+    let rutaFoto = null;
+
+    // Subir la imagen a la carpeta del servidor mediante FormData
+    if (archivoInput.files && archivoInput.files[0]) {
+        const formData = new FormData();
+        formData.append('imagen', archivoInput.files[0]);
+
+        try {
+            const subidaResp = await fetch('/api/upload', {
+                method: 'POST',
+                body: formData
+            });
+            const subidaRes = await subidaResp.json();
+            if (subidaResp.ok && subidaRes.url) {
+                rutaFoto = subidaRes.url; // Ruta donde el servidor guardó el archivo
+            } else {
+                alert("Aviso: No se pudo subir la imagen al servidor, pero el ticket se registrará sin ella.");
+            }
+        } catch (err) {
+            console.error("Error al subir archivo:", err);
+        }
+    }
+
     try {
         await window.consultarBaseDatos(
-            "INSERT INTO incidencias_sistema (usuario_reporta, titulo, descripcion, prioridad, estatus, fecha_creacion) VALUES (?, ?, ?, ?, 'Abierto', ?)",
-            [usuario, titulo, descripcion, prioridad, fechaActual]
+            "INSERT INTO incidencias_sistema (usuario_reporta, titulo, descripcion, prioridad, estatus, fecha_creacion, foto) VALUES (?, ?, ?, ?, 'Abierto', ?, ?)",
+            [usuario, titulo, descripcion, prioridad, fechaActual, rutaFoto]
         );
 
         alert("¡Incidencia reportada con éxito en la base de datos!");
@@ -385,6 +417,7 @@ async function cargarIncidenciasSistema() {
                 <td>
                     <strong style="color:var(--navy); display:block;">${i.titulo}</strong>
                     <span style="font-size:10px; color:#64748b; display:block; margin-top:2px;">${i.descripcion || ''}</span>
+                    ${i.foto ? '<span style="font-size:9px; color:#1261a0; font-weight:700; display:inline-block; margin-top:3px;"><i class="fa-solid fa-camera"></i> Con captura</span>' : ''}
                 </td>
                 <td><span style="font-weight:700; color:#1261a0;">${i.prioridad}</span></td>
                 <td>
@@ -425,6 +458,16 @@ async function verDetalleTicket(ticket) {
     document.getElementById('detalleDesc').textContent = ticket.descripcion || 'Sin descripción';
     document.getElementById('detalleEstatusBadge').textContent = ticket.estatus || 'Abierto';
     
+    // Mostrar la imagen desde la ruta del servidor
+    const contenedorImg = document.getElementById('contenedorImagenCapture');
+    if (ticket.foto) {
+        document.getElementById('miniaturaCaptura').src = ticket.foto;
+        document.getElementById('enlaceVerImagen').href = ticket.foto;
+        contenedorImg.style.display = 'block';
+    } else {
+        contenedorImg.style.display = 'none';
+    }
+
     // Controlar visibilidad del chat según estatus
     const formResp = document.getElementById('contenedorFormRespuesta');
     const avisoCerrado = document.getElementById('avisoTicketCerrado');
