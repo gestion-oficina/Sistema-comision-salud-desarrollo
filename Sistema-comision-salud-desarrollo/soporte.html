@@ -274,11 +274,11 @@ button{font-family:inherit}
             </div>
             <div style="margin-top: 6px;"><strong>Descripción inicial:</strong> <p id="detalleDesc" style="color: #475569; margin-top: 2px;"></p></div>
             
-            <!-- Contenedor para la imagen subida al servidor -->
+            <!-- Contenedor de la captura -->
             <div id="contenedorImagenCapture" style="margin-top: 10px; display: none;">
-                <strong>Captura de pantalla adjunta:</strong><br>
-                <a id="enlaceVerImagen" href="#" target="_blank" style="display: inline-block; margin-top: 4px;">
-                    <img id="miniaturaCaptura" src="" alt="Captura del sistema" style="max-height: 120px; border-radius: 6px; border: 1px solid #cbd5e1; cursor: pointer;">
+                <strong>Archivo o Captura adjunta:</strong><br>
+                <a id="enlaceVerImagen" href="#" target="_blank" style="display: inline-block; margin-top: 4px; color: var(--blue); font-weight: 700;">
+                    <i class="fa-solid fa-paperclip"></i> <span id="nombreArchivoTexto">Ver archivo adjunto</span>
                 </a>
             </div>
         </div>
@@ -363,10 +363,10 @@ async function registrarIncidenciaDB(e) {
 
     let rutaFoto = null;
 
-    // Subir la imagen a la carpeta del servidor mediante FormData
+    // Si hay un archivo seleccionado, procesarlo mediante FormData hacia la ruta de subida del servidor
     if (archivoInput.files && archivoInput.files[0]) {
         const formData = new FormData();
-        formData.append('imagen', archivoInput.files[0]);
+        formData.append('image', archivoInput.files[0]);
 
         try {
             const subidaResp = await fetch('/api/upload', {
@@ -374,13 +374,14 @@ async function registrarIncidenciaDB(e) {
                 body: formData
             });
             const subidaRes = await subidaResp.json();
-            if (subidaResp.ok && subidaRes.url) {
-                rutaFoto = subidaRes.url; // Ruta donde el servidor guardó el archivo
+            
+            if (responseOkOValida(subidaResp, subidaRes)) {
+                rutaFoto = subidaRes.url || subidaRes.path || subidaRes.filename;
             } else {
-                alert("Aviso: No se pudo subir la imagen al servidor, pero el ticket se registrará sin ella.");
+                console.warn("Aviso: No se pudo subir el archivo adjunto, el ticket se registrará sin él.");
             }
         } catch (err) {
-            console.error("Error al subir archivo:", err);
+            console.error("Error al subir archivo al servidor:", err);
         }
     }
 
@@ -397,6 +398,10 @@ async function registrarIncidenciaDB(e) {
         console.error("Error al registrar incidencia:", error);
         alert("Ocurrió un error al registrar el ticket.");
     }
+}
+
+function responseOkOValida(resp, data) {
+    return resp.ok && (data.success || data.url || data.path || data.filename);
 }
 
 async function cargarIncidenciasSistema() {
@@ -417,7 +422,7 @@ async function cargarIncidenciasSistema() {
                 <td>
                     <strong style="color:var(--navy); display:block;">${i.titulo}</strong>
                     <span style="font-size:10px; color:#64748b; display:block; margin-top:2px;">${i.descripcion || ''}</span>
-                    ${i.foto ? '<span style="font-size:9px; color:#1261a0; font-weight:700; display:inline-block; margin-top:3px;"><i class="fa-solid fa-camera"></i> Con captura</span>' : ''}
+                    ${i.foto ? '<span style="font-size:9px; color:#1261a0; font-weight:700; display:inline-block; margin-top:3px;"><i class="fa-solid fa-paperclip"></i> Con archivo adjunto</span>' : ''}
                 </td>
                 <td><span style="font-weight:700; color:#1261a0;">${i.prioridad}</span></td>
                 <td>
@@ -458,11 +463,12 @@ async function verDetalleTicket(ticket) {
     document.getElementById('detalleDesc').textContent = ticket.descripcion || 'Sin descripción';
     document.getElementById('detalleEstatusBadge').textContent = ticket.estatus || 'Abierto';
     
-    // Mostrar la imagen desde la ruta del servidor
+    // Configurar enlace del archivo adjunto
     const contenedorImg = document.getElementById('contenedorImagenCapture');
     if (ticket.foto) {
-        document.getElementById('miniaturaCaptura').src = ticket.foto;
-        document.getElementById('enlaceVerImagen').href = ticket.foto;
+        const enlaceVer = document.getElementById('enlaceVerImagen');
+        enlaceVer.href = ticket.foto.startsWith('http') ? ticket.foto : '/' + ticket.foto;
+        document.getElementById('nombreArchivoTexto').textContent = ticket.foto.split('/').pop() || 'Ver archivo';
         contenedorImg.style.display = 'block';
     } else {
         contenedorImg.style.display = 'none';
