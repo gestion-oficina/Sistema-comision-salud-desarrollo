@@ -14,7 +14,7 @@
         }
     </script>
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <title>Coordinación Política - Liderazgos y Comunas</title>
+    <title>Coordinación Política - Liderazgos, Comunas y Centros Electorales</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
     <!-- Adaptador para SQLite Cloud vía API backend en Vercel -->
@@ -256,15 +256,15 @@
         <!-- TARJETAS DE INDICADORES (KPIs) -->
         <div class="kpi-container">
             <div class="kpi-card">
-                <span class="kpi-title">Total Líderes UBCh</span>
+                <span class="kpi-title" id="kpiTitle1">Total Líderes UBCh</span>
                 <span class="kpi-value" id="kpiLideres">0</span>
             </div>
             <div class="kpi-card">
-                <span class="kpi-title">Total Comunas / Consejos</span>
+                <span class="kpi-title" id="kpiTitle2">Total Comunas / Consejos</span>
                 <span class="kpi-value" id="kpiComunas">0</span>
             </div>
             <div class="kpi-card">
-                <span class="kpi-title">Sectores Registrados</span>
+                <span class="kpi-title" id="kpiTitle3">Sectores Registrados</span>
                 <span class="kpi-value" id="kpiSectores">0</span>
             </div>
         </div>
@@ -273,6 +273,7 @@
             <div class="tabs-container">
                 <button class="tab-btn active" id="tab-lideres" onclick="switchData('liderazgos')">🚩 Voceros de Salud</button>
                 <button class="tab-btn" id="tab-comunas" onclick="switchData('comunas')">☖ Comunas y Consejos</button>
+                <button class="tab-btn" id="tab-centros" onclick="switchData('centros')">🏛️ Centros Electorales</button>
             </div>
             
             <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
@@ -371,8 +372,8 @@
             if (!select) return;
 
             const valorSeleccionado = select.value;
-            const politicos = registros.filter(r => (r.coordinacion && r.coordinacion.toLowerCase() === 'politica') || r.tipo === 'Liderazgo' || r.tipo === 'Comuna');
-            const comunasUnicas = [...new Set(politicos.map(r => r.sector || r.nombre).filter(Boolean))].sort();
+            const politicos = registros.filter(r => (r.coordinacion && r.coordinacion.toLowerCase() === 'politica') || r.tipo === 'Liderazgo' || r.tipo === 'Comuna' || r.tipo === 'CentroElectoral');
+            const comunasUnicas = [...new Set(politicos.map(r => r.sector || r.nombre || r.municipio).filter(Boolean))].sort();
 
             select.innerHTML = `<option value="">🌐 Todas las Comunas / Ejes</option>` + 
                 comunasUnicas.map(c => `<option value="${c}">${c}</option>`).join("");
@@ -381,15 +382,28 @@
         }
 
         function actualizarKPIs(registros) {
-            const politicos = registros.filter(r => (r.coordinacion && r.coordinacion.toLowerCase() === 'politica') || r.tipo === 'Liderazgo' || r.tipo === 'Comuna');
-            const lideresCount = politicos.filter(r => r.tipo !== 'Comuna').length;
+            const politicos = registros.filter(r => (r.coordinacion && r.coordinacion.toLowerCase() === 'politica') || r.tipo === 'Liderazgo' || r.tipo === 'Comuna' || r.tipo === 'CentroElectoral');
+            const lideresCount = politicos.filter(r => r.tipo !== 'Comuna' && r.tipo !== 'CentroElectoral').length;
             const comunasCount = politicos.filter(r => r.tipo === 'Comuna').length;
+            const centrosCount = politicos.filter(r => r.tipo === 'CentroElectoral').length;
             
-            const sectoresUnicos = new Set(politicos.map(r => r.sector).filter(Boolean));
+            const sectoresUnicos = new Set(politicos.map(r => r.sector || r.municipio).filter(Boolean));
 
-            document.getElementById("kpiLideres").innerText = lideresCount;
-            document.getElementById("kpiComunas").innerText = comunasCount;
-            document.getElementById("kpiSectores").innerText = sectoresUnicos.size;
+            if (filtroActual === 'centros') {
+                document.getElementById("kpiLideres").innerText = centrosCount;
+                document.getElementById("kpiComunas").innerText = sectoresUnicos.size;
+                document.getElementById("kpiSectores").innerText = politicos.length;
+                document.getElementById("kpiTitle1").innerText = "Total Centros Votación";
+                document.getElementById("kpiTitle2").innerText = "Municipios / Ejes";
+                document.getElementById("kpiTitle3").innerText = "Total Registrados";
+            } else {
+                document.getElementById("kpiLideres").innerText = lideresCount;
+                document.getElementById("kpiComunas").innerText = comunasCount;
+                document.getElementById("kpiSectores").innerText = sectoresUnicos.size;
+                document.getElementById("kpiTitle1").innerText = "Total Líderes UBCh";
+                document.getElementById("kpiTitle2").innerText = "Total Comunas / Consejos";
+                document.getElementById("kpiTitle3").innerText = "Sectores Registrados";
+            }
         }
 
         function renderizarDatos() {
@@ -397,20 +411,23 @@
             const termino = document.getElementById("searchInput").value.toLowerCase();
             const comunaSeleccionada = document.getElementById("filtroComunaSelect")?.value.toLowerCase() || "";
 
-            const datosPoliticos = todosLosRegistros.filter(r => (r.coordinacion && r.coordinacion.toLowerCase() === 'politica') || r.tipo === 'Liderazgo' || r.tipo === 'Comuna');
+            const datosPoliticos = todosLosRegistros.filter(r => (r.coordinacion && r.coordinacion.toLowerCase() === 'politica') || r.tipo === 'Liderazgo' || r.tipo === 'Comuna' || r.tipo === 'CentroElectoral');
 
             let filtrados = [];
             if (filtroActual === 'liderazgos') {
-                filtrados = datosPoliticos.filter(r => r.tipo !== 'Comuna');
-            } else {
+                filtrados = datosPoliticos.filter(r => r.tipo !== 'Comuna' && r.tipo !== 'CentroElectoral');
+            } else if (filtroActual === 'comunas') {
                 filtrados = datosPoliticos.filter(r => r.tipo === 'Comuna');
+            } else {
+                filtrados = datosPoliticos.filter(r => r.tipo === 'CentroElectoral');
             }
 
             if (comunaSeleccionada) {
                 filtrados = filtrados.filter(item => {
                     const sectorVal = String(item.sector || '').toLowerCase();
                     const nombreVal = String(item.nombre || '').toLowerCase();
-                    return sectorVal.includes(comunaSeleccionada) || nombreVal.includes(comunaSeleccionada);
+                    const muniVal = String(item.municipio || '').toLowerCase();
+                    return sectorVal.includes(comunaSeleccionada) || nombreVal.includes(comunaSeleccionada) || muniVal.includes(comunaSeleccionada);
                 });
             }
 
@@ -448,7 +465,7 @@
                         </div>
                     </div>
                 `).join("");
-            } else {
+            } else if (filtroActual === 'comunas') {
                 container.innerHTML = filtrados.map(c => `
                     <div class="territory-card">
                         <div>
@@ -473,6 +490,30 @@
                         </div>
                     </div>
                 `).join("");
+            } else {
+                container.innerHTML = filtrados.map(ce => `
+                    <div class="territory-card">
+                        <div>
+                            <div class="card-top">
+                                <div class="card-title">${ce.nombre || 'Centro Electoral'}</div>
+                                <span class="card-badge" style="background:#f3e8ff; color:#6b21a8;">Centro Electoral</span>
+                            </div>
+                            <div class="card-body">
+                                <div class="card-info-row"><span>📍 Municipio:</span> <strong>${ce.municipio || 'N/A'}</strong></div>
+                                <div class="card-info-row"><span>🏛️ Centro de Votación:</span> <strong>${ce.centro_votacion || 'N/A'}</strong></div>
+                                <div class="card-info-row"><span>☖ Comunas:</span> <strong>${ce.comunas || 'N/A'}</strong></div>
+                                <div class="card-info-row"><span>⚡ Circuitos Comunales:</span> <strong>${ce.circuitos_comunales || 'N/A'}</strong></div>
+                            </div>
+                        </div>
+                        <div class="card-footer">
+                            <span></span>
+                            <div class="card-actions-group">
+                                <button class="btn-edit" onclick="abrirModalEditar(${ce.id})">✏️ Editar</button>
+                                <button class="btn-del" onclick="eliminarRegistro(${ce.id})">🗑️ Eliminar</button>
+                            </div>
+                        </div>
+                    </div>
+                `).join("");
             }
         }
 
@@ -484,9 +525,21 @@
             filtroActual = tipo;
             document.getElementById("tab-lideres").classList.toggle("active", tipo === 'liderazgos');
             document.getElementById("tab-comunas").classList.toggle("active", tipo === 'comunas');
-            document.getElementById("page-title").innerText = tipo === 'liderazgos' ? "Estructura de Liderazgos Territoriales" : "Comunas y Consejos Comunales";
-            document.getElementById("btn-nuevo-registro").innerHTML = tipo === 'liderazgos' ? "<span>➕</span> Registrar Líder Territorial" : "<span>➕</span> Registrar Organización / Comuna";
+            document.getElementById("tab-centros").classList.toggle("active", tipo === 'centros');
+            
+            if (tipo === 'liderazgos') {
+                document.getElementById("page-title").innerText = "Estructura de Liderazgos Territoriales";
+                document.getElementById("btn-nuevo-registro").innerHTML = "<span>➕</span> Registrar Líder Territorial";
+            } else if (tipo === 'comunas') {
+                document.getElementById("page-title").innerText = "Comunas y Consejos Comunales";
+                document.getElementById("btn-nuevo-registro").innerHTML = "<span>➕</span> Registrar Organización / Comuna";
+            } else {
+                document.getElementById("page-title").innerText = "Centros Electorales y Circuitos";
+                document.getElementById("btn-nuevo-registro").innerHTML = "<span>➕</span> Registrar Centro Electoral";
+            }
+
             document.getElementById("searchInput").value = "";
+            actualizarKPIs(todosLosRegistros);
             renderizarDatos();
         }
 
@@ -519,7 +572,7 @@
                         <input type="text" id="m_sector" placeholder="Ej. Ingrese el sector manualmente">
                     </div>
                 `;
-            } else {
+            } else if (filtroActual === 'comunas') {
                 title.innerText = "Registrar Organización o Comuna";
                 body.innerHTML = `
                     <div class="form-group">
@@ -547,6 +600,26 @@
                         <input type="email" id="m_email" placeholder="Ej. correo@gmail.com">
                     </div>
                 `;
+            } else {
+                title.innerText = "Registrar Centro Electoral";
+                body.innerHTML = `
+                    <div class="form-group">
+                        <label>Municipio</label>
+                        <input type="text" id="m_municipio" placeholder="Ej. Municipio Ambrosio Plaza">
+                    </div>
+                    <div class="form-group">
+                        <label>Centro de Votación</label>
+                        <input type="text" id="m_centro_votacion" placeholder="Ej. U.E.N. Ambrosio Plaza">
+                    </div>
+                    <div class="form-group">
+                        <label>Comunas</label>
+                        <input type="text" id="m_comunas" placeholder="Ej. Comuna Socialista Sur">
+                    </div>
+                    <div class="form-group">
+                        <label>Circuitos Comunales</label>
+                        <input type="text" id="m_circuitos_comunales" placeholder="Ej. Circuito Comunal 01">
+                    </div>
+                `;
             }
 
             modal.classList.add("active");
@@ -568,7 +641,27 @@
 
             btnGuardar.innerText = "Guardar Cambios";
 
-            if (registro.tipo !== 'Comuna') {
+            if (registro.tipo === 'CentroElectoral') {
+                title.innerText = "Editar Centro Electoral";
+                body.innerHTML = `
+                    <div class="form-group">
+                        <label>Municipio</label>
+                        <input type="text" id="m_municipio" value="${registro.municipio || ''}">
+                    </div>
+                    <div class="form-group">
+                        <label>Centro de Votación</label>
+                        <input type="text" id="m_centro_votacion" value="${registro.centro_votacion || ''}">
+                    </div>
+                    <div class="form-group">
+                        <label>Comunas</label>
+                        <input type="text" id="m_comunas" value="${registro.comunas || ''}">
+                    </div>
+                    <div class="form-group">
+                        <label>Circuitos Comunales</label>
+                        <input type="text" id="m_circuitos_comunales" value="${registro.circuitos_comunales || ''}">
+                    </div>
+                `;
+            } else if (registro.tipo !== 'Comuna') {
                 title.innerText = "Editar Líder Territorial / UBCh";
                 body.innerHTML = `
                     <div class="form-group">
@@ -627,16 +720,12 @@
         }
 
         async function guardarRegistroModal() {
-            const nombre = document.getElementById("m_nombre")?.value.trim();
-            if (!nombre) {
-                alert("Por favor ingresa al menos el nombre.");
-                return;
-            }
-
             try {
                 if (idRegistroEditando === null) {
                     let nuevoRegistro = {};
                     if (filtroActual === 'liderazgos') {
+                        const nombre = document.getElementById("m_nombre")?.value.trim();
+                        if (!nombre) { alert("Por favor ingresa al menos el nombre."); return; }
                         nuevoRegistro = {
                             nombre: nombre,
                             cedula: document.getElementById("m_cedula")?.value.trim() || null,
@@ -644,10 +733,16 @@
                             sector: document.getElementById("m_sector")?.value.trim() || null,
                             responsable: null,
                             email: null,
+                            municipio: null,
+                            centro_votacion: null,
+                            comunas: null,
+                            circuitos_comunales: null,
                             tipo: 'Liderazgo',
                             coordinacion: 'Politica'
                         };
-                    } else {
+                    } else if (filtroActual === 'comunas') {
+                        const nombre = document.getElementById("m_nombre")?.value.trim();
+                        if (!nombre) { alert("Por favor ingresa al menos el nombre."); return; }
                         nuevoRegistro = {
                             nombre: nombre,
                             sector: document.getElementById("m_sector")?.value.trim() || null,
@@ -655,28 +750,66 @@
                             cedula: document.getElementById("m_cedula")?.value.trim() || null,
                             telefono: document.getElementById("m_telefono")?.value.trim() || null,
                             email: document.getElementById("m_email")?.value.trim() || null,
+                            municipio: null,
+                            centro_votacion: null,
+                            comunas: null,
+                            circuitos_comunales: null,
                             tipo: 'Comuna',
+                            coordinacion: 'Politica'
+                        };
+                    } else {
+                        const centroVot = document.getElementById("m_centro_votacion")?.value.trim();
+                        if (!centroVot) { alert("Por favor ingresa al menos el centro de votación."); return; }
+                        nuevoRegistro = {
+                            nombre: centroVot,
+                            sector: null,
+                            responsable: null,
+                            cedula: null,
+                            telefono: null,
+                            email: null,
+                            municipio: document.getElementById("m_municipio")?.value.trim() || null,
+                            centro_votacion: centroVot,
+                            comunas: document.getElementById("m_comunas")?.value.trim() || null,
+                            circuitos_comunales: document.getElementById("m_circuitos_comunales")?.value.trim() || null,
+                            tipo: 'CentroElectoral',
                             coordinacion: 'Politica'
                         };
                     }
 
                     await window.sqlClient`
-                        INSERT INTO casos_salud (nombre, cedula, telefono, sector, responsable, email, tipo, coordinacion) 
-                        VALUES (${nuevoRegistro.nombre}, ${nuevoRegistro.cedula}, ${nuevoRegistro.telefono}, ${nuevoRegistro.sector}, ${nuevoRegistro.responsable}, ${nuevoRegistro.email}, ${nuevoRegistro.tipo}, ${nuevoRegistro.coordinacion})
+                        INSERT INTO casos_salud (nombre, cedula, telefono, sector, responsable, email, municipio, centro_votacion, comunas, circuitos_comunales, tipo, coordinacion) 
+                        VALUES (${nuevoRegistro.nombre}, ${nuevoRegistro.cedula}, ${nuevoRegistro.telefono}, ${nuevoRegistro.sector}, ${nuevoRegistro.responsable}, ${nuevoRegistro.email}, ${nuevoRegistro.municipio}, ${nuevoRegistro.centro_votacion}, ${nuevoRegistro.comunas}, ${nuevoRegistro.circuitos_comunales}, ${nuevoRegistro.tipo}, ${nuevoRegistro.coordinacion})
                     `;
                 } else {
-                    const vNombre = nombre;
-                    const vSector = document.getElementById("m_sector")?.value.trim() || null;
-                    const vResponsable = document.getElementById("m_responsable")?.value.trim() || null;
-                    const vCedula = document.getElementById("m_cedula")?.value.trim() || null;
-                    const vTelefono = document.getElementById("m_telefono")?.value.trim() || null;
-                    const vEmail = document.getElementById("m_email")?.value.trim() || null;
+                    const registroActual = todosLosRegistros.find(r => Number(r.id) === idRegistroEditando);
+                    
+                    if (registroActual && registroActual.tipo === 'CentroElectoral') {
+                        const vMunicipio = document.getElementById("m_municipio")?.value.trim() || null;
+                        const vCentroVot = document.getElementById("m_centro_votacion")?.value.trim() || null;
+                        const vComunas = document.getElementById("m_comunas")?.value.trim() || null;
+                        const vCircuitos = document.getElementById("m_circuitos_comunales")?.value.trim() || null;
 
-                    await window.sqlClient`
-                        UPDATE casos_salud 
-                        SET nombre = ${vNombre}, sector = ${vSector}, responsable = ${vResponsable}, cedula = ${vCedula}, telefono = ${vTelefono}, email = ${vEmail}
-                        WHERE id = ${Number(idRegistroEditando)}
-                    `;
+                        await window.sqlClient`
+                            UPDATE casos_salud 
+                            SET municipio = ${vMunicipio}, centro_votacion = ${vCentroVot}, comunas = ${vComunas}, circuitos_comunales = ${vCircuitos}, nombre = ${vCentroVot}
+                            WHERE id = ${Number(idRegistroEditando)}
+                        `;
+                    } else {
+                        const nombre = document.getElementById("m_nombre")?.value.trim();
+                        if (!nombre) { alert("Por favor ingresa al menos el nombre."); return; }
+                        const vNombre = nombre;
+                        const vSector = document.getElementById("m_sector")?.value.trim() || null;
+                        const vResponsable = document.getElementById("m_responsable")?.value.trim() || null;
+                        const vCedula = document.getElementById("m_cedula")?.value.trim() || null;
+                        const vTelefono = document.getElementById("m_telefono")?.value.trim() || null;
+                        const vEmail = document.getElementById("m_email")?.value.trim() || null;
+
+                        await window.sqlClient`
+                            UPDATE casos_salud 
+                            SET nombre = ${vNombre}, sector = ${vSector}, responsable = ${vResponsable}, cedula = ${vCedula}, telefono = ${vTelefono}, email = ${vEmail}
+                            WHERE id = ${Number(idRegistroEditando)}
+                        `;
+                    }
                 }
 
                 cerrarModalRegistro();
@@ -704,13 +837,13 @@
         }
 
         function exportarCSV() {
-            const politicos = todosLosRegistros.filter(r => (r.coordinacion && r.coordinacion.toLowerCase() === 'politica') || r.tipo === 'Liderazgo' || r.tipo === 'Comuna');
+            const politicos = todosLosRegistros.filter(r => (r.coordinacion && r.coordinacion.toLowerCase() === 'politica') || r.tipo === 'Liderazgo' || r.tipo === 'Comuna' || r.tipo === 'CentroElectoral');
             if (politicos.length === 0) {
                 alert("No hay registros para exportar.");
                 return;
             }
 
-            let csvContent = "data:text/csv;charset=utf-8,ID,Tipo,Nombre,Cedula,Telefono,Sector,Responsable,Email\n";
+            let csvContent = "data:text/csv;charset=utf-8,ID,Tipo,Nombre,Cedula,Telefono,Sector,Responsable,Email,Municipio,CentroVotacion,Comunas,CircuitosComunales\n";
             politicos.forEach(r => {
                 let row = [
                     r.id,
@@ -720,7 +853,11 @@
                     `"${(r.telefono || '').replace(/"/g, '""')}"`,
                     `"${(r.sector || '').replace(/"/g, '""')}"`,
                     `"${(r.responsable || '').replace(/"/g, '""')}"`,
-                    `"${(r.email || '').replace(/"/g, '""')}"`
+                    `"${(r.email || '').replace(/"/g, '""')}"`,
+                    `"${(r.municipio || '').replace(/"/g, '""')}"`,
+                    `"${(r.centro_votacion || '').replace(/"/g, '""')}"`,
+                    `"${(r.comunas || '').replace(/"/g, '""')}"`,
+                    `"${(r.circuitos_comunales || '').replace(/"/g, '""')}"`
                 ];
                 csvContent += row.join(",") + "\n";
             });
@@ -728,7 +865,7 @@
             const encodedUri = encodeURI(csvContent);
             const link = document.createElement("a");
             link.setAttribute("href", encodedUri);
-            link.setAttribute("download", `reporte_liderazgos_comunas_${new Date().toISOString().slice(0,10)}.csv`);
+            link.setAttribute("download", `reporte_liderazgos_comunas_centros_${new Date().toISOString().slice(0,10)}.csv`);
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
@@ -736,14 +873,15 @@
 
         function enviarReporteComunaWhatsApp() {
             const comunaSeleccionada = document.getElementById("filtroComunaSelect")?.value || "General";
-            const datosPoliticos = todosLosRegistros.filter(r => (r.coordinacion && r.coordinacion.toLowerCase() === 'politica') || r.tipo === 'Liderazgo' || r.tipo === 'Comuna');
+            const datosPoliticos = todosLosRegistros.filter(r => (r.coordinacion && r.coordinacion.toLowerCase() === 'politica') || r.tipo === 'Liderazgo' || r.tipo === 'Comuna' || r.tipo === 'CentroElectoral');
             
             let filtrados = datosPoliticos;
             if (comunaSeleccionada) {
                 filtrados = datosPoliticos.filter(item => {
                     const sectorVal = String(item.sector || '').toLowerCase();
                     const nombreVal = String(item.nombre || '').toLowerCase();
-                    return sectorVal.includes(comunaSeleccionada.toLowerCase()) || nombreVal.includes(comunaSeleccionada.toLowerCase());
+                    const muniVal = String(item.municipio || '').toLowerCase();
+                    return sectorVal.includes(comunaSeleccionada.toLowerCase()) || nombreVal.includes(comunaSeleccionada.toLowerCase()) || muniVal.includes(comunaSeleccionada.toLowerCase());
                 });
             }
 
@@ -753,7 +891,11 @@
             
             filtrados.slice(0, 10).forEach((item, idx) => {
                 mensaje += `${idx + 1}. *${item.nombre || 'Sin nombre'}* (${item.tipo || 'Liderazgo'})\n`;
-                mensaje += `   📞 Tel: ${item.telefono || 'N/A'} | 📍 Sector: ${item.sector || 'N/A'}\n`;
+                if (item.tipo === 'CentroElectoral') {
+                    mensaje += `   🏛️ Centro: ${item.centro_votacion || 'N/A'} | 📍 Mun: ${item.municipio || 'N/A'}\n`;
+                } else {
+                    mensaje += `   📞 Tel: ${item.telefono || 'N/A'} | 📍 Sector: ${item.sector || 'N/A'}\n`;
+                }
             });
 
             if (filtrados.length > 10) {
