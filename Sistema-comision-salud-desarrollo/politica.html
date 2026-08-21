@@ -16,6 +16,7 @@
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <title>Coordinación Política - Liderazgos, Comunas y Centros Electorales</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <!-- Adaptador para SQLite Cloud vía API backend en Vercel -->
     <script>
@@ -58,8 +59,8 @@
     <style>
         :root { 
             --bg-main: #f8fafc; 
-            --sidebar-bg: #003da5; 
-            --sidebar-active: #2563eb; 
+            --sidebar-bg: #071b35; 
+            --sidebar-active: #1261a0; 
             --sidebar-text-sub: #94a3b8; 
             --menu-text: #ffffff; 
             --text-dark-title: #0f172a; 
@@ -70,7 +71,7 @@
         }
         * { margin:0; padding:0; box-sizing:border-box; font-family: 'Inter', sans-serif; }
         body { background: var(--bg-main); color:#334155; }
-        .layout { display:grid; grid-template-columns:280px 1fr; min-height:100vh; }
+        .layout { display:grid; grid-template-columns:278px 1fr; min-height:100vh; }
         
         .mobile-menu-toggle {
             display: none;
@@ -91,13 +92,31 @@
             justify-content: center;
         }
 
-        .sidebar { background: var(--sidebar-bg); padding:24px 0; display: flex; flex-direction: column; transition: transform 0.3s ease; border-right: 1px solid rgba(255, 255, 255, 0.1); }
-        .sidebar-brand { display: flex; flex-direction: column; align-items: center; text-align: center; padding: 0 16px 20px 16px; border-bottom: 1px solid rgba(255, 255, 255, 0.08); margin-bottom: 10px; }
-        .sidebar-brand h2 { font-size: 11px; color: #ffffff; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; line-height: 1.4; margin-top: 5px; }
-        .menu-category { font-size: 10px; font-weight: 700; color: var(--sidebar-text-sub); text-transform: uppercase; letter-spacing: 0.8px; padding: 16px 20px 6px 20px; }
-        .menu { display: block; padding: 9px 36px; color: var(--menu-text); cursor: pointer; font-size: 13px; font-weight: 500; text-decoration: none; transition: all 0.2s ease; opacity: 0.85; }
-        .menu:hover { opacity: 1; background: rgba(255, 255, 255, 0.08); }
-        .menu.active-page { background: var(--sidebar-active); color: #ffffff; font-weight: 600; border-radius: 8px; margin: 2px 14px; padding: 10px 18px; opacity: 1; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3); }
+        /* Estilos del Sidebar unificados con Dashboard */
+        .sidebar{background:linear-gradient(180deg,#061a32 0%,#092849 58%,#0a315a 100%);color:#fff;display:flex;flex-direction:column;min-height:100vh;position:sticky;top:0;height:100vh;z-index:100; transition: transform 0.3s ease; border-right: 1px solid rgba(255, 255, 255, 0.1);}
+        .brand{padding:26px 24px 22px;border-bottom:1px solid rgba(255,255,255,.1)}
+        .brand-mark{width:48px;height:48px;border-radius:13px;background:linear-gradient(145deg,#2ba7d6,#1261a0);display:flex;align-items:center;justify-content:center;box-shadow:0 8px 20px rgba(43,167,214,.25);margin-bottom:15px}
+        .brand-mark i{font-size:21px}
+        .brand-kicker{font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:#79c7e8;font-weight:800}
+        .brand-title{font-family:Montserrat,sans-serif;font-size:15px;line-height:1.35;font-weight:800;margin-top:5px}
+        .brand-sub{font-size:10px;color:#9db1c7;margin-top:5px;line-height:1.5}
+
+        .nav-scroll{padding:14px 12px;overflow:auto;flex:1}
+        .nav-label{font-size:9px;letter-spacing:1.3px;color:#7290ad;font-weight:800;text-transform:uppercase;padding:14px 12px 7px}
+        .nav-item{display:flex;align-items:center;gap:11px;padding:10px 12px;border-radius:9px;color:#cbd8e6;font-size:12px;font-weight:600;margin:2px 0;transition:.2s;text-decoration:none}
+        .nav-item i{width:18px;text-align:center;color:#7fa4c5;font-size:12px}
+        .nav-item:hover{background:rgba(255,255,255,.07);color:#fff}
+        .nav-item:hover i,.nav-item.active i{color:#63c4e7}
+        .nav-item.active{background:linear-gradient(90deg,rgba(25,118,201,.95),rgba(18,97,160,.85));color:#fff;box-shadow:inset 3px 0 0 #66d0ee,0 6px 16px rgba(0,0,0,.12)}
+        .nav-item.star{color:#ffe9a3}
+        .nav-item.star i{color:#f5c84b}
+
+        .profile{border-top:1px solid rgba(255,255,255,.1);padding:16px 18px}
+        .profile-row{display:flex;gap:10px;align-items:center}
+        .avatar{width:34px;height:34px;border-radius:50%;background:#e5f4fb;color:#1261a0;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:12px}
+        .profile-name{font-size:11px;font-weight:700;color:#fff}
+        .profile-role{font-size:9px;color:#8da6bf;margin-top:2px}
+        .logout{display:flex;align-items:center;gap:7px;margin-top:12px;font-size:10px;color:#ff9b9b;font-weight:700;cursor:pointer}
         
         .main { padding:36px 40px; overflow-x: hidden; display: flex; flex-direction: column; min-height: 100vh; }
         
@@ -181,8 +200,8 @@
         @media (max-width: 900px) { 
             .layout { grid-template-columns: 1fr; }
             .mobile-menu-toggle { display: flex; }
-            .sidebar { position: fixed; top: 0; left: 0; width: 280px; height: 100vh; z-index: 9998; transform: translateX(-100%); box-shadow: 5px 0 15px rgba(0,0,0,0.2); }
-            .sidebar.mobile-open { transform: translateX(0); }
+            .sidebar { position: fixed; top: 0; left: 0; width: 278px; height: 100vh; z-index: 9998; transform: translateX(-100%); box-shadow: 5px 0 15px rgba(0,0,0,0.2); }
+            .sidebar.open { transform: translateX(0); }
             .main { padding: 20px 16px; }
             .content-header { flex-direction: column; align-items: stretch; }
             .search-box input { width: 100%; }
@@ -195,47 +214,56 @@
     <button class="mobile-menu-toggle" id="menuToggleBtn" onclick="toggleMobileMenu()">☰</button>
 
     <div class="layout">
-    <div class="sidebar" id="sidebarMenu">
-        <div class="sidebar-brand">
-            <h2>COMISIÓN PERMANENTE DE SALUD<br>Y DESARROLLO SOCIAL INTEGRAL</h2>
+    <!-- MENÚ LATERAL ACTUALIZADO IGUAL AL DASHBOARD -->
+    <aside class="sidebar" id="sidebarMenu">
+        <div class="brand">
+            <div class="brand-mark"><i class="fa-solid fa-building-columns"></i></div>
+            <div class="brand-kicker">Sistema de Gestión Institucional</div>
+            <div class="brand-title">Comisión Permanente de Salud y Desarrollo Social Integral</div>
+            <div class="brand-sub">Oficina de la Concejala Letty Bastidas<br>Municipio Ambrosio Plaza</div>
         </div>
-        
-        <a class="menu" href="dashboard.html">Principal</a>
-        
-        <div class="menu-category">Coor. Ejecutiva</div>
-        <a class="menu" href="ejecutiva.html">Oficios e Informes</a>
-        <a class="menu" href="planificacion.html">Planificación Semanal</a>
-        
-        <div class="menu-category">Coor. Política</div>
-        <a class="menu active-page" href="politica.html">Liderazgos y Comunas</a>
-        <a class="menu" href="difusion.html">Difusión Política</a>
-        
-        <div class="menu-category">Coor. Social</div>
-        <a class="menu" href="social.html">Casos Sociales</a>
-        <a class="menu" href="entrega-ayuda.html">Reporte Ayuda</a>
-        <a class="menu" href="red_salud.html">Red de Salud (CPT/CDI)</a>
-        
-        <div class="menu-category">Gestión Digital</div>
-        <a class="menu" href="bitacora.html">Bitácora de Eventos</a>
-        <a class="menu" href="reportes.html">📄 Reportes e Informes</a>
-        <a class="menu" href="formatos.html">📁 Formatos de Oficina</a>
 
-        <div id="enlaceAuditoria" style="display: none;">
-            <a href="auditoria.html" class="menu">🛡️ Panel de Auditoría</a>
-        </div>
-        
-        <div style="margin-top: auto; padding: 24px 20px; border-top: 1px solid rgba(255,255,255,0.08);">
-            <div id="usuarioNombre" style="font-size:13px; color:#ffffff; font-weight:600; margin-bottom: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
-                Cargando...
+        <nav class="nav-scroll">
+            <div class="nav-label">Centro de gestión</div>
+            <a class="nav-item" href="dashboard.html"><i class="fa-solid fa-chart-pie"></i>Panel ejecutivo</a>
+
+            <div class="nav-label">Coordinación ejecutiva</div>
+            <a class="nav-item" href="ejecutiva.html"><i class="fa-solid fa-file-signature"></i>Oficios e informes</a>
+            <a class="nav-item" href="planificacion.html"><i class="fa-solid fa-calendar-days"></i>Planificación semanal</a>
+
+            <div class="nav-label">Coordinación política</div>
+            <a class="nav-item active" href="politica.html"><i class="fa-solid fa-people-group"></i>Liderazgos y comunas</a>
+
+            <div class="nav-label">Coordinación social</div>
+            <a class="nav-item" href="social.html"><i class="fa-solid fa-hand-holding-heart"></i>Casos sociales</a>
+            <a class="nav-item" href="entrega-ayuda.html"><i class="fa-solid fa-box-open"></i>Reporte de ayudas</a>
+            <a class="nav-item" href="red_salud.html"><i class="fa-solid fa-hospital"></i>Red de salud</a>
+
+            <div class="nav-label">Gestión digital</div>
+            <a class="nav-item" href="bitacora.html"><i class="fa-solid fa-book"></i>Bitácora de eventos</a>
+            <a class="nav-item" href="reportes.html"><i class="fa-solid fa-chart-column"></i>Reportes e informes</a>
+            <a class="nav-item" href="formatos.html"><i class="fa-solid fa-folder-open"></i>Formatos de oficina</a>
+            <a class="nav-item" href="soporte.html"><i class="fa-solid fa-ticket"></i>Soporte / Incidencias</a>
+
+            <div id="enlaceAuditoria" style="display:none">
+                <a class="nav-item" href="auditoria.html"><i class="fa-solid fa-shield-halved"></i>Panel de auditoría</a>
             </div>
-            <div id="usuarioCoordinacion" style="font-size:10px; color:var(--sidebar-text-sub); font-weight: 500; margin-bottom: 16px; text-transform: uppercase; letter-spacing: 0.5px;">
-                Cargando...
+
+            <div class="nav-label">Despacho</div>
+            <a class="nav-item star" href="acciones.html"><i class="fa-solid fa-star"></i>Acciones de la Concejala</a>
+        </nav>
+
+        <div class="profile">
+            <div class="profile-row">
+                <div class="avatar" id="usuarioAvatar">LB</div>
+                <div>
+                    <div class="profile-name" id="usuarioNombre">Cargando...</div>
+                    <div class="profile-role" id="usuarioCoordinacion">Cargando...</div>
+                </div>
             </div>
-            <a class="menu" onclick="logout()" style="cursor:pointer; font-size:12px; color:#f87171; padding: 8px 0; display: block; border-top: 1px solid rgba(255,255,255,0.04);">
-                Cerrar sesión
-            </a>
+            <div class="logout" onclick="logout()"><i class="fa-solid fa-right-from-bracket"></i>Cerrar sesión</div>
         </div>
-    </div>
+    </aside>
 
     <div class="main">
         <div class="content-header">
@@ -327,9 +355,31 @@
     </div>
 
     <script>
-        if (sessionStorage.getItem("usuario_rol") === "admin") {
-            const el = document.getElementById("enlaceAuditoria");
-            if (el) el.style.display = "block";
+        document.addEventListener("DOMContentLoaded", () => {
+            const enlace = document.getElementById("enlaceAuditoria");
+            if (sessionStorage.getItem("usuario_rol") === "admin" && enlace) enlace.style.display = "block";
+            
+            const nombre = sessionStorage.getItem("usuario_nombre");
+            const coord = sessionStorage.getItem("usuario_coordinacion");
+            
+            if (nombre) {
+                document.getElementById("usuarioNombre").textContent = nombre;
+                const initials = nombre.trim().split(/\s+/).slice(0,2).map(x => x[0]).join("").toUpperCase();
+                const avatarEl = document.getElementById("usuarioAvatar");
+                if (avatarEl) avatarEl.textContent = initials || "US";
+            }
+            if (coord) {
+                document.getElementById("usuarioCoordinacion").textContent = coord.toUpperCase();
+            }
+
+            inicializarTablaCentrosYCargar();
+        });
+
+        function toggleMobileMenu() {
+            const sidebar = document.getElementById("sidebarMenu");
+            const btn = document.getElementById("menuToggleBtn");
+            sidebar.classList.toggle("open");
+            if(btn) btn.innerText = sidebar.classList.contains("open") ? "✕" : "☰";
         }
 
         let filtroActual = 'liderazgos';
@@ -338,26 +388,13 @@
         let idRegistroEditando = null;
 
         window.iniciarApp = function() {
-            const nombre = sessionStorage.getItem("usuario_nombre");
-            const coord = sessionStorage.getItem("usuario_coordinacion");
-            if (nombre) document.getElementById("usuarioNombre").textContent = nombre;
-            if (coord) document.getElementById("usuarioCoordinacion").textContent = coord.toUpperCase();
-
-            inicializarTablaCentrosYCargar();
+            // Función de compatibilidad
         };
-
-        function toggleMobileMenu() {
-            const sidebar = document.getElementById("sidebarMenu");
-            const btn = document.getElementById("menuToggleBtn");
-            sidebar.classList.toggle("mobile-open");
-            btn.innerText = sidebar.classList.contains("mobile-open") ? "✕" : "☰";
-        }
 
         async function inicializarTablaCentrosYCargar() {
             const container = document.getElementById("cardsGridContainer");
 
             try {
-                // Creamos la tabla dedicada para Centros Electorales si no existe
                 await window.sqlClient`
                     CREATE TABLE IF NOT EXISTS centros_electorales (
                         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -368,7 +405,6 @@
                     )
                 `;
 
-                // Cargar datos de ambas tablas en paralelo
                 const [registrosCasos, registrosCentros] = await Promise.all([
                     window.sqlClient`SELECT * FROM casos_salud ORDER BY id DESC`,
                     window.sqlClient`SELECT * FROM centros_electorales ORDER BY id DESC`
@@ -827,9 +863,9 @@
             window.open(`https://wa.me/?text=${encodeURIComponent(mensaje)}`, '_blank');
         }
 
-        async function logout() { 
+        function logout() { 
             sessionStorage.clear();
-            window.location.href = "index.html"; 
+            window.location.href = "login.html"; 
         }
     </script>
     <script src="js/session-manager.js"></script>
