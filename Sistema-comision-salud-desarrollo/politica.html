@@ -1,837 +1,580 @@
 <!DOCTYPE html>
 <html lang="es">
-
 <head>
-    <meta charset="UTF-8">
-    <script>
-        const sesion = sessionStorage.getItem('usuario_logueado');
-        if (!sesion && window.location.pathname !== "/login.html") {
-            window.location.replace("login.html");
-        } else {
-            document.addEventListener("DOMContentLoaded", () => {
-                document.body.style.display = "block";
-            });
-        }
-    </script>
-    <meta name="viewport" content="width=device-width,initial-scale=1">
-    <title>Coordinación Política - Liderazgos, Comunas y Centros Electorales</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    
-    <!-- Adaptador para SQLite Cloud vía API backend en Vercel -->
-    <script>
-        window.sqlClient = async function(strings, ...values) {
-            let query = "";
-            strings.forEach((part, index) => {
-                query += part;
-                if (index < values.length) {
-                    query += "?";
-                }
-            });
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Centro de Gestión Institucional — Comisión de Salud</title>
 
-            const response = await fetch("/api/query", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({
-                    query,
-                    params: values
-                })
-            });
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Montserrat:wght@600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-            const data = await response.json();
+<script>
+const sesion = sessionStorage.getItem('usuario_logueado');
+if (!sesion && window.location.pathname !== "/login.html") {
+    window.location.replace("login.html");
+} else {
+    document.addEventListener("DOMContentLoaded", () => {
+        document.body.style.display = "block";
+    });
+}
+</script>
 
-            if (!response.ok) {
-                throw new Error(data.error || "Error en SQLite Cloud");
-            }
+<style>
+:root {
+    --navy:#071b35;
+    --navy-2:#0b294d;
+    --blue:#1261a0;
+    --blue-2:#1976c9;
+    --cyan:#2ba7d6;
+    --ink:#12263f;
+    --muted:#65758b;
+    --line:#dfe7ef;
+    --surface:#ffffff;
+    --canvas:#f3f6fa;
+    --green:#16845b;
+    --amber:#b77908;
+    --red:#c83d3d;
+    --shadow:0 10px 30px rgba(7,27,53,.07);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Inter,Arial,sans-serif;background:var(--canvas);color:var(--ink);display:none}
+a{text-decoration:none;color:inherit}
+button{font-family:inherit}
 
-            return data;
-        };
+.app-shell{min-height:100vh;display:grid;grid-template-columns:278px 1fr}
 
-        window.addEventListener("DOMContentLoaded", () => {
-            if (typeof window.iniciarApp === "function") {
-                window.iniciarApp();
-            }
-        });
-    </script>
+.sidebar{background:linear-gradient(180deg,#061a32 0%,#092849 58%,#0a315a 100%);color:#fff;display:flex;flex-direction:column;min-height:100vh;position:sticky;top:0;height:100vh;z-index:100}
+.brand{padding:26px 24px 22px;border-bottom:1px solid rgba(255,255,255,.1)}
+.brand-mark{width:48px;height:48px;border-radius:13px;background:linear-gradient(145deg,#2ba7d6,#1261a0);display:flex;align-items:center;justify-content:center;box-shadow:0 8px 20px rgba(43,167,214,.25);margin-bottom:15px}
+.brand-mark i{font-size:21px}
+.brand-kicker{font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:#79c7e8;font-weight:800}
+.brand-title{font-family:Montserrat,sans-serif;font-size:15px;line-height:1.35;font-weight:800;margin-top:5px}
+.brand-sub{font-size:10px;color:#9db1c7;margin-top:5px;line-height:1.5}
 
-    <style>
-        :root { 
-            --bg-main: #f8fafc; 
-            --sidebar-bg: #003da5; 
-            --sidebar-active: #2563eb; 
-            --sidebar-text-sub: #94a3b8; 
-            --menu-text: #ffffff; 
-            --text-dark-title: #0f172a; 
-            --border-color: #e2e8f0; 
-            --danger-color: #ef4444; 
-            --success-color: #22c55e;
-            --primary: #2563eb;
-        }
-        * { margin:0; padding:0; box-sizing:border-box; font-family: 'Inter', sans-serif; }
-        body { background: var(--bg-main); color:#334155; }
-        .layout { display:grid; grid-template-columns:280px 1fr; min-height:100vh; }
-        
-        .mobile-menu-toggle {
-            display: none;
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            background: var(--sidebar-bg);
-            color: white;
-            border: none;
-            border-radius: 50%;
-            width: 56px;
-            height: 56px;
-            font-size: 24px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-            z-index: 10000;
-            cursor: pointer;
-            align-items: center;
-            justify-content: center;
-        }
+.nav-scroll{padding:14px 12px;overflow:auto;flex:1}
+.nav-label{font-size:9px;letter-spacing:1.3px;color:#7290ad;font-weight:800;text-transform:uppercase;padding:14px 12px 7px}
+.nav-item{display:flex;align-items:center;gap:11px;padding:10px 12px;border-radius:9px;color:#cbd8e6;font-size:12px;font-weight:600;margin:2px 0;transition:.2s}
+.nav-item i{width:18px;text-align:center;color:#7fa4c5;font-size:12px}
+.nav-item:hover{background:rgba(255,255,255,.07);color:#fff}
+.nav-item:hover i,.nav-item.active i{color:#63c4e7}
+.nav-item.active{background:linear-gradient(90deg,rgba(25,118,201,.95),rgba(18,97,160,.85));color:#fff;box-shadow:inset 3px 0 0 #66d0ee,0 6px 16px rgba(0,0,0,.12)}
+.nav-item.star{color:#ffe9a3}
+.nav-item.star i{color:#f5c84b}
 
-        .sidebar { background: var(--sidebar-bg); padding:24px 0; display: flex; flex-direction: column; transition: transform 0.3s ease; border-right: 1px solid rgba(255, 255, 255, 0.1); }
-        .sidebar-brand { display: flex; flex-direction: column; align-items: center; text-align: center; padding: 0 16px 20px 16px; border-bottom: 1px solid rgba(255, 255, 255, 0.08); margin-bottom: 10px; }
-        .sidebar-brand h2 { font-size: 11px; color: #ffffff; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; line-height: 1.4; margin-top: 5px; }
-        .menu-category { font-size: 10px; font-weight: 700; color: var(--sidebar-text-sub); text-transform: uppercase; letter-spacing: 0.8px; padding: 16px 20px 6px 20px; }
-        .menu { display: block; padding: 9px 36px; color: var(--menu-text); cursor: pointer; font-size: 13px; font-weight: 500; text-decoration: none; transition: all 0.2s ease; opacity: 0.85; }
-        .menu:hover { opacity: 1; background: rgba(255, 255, 255, 0.08); }
-        .menu.active-page { background: var(--sidebar-active); color: #ffffff; font-weight: 600; border-radius: 8px; margin: 2px 14px; padding: 10px 18px; opacity: 1; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3); }
-        
-        .main { padding:36px 40px; overflow-x: hidden; display: flex; flex-direction: column; min-height: 100vh; }
-        
-        .content-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 24px; flex-wrap: wrap; gap: 16px; }
-        .main h2 { font-size: 24px; color: var(--text-dark-title); font-weight: 800; letter-spacing: -0.5px; }
-        .subtitle-concejala { font-size: 13px; color: #64748b; font-weight: 500; margin-top: 2px; }
-        
-        .header-actions { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
-        
-        /* KPI STATS CARDS */
-        .kpi-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 24px; }
-        .kpi-card { background: white; border: 1px solid var(--border-color); border-radius: 12px; padding: 16px 20px; display: flex; flex-direction: column; gap: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.02); }
-        .kpi-title { font-size: 11.5px; font-weight: 600; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; }
-        .kpi-value { font-size: 22px; font-weight: 800; color: var(--text-dark-title); }
+.profile{border-top:1px solid rgba(255,255,255,.1);padding:16px 18px}
+.profile-row{display:flex;gap:10px;align-items:center}
+.avatar{width:34px;height:34px;border-radius:50%;background:#e5f4fb;color:#1261a0;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:12px}
+.profile-name{font-size:11px;font-weight:700;color:#fff}
+.profile-role{font-size:9px;color:#8da6bf;margin-top:2px}
+.logout{display:flex;align-items:center;gap:7px;margin-top:12px;font-size:10px;color:#ff9b9b;font-weight:700;cursor:pointer}
 
-        .search-box { position: relative; }
-        .search-box input { padding: 10px 16px 10px 38px; border-radius: 8px; border: 1px solid var(--border-color); background: white; font-size: 13px; width: 240px; outline: none; transition: all 0.2s; }
-        .search-box input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1); }
-        .search-box span { position: absolute; left: 12px; top: 11px; color: #94a3b8; font-size: 14px; }
+.main{min-width:0}
+.topbar{height:72px;background:#fff;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 32px;position:sticky;top:0;z-index:50}
+.mobile-toggle{display:none;border:0;background:transparent;font-size:22px;color:var(--navy)}
+.breadcrumb{font-size:10px;color:#8090a2;font-weight:600}
+.top-title{font-family:Montserrat,sans-serif;font-size:17px;font-weight:800;color:var(--navy);margin-top:3px}
+.system-status{display:flex;align-items:center;gap:9px;background:#f0faf6;border:1px solid #cdeee0;color:#177653;padding:8px 12px;border-radius:9px;font-size:10px;font-weight:800}
+.status-dot{width:7px;height:7px;border-radius:50%;background:#24b47e;box-shadow:0 0 0 4px rgba(36,180,126,.12)}
 
-        .toolbar-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 12px; }
-        .tabs-container { display: inline-flex; background: #e2e8f0; padding: 4px; border-radius: 10px; border: 1px solid #cbd5e1; gap: 4px; }
-        .tab-btn { padding: 8px 16px; border: none; background: transparent; color: #475569; font-size: 12.5px; font-weight: 600; cursor: pointer; border-radius: 8px; text-align: center; transition: all 0.2s; display: flex; align-items: center; gap: 6px; }
-        .tab-btn.active { background: white; color: var(--primary); box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+.content{padding:28px 32px 40px;max-width:1700px;margin:auto}
+.hero{background:linear-gradient(115deg,#071b35 0%,#0b3158 62%,#12659d 100%);border-radius:16px;padding:28px 30px;color:#fff;position:relative;overflow:hidden;box-shadow:var(--shadow);margin-bottom:22px}
+.hero:after{content:"";position:absolute;width:330px;height:330px;border:1px solid rgba(255,255,255,.09);border-radius:50%;right:-100px;top:-160px}
+.hero:before{content:"";position:absolute;width:210px;height:210px;border:1px solid rgba(255,255,255,.06);border-radius:50%;right:70px;bottom:-170px}
+.hero-content{position:relative;z-index:2;max-width:850px}
+.hero-eyebrow{font-size:9px;letter-spacing:1.8px;text-transform:uppercase;color:#7fd0ee;font-weight:800}
+.hero h1{font-family:Montserrat,sans-serif;font-size:28px;line-height:1.15;margin-top:7px;font-weight:800}
+.hero p{font-size:12px;color:#b8cce0;margin-top:9px;line-height:1.6;max-width:760px}
+.hero-meta{display:flex;gap:9px;flex-wrap:wrap;margin-top:17px}
+.hero-chip{border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.07);padding:7px 10px;border-radius:7px;font-size:9px;font-weight:700;color:#d9e7f4}
+.hero-chip i{margin-right:5px;color:#69c9e9}
 
-        .cards-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 16px; margin-bottom: 30px; }
-        
-        .territory-card { background: white; border: 1px solid var(--border-color); border-radius: 12px; padding: 20px; position: relative; transition: all 0.25s ease; box-shadow: 0 2px 4px rgba(0,0,0,0.01); display: flex; flex-direction: column; justify-content: space-between; }
-        .territory-card:hover { transform: translateY(-3px); box-shadow: 0 10px 25px -5px rgba(0,0,0,0.05), 0 8px 10px -6px rgba(0,0,0,0.05); border-color: #cbd5e1; }
-        
-        .card-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; }
-        .card-title { font-size: 15px; font-weight: 700; color: var(--text-dark-title); line-height: 1.3; }
-        .card-badge { font-size: 11px; font-weight: 600; padding: 4px 8px; border-radius: 6px; background: #eff6ff; color: #1d4ed8; }
-        
-        .card-body { display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px; }
-        .card-info-row { display: flex; align-items: center; gap: 8px; font-size: 12.5px; color: #475569; }
-        .card-info-row strong { color: #1e293b; font-weight: 600; }
-        
-        .card-footer { display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #f1f5f9; padding-top: 12px; margin-top: auto; gap: 6px; flex-wrap: wrap; }
-        .card-actions-group { display: flex; gap: 6px; align-items: center; }
-        
-        .btn-primary { padding: 10px 18px; border: none; border-radius: 8px; cursor: pointer; background: var(--primary); color: white; font-size: 13px; font-weight: 600; display: flex; align-items: center; gap: 6px; transition: background 0.2s; box-shadow: 0 2px 4px rgba(37, 99, 235, 0.2); }
-        .btn-primary:hover { background: #1d4ed8; }
+.section-heading{display:flex;align-items:flex-end;justify-content:space-between;margin:25px 0 11px}
+.section-heading h2{font-family:Montserrat,sans-serif;font-size:13px;color:var(--navy);font-weight:800}
+.section-heading span{font-size:9px;color:#8492a2;font-weight:600}
 
-        .btn-export { background: #f0fdf4; color: #166534; border: 1px solid #bbf7d0; padding: 10px 16px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: background 0.2s; }
-        .btn-export:hover { background: #dcfce7; }
+.metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.metric{background:#fff;border:1px solid var(--line);border-radius:13px;padding:17px 18px;box-shadow:0 4px 16px rgba(7,27,53,.035);position:relative;overflow:hidden}
+.metric:after{content:"";position:absolute;right:-25px;bottom:-30px;width:95px;height:95px;border-radius:50%;background:rgba(18,97,160,.035)}
+.metric-top{display:flex;justify-content:space-between;align-items:center}
+.metric-label{font-size:9px;text-transform:uppercase;letter-spacing:.8px;color:#738398;font-weight:800}
+.metric-icon{width:34px;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:13px}
+.metric-value{font-family:Montserrat,sans-serif;font-size:27px;font-weight:800;color:var(--navy);margin-top:13px}
+.metric-note{font-size:9.5px;color:#7c8b9d;margin-top:4px}
+.metric.blue .metric-icon{background:#eaf4fc;color:#1261a0}
+.metric.amber .metric-icon{background:#fff7e5;color:#a56c00}
+.metric.green .metric-icon{background:#eaf8f2;color:#16845b}
+.metric.red .metric-icon{background:#fff0f0;color:#c83d3d}
 
-        .btn-wa { background: #dcfce7; color: #15803d; padding: 6px 10px; border: none; border-radius: 6px; font-size: 11.5px; font-weight: 600; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; gap: 4px; transition: background 0.2s; }
-        .btn-wa:hover { background: #bbf7d0; }
-        
-        .btn-edit { background: #fef3c7; color: #b45309; padding: 6px 10px; border: none; border-radius: 6px; font-size: 11.5px; font-weight: 600; cursor: pointer; transition: background 0.2s; display: inline-flex; align-items: center; gap: 4px; }
-        .btn-edit:hover { background: #fde68a; }
+.kpi-strip{display:grid;grid-template-columns:1.4fr 1fr 1fr;gap:14px;margin-top:14px}
+.kpi-panel{background:#fff;border:1px solid var(--line);border-radius:13px;padding:15px 17px}
+.kpi-panel-title{font-size:9px;text-transform:uppercase;letter-spacing:.7px;color:#748499;font-weight:800}
+.people{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px}
+.person{display:flex;align-items:center;gap:8px;background:#f6f8fb;border:1px solid #e5ebf1;border-radius:8px;padding:7px 10px;font-size:10px;font-weight:700;color:#263b54}
+.person b{color:var(--blue)}
 
-        .btn-del { background: #fee2e2; color: #b91c1c; padding: 6px 10px; border: none; border-radius: 6px; font-size: 11.5px; font-weight: 600; cursor: pointer; transition: background 0.2s; display: inline-flex; align-items: center; gap: 4px; }
-        .btn-del:hover { background: #fecaca; }
+.grid-main{display:grid;grid-template-columns:minmax(0,1.65fr) minmax(300px,.85fr);gap:16px;margin-top:16px}
+.grid-bottom{display:grid;grid-template-columns:1.05fr .95fr;gap:16px;margin-top:16px}
+.panel{background:#fff;border:1px solid var(--line);border-radius:13px;box-shadow:0 4px 16px rgba(7,27,53,.035);overflow:hidden}
+.panel-head{padding:16px 18px;border-bottom:1px solid #edf1f5;display:flex;align-items:center;justify-content:space-between;gap:10px}
+.panel-title{display:flex;align-items:center;gap:9px;font-family:Montserrat,sans-serif;font-size:11px;font-weight:800;color:var(--navy)}
+.panel-title i{color:var(--blue);font-size:12px}
+.panel-link{font-size:9px;color:var(--blue);font-weight:800}
+.panel-body{padding:17px 18px}
 
-        /* ESTILOS DEL MODAL */
-        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(4px); display: none; justify-content: center; align-items: center; z-index: 10001; opacity: 0; transition: opacity 0.25s ease; }
-        .modal-overlay.active { display: flex; opacity: 1; }
-        .modal-container { background: white; width: 100%; max-width: 480px; border-radius: 16px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04); overflow: hidden; transform: scale(0.95); transition: transform 0.25s ease; }
-        .modal-overlay.active .modal-container { transform: scale(1); }
-        .modal-header { padding: 20px 24px; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; background: #f8fafc; }
-        .modal-header h3 { font-size: 16px; font-weight: 700; color: var(--text-dark-title); }
-        .modal-close { background: transparent; border: none; font-size: 18px; color: #64748b; cursor: pointer; padding: 4px; }
-        .modal-body { padding: 24px; display: flex; flex-direction: column; gap: 16px; max-height: 70vh; overflow-y: auto; }
-        .form-group { display: flex; flex-direction: column; gap: 6px; }
-        .form-group label { font-size: 12px; font-weight: 600; color: #475569; text-transform: uppercase; letter-spacing: 0.3px; }
-        .form-group input, .form-group select { padding: 10px 14px; border-radius: 8px; border: 1px solid var(--border-color); font-size: 13.5px; outline: none; background: white; transition: all 0.2s; }
-        .form-group input:focus, .form-group select:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1); }
-        .modal-footer { padding: 16px 24px; background: #f8fafc; border-top: 1px solid var(--border-color); display: flex; justify-content: flex-end; gap: 10px; }
-        .btn-secondary { padding: 10px 16px; border-radius: 8px; border: 1px solid var(--border-color); background: white; color: #475569; font-size: 13px; font-weight: 600; cursor: pointer; transition: background 0.2s; }
-        .btn-secondary:hover { background: #f1f5f9; }
+.table-wrap{overflow:auto}
+.data-table{width:100%;border-collapse:collapse;font-size:10px}
+.data-table th{padding:10px 12px;text-align:left;background:#f7f9fb;color:#68788b;font-size:8.5px;text-transform:uppercase;letter-spacing:.5px;font-weight:800;border-bottom:1px solid #e5ebf0}
+.data-table td{padding:11px 12px;border-bottom:1px solid #edf1f5;color:#354a61;white-space:nowrap}
+.data-table tbody tr:hover{background:#f8fbfd}
+.data-table td:first-child{font-weight:800;color:var(--navy)}
+.status{display:inline-flex;padding:4px 7px;border-radius:5px;font-size:8px;font-weight:800;text-transform:uppercase}
+.status.wait{background:#edf5ff;color:#2766ad}
+.status.progress{background:#fff7df;color:#946500}
+.status.done{background:#eaf8f2;color:#16734e}
+.status.late{background:#ffeded;color:#b43535}
+.primary-btn{width:100%;margin-top:13px;border:1px solid #cdd9e5;background:#fff;color:var(--navy);padding:9px;border-radius:7px;font-size:9.5px;font-weight:800;cursor:pointer;transition:.2s}
+.primary-btn:hover{background:#f2f7fb;border-color:#9db5cb}
 
-        .empty-state { grid-column: 1 / -1; text-align: center; padding: 60px 20px; background: white; border: 1px dashed var(--border-color); border-radius: 12px; color: #94a3b8; font-size: 14px; }
+.sector{margin:13px 0}
+.sector-line{display:flex;justify-content:space-between;gap:10px;font-size:9.5px;font-weight:700;margin-bottom:6px}
+.sector-line span:last-child{color:#7a899a}
+.bar{height:6px;border-radius:20px;background:#edf2f6;overflow:hidden}
+.bar > span{display:block;height:100%;background:linear-gradient(90deg,#1261a0,#2ba7d6);border-radius:20px}
 
-        .main-footer { margin-top: auto; padding-top: 40px; text-align: center; width: 100%; border-top: 1px solid var(--border-color); }
-        .main-footer-flag { display: flex; height: 4px; width: 100%; margin-bottom: 12px; border-radius: 2px; overflow: hidden; }
-        .main-footer-flag div { flex: 1; }
-        .main-footer p { font-size: 11px; color: #64748b; line-height: 1.4; margin: 2px 0; font-family: 'Inter', sans-serif; text-transform: uppercase; letter-spacing: 0.5px; }
+.agenda-item{display:flex;gap:11px;align-items:center;padding:10px 0;border-bottom:1px solid #edf1f5}
+.agenda-item:last-child{border-bottom:0}
+.date-box{min-width:56px;text-align:center;background:#f2f7fb;border:1px solid #dfe9f1;border-radius:8px;padding:6px 5px;color:var(--blue);font-weight:800;font-size:9px}
+.date-box small{display:block;color:#7a8999;font-size:8px;margin-top:2px}
+.agenda-main{min-width:0;flex:1}
+.agenda-main strong{display:block;color:var(--navy);font-size:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.agenda-main span{display:block;color:#7b8998;font-size:8.5px;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.agenda-status{font-size:7.5px;font-weight:800;text-transform:uppercase;padding:4px 6px;border-radius:5px;background:#edf5ff;color:#2766ad}
 
-        @media (max-width: 900px) { 
-            .layout { grid-template-columns: 1fr; }
-            .mobile-menu-toggle { display: flex; }
-            .sidebar { position: fixed; top: 0; left: 0; width: 280px; height: 100vh; z-index: 9998; transform: translateX(-100%); box-shadow: 5px 0 15px rgba(0,0,0,0.2); }
-            .sidebar.mobile-open { transform: translateX(0); }
-            .main { padding: 20px 16px; }
-            .content-header { flex-direction: column; align-items: stretch; }
-            .search-box input { width: 100%; }
-        }
-    </style>
+.chart-wrap{height:215px;position:relative}
+.kpi-cards{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
+.mini-kpi{border:1px solid #e5ebf0;background:#f8fafc;border-radius:9px;padding:12px;text-align:center}
+.mini-kpi strong{font-family:Montserrat,sans-serif;font-size:19px;color:var(--navy);display:block}
+.mini-kpi span{font-size:8px;color:#77879a;font-weight:700;text-transform:uppercase;letter-spacing:.2px}
+
+.footer-note{margin-top:20px;padding:12px 4px;font-size:8.5px;color:#8997a6;display:flex;justify-content:space-between;gap:10px;border-top:1px solid #dfe7ef}
+
+@media(max-width:1150px){
+ .metrics{grid-template-columns:repeat(2,1fr)}
+ .kpi-strip{grid-template-columns:1fr}
+ .grid-main,.grid-bottom{grid-template-columns:1fr}
+}
+@media(max-width:900px){
+ .app-shell{grid-template-columns:1fr}
+ .sidebar{position:fixed;left:0;top:0;width:278px;transform:translateX(-100%);transition:.25s;box-shadow:10px 0 30px rgba(0,0,0,.18)}
+ .sidebar.open{transform:translateX(0)}
+ .mobile-toggle{display:block}
+ .topbar{padding:0 18px;height:62px}
+ .content{padding:18px}
+ .system-status{display:none}
+ .hero h1{font-size:23px}
+}
+@media(max-width:560px){
+ .metrics{grid-template-columns:1fr}
+ .hero{padding:22px}
+ .hero h1{font-size:20px}
+ .top-title{font-size:14px}
+ .content{padding:14px}
+}
+</style>
 </head>
 
-<body style="display: none;">
-
-    <button class="mobile-menu-toggle" id="menuToggleBtn" onclick="toggleMobileMenu()">☰</button>
-
-    <div class="layout">
-    <div class="sidebar" id="sidebarMenu">
-        <div class="sidebar-brand">
-            <h2>COMISIÓN PERMANENTE DE SALUD<br>Y DESARROLLO SOCIAL INTEGRAL</h2>
-        </div>
-        
-        <a class="menu" href="dashboard.html">Principal</a>
-        
-        <div class="menu-category">Coor. Ejecutiva</div>
-        <a class="menu" href="ejecutiva.html">Oficios e Informes</a>
-        <a class="menu" href="planificacion.html">Planificación Semanal</a>
-        
-        <div class="menu-category">Coor. Política</div>
-        <a class="menu active-page" href="politica.html">Liderazgos y Comunas</a>
-        <a class="menu" href="difusion.html">Difusión Política</a>
-        
-        <div class="menu-category">Coor. Social</div>
-        <a class="menu" href="social.html">Casos Sociales</a>
-        <a class="menu" href="entrega-ayuda.html">Reporte Ayuda</a>
-        <a class="menu" href="red_salud.html">Red de Salud (CPT/CDI)</a>
-        
-        <div class="menu-category">Gestión Digital</div>
-        <a class="menu" href="bitacora.html">Bitácora de Eventos</a>
-        <a class="menu" href="reportes.html">📄 Reportes e Informes</a>
-        <a class="menu" href="formatos.html">📁 Formatos de Oficina</a>
-
-        <div id="enlaceAuditoria" style="display: none;">
-            <a href="auditoria.html" class="menu">🛡️ Panel de Auditoría</a>
-        </div>
-        
-        <div style="margin-top: auto; padding: 24px 20px; border-top: 1px solid rgba(255,255,255,0.08);">
-            <div id="usuarioNombre" style="font-size:13px; color:#ffffff; font-weight:600; margin-bottom: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
-                Cargando...
-            </div>
-            <div id="usuarioCoordinacion" style="font-size:10px; color:var(--sidebar-text-sub); font-weight: 500; margin-bottom: 16px; text-transform: uppercase; letter-spacing: 0.5px;">
-                Cargando...
-            </div>
-            <a class="menu" onclick="logout()" style="cursor:pointer; font-size:12px; color:#f87171; padding: 8px 0; display: block; border-top: 1px solid rgba(255,255,255,0.04);">
-                Cerrar sesión
-            </a>
-        </div>
+<body>
+<div class="app-shell">
+<aside class="sidebar" id="sidebarMenu">
+    <div class="brand">
+        <div class="brand-mark"><i class="fa-solid fa-building-columns"></i></div>
+        <div class="brand-kicker">Sistema de Gestión Institucional</div>
+        <div class="brand-title">Comisión Permanente de Salud y Desarrollo Social Integral</div>
+        <div class="brand-sub">Oficina de la Concejala Letty Bastidas<br>Municipio Ambrosio Plaza</div>
     </div>
 
-    <div class="main">
-        <div class="content-header">
+    <nav class="nav-scroll">
+        <div class="nav-label">Centro de gestión</div>
+        <a class="nav-item active" href="dashboard.html"><i class="fa-solid fa-chart-pie"></i>Panel ejecutivo</a>
+
+        <div class="nav-label">Coordinación ejecutiva</div>
+        <a class="nav-item" href="ejecutiva.html"><i class="fa-solid fa-file-signature"></i>Oficios e informes</a>
+        <a class="nav-item" href="planificacion.html"><i class="fa-solid fa-calendar-days"></i>Planificación semanal</a>
+
+        <div class="nav-label">Coordinación política</div>
+        <a class="nav-item" href="politica.html"><i class="fa-solid fa-people-group"></i>Liderazgos y comunas</a>
+
+        <div class="nav-label">Coordinación social</div>
+        <a class="nav-item" href="social.html"><i class="fa-solid fa-hand-holding-heart"></i>Casos sociales</a>
+        <a class="nav-item" href="entrega-ayuda.html"><i class="fa-solid fa-box-open"></i>Reporte de ayudas</a>
+        <a class="nav-item" href="red_salud.html"><i class="fa-solid fa-hospital"></i>Red de salud</a>
+
+        <div class="nav-label">Gestión digital</div>
+        <a class="nav-item" href="bitacora.html"><i class="fa-solid fa-book"></i>Bitácora de eventos</a>
+        <a class="nav-item" href="reportes.html"><i class="fa-solid fa-chart-column"></i>Reportes e informes</a>
+        <a class="nav-item" href="formatos.html"><i class="fa-solid fa-folder-open"></i>Formatos de oficina</a>
+        <a class="nav-item" href="soporte.html"><i class="fa-solid fa-ticket"></i>Soporte / Incidencias</a>
+
+        <div id="enlaceAuditoria" style="display:none">
+            <a class="nav-item" href="auditoria.html"><i class="fa-solid fa-shield-halved"></i>Panel de auditoría</a>
+        </div>
+
+        <div class="nav-label">Despacho</div>
+        <a class="nav-item star" href="acciones.html"><i class="fa-solid fa-star"></i>Acciones de la Concejala</a>
+    </nav>
+
+    <div class="profile">
+        <div class="profile-row">
+            <div class="avatar" id="usuarioAvatar">LB</div>
             <div>
-                <h2 id="page-title">Estructura de Liderazgos Territoriales</h2>
-                <div class="subtitle-concejala">Oficina de la Concejala Letty Bastidas — Municipio Ambrosio Plaza</div>
-            </div>
-            <div class="header-actions">
-                <button class="btn-export" onclick="exportarCSV()">
-                    <span>📥</span> Exportar Datos
-                </button>
-                <button class="btn-primary" onclick="abrirModalRegistro()" id="btn-nuevo-registro">
-                    <span>➕</span> Registrar Líder Territorial
-                </button>
+                <div class="profile-name" id="usuarioNombre">Cargando...</div>
+                <div class="profile-role" id="usuarioCoordinacion">Cargando...</div>
             </div>
         </div>
+        <div class="logout" onclick="logout()"><i class="fa-solid fa-right-from-bracket"></i>Cerrar sesión</div>
+    </div>
+</aside>
 
-        <!-- TARJETAS DE INDICADORES (KPIs) -->
-        <div class="kpi-container">
-            <div class="kpi-card">
-                <span class="kpi-title" id="kpiTitle1">Total Líderes UBCh</span>
-                <span class="kpi-value" id="kpiLideres">0</span>
-            </div>
-            <div class="kpi-card">
-                <span class="kpi-title" id="kpiTitle2">Total Comunas / Consejos</span>
-                <span class="kpi-value" id="kpiComunas">0</span>
-            </div>
-            <div class="kpi-card">
-                <span class="kpi-title" id="kpiTitle3">Sectores Registrados</span>
-                <span class="kpi-value" id="kpiSectores">0</span>
+<main class="main">
+    <header class="topbar">
+        <div style="display:flex;align-items:center;gap:12px">
+            <button class="mobile-toggle" onclick="toggleMobileMenu()"><i class="fa-solid fa-bars"></i></button>
+            <div>
+                <div class="breadcrumb">INICIO / CENTRO DE GESTIÓN</div>
+                <div class="top-title">Panel Ejecutivo Institucional</div>
             </div>
         </div>
-        
-        <div class="toolbar-row">
-            <div class="tabs-container">
-                <button class="tab-btn active" id="tab-lideres" onclick="switchData('liderazgos')">🚩 Voceros de Salud</button>
-                <button class="tab-btn" id="tab-comunas" onclick="switchData('comunas')">☖ Comunas y Consejos</button>
-                <button class="tab-btn" id="tab-centros" onclick="switchData('centros')">🏛️ Centros Electorales</button>
-            </div>
-            
-            <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
-                <div class="form-group" style="margin: 0;">
-                    <select id="filtroComunaSelect" onchange="filtrarPorTexto()" style="padding: 9px 14px; border-radius: 8px; border: 1px solid var(--border-color); font-size: 13px; background: white; outline: none;">
-                        <option value="">🌐 Todas las Comunas / Ejes</option>
-                    </select>
+        <div class="system-status"><span class="status-dot"></span> SISTEMA SINCRONIZADO</div>
+    </header>
+
+    <section class="content">
+        <div class="hero">
+            <div class="hero-content">
+                <div class="hero-eyebrow">Centro de mando institucional</div>
+                <h1>Visión ejecutiva de la gestión</h1>
+                <p>Monitoreo centralizado de casos sociales, planificación territorial, compromisos institucionales y principales indicadores de desempeño de la Comisión.</p>
+                <div class="hero-meta">
+                    <span class="hero-chip"><i class="fa-solid fa-database"></i> Datos en tiempo real</span>
+                    <span class="hero-chip"><i class="fa-solid fa-location-dot"></i> Municipio Ambrosio Plaza</span>
+                    <span class="hero-chip"><i class="fa-solid fa-user-tie"></i> Despacho de la Concejala</span>
                 </div>
-                <div class="search-box">
-                    <span>🔍</span>
-                    <input type="text" id="searchInput" placeholder="Buscar registro..." oninput="filtrarPorTexto()">
+            </div>
+        </div>
+
+        <div class="section-heading">
+            <div><h2>Indicadores de gestión</h2><span>Resumen operativo</span></div>
+        </div>
+
+        <div class="metrics">
+            <div class="metric blue">
+                <div class="metric-top"><span class="metric-label">En espera</span><div class="metric-icon"><i class="fa-solid fa-clock"></i></div></div>
+                <div class="metric-value" id="count-espera">4</div>
+                <div class="metric-note">Solicitudes iniciales en cola</div>
+            </div>
+            <div class="metric amber">
+                <div class="metric-top"><span class="metric-label">En gestión</span><div class="metric-icon"><i class="fa-solid fa-spinner"></i></div></div>
+                <div class="metric-value" id="count-gestion">1</div>
+                <div class="metric-note">Casos activos en trámite</div>
+            </div>
+            <div class="metric green">
+                <div class="metric-top"><span class="metric-label">Resueltos</span><div class="metric-icon"><i class="fa-solid fa-circle-check"></i></div></div>
+                <div class="metric-value" id="count-resueltos">12</div>
+                <div class="metric-note">Ayudas sociales entregadas</div>
+            </div>
+            <div class="metric red">
+                <div class="metric-top"><span class="metric-label">Atención prioritaria</span><div class="metric-icon"><i class="fa-solid fa-triangle-exclamation"></i></div></div>
+                <div class="metric-value" id="count-atrasados">5</div>
+                <div class="metric-note">Casos con más de 5 días</div>
+            </div>
+        </div>
+
+        <div class="kpi-strip">
+            <div class="kpi-panel">
+                <div class="kpi-panel-title">Responsables de casos sociales</div>
+                <div class="people" id="container-responsables-carga">
+                    <div class="person"><i class="fa-solid fa-user-tie"></i>Edecio Cedeño · <b id="carga-edecio">1 caso (1 ret.)</b></div>
+                    <div class="person"><i class="fa-solid fa-user-tie"></i>Yesiree Meneses · <b id="carga-yesiree">16 casos (4 ret.)</b></div>
                 </div>
-                <button class="btn-export" onclick="enviarReporteComunaWhatsApp()" title="Enviar resumen por WhatsApp al equipo">
-                    <span>💬</span> Reporte Comunal
-                </button>
+            </div>
+            <div class="kpi-panel">
+                <div class="kpi-panel-title">Estado del sistema</div>
+                <div style="margin-top:10px;font-size:11px;font-weight:800;color:#16845b"><i class="fa-solid fa-circle-check"></i> Operativo</div>
+                <div style="font-size:9px;color:#8190a0;margin-top:4px">Base de datos sincronizada</div>
+            </div>
+            <div class="kpi-panel">
+                <div class="kpi-panel-title">Nivel de seguimiento</div>
+                <div style="margin-top:10px;font-family:Montserrat;font-size:20px;font-weight:800;color:var(--navy)">ACTIVO</div>
+                <div style="font-size:9px;color:#8190a0;margin-top:2px">Monitoreo institucional</div>
             </div>
         </div>
 
-        <!-- CONTENEDOR EN GRID CREATIVO DE TARJETAS -->
-        <div class="cards-grid" id="cardsGridContainer">
-            <div class="empty-state">Conectando con SQLite Cloud...</div>
+        <div class="grid-main">
+            <section class="panel">
+                <div class="panel-head">
+                    <div class="panel-title"><i class="fa-solid fa-bell"></i>Casos recientes y alertas activas</div>
+                    <a class="panel-link" href="social.html">Ver gestión completa <i class="fa-solid fa-arrow-right"></i></a>
+                </div>
+                <div class="table-wrap">
+                    <table class="data-table">
+                        <thead><tr><th>Beneficiario</th><th>Cédula</th><th>Tipo de ayuda</th><th>Responsable</th><th>Estatus</th></tr></thead>
+                        <tbody id="tabla-casos-recientes"><tr><td colspan="5" style="text-align:center;color:#8a98a7;padding:25px">Cargando registros institucionales...</td></tr></tbody>
+                    </table>
+                </div>
+                <div style="padding:0 18px 17px"><button class="primary-btn" onclick="location.href='social.html'"><i class="fa-solid fa-folder-open"></i>&nbsp; Abrir módulo completo de casos sociales</button></div>
+            </section>
+
+            <section class="panel">
+                <div class="panel-head">
+                    <div class="panel-title"><i class="fa-solid fa-location-dot"></i>Demanda territorial</div>
+                    <span class="panel-link">TOP 5</span>
+                </div>
+                <div class="panel-body" id="lista-top-sectores">
+                    <div style="color:#8a98a7;font-size:10px">Calculando distribución territorial...</div>
+                </div>
+            </section>
         </div>
 
-        <!-- PIE DE PÁGINA INSTITUCIONAL -->
-        <footer class="main-footer">
-            <div class="main-footer-flag">
-                <div style="background-color: #ffde00;"></div>
-                <div style="background-color: #003da5;"></div>
-                <div style="background-color: #d12421;"></div>
-            </div>
-            <p>Sistema de Gestión de la Comisión Permanente de Salud y Desarrollo Social Integral — Municipio Ambrosio Plaza | Despacho Concejala Letty Bastidas</p>
-        </footer>
-    </div>
-    </div>
+        <div class="grid-bottom">
+            <section class="panel">
+                <div class="panel-head">
+                    <div class="panel-title"><i class="fa-solid fa-calendar-days"></i>Agenda institucional</div>
+                    <a class="panel-link" href="planificacion.html">Ver todos <i class="fa-solid fa-arrow-right"></i></a>
+                </div>
+                <div class="panel-body" id="lista-agenda-dashboard">
+                    <div class="agenda-item" style="color:#8a98a7">Sincronizando agenda institucional...</div>
+                </div>
+                <div style="padding:0 18px 17px"><button class="primary-btn" onclick="location.href='planificacion.html'"><i class="fa-solid fa-calendar-check"></i>&nbsp; Gestionar planificación semanal</button></div>
+            </section>
 
-    <!-- MODAL DE REGISTRO / EDICIÓN INTEGRADO -->
-    <div class="modal-overlay" id="registroModal">
-        <div class="modal-container">
-            <div class="modal-header">
-                <h3 id="modalTitle">Registrar Líder Territorial</h3>
-                <button class="modal-close" onclick="cerrarModalRegistro()">✕</button>
-            </div>
-            <div class="modal-body" id="modalFormBody">
-                <!-- Se llena dinámicamente -->
-            </div>
-            <div class="modal-footer">
-                <button class="btn-secondary" onclick="cerrarModalRegistro()">Cancelar</button>
-                <button class="btn-primary" onclick="guardarRegistroModal()" id="btnGuardarModal">Guardar Registro</button>
-            </div>
+            <section class="panel">
+                <div class="panel-head">
+                    <div class="panel-title"><i class="fa-solid fa-chart-pie"></i>Rendimiento del despacho</div>
+                    <span class="panel-link">ANÁLISIS</span>
+                </div>
+                <div class="panel-body">
+                    <div class="chart-wrap"><canvas id="chartRendimiento"></canvas></div>
+                    <div class="kpi-cards">
+                        <div class="mini-kpi"><strong id="kpi-resolucion">70.6%</strong><span>Efectividad de resolución</span></div>
+                        <div class="mini-kpi"><strong id="kpi-agenda">100%</strong><span>Cumplimiento de agenda</span></div>
+                    </div>
+                </div>
+            </section>
         </div>
-    </div>
 
-    <script>
-        if (sessionStorage.getItem("usuario_rol") === "admin") {
-            const el = document.getElementById("enlaceAuditoria");
-            if (el) el.style.display = "block";
+        <div class="footer-note">
+            <span>Comisión Permanente de Salud y Desarrollo Social Integral · Oficina de la Concejala Letty Bastidas</span>
+            <span>Plataforma de Gestión Institucional</span>
+        </div>
+    </section>
+</main>
+</div>
+
+<script>
+window.consultarBaseDatos = async function(query, params = []) {
+    try {
+        const response = await fetch('/api/query', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ query, params })
+        });
+        const result = await response.json();
+        if (!response.ok || result.error) {
+            throw new Error(result.error || 'Error en la consulta');
+        }
+        return result;
+    } catch (err) {
+        console.error('Error al conectar con la API:', err);
+        throw err;
+    }
+};
+</script>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+    cargarDatosEjecutivosDashboard();
+    cargarAgendaYMetricasDashboard();
+});
+
+function toggleMobileMenu() {
+    document.getElementById("sidebarMenu").classList.toggle("open");
+}
+
+async function cargarDatosEjecutivosDashboard() {
+    try {
+        const registros = await window.consultarBaseDatos(
+            "SELECT id, nombre, cedula, telefono, sector, tipo_ayuda, responsable, estatus FROM casos_salud"
+        );
+
+        if (!registros || registros.length === 0) {
+            document.getElementById("tabla-casos-recientes").innerHTML = `<tr><td colspan="5" style="text-align:center; color:#94a3b8;">No se encontraron registros de casos.</td></tr>`;
+            return;
         }
 
-        let filtroActual = 'liderazgos';
-        let todosLosRegistros = [];
-        let centrosElectoralesRegistros = [];
-        let idRegistroEditando = null;
+        const ultimosCasos = registros.slice(-5).reverse();
+        const tbody = document.getElementById("tabla-casos-recientes");
 
-        window.iniciarApp = function() {
-            const nombre = sessionStorage.getItem("usuario_nombre");
-            const coord = sessionStorage.getItem("usuario_coordinacion");
-            if (nombre) document.getElementById("usuarioNombre").textContent = nombre;
-            if (coord) document.getElementById("usuarioCoordinacion").textContent = coord.toUpperCase();
-
-            inicializarTablaCentrosYCargar();
-        };
-
-        function toggleMobileMenu() {
-            const sidebar = document.getElementById("sidebarMenu");
-            const btn = document.getElementById("menuToggleBtn");
-            sidebar.classList.toggle("mobile-open");
-            btn.innerText = sidebar.classList.contains("mobile-open") ? "✕" : "☰";
-        }
-
-        async function inicializarTablaCentrosYCargar() {
-            const container = document.getElementById("cardsGridContainer");
-
-            try {
-                // Creamos la tabla dedicada para Centros Electorales si no existe
-                await window.sqlClient`
-                    CREATE TABLE IF NOT EXISTS centros_electorales (
-                        id INTEGER PRIMARY KEY AUTOINCREMENT,
-                        municipio TEXT,
-                        centro_votacion TEXT,
-                        comunas TEXT,
-                        circuitos_comunales TEXT
-                    )
-                `;
-
-                // Cargar datos de ambas tablas en paralelo
-                const [registrosCasos, registrosCentros] = await Promise.all([
-                    window.sqlClient`SELECT * FROM casos_salud ORDER BY id DESC`,
-                    window.sqlClient`SELECT * FROM centros_electorales ORDER BY id DESC`
-                ]);
-
-                todosLosRegistros = Array.from(registrosCasos);
-                centrosElectoralesRegistros = Array.from(registrosCentros);
-
-                actualizarKPIs();
-                poblarSelectorComunas();
-                renderizarDatos();
-            } catch (err) {
-                console.error("Error de conexión:", err);
-                container.innerHTML = `<div class="empty-state" style="color:var(--danger-color);">Error en SQLite Cloud: ${err.message}</div>`;
-            }
-        }
-
-        function poblarSelectorComunas() {
-            const select = document.getElementById("filtroComunaSelect");
-            if (!select) return;
-
-            const valorSeleccionado = select.value;
-            const politicos = todosLosRegistros.filter(r => (r.coordinacion && r.coordinacion.toLowerCase() === 'politica') || r.tipo === 'Liderazgo' || r.tipo === 'Comuna');
+        tbody.innerHTML = ultimosCasos.map(r => {
+            let badgeClass = 'badge-espera';
+            let estatusTxt = r.estatus || 'EN ESPERA';
             
-            if (filtroActual === 'centros') {
-                const municipiosUnicos = [...new Set(centrosElectoralesRegistros.map(c => c.municipio).filter(Boolean))].sort();
-                select.innerHTML = `<option value="">🌐 Todos los Municipios</option>` + 
-                    municipiosUnicos.map(m => `<option value="${m}">${m}</option>`).join("");
-            } else {
-                const comunasUnicas = [...new Set(politicos.map(r => r.sector || r.nombre).filter(Boolean))].sort();
-                select.innerHTML = `<option value="">🌐 Todas las Comunas / Ejes</option>` + 
-                    comunasUnicas.map(c => `<option value="${c}">${c}</option>`).join("");
+            if (estatusTxt.toUpperCase().includes('GESTIÓN') || estatusTxt.toUpperCase().includes('GESTION')) {
+                badgeClass = 'badge-gestion';
+            } else if (estatusTxt.toUpperCase().includes('RESUELTO')) {
+                badgeClass = 'badge-resuelto';
+            } else if (estatusTxt.toUpperCase().includes('ATRASADO') || estatusTxt.toUpperCase().includes('ALERTA')) {
+                badgeClass = 'badge-atrasado';
             }
 
-            select.value = valorSeleccionado;
-        }
+            return `
+                <tr>
+                    <td><b>${r.nombre || 'Beneficiario'}</b></td>
+                    <td><span style="font-family:monospace; color:#475569;">${r.cedula || 'S/C'}</span></td>
+                    <td>${r.tipo_ayuda || 'Atención Médica'}</td>
+                    <td><i class="fa-solid fa-user-shield" style="color:#64748b; font-size:11px;"></i> ${r.responsable || 'Comisión'}</td>
+                    <td><span class="badge-status ${badgeClass}">${estatusTxt}</span></td>
+                </tr>
+            `;
+        }).join("");
 
-        function actualizarKPIs() {
-            const politicos = todosLosRegistros.filter(r => (r.coordinacion && r.coordinacion.toLowerCase() === 'politica') || r.tipo === 'Liderazgo' || r.tipo === 'Comuna');
-            const lideresCount = politicos.filter(r => r.tipo !== 'Comuna').length;
-            const comunasCount = politicos.filter(r => r.tipo === 'Comuna').length;
-            const centrosCount = centrosElectoralesRegistros.length;
-            const sectoresUnicos = new Set(politicos.map(r => r.sector).filter(Boolean));
-            const municipiosCentrosUnicos = new Set(centrosElectoralesRegistros.map(c => c.municipio).filter(Boolean));
-
-            if (filtroActual === 'centros') {
-                document.getElementById("kpiLideres").innerText = centrosCount;
-                document.getElementById("kpiComunas").innerText = municipiosCentrosUnicos.size;
-                document.getElementById("kpiSectores").innerText = centrosElectoralesRegistros.length;
-                document.getElementById("kpiTitle1").innerText = "Total Centros Votación";
-                document.getElementById("kpiTitle2").innerText = "Municipios / Ejes";
-                document.getElementById("kpiTitle3").innerText = "Total Registrados";
-            } else {
-                document.getElementById("kpiLideres").innerText = lideresCount;
-                document.getElementById("kpiComunas").innerText = comunasCount;
-                document.getElementById("kpiSectores").innerText = sectoresUnicos.size;
-                document.getElementById("kpiTitle1").innerText = "Total Líderes UBCh";
-                document.getElementById("kpiTitle2").innerText = "Total Comunas / Consejos";
-                document.getElementById("kpiTitle3").innerText = "Sectores Registrados";
+        const conteoSectores = {};
+        registros.forEach(r => {
+            if (r.sector && r.sector !== "NULL" && r.sector.trim() !== "") {
+                const sectorNormalizado = r.sector.trim();
+                conteoSectores[sectorNormalizado] = (conteoSectores[sectorNormalizado] || 0) + 1;
             }
-        }
+        });
 
-        function renderizarDatos() {
-            const container = document.getElementById("cardsGridContainer");
-            const termino = document.getElementById("searchInput").value.toLowerCase();
-            const filtroSeleccionado = document.getElementById("filtroComunaSelect")?.value.toLowerCase() || "";
+        const sectoresOrdenados = Object.entries(conteoSectores)
+            .sort((a, b) => b[1] - a[1])
+            .slice(0, 5);
 
-            if (filtroActual === 'centros') {
-                let filtrados = centrosElectoralesRegistros;
-                if (filtroSeleccionado) {
-                    filtrados = filtrados.filter(item => String(item.municipio || '').toLowerCase().includes(filtroSeleccionado));
-                }
-                if (termino) {
-                    filtrados = filtrados.filter(item => Object.values(item).some(val => String(val || '').toLowerCase().includes(termino)));
-                }
+        const containerSectores = document.getElementById("lista-top-sectores");
 
-                if (filtrados.length === 0) {
-                    container.innerHTML = `<div class="empty-state">No se encontraron centros electorales registrados.</div>`;
-                    return;
-                }
-
-                container.innerHTML = filtrados.map(ce => `
-                    <div class="territory-card">
-                        <div>
-                            <div class="card-top">
-                                <div class="card-title">${ce.centro_votacion || 'Centro Electoral'}</div>
-                                <span class="card-badge" style="background:#f3e8ff; color:#6b21a8;">Centro Electoral</span>
-                            </div>
-                            <div class="card-body">
-                                <div class="card-info-row"><span>📍 Municipio:</span> <strong>${ce.municipio || 'N/A'}</strong></div>
-                                <div class="card-info-row"><span>☖ Comunas:</span> <strong>${ce.comunas || 'N/A'}</strong></div>
-                                <div class="card-info-row"><span>⚡ Circuitos Comunales:</span> <strong>${ce.circuitos_comunales || 'N/A'}</strong></div>
-                            </div>
+        if (sectoresOrdenados.length === 0) {
+            containerSectores.innerHTML = `<div style="color:#94a3b8; font-size:12.5px; padding: 10px 0;">No hay sectores registrados.</div>`;
+        } else {
+            const maxCasos = sectoresOrdenados[0][1];
+            containerSectores.innerHTML = sectoresOrdenados.map(([nombreSector, cantidad]) => {
+                const porcentajeBarra = (cantidad / maxCasos) * 100;
+                return `
+                    <div class="sector-row">
+                        <div class="sector-info">
+                            <span style="color: #0f2547; font-weight: 600;">${nombreSector}</span>
+                            <span style="color: #64748b; font-weight: 700;">${cantidad} ${cantidad === 1 ? 'caso' : 'casos'}</span>
                         </div>
-                        <div class="card-footer">
-                            <span></span>
-                            <div class="card-actions-group">
-                                <button class="btn-edit" onclick="abrirModalEditar(${ce.id})">✏️ Editar</button>
-                                <button class="btn-del" onclick="eliminarRegistro(${ce.id})">🗑️ Eliminar</button>
-                            </div>
+                        <div class="sector-bar-bg">
+                            <div class="sector-bar-fill" style="width: ${porcentajeBarra}%;"></div>
                         </div>
                     </div>
-                `).join("");
-                return;
-            }
-
-            const datosPoliticos = todosLosRegistros.filter(r => (r.coordinacion && r.coordinacion.toLowerCase() === 'politica') || r.tipo === 'Liderazgo' || r.tipo === 'Comuna');
-            let filtrados = filtroActual === 'liderazgos' ? datosPoliticos.filter(r => r.tipo !== 'Comuna') : datosPoliticos.filter(r => r.tipo === 'Comuna');
-
-            if (filtroSeleccionado) {
-                filtrados = filtrados.filter(item => {
-                    const sectorVal = String(item.sector || '').toLowerCase();
-                    const nombreVal = String(item.nombre || '').toLowerCase();
-                    return sectorVal.includes(filtroSeleccionado) || nombreVal.includes(filtroSeleccionado);
-                });
-            }
-
-            if (termino) {
-                filtrados = filtrados.filter(item => Object.values(item).some(val => String(val || '').toLowerCase().includes(termino)));
-            }
-
-            if (filtrados.length === 0) {
-                container.innerHTML = `<div class="empty-state">No se encontraron registros con los filtros seleccionados.</div>`;
-                return;
-            }
-
-            if (filtroActual === 'liderazgos') {
-                container.innerHTML = filtrados.map(l => `
-                    <div class="territory-card">
-                        <div>
-                            <div class="card-top">
-                                <div class="card-title">${l.nombre || 'Sin Nombre'}</div>
-                                <span class="card-badge">UBCh / Líder</span>
-                            </div>
-                            <div class="card-body">
-                                <div class="card-info-row"><span>🆔 Cédula:</span> <strong>${l.cedula || 'N/A'}</strong></div>
-                                <div class="card-info-row"><span>📞 Teléfono:</span> <strong>${l.telefono || 'N/A'}</strong></div>
-                                <div class="card-info-row"><span>📍 Sector:</span> <strong>${l.sector || 'N/A'}</strong></div>
-                            </div>
-                        </div>
-                        <div class="card-footer">
-                            ${l.telefono ? `<a class="btn-wa" href="https://wa.me/58${l.telefono.replace(/\s+/g, '')}" target="_blank">💬 WhatsApp</a>` : '<span></span>'}
-                            <div class="card-actions-group">
-                                <button class="btn-edit" onclick="abrirModalEditar(${l.id})">✏️ Editar</button>
-                                <button class="btn-del" onclick="eliminarRegistro(${l.id})">🗑️ Eliminar</button>
-                            </div>
-                        </div>
-                    </div>
-                `).join("");
-            } else {
-                container.innerHTML = filtrados.map(c => `
-                    <div class="territory-card">
-                        <div>
-                            <div class="card-top">
-                                <div class="card-title">${c.nombre || 'Organización sin nombre'}</div>
-                                <span class="card-badge" style="background:#fef3c7; color:#b45309;">Comuna</span>
-                            </div>
-                            <div class="card-body">
-                                <div class="card-info-row"><span>🗺️ Eje / Sector:</span> <strong>${c.sector || 'N/A'}</strong></div>
-                                <div class="card-info-row"><span>👤 Responsable:</span> <strong>${c.responsable || 'N/A'}</strong></div>
-                                <div class="card-info-row"><span>🆔 Cédula:</span> <strong>${c.cedula || 'N/A'}</strong></div>
-                                <div class="card-info-row"><span>📞 Teléfono:</span> <strong>${c.telefono || 'N/A'}</strong></div>
-                                <div class="card-info-row"><span>✉️ Email:</span> <strong>${c.email || 'N/A'}</strong></div>
-                            </div>
-                        </div>
-                        <div class="card-footer">
-                            ${c.telefono ? `<a class="btn-wa" href="https://wa.me/58${c.telefono.replace(/\s+/g, '')}" target="_blank">💬 WhatsApp</a>` : '<span></span>'}
-                            <div class="card-actions-group">
-                                <button class="btn-edit" onclick="abrirModalEditar(${c.id})">✏️ Editar</button>
-                                <button class="btn-del" onclick="eliminarRegistro(${c.id})">🗑️ Eliminar</button>
-                            </div>
-                        </div>
-                    </div>
-                `).join("");
-            }
-        }
-
-        function filtrarPorTexto() {
-            renderizarDatos();
-        }
-
-        function switchData(tipo) {
-            filtroActual = tipo;
-            document.getElementById("tab-lideres").classList.toggle("active", tipo === 'liderazgos');
-            document.getElementById("tab-comunas").classList.toggle("active", tipo === 'comunas');
-            document.getElementById("tab-centros").classList.toggle("active", tipo === 'centros');
-            
-            if (tipo === 'liderazgos') {
-                document.getElementById("page-title").innerText = "Estructura de Liderazgos Territoriales";
-                document.getElementById("btn-nuevo-registro").innerHTML = "<span>➕</span> Registrar Líder Territorial";
-            } else if (tipo === 'comunas') {
-                document.getElementById("page-title").innerText = "Comunas y Consejos Comunales";
-                document.getElementById("btn-nuevo-registro").innerHTML = "<span>➕</span> Registrar Organización / Comuna";
-            } else {
-                document.getElementById("page-title").innerText = "Centros Electorales y Circuitos";
-                document.getElementById("btn-nuevo-registro").innerHTML = "<span>➕</span> Registrar Centro Electoral";
-            }
-
-            document.getElementById("searchInput").value = "";
-            actualizarKPIs();
-            poblarSelectorComunas();
-            renderizarDatos();
-        }
-
-        function abrirModalRegistro() {
-            idRegistroEditando = null;
-            const modal = document.getElementById("registroModal");
-            const title = document.getElementById("modalTitle");
-            const body = document.getElementById("modalFormBody");
-            const btnGuardar = document.getElementById("btnGuardarModal");
-
-            btnGuardar.innerText = "Guardar Registro";
-
-            if (filtroActual === 'liderazgos') {
-                title.innerText = "Registrar Líder Territorial / UBCh";
-                body.innerHTML = `
-                    <div class="form-group"><label>Nombre Completo</label><input type="text" id="m_nombre" placeholder="Ej. Juan Pérez"></div>
-                    <div class="form-group"><label>Cédula de Identidad</label><input type="text" id="m_cedula" placeholder="Ej. V-12345678"></div>
-                    <div class="form-group"><label>Teléfono de Contacto</label><input type="text" id="m_telefono" placeholder="Ej. 04141234567"></div>
-                    <div class="form-group"><label>Sector / Comunidad</label><input type="text" id="m_sector" placeholder="Ej. Ingrese el sector"></div>
                 `;
-            } else if (filtroActual === 'comunas') {
-                title.innerText = "Registrar Organización o Comuna";
-                body.innerHTML = `
-                    <div class="form-group"><label>Nombre de la Organización</label><input type="text" id="m_nombre" placeholder="Ej. Comuna 27 de Febrero"></div>
-                    <div class="form-group"><label>Eje / Sector</label><input type="text" id="m_sector" placeholder="Ej. Ingrese el sector"></div>
-                    <div class="form-group"><label>Nombre del Responsable</label><input type="text" id="m_responsable" placeholder="Ej. María Calzado"></div>
-                    <div class="form-group"><label>Cédula del Responsable</label><input type="text" id="m_cedula" placeholder="Ej. V-12345678"></div>
-                    <div class="form-group"><label>Teléfono</label><input type="text" id="m_telefono" placeholder="Ej. 04121234567"></div>
-                    <div class="form-group"><label>Correo Electrónico (Opcional)</label><input type="email" id="m_email" placeholder="Ej. correo@gmail.com"></div>
-                `;
-            } else {
-                title.innerText = "Registrar Centro Electoral";
-                body.innerHTML = `
-                    <div class="form-group"><label>Municipio</label><input type="text" id="m_municipio" placeholder="Ej. EDO. MIRANDA MP. PLAZA"></div>
-                    <div class="form-group"><label>Centro de Votación</label><input type="text" id="m_centro_votacion" placeholder="Ej. U.E.N. ZENOVIA VERGARA"></div>
-                    <div class="form-group"><label>Comunas</label><input type="text" id="m_comunas" placeholder="Ej. AGUERRIDOS DE VISTA HERMOSA"></div>
-                    <div class="form-group"><label>Circuitos Comunales</label><input type="text" id="m_circuitos_comunales" placeholder="Ej. VISTA HERMOSA"></div>
-                `;
-            }
-
-            modal.classList.add("active");
+            }).join("");
         }
 
-        function abrirModalEditar(id) {
-            idRegistroEditando = Number(id);
-            const modal = document.getElementById("registroModal");
-            const title = document.getElementById("modalTitle");
-            const body = document.getElementById("modalFormBody");
-            const btnGuardar = document.getElementById("btnGuardarModal");
-
-            btnGuardar.innerText = "Guardar Cambios";
-
-            if (filtroActual === 'centros') {
-                const registro = centrosElectoralesRegistros.find(r => Number(r.id) === idRegistroEditando);
-                if (!registro) { alert("Registro no encontrado."); return; }
-                title.innerText = "Editar Centro Electoral";
-                body.innerHTML = `
-                    <div class="form-group"><label>Municipio</label><input type="text" id="m_municipio" value="${registro.municipio || ''}"></div>
-                    <div class="form-group"><label>Centro de Votación</label><input type="text" id="m_centro_votacion" value="${registro.centro_votacion || ''}"></div>
-                    <div class="form-group"><label>Comunas</label><input type="text" id="m_comunas" value="${registro.comunas || ''}"></div>
-                    <div class="form-group"><label>Circuitos Comunales</label><input type="text" id="m_circuitos_comunales" value="${registro.circuitos_comunales || ''}"></div>
-                `;
-            } else {
-                const registro = todosLosRegistros.find(r => Number(r.id) === idRegistroEditando);
-                if (!registro) { alert("Registro no encontrado."); return; }
-                
-                if (registro.tipo !== 'Comuna') {
-                    title.innerText = "Editar Líder Territorial / UBCh";
-                    body.innerHTML = `
-                        <div class="form-group"><label>Nombre Completo</label><input type="text" id="m_nombre" value="${registro.nombre || ''}"></div>
-                        <div class="form-group"><label>Cédula de Identidad</label><input type="text" id="m_cedula" value="${registro.cedula || ''}"></div>
-                        <div class="form-group"><label>Teléfono de Contacto</label><input type="text" id="m_telefono" value="${registro.telefono || ''}"></div>
-                        <div class="form-group"><label>Sector / Comunidad</label><input type="text" id="m_sector" value="${registro.sector || ''}"></div>
-                    `;
-                } else {
-                    title.innerText = "Editar Organización o Comuna";
-                    body.innerHTML = `
-                        <div class="form-group"><label>Nombre de la Organización</label><input type="text" id="m_nombre" value="${registro.nombre || ''}"></div>
-                        <div class="form-group"><label>Eje / Sector</label><input type="text" id="m_sector" value="${registro.sector || ''}"></div>
-                        <div class="form-group"><label>Nombre del Responsable</label><input type="text" id="m_responsable" value="${registro.responsable || ''}"></div>
-                        <div class="form-group"><label>Cédula del Responsable</label><input type="text" id="m_cedula" value="${registro.cedula || ''}"></div>
-                        <div class="form-group"><label>Teléfono</label><input type="text" id="m_telefono" value="${registro.telefono || ''}"></div>
-                        <div class="form-group"><label>Correo Electrónico (Opcional)</label><input type="email" id="m_email" value="${registro.email || ''}"></div>
-                    `;
-                }
-            }
-
-            modal.classList.add("active");
-        }
-
-        function cerrarModalRegistro() {
-            document.getElementById("registroModal").classList.remove("active");
-            idRegistroEditando = null;
-        }
-
-        async function guardarRegistroModal() {
-            try {
-                if (idRegistroEditando === null) {
-                    if (filtroActual === 'centros') {
-                        const centroVot = document.getElementById("m_centro_votacion")?.value.trim();
-                        if (!centroVot) { alert("Por favor ingresa el centro de votación."); return; }
-                        
-                        await window.sqlClient`
-                            INSERT INTO centros_electorales (municipio, centro_votacion, comunas, circuitos_comunales) 
-                            VALUES (
-                                ${document.getElementById("m_municipio")?.value.trim() || null},
-                                ${centroVot},
-                                ${document.getElementById("m_comunas")?.value.trim() || null},
-                                ${document.getElementById("m_circuitos_comunales")?.value.trim() || null}
-                            )
-                        `;
-                    } else if (filtroActual === 'liderazgos') {
-                        const nombre = document.getElementById("m_nombre")?.value.trim();
-                        if (!nombre) { alert("Por favor ingresa el nombre."); return; }
-
-                        await window.sqlClient`
-                            INSERT INTO casos_salud (nombre, cedula, telefono, sector, tipo, coordinacion) 
-                            VALUES (
-                                ${nombre},
-                                ${document.getElementById("m_cedula")?.value.trim() || null},
-                                ${document.getElementById("m_telefono")?.value.trim() || null},
-                                ${document.getElementById("m_sector")?.value.trim() || null},
-                                'Liderazgo',
-                                'Politica'
-                            )
-                        `;
-                    } else {
-                        const nombre = document.getElementById("m_nombre")?.value.trim();
-                        if (!nombre) { alert("Por favor ingresa el nombre de la comuna."); return; }
-
-                        await window.sqlClient`
-                            INSERT INTO casos_salud (nombre, sector, responsable, cedula, telefono, email, tipo, coordinacion) 
-                            VALUES (
-                                ${nombre},
-                                ${document.getElementById("m_sector")?.value.trim() || null},
-                                ${document.getElementById("m_responsable")?.value.trim() || null},
-                                ${document.getElementById("m_cedula")?.value.trim() || null},
-                                ${document.getElementById("m_telefono")?.value.trim() || null},
-                                ${document.getElementById("m_email")?.value.trim() || null},
-                                'Comuna',
-                                'Politica'
-                            )
-                        `;
+        const ctx = document.getElementById('chartRendimiento').getContext('2d');
+        new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Resueltos', 'En Gestión', 'En Espera', 'Atrasados'],
+                datasets: [{
+                    data: [12, 1, 4, 5],
+                    backgroundColor: ['#16a34a', '#eab308', '#3b82f6', '#dc2626'],
+                    borderWidth: 2,
+                    borderColor: '#ffffff'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'right',
+                        labels: { boxWidth: 12, font: { size: 11, family: 'Inter' } }
                     }
-                } else {
-                    if (filtroActual === 'centros') {
-                        const centroVot = document.getElementById("m_centro_votacion")?.value.trim();
-                        if (!centroVot) { alert("Por favor ingresa el centro de votación."); return; }
-
-                        await window.sqlClient`
-                            UPDATE centros_electorales 
-                            SET municipio = ${document.getElementById("m_municipio")?.value.trim() || null},
-                                centro_votacion = ${centroVot},
-                                comunas = ${document.getElementById("m_comunas")?.value.trim() || null},
-                                circuitos_comunales = ${document.getElementById("m_circuitos_comunales")?.value.trim() || null}
-                            WHERE id = ${Number(idRegistroEditando)}
-                        `;
-                    } else {
-                        const nombre = document.getElementById("m_nombre")?.value.trim();
-                        if (!nombre) { alert("Por favor ingresa el nombre."); return; }
-                        const registroActual = todosLosRegistros.find(r => Number(r.id) === idRegistroEditando);
-
-                        if (registroActual && registroActual.tipo === 'Comuna') {
-                            await window.sqlClient`
-                                UPDATE casos_salud 
-                                SET nombre = ${nombre},
-                                    sector = ${document.getElementById("m_sector")?.value.trim() || null},
-                                    responsable = ${document.getElementById("m_responsable")?.value.trim() || null},
-                                    cedula = ${document.getElementById("m_cedula")?.value.trim() || null},
-                                    telefono = ${document.getElementById("m_telefono")?.value.trim() || null},
-                                    email = ${document.getElementById("m_email")?.value.trim() || null}
-                                WHERE id = ${Number(idRegistroEditando)}
-                            `;
-                        } else {
-                            await window.sqlClient`
-                                UPDATE casos_salud 
-                                SET nombre = ${nombre},
-                                    cedula = ${document.getElementById("m_cedula")?.value.trim() || null},
-                                    telefono = ${document.getElementById("m_telefono")?.value.trim() || null},
-                                    sector = ${document.getElementById("m_sector")?.value.trim() || null}
-                                WHERE id = ${Number(idRegistroEditando)}
-                            `;
-                        }
-                    }
-                }
-
-                cerrarModalRegistro();
-                inicializarTablaCentrosYCargar();
-                
-            } catch (err) {
-                console.error("Error al guardar:", err);
-                alert("No se pudo guardar: " + err.message);
+                },
+                cutout: '65%'
             }
+        });
+
+    } catch (err) {
+        console.error("Error al cargar datos ejecutivos:", err);
+        document.getElementById("tabla-casos-recientes").innerHTML = `<tr><td colspan="5" style="text-align:center; color:var(--danger-color);">Error al conectar con la base de datos local.</td></tr>`;
+    }
+}
+
+async function cargarAgendaYMetricasDashboard() {
+    try {
+        const todosLosEventos = await window.consultarBaseDatos(
+            "SELECT titulo, fecha, hora, lugar, estatus FROM agenda_oficina ORDER BY fecha ASC"
+        );
+
+        const container = document.getElementById("lista-agenda-dashboard");
+
+        if (!todosLosEventos || todosLosEventos.length === 0) {
+            container.innerHTML = `<div class="agenda-row" style="color:#94a3b8;">📅 No hay compromisos planificados.</div>`;
+            return;
         }
 
-        async function eliminarRegistro(id) {
-            if (!confirm("¿Estás seguro de que deseas eliminar este registro?")) return;
+        const proximosCinco = todosLosEventos.slice(0, 5);
 
-            try {
-                if (filtroActual === 'centros') {
-                    await window.sqlClient`DELETE FROM centros_electorales WHERE id = ${Number(id)}`;
-                } else {
-                    await window.sqlClient`DELETE FROM casos_salud WHERE id = ${Number(id)}`;
-                }
-                inicializarTablaCentrosYCargar();
-            } catch (e) {
-                console.error(e);
-                alert("ERROR AL ELIMINAR:\n\n" + e.message);
+        container.innerHTML = proximosCinco.map(e => {
+            let estatusBadge = 'background: #eff6ff; color: #0369a1; border: 1px solid #bfdbfe;';
+            if(e.estatus === 'Completado') estatusBadge = 'background: #f0fdf4; color: #15803d; border: 1px solid #bbf7d0;';
+            if(e.estatus === 'Suspendido') estatusBadge = 'background: #fef2f2; color: #b91c1c; border: 1px solid #fecaca;';
+
+            let fechaCorta = e.fecha || '--/--';
+            if (e.fecha && e.fecha.includes('-')) {
+                const [anio, mes, dia] = e.fecha.split('-');
+                fechaCorta = `${dia}/${mes}`;
             }
-        }
 
-        function exportarCSV() {
-            if (filtroActual === 'centros') {
-                if (centrosElectoralesRegistros.length === 0) { alert("No hay registros."); return; }
-                let csvContent = "data:text/csv;charset=utf-8,ID,Municipio,CentroVotacion,Comunas,CircuitosComunales\n";
-                centrosElectoralesRegistros.forEach(r => {
-                    csvContent += [r.id, `"${(r.municipio||'').replace(/"/g,'""')}"`, `"${(r.centro_votacion||'').replace(/"/g,'""')}"`, `"${(r.comunas||'').replace(/"/g,'""')}"`, `"${(r.circuitos_comunales||'').replace(/"/g,'""')}"`].join(",") + "\n";
-                });
-                downloadCSV(csvContent, "centros_electorales.csv");
-            } else {
-                const politicos = todosLosRegistros.filter(r => (r.coordinacion && r.coordinacion.toLowerCase() === 'politica') || r.tipo === 'Liderazgo' || r.tipo === 'Comuna');
-                if (politicos.length === 0) { alert("No hay registros."); return; }
-                let csvContent = "data:text/csv;charset=utf-8,ID,Tipo,Nombre,Cedula,Telefono,Sector,Responsable,Email\n";
-                politicos.forEach(r => {
-                    csvContent += [r.id, r.tipo, `"${(r.nombre||'').replace(/"/g,'""')}"`, `"${(r.cedula||'').replace(/"/g,'""')}"`, `"${(r.telefono||'').replace(/"/g,'""')}"`, `"${(r.sector||'').replace(/"/g,'""')}"`, `"${(r.responsable||'').replace(/"/g,'""')}"`, `"${(r.email||'').replace(/"/g,'""')}"`].join(",") + "\n";
-                });
-                downloadCSV(csvContent, "liderazgos_comunas.csv");
-            }
-        }
+            return `
+                <div class="agenda-row">
+                    <div class="agenda-time-box">
+                        📅 ${fechaCorta}<br>
+                        <span style="font-size:9.5px; color:#64748b; font-weight:500;">${e.hora || '--:--'}</span>
+                    </div>
+                    <div style="flex-grow:1; min-width:0; padding: 0 6px;">
+                        <b style="color:#0f2547; display:block; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; font-size:12px;" title="${e.titulo}">${e.titulo || 'Actividad'}</b>
+                        <span style="font-size:11px; color:#64748b; display:block; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">📍 ${e.lugar || 'Territorio'}</span>
+                    </div>
+                    <span style="padding: 2px 6px; border-radius: 4px; font-size: 9.5px; font-weight: 700; text-transform: uppercase; ${estatusBadge}">
+                        ${e.estatus || 'Prog'}
+                    </span>
+                </div>
+            `;
+        }).join("");
 
-        function downloadCSV(content, filename) {
-            const encodedUri = encodeURI(content);
-            const link = document.createElement("a");
-            link.setAttribute("href", encodedUri);
-            link.setAttribute("download", filename);
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-        }
+    } catch (err) {
+        console.error("Error al renderizar agenda:", err);
+        container.innerHTML = `<div class="agenda-row" style="color:var(--danger-color);">Error de sincronización de agenda.</div>`;
+    }
+}
 
-        function enviarReporteComunaWhatsApp() {
-            let mensaje = `📋 *REPORTE - CONCEJALA LETTY BASTIDAS*\n\n`;
-            if (filtroActual === 'centros') {
-                mensaje += `🏛️ *Total Centros Electorales:* ${centrosElectoralesRegistros.length}\n\n`;
-                centrosElectoralesRegistros.slice(0, 10).forEach((item, idx) => {
-                    mensaje += `${idx + 1}. *${item.centro_votacion}* (Mun: ${item.municipio})\n`;
-                });
-            } else {
-                const datos = todosLosRegistros.filter(r => (r.coordinacion && r.coordinacion.toLowerCase() === 'politica') || r.tipo === 'Liderazgo' || r.tipo === 'Comuna');
-                mensaje += `👥 *Registros:* ${datos.length}\n\n`;
-                datos.slice(0, 10).forEach((item, idx) => {
-                    mensaje += `${idx + 1}. *${item.nombre}* (${item.tipo})\n`;
-                });
-            }
-            window.open(`https://wa.me/?text=${encodeURIComponent(mensaje)}`, '_blank');
-        }
+function logout(){
+    sessionStorage.clear();
+    location.href="login.html";
+}
+</script>
 
-        async function logout() { 
-            sessionStorage.clear();
-            window.location.href = "index.html"; 
-        }
-    </script>
-    <script src="js/session-manager.js"></script>
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+    const enlace = document.getElementById("enlaceAuditoria");
+    if (sessionStorage.getItem("usuario_rol") === "admin" && enlace) enlace.style.display = "block";
+    const nombre = sessionStorage.getItem("usuario_nombre");
+    const coord = sessionStorage.getItem("usuario_coordinacion");
+    if (nombre) {
+        document.getElementById("usuarioNombre").textContent = nombre;
+        const initials = nombre.trim().split(/\s+/).slice(0,2).map(x => x[0]).join("").toUpperCase();
+        document.getElementById("usuarioAvatar").textContent = initials || "US";
+    }
+    if (coord) document.getElementById("usuarioCoordinacion").textContent = coord.toUpperCase();
+});
+function toggleMobileMenu() {
+    document.getElementById("sidebarMenu").classList.toggle("open");
+}
+</script>
 </body>
 </html>
